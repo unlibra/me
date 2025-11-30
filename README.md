@@ -1,20 +1,20 @@
-# Portfolio
+# unlibra.com
 
-A modern portfolio website built with Astro and Tailwind CSS.
+A portfolio website with X (Twitter) profile page-inspired design.
 
 ## Features
 
-- **Fast & Modern**: Built with Astro for optimal performance and SSG
-- **Responsive Design**: Mobile-first design with Tailwind CSS
-- **Sections**:
-  - Hero section with introduction
-  - Works showcase (Websites, Apps, Custom Keyboards)
-  - Contact information
+- **X-style Design**: Design inspired by X's profile page
+- **SSG**: Fast loading with Astro static site generation
+- **Category Filtering**: Filter works by tabs and hashtags
+- **Image Optimization**: Automatic hashing and optimization with Astro Image
+- **Self-hosted Fonts**: Font self-hosting with @fontsource
 
 ## Tech Stack
 
 - [Astro](https://astro.build/) - Static Site Generator
-- [Tailwind CSS](https://tailwindcss.com/) - Styling
+- [Tailwind CSS v4](https://tailwindcss.com/) - Styling
+- [IBM Plex Sans JP](https://fonts.google.com/specimen/IBM+Plex+Sans+JP) - Font (@fontsource)
 - TypeScript - Type safety
 
 ## Development
@@ -23,7 +23,7 @@ A modern portfolio website built with Astro and Tailwind CSS.
 # Install dependencies
 npm install
 
-# Start dev server
+# Start dev server (port 4321)
 npm run dev
 
 # Build for production
@@ -31,11 +31,14 @@ npm run build
 
 # Preview production build
 npm run preview
+
+# Lint
+npm run lint
 ```
 
 ## Deployment
 
-This site is configured for deployment on Cloudflare Pages.
+Configured for Cloudflare Pages.
 
 ### Build Configuration
 
@@ -43,14 +46,24 @@ This site is configured for deployment on Cloudflare Pages.
 - Build output directory: `dist`
 - Node version: 18 or higher
 
+### Caching
+
+Immutable cache (1 year) is configured for `/_astro/*`.
+
 ## Customization
 
-Edit the project data in `src/pages/index.astro`:
+Edit `src/pages/index.astro`:
 
-- Update personal information in the Hero section
-- Add your projects to the `websites`, `keyboards` arrays
-- Update contact links (GitHub, Twitter, Email)
-- Replace placeholder images with your own
+- `site` - Site name, URL, OGP settings
+- `profile` - Name, bio, links
+- `categories` - Work categories
+- `allWorks` - Work data
+
+### Adding Images
+
+1. Place images in `src/assets/works/`
+2. Import in `index.astro`
+3. Set to `image` property in `allWorks`
 
 ## License
 
