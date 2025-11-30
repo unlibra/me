@@ -165,7 +165,6 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                 src={iconImg}
                 alt={profile.name}
                 loading="eager"
-                fetchpriority="high"
                 class="h-full w-full object-cover"
               />
             </div>
@@ -433,6 +432,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                               src={work.image}
                               alt={work.title}
                               loading={index === 0 ? "eager" : "lazy"}
+                              fetchpriority={index === 0 ? "high" : undefined}
                               class="size-full object-cover"
                             />
                           </a>
@@ -442,6 +442,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                               src={work.image}
                               alt={work.title}
                               loading={index === 0 ? "eager" : "lazy"}
+                              fetchpriority={index === 0 ? "high" : undefined}
                               class="size-full object-cover"
                             />
                           </div>
