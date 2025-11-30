@@ -1,0 +1,426 @@
+---
+import '../styles/global.css';
+import '@fontsource/ibm-plex-sans-jp/400.css';
+import '@fontsource/ibm-plex-sans-jp/500.css';
+import '@fontsource/ibm-plex-sans-jp/700.css';
+import { Image } from 'astro:assets';
+
+import iconImg from '../assets/icon.svg';
+import miraImg from '../assets/works/mira.webp';
+import fostyNaturalImg from '../assets/works/fosty-natural.webp';
+import fostyDarkImg from '../assets/works/fosty-dark.webp';
+import eightPxImg from '../assets/works/8pxapp.webp';
+import iromideImg from '../assets/works/iromide.webp';
+
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  image?: ImageMetadata;
+  year?: string;
+  link?: string;
+}
+
+const site = {
+  title: 'unlibra.com',
+  url: 'https://unlibra.com',
+  description: 'unlibraのポートフォリオサイト。Webアプリ開発と自作キーボードなど制作実績を紹介しています。',
+  ogImage: '/ogp.png',
+};
+
+const categories = {
+  web: 'Webアプリ',
+  keyboard: '自作キーボード',
+} as const;
+
+const profile = {
+  name: 'unlibra',
+  username: 'unlibra',
+  bio: `このサイトXオマージュのポートフォリオサイトです
+これまでの制作実績をまとめています`,
+  location: 'Tokyo, Japan',
+  website: 'https://github.com/unlibra',
+  sponsor: 'https://ofuse.me/unlibra',
+};
+
+const buildDate = new Date();
+const updatedAt = `${buildDate.getFullYear()}年${buildDate.getMonth() + 1}月`;
+
+const allWorks: Project[] = [
+  {
+    id: '1',
+    title: 'mira zero',
+    description: `40%分割カラムスタッガード配列ロープロ(ChocV1)キーボード。終売。
+初めて作った自作キーボード。`,
+    category: 'keyboard',
+    year: '2024',
+    image: miraImg,
+  },
+  {
+    id: '2',
+    title: 'fosty natural',
+    description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。アルミカラーモデル。非売品。
+6作目ぐらい。エンドゲーム。`,
+    category: 'keyboard',
+    year: '2025',
+    image: fostyNaturalImg,
+  },
+  {
+    id: '3',
+    title: 'fosty dark',
+    description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。ブラックモデル。非売品。
+黒もほしくなったので作った。`,
+    category: 'keyboard',
+    year: '2025',
+    image: fostyDarkImg,
+  },
+  {
+    id: '4',
+    title: '8px.app',
+    description: `Favicon生成、カラーパレット作成、SVG最適化など、Web・アプリ開発者のためのツールセット。
+Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
+    category: 'web',
+    year: '2025',
+    image: eightPxImg,
+    link: 'https://8px.app',
+  },
+  {
+    id: '5',
+    title: '推し色生成 イロマイド',
+    description: `画像からカラーパレットを生成してチェキを作るサービス。
+8px.app内のサービスとして公開。
+画像からカラーパレット作るツール作ってるうちにこうなった。`,
+    category: 'web',
+    year: '2025',
+    image: iromideImg,
+    link: 'https://8px.app/iromide',
+  },
+];
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <link rel="canonical" href={site.url} />
+
+    <!-- OGP -->
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={site.url} />
+    <meta property="og:image" content={site.url + site.ogImage} />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content={site.title} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.title} />
+    <meta name="twitter:description" content={site.description} />
+    <meta name="twitter:image" content={site.url + site.ogImage} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  </head>
+  <body class="bg-base-primary text-neutral-200 antialiased min-h-screen">
+    <div class="max-w-2xl mx-auto border-x border-base-secondary min-h-screen">
+
+      <!-- Header Bar -->
+      <header class="sticky top-0 z-50 bg-base-primary/80 backdrop-blur-md border-b border-base-secondary">
+        <div class="px-4 py-3 flex items-center gap-6">
+          <h1 class="text-lg font-semibold">{site.title}</h1>
+        </div>
+      </header>
+
+      <!-- Banner Image -->
+      <div class="aspect-3/1 bg-linear-to-r from-accent-primary via-accent-secondary to-accent-primary relative">
+        <!-- <img src="/banner.jpg" alt="Banner" class="w-full h-full object-cover" /> -->
+      </div>
+
+      <!-- Profile Section -->
+      <div class="px-4 pb-4 relative">
+        <!-- Avatar & Sponsor Button -->
+        <div class="flex justify-between items-start">
+          <!-- Avatar -->
+          <div class="relative -mt-16 mb-4">
+            <div class="w-32 h-32 rounded-full border-4 border-base-primary bg-base-secondary overflow-hidden">
+              <Image src={iconImg} alt={profile.name} class="w-full h-full object-cover" />
+            </div>
+          </div>
+
+          <!-- Sponsor Button -->
+          {profile.sponsor && (
+            <a
+              href={profile.sponsor}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-flex items-center gap-2 rounded-full bg-[#2882a7] px-4 py-2 text-sm font-medium text-neutral-200 transition-colors hover:bg-[#2882a7]/80"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 323.86 352.27" class="w-5 h-5">
+                <g fill="currentColor">
+                  <path d="M165.62 216.8c-.76.39-1.6.59-2.43.59s-1.67-.2-2.43-.59l-55.88-28.59-8.79 37.21c0 5.9 4.78 10.68 10.68 10.68h112.86c5.9 0 10.68-4.78 10.68-10.68l-8.79-37.21-55.89 28.59Z" />
+                  <path d="M315.29 186.34c-12.86-47.03-34.69-85.88-63.14-112.35-18.47-17.19-39.14-28.83-60.92-34.48 1.98-3.23 4.11-7.58 6.58-13.31 3.81-8.85 6.85-17.54 6.98-17.91 1.13-3.25-.58-6.81-3.84-7.94-3.25-1.13-6.81.58-7.94 3.84-4.67 13.4-9.77 24.61-12.75 29.34-3.22-3.43-8.53-11.09-12.87-18.77a6.237 6.237 0 0 0-10.86 0c-4.34 7.68-9.65 15.34-12.87 18.77-2.98-4.73-8.08-15.94-12.75-29.34a6.24 6.24 0 0 0-7.94-3.84 6.24 6.24 0 0 0-3.84 7.94c.13.37 3.17 9.06 6.98 17.91 2.29 5.32 4.29 9.45 6.16 12.61-23.16 5.45-44.98 17.66-64.16 36.09-27.56 26.48-48.4 65.09-60.26 111.67-13.53 53.1-9.58 92.45 12.06 120.29 13.59 17.48 33.47 29.54 60.79 36.86 21.49 5.76 47.95 8.56 80.9 8.56 46.27 0 111.45-4.81 143.2-46.41 10.47-13.72 16.7-30.6 18.51-50.17 1.83-19.86-.86-43.19-8.01-69.35ZM161.96 29.92c1.41 2.18 2.73 4.09 3.97 5.76-2.23-.1-4.46-.15-6.7-.12-.39 0-.77.02-1.16.02 1.22-1.65 2.51-3.52 3.89-5.66m121.59 259.72c-18.7 24.49-57.45 35.9-121.95 35.9S59.62 314.39 41.01 290.45c-16.01-20.6-18.46-53.34-7.26-97.29 5.05-19.82 11.83-37.95 20.12-53.99 6.13-8.73 28.06-36.03 58.65-29.76 32.9 6.74 34.42 57.87 34.4 67.62h-31.25c-2.15 0-4.15.64-5.83 1.74l53.35 27.29 53.35-27.29c-1.68-1.1-3.68-1.74-5.83-1.74h-33.7c-.01-9.75 1.5-60.87 34.4-67.62 23.87-4.89 42.46 10.65 52.39 21.87 10.66 17.95 19.34 38.86 25.7 62.11 11.81 43.22 9.81 75.6-5.96 96.26Z" />
+                  <circle cx="105.36" cy="151.88" r="11.68" transform="rotate(-45 105.35156 151.88195)" />
+                  <circle cx="217.38" cy="151.88" r="11.68" transform="rotate(-45 217.3715 151.88178)" />
+                </g>
+              </svg>
+              Sponsor
+            </a>
+          )}
+        </div>
+
+        <!-- Name & Username -->
+        <div class="mb-3">
+          <h2 class="text-xl font-bold">{profile.name}</h2>
+          <p class="text-neutral-500">@{profile.username}</p>
+          <p class="text-neutral-500 mt-1">&#128123; パロディサイト</p>
+        </div>
+
+        <!-- Bio -->
+        <p class="mb-3 whitespace-pre-line">{profile.bio}</p>
+
+        <!-- Meta Info -->
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500 mb-4">
+          {profile.location && (
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {profile.location}
+            </span>
+          )}
+          {profile.website && (
+            <a href={profile.website} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-accent-secondary hover:underline">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              {profile.website.replace(/^https?:\/\//, '')}
+            </a>
+          )}
+          <span class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {updatedAt}に更新
+          </span>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="border-b border-base-secondary sticky top-14 bg-base-primary/80 backdrop-blur-md z-40" aria-label="作品カテゴリ">
+        <div class="flex" role="tablist">
+          <button
+            data-tab="all"
+            role="tab"
+            aria-selected="true"
+            aria-controls="timeline"
+            class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-inset"
+          >
+            All
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary rounded-full"></div>
+          </button>
+          {Object.entries(categories).map(([key, label]) => (
+            <button
+              data-tab={key}
+              role="tab"
+              aria-selected="false"
+              aria-controls="timeline"
+              class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-neutral-500 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-inset"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      <!-- Timeline / Works -->
+      <main id="timeline" role="tabpanel" aria-label="作品一覧">
+        {[...allWorks].reverse().map((work) => (
+          <article
+            class="work-item border-b border-base-secondary hover:bg-base-secondary/50 transition-colors"
+            data-category={work.category}
+          >
+            <div class="p-4">
+              <!-- Tweet Header -->
+              <div class="flex gap-3">
+                <!-- Small Avatar -->
+                <div class="w-10 h-10 rounded-full bg-base-secondary shrink-0 overflow-hidden">
+                  <Image src={iconImg} alt={profile.name} class="w-full h-full object-cover" />
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <!-- Name & Date -->
+                  <div class="flex items-baseline gap-1 mb-1">
+                    <span class="font-semibold truncate">{profile.name}</span>
+                    <span class="text-neutral-500">@{profile.username}</span>
+                    <span class="text-neutral-500">･</span>
+                    <span class="text-sm leading-6 text-neutral-500">{work.year}</span>
+                  </div>
+
+                  <!-- Title with Hashtag -->
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 class="font-bold text-lg">{work.title}</h3>
+                    <button
+                      class="hashtag-btn text-accent-secondary text-sm hover:underline cursor-pointer"
+                      data-category={work.category}
+                    >
+                      #{categories[work.category as keyof typeof categories] || work.category}
+                    </button>
+                  </div>
+
+                  <!-- Description -->
+                  <p class="text-neutral-300 mb-3 whitespace-pre-line">{work.description}</p>
+
+                  <!-- Image -->
+                  {work.link ? (
+                    <a
+                      href={work.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="block rounded-2xl overflow-hidden border border-base-secondary aspect-video bg-base-secondary mb-3"
+                    >
+                      {work.image ? (
+                        <Image
+                          src={work.image}
+                          alt={work.title}
+                          loading="lazy"
+                          class="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div class="w-full h-full bg-linear-to-br from-base-secondary to-base-primary flex items-center justify-center">
+                          <span class="text-neutral-600 text-sm">No image</span>
+                        </div>
+                      )}
+                    </a>
+                  ) : (
+                    <div class="block rounded-2xl overflow-hidden border border-base-secondary aspect-video bg-base-secondary mb-3">
+                      {work.image ? (
+                        <Image
+                          src={work.image}
+                          alt={work.title}
+                          loading="lazy"
+                          class="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div class="w-full h-full bg-linear-to-br from-base-secondary to-base-primary flex items-center justify-center">
+                          <span class="text-neutral-600 text-sm">No image</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <!-- Link -->
+                  {work.link && (
+                    <a
+                      href={work.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-2 text-accent-secondary hover:underline text-sm"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                      {work.link}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </article>
+        ))}
+      </main>
+
+      <!-- Empty State (hidden by default) -->
+      <div id="empty-state" class="hidden py-16 text-center text-neutral-500">
+        <p>No projects in this category yet.</p>
+      </div>
+
+    </div>
+
+    <!-- End of Timeline -->
+    <div id="end-of-timeline" class="py-8 text-center">
+      <p class="text-neutral-500 text-sm">これで全部です</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4">
+      <p class="text-center text-sm text-neutral-400 mt-4">
+        &copy; {new Date().getFullYear()} {profile.name}
+      </p>
+    </footer>
+
+    <script>
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const workItems = document.querySelectorAll('.work-item');
+      const emptyState = document.getElementById('empty-state');
+      const hashtagButtons = document.querySelectorAll('.hashtag-btn');
+
+      function switchTab(tab: string) {
+        // Update tab styles and aria-selected
+        tabButtons.forEach(btn => {
+          btn.classList.remove('text-white');
+          btn.classList.add('text-neutral-500');
+          btn.setAttribute('aria-selected', 'false');
+          const indicator = btn.querySelector('div');
+          if (indicator) indicator.remove();
+        });
+
+        const activeTab = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+        if (activeTab) {
+          activeTab.classList.remove('text-neutral-500');
+          activeTab.classList.add('text-white');
+          activeTab.setAttribute('aria-selected', 'true');
+          const indicator = document.createElement('div');
+          indicator.className = 'absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary rounded-full';
+          activeTab.appendChild(indicator);
+        }
+
+        // Filter works
+        let visibleCount = 0;
+        workItems.forEach(item => {
+          const category = item.getAttribute('data-category');
+          if (tab === 'all' || category === tab) {
+            (item as HTMLElement).style.display = 'block';
+            visibleCount++;
+          } else {
+            (item as HTMLElement).style.display = 'none';
+          }
+        });
+
+        // Show/hide empty state
+        if (emptyState) {
+          if (visibleCount === 0) {
+            emptyState.classList.remove('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        }
+      }
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tab = button.getAttribute('data-tab');
+          if (tab) switchTab(tab);
+        });
+      });
+
+      hashtagButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const category = button.getAttribute('data-category');
+          if (category) {
+            switchTab(category);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
