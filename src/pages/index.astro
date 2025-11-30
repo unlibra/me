@@ -1,12 +1,19 @@
 ---
 import '../styles/global.css';
+import { Image } from 'astro:assets';
+
+import miraImg from '../assets/works/mira.webp';
+import fostyNaturalImg from '../assets/works/fosty-natural.webp';
+import fostyDarkImg from '../assets/works/fosty-dark.webp';
+import eightPxImg from '../assets/works/8pxapp.webp';
+import iromideImg from '../assets/works/iromide.webp';
 
 interface Project {
   id: string;
   title: string;
   description: string;
   category: string;
-  imageUrl?: string;
+  image?: ImageMetadata;
   year?: string;
   link?: string;
 }
@@ -41,7 +48,7 @@ const allWorks: Project[] = [
     初めて作った自作キーボード。`,
     category: 'keyboard',
     year: '2024',
-    imageUrl: '/works/mira.webp'
+    image: miraImg,
   },
   {
     id: '2',
@@ -50,7 +57,7 @@ const allWorks: Project[] = [
     6作目ぐらい。エンドゲーム。`,
     category: 'keyboard',
     year: '2025',
-    imageUrl: '/works/fosty-natural.webp'
+    image: fostyNaturalImg,
   },
   {
     id: '3',
@@ -59,7 +66,7 @@ const allWorks: Project[] = [
     黒もほしくなったので作った。`,
     category: 'keyboard',
     year: '2025',
-    imageUrl: '/works/fosty-dark.webp'
+    image: fostyDarkImg,
   },
   {
     id: '4',
@@ -68,7 +75,7 @@ const allWorks: Project[] = [
     Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
     category: 'web',
     year: '2025',
-    imageUrl: '/works/8pxapp.webp',
+    image: eightPxImg,
     link: 'https://8px.app',
   },
   {
@@ -79,7 +86,7 @@ const allWorks: Project[] = [
     画像からカラーパレット作るツール作ってるうちにこうなった。`,
     category: 'web',
     year: '2025',
-    imageUrl: '/works/iromide.webp',
+    image: iromideImg,
     link: 'https://8px.app/iromide',
   },
 ];
@@ -249,9 +256,9 @@ const allWorks: Project[] = [
                     rel={work.link ? 'noopener noreferrer' : undefined}
                     class="block rounded-2xl overflow-hidden border border-base-secondary aspect-video bg-base-secondary mb-3"
                   >
-                    {work.imageUrl ? (
-                      <img
-                        src={work.imageUrl}
+                    {work.image ? (
+                      <Image
+                        src={work.image}
                         alt={work.title}
                         loading="lazy"
                         class="w-full h-full object-cover"
