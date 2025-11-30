@@ -23,7 +23,8 @@ const categories = {
 const profile = {
   name: 'unlibra',
   username: 'unlibra',
-  bio: 'このポートフォリオはXオマージュです。',
+  bio: `このサイトXオマージュのポートフォリオサイトです
+  これまでの制作実績をまとめています`,
   location: 'Tokyo, Japan',
   website: 'https://github.com/unlibra',
   sponsor: 'https://ofuse.me/unlibra',
@@ -92,15 +93,15 @@ const allWorks: Project[] = [
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
-    <title>{profile.name + ' (@' + profile.username + ')'}</title>
+    <title>{site.title}</title>
   </head>
-  <body class="bg-base-primary text-neutral-100 antialiased min-h-screen">
+  <body class="bg-base-primary text-neutral-200 antialiased min-h-screen">
     <div class="max-w-2xl mx-auto border-x border-base-secondary min-h-screen">
 
       <!-- Header Bar -->
       <header class="sticky top-0 z-50 bg-base-primary/80 backdrop-blur-md border-b border-base-secondary">
         <div class="px-4 py-3 flex items-center gap-6">
-          <h1 class="text-xl font-bold">{site.title}</h1>
+          <h1 class="text-lg font-semibold">{site.title}</h1>
         </div>
       </header>
 
@@ -126,7 +127,7 @@ const allWorks: Project[] = [
               href={profile.sponsor}
               target="_blank"
               rel="noopener noreferrer"
-              class="mt-3 inline-flex items-center gap-2 rounded-full bg-[#2882a7] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2882a7]/80"
+              class="mt-3 inline-flex items-center gap-2 rounded-full bg-[#2882a7] px-4 py-2 text-sm font-medium text-neutral-200 transition-colors hover:bg-[#2882a7]/80"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 323.86 352.27" class="w-5 h-5">
                 <g fill="currentColor">
@@ -149,7 +150,7 @@ const allWorks: Project[] = [
         </div>
 
         <!-- Bio -->
-        <p class="mb-3">{profile.bio}</p>
+        <p class="mb-3 whitespace-pre-line">{profile.bio}</p>
 
         <!-- Meta Info -->
         <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500 mb-4">
