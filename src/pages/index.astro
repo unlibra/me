@@ -2,407 +2,358 @@
 import '../styles/global.css';
 
 interface Project {
+  id: string;
   title: string;
   description: string;
-  subcategory?: string;
+  category: string;
   imageUrl?: string;
   year?: string;
   link?: string;
 }
 
-const softwareWorks: Project[] = [
-  {
-    title: 'Project Name',
-    description: 'Web development project showcasing modern design and functionality.',
-    subcategory: 'Website',
-    year: '2024',
-    link: 'https://example.com',
-  },
-];
+const site = {
+  title: 'unlibra.com',
+};
 
-const hardwareWorks: Project[] = [
+const categories = {
+  web: 'Webアプリ',
+  keyboard: '自作キーボード',
+} as const;
+
+const profile = {
+  name: 'unlibra',
+  username: 'unlibra',
+  bio: 'このポートフォリオはXオマージュです。',
+  location: 'Tokyo, Japan',
+  website: 'https://github.com/unlibra',
+  sponsor: 'https://ofuse.me/unlibra',
+};
+
+const allWorks: Project[] = [
   {
-    title: 'Keyboard Build #1',
-    description: 'Custom mechanical keyboard with 60% layout and premium switches.',
+    id: '1',
+    title: 'mira zero',
+    description: `40%分割カラムスタッガード配列ロープロ(ChocV1)キーボード。終売。
+    初めて作った自作キーボード。`,
+    category: 'keyboard',
     year: '2024',
+    imageUrl: '/works/mira.webp'
   },
   {
-    title: 'Keyboard Build #2',
-    description: 'Ergonomic split keyboard designed for comfort and efficiency.',
-    year: '2023',
+    id: '2',
+    title: 'fosty natural',
+    description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。アルミカラーモデル。非売品。
+    6作目ぐらい。エンドゲーム。`,
+    category: 'keyboard',
+    year: '2025',
+    imageUrl: '/works/fosty-natural.webp'
   },
   {
-    title: 'Keyboard Build #3',
-    description: 'Ortholinear low-profile wireless keyboard with custom PCB.',
-    year: '2023',
+    id: '3',
+    title: 'fosty dark',
+    description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。ブラックモデル。非売品。
+    黒もほしくなったので作った。`,
+    category: 'keyboard',
+    year: '2025',
+    imageUrl: '/works/fosty-dark.webp'
+  },
+  {
+    id: '4',
+    title: '8px.app',
+    description: `Favicon生成、カラーパレット作成、SVG最適化など、Web・アプリ開発者のためのツールセット。
+    Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
+    category: 'web',
+    year: '2025',
+    imageUrl: '/works/8pxapp.webp',
+    link: 'https://8px.app',
+  },
+  {
+    id: '5',
+    title: '推し色生成 イロマイド',
+    description: `画像からカラーパレットを生成してチェキを作るサービス。
+    8px.app内のサービスとして公開。
+    画像からカラーパレット作るツール作ってるうちにこうなった。`,
+    category: 'web',
+    year: '2025',
+    imageUrl: '/works/iromide.webp',
+    link: 'https://8px.app/iromide',
   },
 ];
 ---
 
 <!doctype html>
-<html lang="ja" class="scroll-smooth">
+<html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content="Portfolio - Selected Works" />
-    <title>Portfolio</title>
-    <style>
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .fade-in-up {
-        animation: fadeInUp 0.8s ease-out forwards;
-        opacity: 0;
-      }
-
-      .delay-100 { animation-delay: 0.1s; }
-      .delay-200 { animation-delay: 0.2s; }
-      .delay-300 { animation-delay: 0.3s; }
-      .delay-400 { animation-delay: 0.4s; }
-    </style>
+    <meta name="description" content={profile.name + ' - Portfolio'} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+    <title>{profile.name + ' (@' + profile.username + ')'}</title>
   </head>
-  <body class="bg-black text-white antialiased">
-    <!-- Minimal Header -->
-    <header class="fixed top-0 w-full z-50 mix-blend-difference">
-      <nav class="container mx-auto px-6 md:px-12 py-8">
-        <div class="flex justify-between items-center">
-          <a href="#top" class="text-sm tracking-widest uppercase hover:opacity-50 transition-opacity">
-            Portfolio
-          </a>
-          <div class="flex gap-8 text-sm tracking-wide">
-            <a href="#works" class="hover:opacity-50 transition-opacity">Works</a>
-            <a href="#contact" class="hover:opacity-50 transition-opacity">Contact</a>
+  <body class="bg-base-primary text-neutral-100 antialiased min-h-screen">
+    <div class="max-w-2xl mx-auto border-x border-base-secondary min-h-screen">
+
+      <!-- Header Bar -->
+      <header class="sticky top-0 z-50 bg-base-primary/80 backdrop-blur-md border-b border-base-secondary">
+        <div class="px-4 py-3 flex items-center gap-6">
+          <h1 class="text-xl font-bold">{site.title}</h1>
+        </div>
+      </header>
+
+      <!-- Banner Image -->
+      <div class="aspect-3/1 bg-linear-to-r from-accent-primary via-accent-secondary to-accent-primary relative">
+        <!-- <img src="/banner.jpg" alt="Banner" class="w-full h-full object-cover" /> -->
+      </div>
+
+      <!-- Profile Section -->
+      <div class="px-4 pb-4 relative">
+        <!-- Avatar & Sponsor Button -->
+        <div class="flex justify-between items-start">
+          <!-- Avatar -->
+          <div class="relative -mt-16 mb-4">
+            <div class="w-32 h-32 rounded-full border-4 border-base-primary bg-base-secondary overflow-hidden">
+              <img src="/icon.svg" alt={profile.name} class="w-full h-full object-cover" />
+            </div>
           </div>
+
+          <!-- Sponsor Button -->
+          {profile.sponsor && (
+            <a
+              href={profile.sponsor}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-flex items-center gap-2 rounded-full bg-[#2882a7] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#2882a7]/80"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 323.86 352.27" class="w-5 h-5">
+                <g fill="currentColor">
+                  <path d="M165.62 216.8c-.76.39-1.6.59-2.43.59s-1.67-.2-2.43-.59l-55.88-28.59-8.79 37.21c0 5.9 4.78 10.68 10.68 10.68h112.86c5.9 0 10.68-4.78 10.68-10.68l-8.79-37.21-55.89 28.59Z" />
+                  <path d="M315.29 186.34c-12.86-47.03-34.69-85.88-63.14-112.35-18.47-17.19-39.14-28.83-60.92-34.48 1.98-3.23 4.11-7.58 6.58-13.31 3.81-8.85 6.85-17.54 6.98-17.91 1.13-3.25-.58-6.81-3.84-7.94-3.25-1.13-6.81.58-7.94 3.84-4.67 13.4-9.77 24.61-12.75 29.34-3.22-3.43-8.53-11.09-12.87-18.77a6.237 6.237 0 0 0-10.86 0c-4.34 7.68-9.65 15.34-12.87 18.77-2.98-4.73-8.08-15.94-12.75-29.34a6.24 6.24 0 0 0-7.94-3.84 6.24 6.24 0 0 0-3.84 7.94c.13.37 3.17 9.06 6.98 17.91 2.29 5.32 4.29 9.45 6.16 12.61-23.16 5.45-44.98 17.66-64.16 36.09-27.56 26.48-48.4 65.09-60.26 111.67-13.53 53.1-9.58 92.45 12.06 120.29 13.59 17.48 33.47 29.54 60.79 36.86 21.49 5.76 47.95 8.56 80.9 8.56 46.27 0 111.45-4.81 143.2-46.41 10.47-13.72 16.7-30.6 18.51-50.17 1.83-19.86-.86-43.19-8.01-69.35ZM161.96 29.92c1.41 2.18 2.73 4.09 3.97 5.76-2.23-.1-4.46-.15-6.7-.12-.39 0-.77.02-1.16.02 1.22-1.65 2.51-3.52 3.89-5.66m121.59 259.72c-18.7 24.49-57.45 35.9-121.95 35.9S59.62 314.39 41.01 290.45c-16.01-20.6-18.46-53.34-7.26-97.29 5.05-19.82 11.83-37.95 20.12-53.99 6.13-8.73 28.06-36.03 58.65-29.76 32.9 6.74 34.42 57.87 34.4 67.62h-31.25c-2.15 0-4.15.64-5.83 1.74l53.35 27.29 53.35-27.29c-1.68-1.1-3.68-1.74-5.83-1.74h-33.7c-.01-9.75 1.5-60.87 34.4-67.62 23.87-4.89 42.46 10.65 52.39 21.87 10.66 17.95 19.34 38.86 25.7 62.11 11.81 43.22 9.81 75.6-5.96 96.26Z" />
+                  <circle cx="105.36" cy="151.88" r="11.68" transform="rotate(-45 105.35156 151.88195)" />
+                  <circle cx="217.38" cy="151.88" r="11.68" transform="rotate(-45 217.3715 151.88178)" />
+                </g>
+              </svg>
+              Sponsor
+            </a>
+          )}
+        </div>
+
+        <!-- Name & Username -->
+        <div class="mb-3">
+          <h2 class="text-xl font-bold">{profile.name}</h2>
+          <p class="text-neutral-500">@{profile.username}</p>
+          <p class="text-neutral-500 mt-1">&#128123; パロディサイト</p>
+        </div>
+
+        <!-- Bio -->
+        <p class="mb-3">{profile.bio}</p>
+
+        <!-- Meta Info -->
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500 mb-4">
+          {profile.location && (
+            <span class="flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {profile.location}
+            </span>
+          )}
+          {profile.website && (
+            <a href={profile.website} target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-accent-secondary hover:underline">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              </svg>
+              {profile.website.replace(/^https?:\/\//, '')}
+            </a>
+          )}
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <nav class="border-b border-base-secondary sticky top-14 bg-base-primary/80 backdrop-blur-md z-40">
+        <div class="flex">
+          <button
+            data-tab="all"
+            class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-white cursor-pointer"
+          >
+            All
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary rounded-full"></div>
+          </button>
+          {Object.entries(categories).map(([key, label]) => (
+            <button
+              data-tab={key}
+              class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-neutral-500 cursor-pointer"
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </nav>
-    </header>
 
-    <!-- Hero Section - Full Screen -->
-    <section id="top" class="min-h-screen flex items-center justify-center px-6 relative">
-      <div class="text-center max-w-5xl mx-auto">
-        <h1 class="text-6xl md:text-8xl lg:text-9xl font-light tracking-tight mb-8 fade-in-up">
-          [Your Name]
-        </h1>
-        <p class="text-lg md:text-xl tracking-wider text-neutral-400 fade-in-up delay-100">
-          Developer × Designer × Maker
-        </p>
-      </div>
+      <!-- Timeline / Works -->
+      <main id="timeline">
+        {allWorks.reverse().map((work) => (
+          <article
+            class="work-item border-b border-base-secondary hover:bg-base-secondary/50 transition-colors"
+            data-category={work.category}
+          >
+            <div class="p-4">
+              <!-- Tweet Header -->
+              <div class="flex gap-3">
+                <!-- Small Avatar -->
+                <div class="w-10 h-10 rounded-full bg-base-secondary shrink-0 overflow-hidden">
+                  <img src="/icon.svg" alt={profile.name} class="w-full h-full object-cover" />
+                </div>
 
-      <!-- Scroll Indicator -->
-      <div class="absolute bottom-12 left-1/2 -translate-x-1/2 fade-in-up delay-300">
-        <a href="#works" class="block text-xs tracking-widest opacity-50 hover:opacity-100 transition-opacity">
-          <div class="w-px h-16 bg-white mx-auto mb-2"></div>
-          SCROLL
-        </a>
-      </div>
-    </section>
+                <div class="flex-1 min-w-0">
+                  <!-- Name & Date -->
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="font-bold truncate">{profile.name}</span>
+                    <span class="text-neutral-500">@{profile.username}</span>
+                    <span class="text-neutral-500">·</span>
+                    <span class="text-neutral-500">{work.year}</span>
+                  </div>
 
-    <!-- Works Gallery -->
-    <section id="works" class="py-32 px-6 md:px-12">
-      <div class="container mx-auto max-w-7xl">
-        <!-- Section Title -->
-        <div class="mb-32">
-          <h2 class="text-sm tracking-widest uppercase text-neutral-500 mb-4">Selected Works</h2>
-          <div class="w-12 h-px bg-white"></div>
-        </div>
+                  <!-- Title with Hashtag -->
+                  <div class="flex items-baseline gap-2 mb-1 flex-wrap">
+                    <h3 class="font-bold text-lg">{work.title}</h3>
+                    <button
+                      class="hashtag-btn text-accent-secondary text-sm hover:underline cursor-pointer"
+                      data-category={work.category}
+                    >
+                      #{categories[work.category as keyof typeof categories] || work.category}
+                    </button>
+                  </div>
 
-        <!-- Category: Software -->
-        <div class="mb-48">
-          <!-- Category Header -->
-          <div class="mb-20 flex items-start gap-8 md:gap-16">
-            <span class="text-6xl md:text-8xl font-light text-neutral-800 tracking-tighter">01</span>
-            <div class="pt-4">
-              <h3 class="text-3xl md:text-5xl font-light tracking-tight mb-3">Software</h3>
-              <p class="text-sm tracking-wider text-neutral-500 uppercase">Web / App Development</p>
-            </div>
-          </div>
+                  <!-- Description -->
+                  <p class="text-neutral-300 mb-3 whitespace-pre-line">{work.description}</p>
 
-          <!-- Software Projects -->
-          {softwareWorks.length > 0 ? (
-            <div class="space-y-32">
-              {softwareWorks.map((work, index) => (
-                <article class="group">
-                  {index % 2 === 0 ? (
-                    <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-                      <a
-                        href={work.link || '#'}
-                        class="relative aspect-[4/3] bg-neutral-900 overflow-hidden block"
-                        target={work.link ? '_blank' : undefined}
-                        rel={work.link ? 'noopener noreferrer' : undefined}
-                      >
-                        {work.imageUrl ? (
-                          <img
-                            src={work.imageUrl}
-                            alt={work.title}
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900"></div>
-                        )}
-                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-                      </a>
-                      <div class="space-y-6">
-                        <div>
-                          <p class="text-xs tracking-widest uppercase text-neutral-500 mb-2">
-                            {work.subcategory || 'Software'} {work.year && `— ${work.year}`}
-                          </p>
-                          <h4 class="text-3xl md:text-4xl font-light mb-4 tracking-tight">
-                            {work.title}
-                          </h4>
-                          <p class="text-neutral-400 leading-relaxed">
-                            {work.description}
-                          </p>
-                        </div>
-                        {work.link && (
-                          <a
-                            href={work.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center gap-2 text-sm tracking-wider hover:opacity-50 transition-opacity group/link"
-                          >
-                            View Project
-                            <svg class="w-4 h-4 transition-transform group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                          </a>
-                        )}
+                  <!-- Image -->
+                  <a
+                    href={work.link || '#'}
+                    target={work.link ? '_blank' : undefined}
+                    rel={work.link ? 'noopener noreferrer' : undefined}
+                    class="block rounded-2xl overflow-hidden border border-base-secondary aspect-video bg-base-secondary mb-3"
+                  >
+                    {work.imageUrl ? (
+                      <img
+                        src={work.imageUrl}
+                        alt={work.title}
+                        class="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div class="w-full h-full bg-linear-to-br from-base-secondary to-base-primary flex items-center justify-center">
+                        <span class="text-neutral-600 text-sm">No image</span>
                       </div>
-                    </div>
-                  ) : (
-                    <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-                      <div class="space-y-6 md:order-1">
-                        <div>
-                          <p class="text-xs tracking-widest uppercase text-neutral-500 mb-2">
-                            {work.subcategory || 'Software'} {work.year && `— ${work.year}`}
-                          </p>
-                          <h4 class="text-3xl md:text-4xl font-light mb-4 tracking-tight">
-                            {work.title}
-                          </h4>
-                          <p class="text-neutral-400 leading-relaxed">
-                            {work.description}
-                          </p>
-                        </div>
-                        {work.link && (
-                          <a
-                            href={work.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center gap-2 text-sm tracking-wider hover:opacity-50 transition-opacity group/link"
-                          >
-                            View Project
-                            <svg class="w-4 h-4 transition-transform group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                          </a>
-                        )}
-                      </div>
-                      <a
-                        href={work.link || '#'}
-                        class="relative aspect-[4/3] bg-neutral-900 overflow-hidden block md:order-2"
-                        target={work.link ? '_blank' : undefined}
-                        rel={work.link ? 'noopener noreferrer' : undefined}
-                      >
-                        {work.imageUrl ? (
-                          <img
-                            src={work.imageUrl}
-                            alt={work.title}
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900"></div>
-                        )}
-                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-                      </a>
-                    </div>
+                    )}
+                  </a>
+
+                  <!-- Link -->
+                  {work.link && (
+                    <a
+                      href={work.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-2 text-accent-secondary hover:underline text-sm"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      View Project
+                    </a>
                   )}
-                </article>
-              ))}
+                </div>
+              </div>
             </div>
-          ) : (
-            <div class="text-center py-20">
-              <p class="text-neutral-600 text-sm tracking-wider">Coming soon...</p>
-            </div>
-          )}
-        </div>
+          </article>
+        ))}
+      </main>
 
-        <!-- Category: Hardware -->
-        <div>
-          <!-- Category Header -->
-          <div class="mb-20 flex items-start gap-8 md:gap-16">
-            <span class="text-6xl md:text-8xl font-light text-neutral-800 tracking-tighter">02</span>
-            <div class="pt-4">
-              <h3 class="text-3xl md:text-5xl font-light tracking-tight mb-3">Hardware</h3>
-              <p class="text-sm tracking-wider text-neutral-500 uppercase">Custom Keyboards</p>
-            </div>
-          </div>
-
-          <!-- Hardware Projects -->
-          {hardwareWorks.length > 0 ? (
-            <div class="space-y-32">
-              {hardwareWorks.map((work, index) => (
-                <article class="group">
-                  {index % 2 === 0 ? (
-                    <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-                      <a
-                        href={work.link || '#'}
-                        class="relative aspect-[4/3] bg-neutral-900 overflow-hidden block"
-                        target={work.link ? '_blank' : undefined}
-                        rel={work.link ? 'noopener noreferrer' : undefined}
-                      >
-                        {work.imageUrl ? (
-                          <img
-                            src={work.imageUrl}
-                            alt={work.title}
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900"></div>
-                        )}
-                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-                      </a>
-                      <div class="space-y-6">
-                        <div>
-                          <p class="text-xs tracking-widest uppercase text-neutral-500 mb-2">
-                            {work.subcategory || 'Keyboard'} {work.year && `— ${work.year}`}
-                          </p>
-                          <h4 class="text-3xl md:text-4xl font-light mb-4 tracking-tight">
-                            {work.title}
-                          </h4>
-                          <p class="text-neutral-400 leading-relaxed">
-                            {work.description}
-                          </p>
-                        </div>
-                        {work.link && (
-                          <a
-                            href={work.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center gap-2 text-sm tracking-wider hover:opacity-50 transition-opacity group/link"
-                          >
-                            View Project
-                            <svg class="w-4 h-4 transition-transform group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div class="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
-                      <div class="space-y-6 md:order-1">
-                        <div>
-                          <p class="text-xs tracking-widest uppercase text-neutral-500 mb-2">
-                            {work.subcategory || 'Keyboard'} {work.year && `— ${work.year}`}
-                          </p>
-                          <h4 class="text-3xl md:text-4xl font-light mb-4 tracking-tight">
-                            {work.title}
-                          </h4>
-                          <p class="text-neutral-400 leading-relaxed">
-                            {work.description}
-                          </p>
-                        </div>
-                        {work.link && (
-                          <a
-                            href={work.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center gap-2 text-sm tracking-wider hover:opacity-50 transition-opacity group/link"
-                          >
-                            View Project
-                            <svg class="w-4 h-4 transition-transform group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                            </svg>
-                          </a>
-                        )}
-                      </div>
-                      <a
-                        href={work.link || '#'}
-                        class="relative aspect-[4/3] bg-neutral-900 overflow-hidden block md:order-2"
-                        target={work.link ? '_blank' : undefined}
-                        rel={work.link ? 'noopener noreferrer' : undefined}
-                      >
-                        {work.imageUrl ? (
-                          <img
-                            src={work.imageUrl}
-                            alt={work.title}
-                            class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div class="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900"></div>
-                        )}
-                        <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-                      </a>
-                    </div>
-                  )}
-                </article>
-              ))}
-            </div>
-          ) : (
-            <div class="text-center py-20">
-              <p class="text-neutral-600 text-sm tracking-wider">Coming soon...</p>
-            </div>
-          )}
-        </div>
+      <!-- Empty State (hidden by default) -->
+      <div id="empty-state" class="hidden py-16 text-center text-neutral-500">
+        <p>No projects in this category yet.</p>
       </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="min-h-screen flex items-center justify-center px-6 py-32">
-      <div class="text-center max-w-3xl mx-auto">
-        <h2 class="text-sm tracking-widest uppercase text-neutral-500 mb-12">Get In Touch</h2>
-        <p class="text-2xl md:text-3xl font-light mb-16 leading-relaxed text-neutral-300">
-          Available for freelance projects<br />and collaborations
-        </p>
+    </div>
 
-        <!-- Contact Links -->
-        <div class="flex flex-col md:flex-row justify-center gap-6 md:gap-12 mb-16">
-          <a
-            href="mailto:your.email@example.com"
-            class="text-lg tracking-wide hover:opacity-50 transition-opacity"
-          >
-            your.email@example.com
-          </a>
-        </div>
-
-        <!-- Social Links -->
-        <div class="flex justify-center gap-8">
-          <a
-            href="https://github.com/yourusername"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-xs tracking-widest uppercase hover:opacity-50 transition-opacity"
-          >
-            GitHub
-          </a>
-          <a
-            href="https://twitter.com/yourusername"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-xs tracking-widest uppercase hover:opacity-50 transition-opacity"
-          >
-            Twitter
-          </a>
-        </div>
-      </div>
-    </section>
+    <!-- End of Timeline -->
+    <div id="end-of-timeline" class="py-8 text-center">
+      <p class="text-neutral-500 text-sm">これで全部です</p>
+    </div>
 
     <!-- Footer -->
-    <footer class="py-12 px-6 border-t border-neutral-900">
-      <div class="container mx-auto text-center">
-        <p class="text-xs tracking-wider text-neutral-600">
-          &copy; 2025 All rights reserved
-        </p>
-      </div>
+    <footer class="py-8 px-4">
+      <p class="text-center text-sm text-neutral-400 mt-4">
+        &copy; {new Date().getFullYear()} {profile.name}
+      </p>
     </footer>
+
+    <script>
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const workItems = document.querySelectorAll('.work-item');
+      const emptyState = document.getElementById('empty-state');
+      const hashtagButtons = document.querySelectorAll('.hashtag-btn');
+
+      function switchTab(tab: string) {
+        // Update tab styles
+        tabButtons.forEach(btn => {
+          btn.classList.remove('text-white');
+          btn.classList.add('text-neutral-500');
+          const indicator = btn.querySelector('div');
+          if (indicator) indicator.remove();
+        });
+
+        const activeTab = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+        if (activeTab) {
+          activeTab.classList.remove('text-neutral-500');
+          activeTab.classList.add('text-white');
+          const indicator = document.createElement('div');
+          indicator.className = 'absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary rounded-full';
+          activeTab.appendChild(indicator);
+        }
+
+        // Filter works
+        let visibleCount = 0;
+        workItems.forEach(item => {
+          const category = item.getAttribute('data-category');
+          if (tab === 'all' || category === tab) {
+            (item as HTMLElement).style.display = 'block';
+            visibleCount++;
+          } else {
+            (item as HTMLElement).style.display = 'none';
+          }
+        });
+
+        // Show/hide empty state
+        if (emptyState) {
+          if (visibleCount === 0) {
+            emptyState.classList.remove('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        }
+      }
+
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tab = button.getAttribute('data-tab');
+          if (tab) switchTab(tab);
+        });
+      });
+
+      hashtagButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const category = button.getAttribute('data-category');
+          if (category) {
+            switchTab(category);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      });
+    </script>
   </body>
 </html>
