@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import { Image } from 'astro:assets';
 
+import iconImg from '../assets/icon.svg';
 import miraImg from '../assets/works/mira.webp';
 import fostyNaturalImg from '../assets/works/fosty-natural.webp';
 import fostyDarkImg from '../assets/works/fosty-dark.webp';
@@ -20,6 +21,9 @@ interface Project {
 
 const site = {
   title: 'unlibra.com',
+  url: 'https://unlibra.com',
+  description: 'unlibraのポートフォリオサイト。Webアプリ開発と自作キーボードなど制作実績を紹介しています。',
+  ogImage: '/ogp.png',
 };
 
 const categories = {
@@ -31,7 +35,7 @@ const profile = {
   name: 'unlibra',
   username: 'unlibra',
   bio: `このサイトXオマージュのポートフォリオサイトです
-  これまでの制作実績をまとめています`,
+これまでの制作実績をまとめています`,
   location: 'Tokyo, Japan',
   website: 'https://github.com/unlibra',
   sponsor: 'https://ofuse.me/unlibra',
@@ -45,7 +49,7 @@ const allWorks: Project[] = [
     id: '1',
     title: 'mira zero',
     description: `40%分割カラムスタッガード配列ロープロ(ChocV1)キーボード。終売。
-    初めて作った自作キーボード。`,
+初めて作った自作キーボード。`,
     category: 'keyboard',
     year: '2024',
     image: miraImg,
@@ -54,7 +58,7 @@ const allWorks: Project[] = [
     id: '2',
     title: 'fosty natural',
     description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。アルミカラーモデル。非売品。
-    6作目ぐらい。エンドゲーム。`,
+6作目ぐらい。エンドゲーム。`,
     category: 'keyboard',
     year: '2025',
     image: fostyNaturalImg,
@@ -63,7 +67,7 @@ const allWorks: Project[] = [
     id: '3',
     title: 'fosty dark',
     description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。ブラックモデル。非売品。
-    黒もほしくなったので作った。`,
+黒もほしくなったので作った。`,
     category: 'keyboard',
     year: '2025',
     image: fostyDarkImg,
@@ -72,7 +76,7 @@ const allWorks: Project[] = [
     id: '4',
     title: '8px.app',
     description: `Favicon生成、カラーパレット作成、SVG最適化など、Web・アプリ開発者のためのツールセット。
-    Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
+Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
     category: 'web',
     year: '2025',
     image: eightPxImg,
@@ -82,8 +86,8 @@ const allWorks: Project[] = [
     id: '5',
     title: '推し色生成 イロマイド',
     description: `画像からカラーパレットを生成してチェキを作るサービス。
-    8px.app内のサービスとして公開。
-    画像からカラーパレット作るツール作ってるうちにこうなった。`,
+8px.app内のサービスとして公開。
+画像からカラーパレット作るツール作ってるうちにこうなった。`,
     category: 'web',
     year: '2025',
     image: iromideImg,
@@ -96,14 +100,36 @@ const allWorks: Project[] = [
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={profile.name + ' - Portfolio'} />
+
+    <!-- SEO -->
+    <title>{site.title}</title>
+    <meta name="description" content={site.description} />
+    <link rel="canonical" href={site.url} />
+
+    <!-- OGP -->
+    <meta property="og:title" content={site.title} />
+    <meta property="og:description" content={site.description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={site.url} />
+    <meta property="og:image" content={site.url + site.ogImage} />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content={site.title} />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={site.title} />
+    <meta name="twitter:description" content={site.description} />
+    <meta name="twitter:image" content={site.url + site.ogImage} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
-    <title>{site.title}</title>
   </head>
   <body class="bg-base-primary text-neutral-200 antialiased min-h-screen">
     <div class="max-w-2xl mx-auto border-x border-base-secondary min-h-screen">
@@ -127,7 +153,7 @@ const allWorks: Project[] = [
           <!-- Avatar -->
           <div class="relative -mt-16 mb-4">
             <div class="w-32 h-32 rounded-full border-4 border-base-primary bg-base-secondary overflow-hidden">
-              <img src="/icon.svg" alt={profile.name} class="w-full h-full object-cover" />
+              <Image src={iconImg} alt={profile.name} class="w-full h-full object-cover" />
             </div>
           </div>
 
@@ -191,11 +217,14 @@ const allWorks: Project[] = [
       </div>
 
       <!-- Tabs -->
-      <nav class="border-b border-base-secondary sticky top-14 bg-base-primary/80 backdrop-blur-md z-40">
-        <div class="flex">
+      <nav class="border-b border-base-secondary sticky top-14 bg-base-primary/80 backdrop-blur-md z-40" aria-label="作品カテゴリ">
+        <div class="flex" role="tablist">
           <button
             data-tab="all"
-            class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-white cursor-pointer"
+            role="tab"
+            aria-selected="true"
+            aria-controls="timeline"
+            class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-white cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-inset"
           >
             All
             <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary rounded-full"></div>
@@ -203,7 +232,10 @@ const allWorks: Project[] = [
           {Object.entries(categories).map(([key, label]) => (
             <button
               data-tab={key}
-              class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-neutral-500 cursor-pointer"
+              role="tab"
+              aria-selected="false"
+              aria-controls="timeline"
+              class="tab-btn flex-1 py-4 text-sm font-medium hover:bg-base-secondary transition-colors relative text-neutral-500 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-inset"
             >
               {label}
             </button>
@@ -212,8 +244,8 @@ const allWorks: Project[] = [
       </nav>
 
       <!-- Timeline / Works -->
-      <main id="timeline">
-        {allWorks.reverse().map((work) => (
+      <main id="timeline" role="tabpanel" aria-label="作品一覧">
+        {[...allWorks].reverse().map((work) => (
           <article
             class="work-item border-b border-base-secondary hover:bg-base-secondary/50 transition-colors"
             data-category={work.category}
@@ -223,20 +255,20 @@ const allWorks: Project[] = [
               <div class="flex gap-3">
                 <!-- Small Avatar -->
                 <div class="w-10 h-10 rounded-full bg-base-secondary shrink-0 overflow-hidden">
-                  <img src="/icon.svg" alt={profile.name} class="w-full h-full object-cover" />
+                  <Image src={iconImg} alt={profile.name} class="w-full h-full object-cover" />
                 </div>
 
                 <div class="flex-1 min-w-0">
                   <!-- Name & Date -->
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-bold truncate">{profile.name}</span>
+                  <div class="flex items-baseline gap-1 mb-1">
+                    <span class="font-semibold truncate">{profile.name}</span>
                     <span class="text-neutral-500">@{profile.username}</span>
-                    <span class="text-neutral-500">·</span>
-                    <span class="text-neutral-500">{work.year}</span>
+                    <span class="text-neutral-500">･</span>
+                    <span class="text-sm leading-6 text-neutral-500">{work.year}</span>
                   </div>
 
                   <!-- Title with Hashtag -->
-                  <div class="flex items-baseline gap-2 mb-1 flex-wrap">
+                  <div class="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 class="font-bold text-lg">{work.title}</h3>
                     <button
                       class="hashtag-btn text-accent-secondary text-sm hover:underline cursor-pointer"
@@ -250,25 +282,42 @@ const allWorks: Project[] = [
                   <p class="text-neutral-300 mb-3 whitespace-pre-line">{work.description}</p>
 
                   <!-- Image -->
-                  <a
-                    href={work.link || '#'}
-                    target={work.link ? '_blank' : undefined}
-                    rel={work.link ? 'noopener noreferrer' : undefined}
-                    class="block rounded-2xl overflow-hidden border border-base-secondary aspect-video bg-base-secondary mb-3"
-                  >
-                    {work.image ? (
-                      <Image
-                        src={work.image}
-                        alt={work.title}
-                        loading="lazy"
-                        class="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div class="w-full h-full bg-linear-to-br from-base-secondary to-base-primary flex items-center justify-center">
-                        <span class="text-neutral-600 text-sm">No image</span>
-                      </div>
-                    )}
-                  </a>
+                  {work.link ? (
+                    <a
+                      href={work.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="block rounded-2xl overflow-hidden border border-base-secondary aspect-video bg-base-secondary mb-3"
+                    >
+                      {work.image ? (
+                        <Image
+                          src={work.image}
+                          alt={work.title}
+                          loading="lazy"
+                          class="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div class="w-full h-full bg-linear-to-br from-base-secondary to-base-primary flex items-center justify-center">
+                          <span class="text-neutral-600 text-sm">No image</span>
+                        </div>
+                      )}
+                    </a>
+                  ) : (
+                    <div class="block rounded-2xl overflow-hidden border border-base-secondary aspect-video bg-base-secondary mb-3">
+                      {work.image ? (
+                        <Image
+                          src={work.image}
+                          alt={work.title}
+                          loading="lazy"
+                          class="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div class="w-full h-full bg-linear-to-br from-base-secondary to-base-primary flex items-center justify-center">
+                          <span class="text-neutral-600 text-sm">No image</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <!-- Link -->
                   {work.link && (
@@ -279,9 +328,9 @@ const allWorks: Project[] = [
                       class="inline-flex items-center gap-2 text-accent-secondary hover:underline text-sm"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                       </svg>
-                      View Project
+                      {work.link}
                     </a>
                   )}
                 </div>
@@ -317,10 +366,11 @@ const allWorks: Project[] = [
       const hashtagButtons = document.querySelectorAll('.hashtag-btn');
 
       function switchTab(tab: string) {
-        // Update tab styles
+        // Update tab styles and aria-selected
         tabButtons.forEach(btn => {
           btn.classList.remove('text-white');
           btn.classList.add('text-neutral-500');
+          btn.setAttribute('aria-selected', 'false');
           const indicator = btn.querySelector('div');
           if (indicator) indicator.remove();
         });
@@ -329,6 +379,7 @@ const allWorks: Project[] = [
         if (activeTab) {
           activeTab.classList.remove('text-neutral-500');
           activeTab.classList.add('text-white');
+          activeTab.setAttribute('aria-selected', 'true');
           const indicator = document.createElement('div');
           indicator.className = 'absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary rounded-full';
           activeTab.appendChild(indicator);
