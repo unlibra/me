@@ -39,7 +39,7 @@ const categories = {
 const profile = {
   name: "unlibra",
   username: "unlibra",
-  bio: `このサイトはXオマージュのポートフォリオサイトです
+  bio: `このサイトはXオマージュのポートフォリオです
 これまでの制作実績をまとめています`,
   location: "Tokyo, Japan",
   website: "https://github.com/unlibra",
@@ -131,7 +131,9 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
-  <body class="bg-base-primary min-h-screen text-neutral-200 antialiased">
+  <body
+    class="bg-base-primary min-h-screen text-base text-neutral-200 antialiased"
+  >
     <div class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x">
       <!-- Header Bar -->
       <header class="border-base-secondary border-b">
@@ -171,12 +173,12 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                 href={profile.sponsor}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="inline-flex items-center gap-2 rounded-full bg-[#2882a7] px-4 py-2 text-sm font-medium text-neutral-200 transition-colors hover:bg-[#2882a7]/80"
+                class="inline-flex items-center gap-2 rounded-full bg-[#2882a7] px-4 py-2 font-medium text-neutral-200 transition-colors hover:bg-[#2882a7]/80"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 323.86 352.27"
-                  class="h-5 w-5"
+                  class="size-5"
                 >
                   <g fill="currentColor">
                     <path d="M165.62 216.8c-.76.39-1.6.59-2.43.59s-1.67-.2-2.43-.59l-55.88-28.59-8.79 37.21c0 5.9 4.78 10.68 10.68 10.68h112.86c5.9 0 10.68-4.78 10.68-10.68l-8.79-37.21-55.89 28.59Z" />
@@ -195,7 +197,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                     />
                   </g>
                 </svg>
-                Sponsor
+                <span class="translate-y-0.5">スポンサー</span>
               </a>
             )
           }
@@ -205,20 +207,29 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
         <div>
           <h2 class="text-xl font-bold">{profile.name}</h2>
           <p class="text-neutral-500">@{profile.username}</p>
-          <p class="mt-1 flex items-center gap-1 text-sm text-neutral-500 sm:text-base">
+          <p class="mt-1 flex items-center gap-1 text-neutral-500 sm:text-base">
             <svg class="size-5" viewBox="0 0 24 24">
-              <path fill="#62676c" d="M12 2v17c-.6 0-1.2-.2-1.8-.4C4.5 16 4 9.5 4 4c0-.3.3-.5.6-.4C6.5 4.5 9 5 12 5z"/>
-              <path fill="#82878c" d="M12 2v17c.6 0 1.2-.2 1.8-.4C19.5 16 20 9.5 20 4c0-.3-.3-.5-.6-.4C17.5 4.5 15 5 12 5z"/>
-              <path fill="#42474c" d="M6.5 10.5a2 2 0 0 1 4 0z"/>
-              <path fill="#42474c" d="M13.5 10.5a2 2 0 0 1 4 0z"/>
-              <path fill="#42474c" d="M7.5 12c0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5c0 0-2 2-4.5 2s-4.5-2-4.5-2z"/>
+              <path
+                fill="#62676c"
+                d="M12 2v17c-.6 0-1.2-.2-1.8-.4C4.5 16 4 9.5 4 4c0-.3.3-.5.6-.4C6.5 4.5 9 5 12 5z"
+              ></path>
+              <path
+                fill="#82878c"
+                d="M12 2v17c.6 0 1.2-.2 1.8-.4C19.5 16 20 9.5 20 4c0-.3-.3-.5-.6-.4C17.5 4.5 15 5 12 5z"
+              ></path>
+              <path fill="#42474c" d="M6.5 10.5a2 2 0 0 1 4 0z"></path>
+              <path fill="#42474c" d="M13.5 10.5a2 2 0 0 1 4 0z"></path>
+              <path
+                fill="#42474c"
+                d="M7.5 12c0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5c0 0-2 2-4.5 2s-4.5-2-4.5-2z"
+              ></path>
             </svg>
-            パロディサイト
+            <span class="translate-y-px">パロディサイト</span>
           </p>
         </div>
 
         <!-- Bio -->
-        <p class="text-sm whitespace-pre-line sm:text-base">{profile.bio}</p>
+        <p class="whitespace-pre-line sm:text-base">{profile.bio}</p>
 
         <!-- Meta Info -->
         <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500">
@@ -244,7 +255,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                     d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                {profile.location}
+                <span class="translate-y-px">{profile.location}</span>
               </span>
             )
           }
@@ -269,7 +280,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                     d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                   />
                 </svg>
-                {profile.website.replace(/^https?:\/\//, "")}
+                <span>{profile.website.replace(/^https?:\/\//, "")}</span>
               </a>
             )
           }
@@ -287,7 +298,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               ></path>
             </svg>
-            {updatedAt}に更新
+            <span class="translate-y-px">{updatedAt}に更新</span>
           </span>
         </div>
       </div>
@@ -300,7 +311,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
             role="tab"
             aria-selected="true"
             aria-controls="timeline"
-            class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer p-4 text-sm font-medium whitespace-nowrap text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+            class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer p-4 font-medium whitespace-nowrap text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
           >
             All
             <div
@@ -315,7 +326,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                 role="tab"
                 aria-selected="false"
                 aria-controls="timeline"
-                class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer truncate p-4 text-sm font-medium whitespace-nowrap text-neutral-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+                class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer truncate p-4 font-medium whitespace-nowrap text-neutral-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
               >
                 {label}
               </button>
@@ -350,7 +361,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                       <span class="truncate font-semibold">{profile.name}</span>
                       <span class="text-neutral-500">@{profile.username}</span>
                       <span class="text-neutral-500">･</span>
-                      <span class="text-sm leading-6 text-neutral-500">
+                      <span class="leading-6 text-neutral-500">
                         {work.year}
                       </span>
                     </div>
@@ -359,7 +370,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                     <div class="mb-1 flex flex-wrap items-center gap-2">
                       <h3 class="text-lg font-bold">{work.title}</h3>
                       <button
-                        class="hashtag-btn text-accent-secondary cursor-pointer text-sm hover:underline"
+                        class="hashtag-btn text-accent-secondary cursor-pointer hover:underline"
                         data-category={work.category}
                       >
                         #
@@ -406,7 +417,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                         href={work.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-accent-secondary inline-flex items-center gap-2 text-sm hover:underline"
+                        class="text-accent-secondary inline-flex items-center gap-2 hover:underline"
                       >
                         <svg
                           class="size-4"
@@ -421,7 +432,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                             d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
                           />
                         </svg>
-                        {work.link}
+                        <span>{work.link}</span>
                       </a>
                     )}
                   </div>
