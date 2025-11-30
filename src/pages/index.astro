@@ -463,7 +463,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
       const workItems = document.querySelectorAll(".work-item");
       const hashtagButtons = document.querySelectorAll(".hashtag-btn");
 
-      function switchTab(tab: string) {
+      function switchTab(tab: string, updateHash = true) {
         // Update tab styles and aria-selected
         tabButtons.forEach((btn) => {
           btn.classList.remove("text-white");
@@ -493,6 +493,15 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
             (item as HTMLElement).style.display = "none";
           }
         });
+
+        // Update URL hash
+        if (updateHash) {
+          if (tab === "all") {
+            history.pushState(null, "", window.location.pathname);
+          } else {
+            history.pushState(null, "", `#${tab}`);
+          }
+        }
       }
 
       tabButtons.forEach((button) => {
@@ -510,6 +519,18 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
             window.scrollTo({ top: 0, behavior: "smooth" });
           }
         });
+      });
+
+      // Handle initial hash on page load
+      const initialHash = window.location.hash.slice(1);
+      if (initialHash) {
+        switchTab(initialHash, false);
+      }
+
+      // Handle browser back/forward
+      window.addEventListener("hashchange", () => {
+        const hash = window.location.hash.slice(1) || "all";
+        switchTab(hash, false);
       });
     </script>
   </body>
