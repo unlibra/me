@@ -6,4 +6,6 @@
   --color-accent-primary: #1a7ba0;
   --color-accent-secondary: #3ba0be;
   --font-sans: "IBM Plex Sans JP", sans-serif;
+  --text-base: 15px;
+  --text-base--line-height: 20px;
 }
