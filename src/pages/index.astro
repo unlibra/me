@@ -149,7 +149,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
       <div
         class="from-accent-primary via-accent-secondary to-accent-primary relative aspect-3/1 bg-linear-to-r"
       >
-        <!-- <img src="/banner.jpg" alt="Banner" class="w-full h-full object-cover" /> -->
+        <!-- <Image src={bannerImg} alt="Banner" loading="eager" fetchpriority="high" class="w-full h-full object-cover" /> -->
       </div>
 
       <!-- Profile Section -->
@@ -164,6 +164,8 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
               <Image
                 src={iconImg}
                 alt={profile.name}
+                loading="eager"
+                fetchpriority="high"
                 class="h-full w-full object-cover"
               />
             </div>
@@ -364,111 +366,118 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
       </nav>
 
       <!-- Timeline / Works -->
-      <main id="timeline" role="tabpanel" aria-label="作品一覧">
-        {
-          [...allWorks].reverse().map((work) => (
-            <article
-              class="work-item border-base-secondary hover:bg-base-secondary/50 border-b transition-colors"
-              data-category={work.category}
-            >
-              <div class="p-4">
-                {/* Tweet Header */}
-                <div class="flex gap-3">
-                  {/* Small Avatar */}
-                  <div class="bg-base-secondary size-10 shrink-0 overflow-hidden rounded-full">
-                    <Image
-                      src={iconImg}
-                      alt={profile.name}
-                      class="size-full object-cover"
-                    />
-                  </div>
-
-                  <div class="min-w-0 flex-1">
-                    {/* Name & Date */}
-                    <div class="mb-1 flex items-baseline gap-1">
-                      <span class="truncate font-semibold">{profile.name}</span>
-                      <span class="text-neutral-500">@{profile.username}</span>
-                      <span class="text-neutral-500">･</span>
-                      <span class="leading-6 text-neutral-500">
-                        {work.year}
-                      </span>
+      <main>
+        <div id="timeline" role="tabpanel" aria-label="作品一覧">
+          {
+            [...allWorks].reverse().map((work, index) => (
+              <article
+                class="work-item border-base-secondary hover:bg-base-secondary/50 border-b transition-colors"
+                data-category={work.category}
+              >
+                <div class="p-4">
+                  {/* Tweet Header */}
+                  <div class="flex gap-3">
+                    {/* Small Avatar */}
+                    <div class="bg-base-secondary size-10 shrink-0 overflow-hidden rounded-full">
+                      <Image
+                        src={iconImg}
+                        alt={profile.name}
+                        class="size-full object-cover"
+                      />
                     </div>
 
-                    {/* Title with Hashtag */}
-                    <div class="mb-1 flex flex-wrap items-center gap-2">
-                      <h3 class="text-lg font-bold">{work.title}</h3>
-                      <button
-                        class="hashtag-btn text-accent-secondary cursor-pointer hover:underline"
-                        data-category={work.category}
-                      >
-                        #
-                        {categories[work.category as keyof typeof categories] ||
-                          work.category}
-                      </button>
-                    </div>
+                    <div class="min-w-0 flex-1">
+                      {/* Name & Date */}
+                      <div class="mb-1 flex items-baseline gap-1">
+                        <span class="truncate font-semibold">
+                          {profile.name}
+                        </span>
+                        <span class="text-neutral-500">
+                          @{profile.username}
+                        </span>
+                        <span class="text-neutral-500">･</span>
+                        <span class="leading-6 text-neutral-500">
+                          {work.year}
+                        </span>
+                      </div>
 
-                    {/* Description */}
-                    <p class="mb-3 whitespace-pre-line text-neutral-300">
-                      {work.description}
-                    </p>
+                      {/* Title with Hashtag */}
+                      <div class="mb-1 flex flex-wrap items-center gap-2">
+                        <h3 class="text-lg font-bold">{work.title}</h3>
+                        <button
+                          class="hashtag-btn text-accent-secondary cursor-pointer hover:underline"
+                          data-category={work.category}
+                        >
+                          #
+                          {categories[
+                            work.category as keyof typeof categories
+                          ] || work.category}
+                        </button>
+                      </div>
 
-                    {/* Image */}
-                    {work.image &&
-                      (work.link ? (
+                      {/* Description */}
+                      <p class="mb-3 whitespace-pre-line text-neutral-300">
+                        {work.description}
+                      </p>
+
+                      {/* Image */}
+                      {work.image &&
+                        (work.link ? (
+                          <a
+                            href={work.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border"
+                          >
+                            <Image
+                              src={work.image}
+                              alt={work.title}
+                              loading={index === 0 ? "eager" : "lazy"}
+                              class="size-full object-cover"
+                            />
+                          </a>
+                        ) : (
+                          <div class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border">
+                            <Image
+                              src={work.image}
+                              alt={work.title}
+                              loading={index === 0 ? "eager" : "lazy"}
+                              class="size-full object-cover"
+                            />
+                          </div>
+                        ))}
+
+                      {/* Link */}
+                      {work.link && (
                         <a
                           href={work.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border"
+                          class="text-accent-secondary inline-flex items-center gap-2 hover:underline"
                         >
-                          <Image
-                            src={work.image}
-                            alt={work.title}
-                            loading="lazy"
-                            class="size-full object-cover"
-                          />
+                          <svg
+                            class="size-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="1.5"
+                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                            />
+                          </svg>
+                          <span>{work.link}</span>
                         </a>
-                      ) : (
-                        <div class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border">
-                          <Image
-                            src={work.image}
-                            alt={work.title}
-                            loading="lazy"
-                            class="size-full object-cover"
-                          />
-                        </div>
-                      ))}
-
-                    {/* Link */}
-                    {work.link && (
-                      <a
-                        href={work.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="text-accent-secondary inline-flex items-center gap-2 hover:underline"
-                      >
-                        <svg
-                          class="size-4"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="1.5"
-                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                          />
-                        </svg>
-                        <span>{work.link}</span>
-                      </a>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </article>
-          ))
-        }
+              </article>
+            ))
+          }
+        </div>
       </main>
 
       <!-- End of Timeline (Tweet Style) -->
@@ -515,7 +524,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
               title: document.title,
               url: window.location.href,
             });
-          } catch (err) {
+          } catch {
             // User cancelled or error
           }
         });
