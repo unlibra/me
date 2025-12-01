@@ -5,7 +5,13 @@ import "@fontsource/ibm-plex-sans-jp/500.css";
 import "@fontsource/ibm-plex-sans-jp/700.css";
 import { Image } from "astro:assets";
 
-import iconImg from "../assets/icon.svg";
+import Avatar from "../components/Avatar.astro";
+import SponsorButton from "../components/SponsorButton.astro";
+import ShareIcon from "../components/icons/ShareIcon.astro";
+import ParodyIcon from "../components/icons/ParodyIcon.astro";
+import LocationIcon from "../components/icons/LocationIcon.astro";
+import LinkIcon from "../components/icons/LinkIcon.astro";
+import CalendarIcon from "../components/icons/CalendarIcon.astro";
 import miraImg from "../assets/works/mira.webp";
 import fostyNaturalImg from "../assets/works/fosty-natural.webp";
 import fostyDarkImg from "../assets/works/fosty-dark.webp";
@@ -31,8 +37,7 @@ const site = {
 };
 
 const categories = {
-  web: "Web",
-  app: "アプリ",
+  web: "Webアプリ",
   keyboard: "自作キーボード",
 } as const;
 
@@ -135,7 +140,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
   <body
-    class="bg-base-primary min-h-screen text-base text-neutral-200 antialiased"
+    class="bg-base-primary min-h-screen text-x-base text-neutral-200 antialiased"
   >
     <div class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x">
       <!-- Header Bar -->
@@ -161,12 +166,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
             <div
               class="border-base-primary bg-base-secondary size-24 overflow-hidden rounded-full border-4 sm:size-32"
             >
-              <Image
-                src={iconImg}
-                alt={profile.name}
-                loading="eager"
-                class="h-full w-full object-cover"
-              />
+              <Avatar class="h-full w-full object-cover" />
             </div>
           </div>
 
@@ -179,56 +179,11 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
               class="hidden cursor-pointer rounded-full border border-neutral-500 p-2 transition-colors hover:bg-neutral-700/60"
               aria-label="Share"
             >
-              <svg
-                class="size-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                ></path>
-              </svg>
+              <ShareIcon class="size-5" />
             </button>
 
             <!-- Sponsor Button -->
-            {
-              profile.sponsor && (
-                <a
-                  href={profile.sponsor}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="inline-flex items-center gap-2 rounded-full bg-[#2882a7] px-4 py-2 font-medium text-neutral-200 transition-colors hover:bg-[#2882a7]/80"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 323.86 352.27"
-                    class="size-5"
-                  >
-                    <g fill="currentColor">
-                      <path d="M165.62 216.8c-.76.39-1.6.59-2.43.59s-1.67-.2-2.43-.59l-55.88-28.59-8.79 37.21c0 5.9 4.78 10.68 10.68 10.68h112.86c5.9 0 10.68-4.78 10.68-10.68l-8.79-37.21-55.89 28.59Z" />
-                      <path d="M315.29 186.34c-12.86-47.03-34.69-85.88-63.14-112.35-18.47-17.19-39.14-28.83-60.92-34.48 1.98-3.23 4.11-7.58 6.58-13.31 3.81-8.85 6.85-17.54 6.98-17.91 1.13-3.25-.58-6.81-3.84-7.94-3.25-1.13-6.81.58-7.94 3.84-4.67 13.4-9.77 24.61-12.75 29.34-3.22-3.43-8.53-11.09-12.87-18.77a6.237 6.237 0 0 0-10.86 0c-4.34 7.68-9.65 15.34-12.87 18.77-2.98-4.73-8.08-15.94-12.75-29.34a6.24 6.24 0 0 0-7.94-3.84 6.24 6.24 0 0 0-3.84 7.94c.13.37 3.17 9.06 6.98 17.91 2.29 5.32 4.29 9.45 6.16 12.61-23.16 5.45-44.98 17.66-64.16 36.09-27.56 26.48-48.4 65.09-60.26 111.67-13.53 53.1-9.58 92.45 12.06 120.29 13.59 17.48 33.47 29.54 60.79 36.86 21.49 5.76 47.95 8.56 80.9 8.56 46.27 0 111.45-4.81 143.2-46.41 10.47-13.72 16.7-30.6 18.51-50.17 1.83-19.86-.86-43.19-8.01-69.35ZM161.96 29.92c1.41 2.18 2.73 4.09 3.97 5.76-2.23-.1-4.46-.15-6.7-.12-.39 0-.77.02-1.16.02 1.22-1.65 2.51-3.52 3.89-5.66m121.59 259.72c-18.7 24.49-57.45 35.9-121.95 35.9S59.62 314.39 41.01 290.45c-16.01-20.6-18.46-53.34-7.26-97.29 5.05-19.82 11.83-37.95 20.12-53.99 6.13-8.73 28.06-36.03 58.65-29.76 32.9 6.74 34.42 57.87 34.4 67.62h-31.25c-2.15 0-4.15.64-5.83 1.74l53.35 27.29 53.35-27.29c-1.68-1.1-3.68-1.74-5.83-1.74h-33.7c-.01-9.75 1.5-60.87 34.4-67.62 23.87-4.89 42.46 10.65 52.39 21.87 10.66 17.95 19.34 38.86 25.7 62.11 11.81 43.22 9.81 75.6-5.96 96.26Z" />
-                      <circle
-                        cx="105.36"
-                        cy="151.88"
-                        r="11.68"
-                        transform="rotate(-45 105.35156 151.88195)"
-                      />
-                      <circle
-                        cx="217.38"
-                        cy="151.88"
-                        r="11.68"
-                        transform="rotate(-45 217.3715 151.88178)"
-                      />
-                    </g>
-                  </svg>
-                  <span class="translate-y-0.5">スポンサー</span>
-                </a>
-              )
-            }
+            {profile.sponsor && <SponsorButton href={profile.sponsor} />}
           </div>
         </div>
 
@@ -237,22 +192,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
           <h2 class="text-xl font-bold">{profile.name}</h2>
           <p class="text-neutral-500">@{profile.username}</p>
           <p class="mt-1 flex items-center gap-1 text-neutral-500 sm:text-base">
-            <svg class="size-5" viewBox="0 0 24 24">
-              <path
-                fill="#62676c"
-                d="M12 2v17c-.6 0-1.2-.2-1.8-.4C4.5 16 4 9.5 4 4c0-.3.3-.5.6-.4C6.5 4.5 9 5 12 5z"
-              ></path>
-              <path
-                fill="#82878c"
-                d="M12 2v17c.6 0 1.2-.2 1.8-.4C19.5 16 20 9.5 20 4c0-.3-.3-.5-.6-.4C17.5 4.5 15 5 12 5z"
-              ></path>
-              <path fill="#42474c" d="M6.5 10.5a2 2 0 0 1 4 0z"></path>
-              <path fill="#42474c" d="M13.5 10.5a2 2 0 0 1 4 0z"></path>
-              <path
-                fill="#42474c"
-                d="M7.5 12c0 2.5 2 4.5 4.5 4.5s4.5-2 4.5-4.5c0 0-2 2-4.5 2s-4.5-2-4.5-2z"
-              ></path>
-            </svg>
+            <ParodyIcon class="size-5" />
             <span class="translate-y-px">パロディサイト</span>
           </p>
         </div>
@@ -265,25 +205,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
           {
             profile.location && (
               <span class="flex items-center gap-1">
-                <svg
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+                <LocationIcon class="h-4 w-4" />
                 <span class="translate-y-px">{profile.location}</span>
               </span>
             )
@@ -296,37 +218,13 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                 rel="noopener noreferrer"
                 class="text-accent-secondary flex items-center gap-1 hover:underline"
               >
-                <svg
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
+                <LinkIcon class="h-4 w-4" />
                 <span>{profile.website.replace(/^https?:\/\//, "")}</span>
               </a>
             )
           }
           <span class="flex items-center gap-1">
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-              ></path>
-            </svg>
+            <CalendarIcon class="h-4 w-4" />
             <span class="translate-y-px">Updated {updatedAt}</span>
           </span>
         </div>
@@ -378,11 +276,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                   <div class="flex gap-3">
                     {/* Small Avatar */}
                     <div class="bg-base-secondary size-10 shrink-0 overflow-hidden rounded-full">
-                      <Image
-                        src={iconImg}
-                        alt={profile.name}
-                        class="size-full object-cover"
-                      />
+                      <Avatar class="size-full object-cover" />
                     </div>
 
                     <div class="min-w-0 flex-1">
@@ -456,19 +350,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                           rel="noopener noreferrer"
                           class="text-accent-secondary inline-flex items-center gap-2 hover:underline"
                         >
-                          <svg
-                            class="size-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="1.5"
-                              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                            />
-                          </svg>
+                          <LinkIcon class="size-4" />
                           <span>{work.link}</span>
                         </a>
                       )}
@@ -488,11 +370,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
             <div
               class="bg-base-secondary h-10 w-10 shrink-0 overflow-hidden rounded-full"
             >
-              <Image
-                src={iconImg}
-                alt={profile.name}
-                class="h-full w-full object-cover"
-              />
+              <Avatar class="h-full w-full object-cover" />
             </div>
             <div class="min-w-0 flex-1">
               <div class="mb-1 flex items-baseline gap-1">
