@@ -32,13 +32,14 @@ const site = {
   title: "unlibra.com",
   url: "https://unlibra.com",
   description:
-    "unlibraのXオマージュポートフォリオサイト。Webアプリ開発と自作キーボードなど制作実績を紹介しています。",
+    "unlibraのXオマージュポートフォリオサイト。Webアプリ開発やソフトウェア開発、自作キーボードなど制作実績を紹介しています。",
   ogImage: "/ogp.png",
 };
 
 const categories = {
-  web: "Webアプリ",
-  keyboard: "自作キーボード",
+  web: "Web",
+  software: "Software",
+  keyboard: "Keyboard",
 } as const;
 
 const profile = {
@@ -140,109 +141,145 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
   <body
-    class="bg-base-primary min-h-screen text-x-base text-neutral-200 antialiased"
+    class="theme-twitter bg-base-primary glass:bg-linear-to-br glass:from-[#667eea] glass:to-[#764ba2] glass:px-4 glass:py-8 glass:text-white glass:sm:px-6 glass:sm:py-12 min-h-screen text-base text-neutral-200 antialiased"
   >
-    <div class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x">
-      <!-- Header Bar -->
-      <header class="border-base-secondary border-b">
-        <div class="flex items-center gap-6 px-4 py-3">
-          <h1 class="text-lg font-semibold">{site.title}</h1>
-        </div>
+    <div
+      class="border-base-secondary glass:flex glass:flex-col glass:gap-5 glass:border-0 mx-auto min-h-screen max-w-2xl space-y-0 border-x"
+    >
+      <!-- Header Bar (Background layer) -->
+      <header
+        class="border-base-secondary glass:border-0 glass:bg-transparent flex items-center justify-between border-b bg-base-primary px-4 py-3"
+      >
+        <h1 class="glass-text-shadow text-lg font-semibold">{site.title}</h1>
+        <!-- Theme Toggle Button -->
+        <button
+          id="theme-toggle"
+          type="button"
+          class="glass:hover:bg-white/20 cursor-pointer rounded-full p-2 transition-colors hover:bg-neutral-700/60"
+          aria-label="テーマ切り替え"
+        >
+          <!-- Half-moon contrast icon -->
+          <svg
+            class="size-5"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 16V5a7 7 0 1 1 0 14z"
+            ></path>
+          </svg>
+        </button>
       </header>
 
-      <!-- Banner Image -->
+      <!-- Profile Card -->
       <div
-        class="from-accent-primary via-accent-secondary to-accent-primary relative aspect-3/1 bg-linear-to-r"
+        class="border-base-secondary bg-base-primary glass:rounded-3xl glass:border glass:border-white/20 glass:bg-white/10 glass:shadow-2xl glass:backdrop-blur-md overflow-hidden border-x"
       >
-        <!-- <Image src={bannerImg} alt="Banner" loading="eager" fetchpriority="high" class="w-full h-full object-cover" /> -->
-      </div>
+        <!-- Banner Image -->
+        <div
+          class="from-accent-primary via-accent-secondary to-accent-primary glass:bg-white/20 glass:bg-none relative aspect-3/1 bg-linear-to-r"
+        >
+          <!-- <Image src={bannerImg} alt="Banner" loading="eager" fetchpriority="high" class="w-full h-full object-cover" /> -->
+        </div>
 
-      <!-- Profile Section -->
-      <div class="relative space-y-3 p-4">
-        <!-- Avatar & Sponsor Button -->
-        <div class="relative flex items-start justify-between">
-          <!-- Avatar -->
-          <div class="relative -mt-16 sm:-mt-20">
-            <div
-              class="border-base-primary bg-base-secondary size-24 overflow-hidden rounded-full border-4 sm:size-32"
-            >
-              <Avatar class="h-full w-full object-cover" />
+        <!-- Profile Section -->
+        <div class="relative space-y-3 p-4">
+          <!-- Avatar & Buttons -->
+          <div class="relative flex items-start justify-between">
+            <!-- Avatar -->
+            <div class="relative -mt-16 sm:-mt-20">
+              <div
+                class="border-base-primary bg-base-secondary glass:border-white/30 glass:bg-white/20 size-24 overflow-hidden rounded-full border-4 sm:size-32"
+              >
+                <Avatar class="h-full w-full object-cover" />
+              </div>
+            </div>
+
+            <!-- Share & Sponsor Buttons -->
+            <div class="flex gap-2">
+              <!-- Share Button -->
+              <button
+                id="share-btn"
+                type="button"
+                class="glass:border-white/30 glass:hover:bg-white/20 hidden cursor-pointer rounded-full border border-neutral-500 p-2 transition-colors hover:bg-neutral-700/60"
+                aria-label="Share"
+              >
+                <ShareIcon class="size-5" />
+              </button>
+
+              <!-- Sponsor Button -->
+              {profile.sponsor && <SponsorButton href={profile.sponsor} />}
             </div>
           </div>
 
-          <!-- Share & Sponsor Buttons -->
-          <div class="flex gap-2">
-            <!-- Share Button -->
-            <button
-              id="share-btn"
-              type="button"
-              class="hidden cursor-pointer rounded-full border border-neutral-500 p-2 transition-colors hover:bg-neutral-700/60"
-              aria-label="Share"
+          <!-- Name & Username -->
+          <div class="glass-text-shadow">
+            <h2 class="text-xl font-bold">{profile.name}</h2>
+            <p class="glass:text-white/80 text-neutral-500">
+              @{profile.username}
+            </p>
+            <p
+              class="glass:text-white/80 mt-1 flex items-center gap-1 text-neutral-500"
             >
-              <ShareIcon class="size-5" />
-            </button>
-
-            <!-- Sponsor Button -->
-            {profile.sponsor && <SponsorButton href={profile.sponsor} />}
+              <ParodyIcon class="size-5" />
+              <span class="translate-y-px">パロディサイト</span>
+            </p>
           </div>
-        </div>
 
-        <!-- Name & Username -->
-        <div>
-          <h2 class="text-xl font-bold">{profile.name}</h2>
-          <p class="text-neutral-500">@{profile.username}</p>
-          <p class="mt-1 flex items-center gap-1 text-neutral-500 sm:text-base">
-            <ParodyIcon class="size-5" />
-            <span class="translate-y-px">パロディサイト</span>
-          </p>
-        </div>
+          <!-- Bio -->
+          <p class="glass-text-shadow whitespace-pre-line">{profile.bio}</p>
 
-        <!-- Bio -->
-        <p class="whitespace-pre-line sm:text-base">{profile.bio}</p>
-
-        <!-- Meta Info -->
-        <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500">
-          {
-            profile.location && (
-              <span class="flex items-center gap-1">
-                <LocationIcon class="h-4 w-4" />
-                <span class="translate-y-px">{profile.location}</span>
-              </span>
-            )
-          }
-          {
-            profile.website && (
-              <a
-                href={profile.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-accent-secondary flex items-center gap-1 hover:underline"
-              >
-                <LinkIcon class="h-4 w-4" />
-                <span>{profile.website.replace(/^https?:\/\//, "")}</span>
-              </a>
-            )
-          }
-          <span class="flex items-center gap-1">
-            <CalendarIcon class="h-4 w-4" />
-            <span class="translate-y-px">Updated {updatedAt}</span>
-          </span>
+          <!-- Meta Info -->
+          <div
+            class="glass-text-shadow glass:text-white/80 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500"
+          >
+            {
+              profile.location && (
+                <span class="flex items-center gap-1">
+                  <LocationIcon class="h-4 w-4" />
+                  <span class="translate-y-px">{profile.location}</span>
+                </span>
+              )
+            }
+            {
+              profile.website && (
+                <a
+                  href={profile.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-accent-secondary glass:text-white/80 flex items-center gap-1 hover:underline"
+                >
+                  <LinkIcon class="h-4 w-4" />
+                  <span class="translate-y-px">{profile.website.replace(/^https?:\/\//, "")}</span>
+                </a>
+              )
+            }
+            <span class="flex items-center gap-1">
+              <CalendarIcon class="h-4 w-4" />
+              <span class="translate-y-px">Updated {updatedAt}</span>
+            </span>
+          </div>
         </div>
       </div>
 
-      <!-- Tabs -->
-      <nav class="border-base-secondary border-b" aria-label="作品カテゴリ">
-        <div class="flex justify-around" role="tablist">
+      <!-- Tabs (Twitter: bar style / Glass: floating pills) -->
+      <nav
+        class="border-base-secondary bg-base-primary glass:border-0 glass:bg-transparent overflow-hidden border-x border-b"
+        aria-label="作品カテゴリ"
+      >
+        <div
+          class="flex justify-around glass:justify-center glass:gap-2 glass:p-0"
+          role="tablist"
+        >
           <button
             data-tab="all"
             role="tab"
             aria-selected="true"
             aria-controls="timeline"
-            class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer p-4 font-medium whitespace-nowrap text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+            class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary glass:rounded-full glass:border glass:border-white/30 glass:bg-white/20 glass:px-5 glass:py-2 glass:shadow-lg glass:backdrop-blur-md glass:hover:bg-white/30 glass:focus-visible:ring-white/50 relative cursor-pointer p-4 font-medium whitespace-nowrap text-white transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
           >
             All
             <div
-              class="bg-accent-primary absolute bottom-0 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full"
+              class="tab-indicator bg-accent-primary glass:hidden absolute bottom-0 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full"
             >
             </div>
           </button>
@@ -253,7 +290,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                 role="tab"
                 aria-selected="false"
                 aria-controls="timeline"
-                class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer truncate p-4 font-medium whitespace-nowrap text-neutral-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+                class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary glass:rounded-full glass:border glass:border-white/20 glass:bg-transparent glass:px-5 glass:py-2 glass:text-white/70 glass:hover:border-white/30 glass:hover:bg-white/10 glass:focus-visible:ring-white/50 relative cursor-pointer truncate p-4 font-medium whitespace-nowrap text-neutral-500 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
               >
                 {label}
               </button>
@@ -262,137 +299,169 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
         </div>
       </nav>
 
-      <!-- Timeline / Works -->
-      <main>
-        <div id="timeline" role="tabpanel" aria-label="作品一覧">
-          {
-            [...allWorks].reverse().map((work, index) => (
-              <article
-                class="work-item border-base-secondary hover:bg-base-secondary/50 border-b transition-colors"
-                data-category={work.category}
-              >
-                <div class="p-4">
-                  {/* Tweet Header */}
-                  <div class="flex gap-3">
-                    {/* Small Avatar */}
-                    <div class="bg-base-secondary size-10 shrink-0 overflow-hidden rounded-full">
-                      <Avatar class="size-full object-cover" />
-                    </div>
-
-                    <div class="min-w-0 flex-1">
-                      {/* Name & Date */}
-                      <div class="mb-1 flex items-baseline gap-1">
-                        <span class="truncate font-semibold">
-                          {profile.name}
-                        </span>
-                        <span class="text-neutral-500">
-                          @{profile.username}
-                        </span>
-                        <span class="text-neutral-500">･</span>
-                        <span class="leading-6 text-neutral-500">
-                          {work.year}
-                        </span>
+      <!-- Timeline Card (Twitter theme) / Individual Work Cards (Glass theme) -->
+      <div
+        class="border-base-secondary bg-base-primary glass:contents glass:space-y-4 overflow-hidden border-x"
+      >
+        <!-- Timeline / Works -->
+        <main class="glass:contents glass:space-y-4">
+          <div id="timeline" role="tabpanel" aria-label="作品一覧" class="glass:contents glass:space-y-4">
+            {
+              [...allWorks].reverse().map((work, index) => (
+                <article
+                  class="work-item border-base-secondary glass:rounded-2xl glass:border glass:border-white/20 glass:bg-white/10 glass:shadow-xl glass:backdrop-blur-md border-b"
+                  data-category={work.category}
+                >
+                  <div class="p-4">
+                    {/* Tweet Header */}
+                    <div class="flex gap-3">
+                      {/* Small Avatar */}
+                      <div class="bg-base-secondary glass:bg-white/20 size-10 shrink-0 overflow-hidden rounded-full">
+                        <Avatar class="size-full object-cover" />
                       </div>
 
-                      {/* Title with Hashtag */}
-                      <div class="mb-1 flex flex-wrap items-center gap-2">
-                        <h3 class="text-lg font-bold">{work.title}</h3>
-                        <button
-                          class="hashtag-btn text-accent-secondary cursor-pointer hover:underline"
-                          data-category={work.category}
-                        >
-                          #
-                          {categories[
-                            work.category as keyof typeof categories
-                          ] || work.category}
-                        </button>
-                      </div>
+                      <div class="min-w-0 flex-1">
+                        {/* Name & Date */}
+                        <div class="glass-text-shadow mb-1 flex items-baseline gap-1">
+                          <span class="truncate font-semibold">
+                            {profile.name}
+                          </span>
+                          <span class="glass:text-white/70 text-neutral-500">
+                            @{profile.username}
+                          </span>
+                          <span class="glass:text-white/70 text-neutral-500">
+                            ･
+                          </span>
+                          <span class="glass:text-white/70 leading-6 text-neutral-500">
+                            {work.year}
+                          </span>
+                        </div>
 
-                      {/* Description */}
-                      <p class="mb-3 whitespace-pre-line text-neutral-300">
-                        {work.description}
-                      </p>
+                        {/* Title with Hashtag */}
+                        <div class="glass-text-shadow mb-1 flex flex-wrap items-center gap-2">
+                          <h3 class="text-lg font-bold">{work.title}</h3>
+                          <button
+                            class="hashtag-btn text-accent-secondary glass:text-white/90 cursor-pointer hover:underline"
+                            data-category={work.category}
+                          >
+                            #
+                            {categories[
+                              work.category as keyof typeof categories
+                            ] || work.category}
+                          </button>
+                        </div>
 
-                      {/* Image */}
-                      {work.image &&
-                        (work.link ? (
+                        {/* Description */}
+                        <p class="glass-text-shadow glass:text-white/95 mb-3 whitespace-pre-line text-neutral-300">
+                          {work.description}
+                        </p>
+
+                        {/* Image */}
+                        {work.image &&
+                          (work.link ? (
+                            <a
+                              href={work.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="border-base-secondary bg-base-secondary glass:border-white/20 glass:bg-white/10 mb-3 block aspect-video overflow-hidden rounded-2xl border"
+                            >
+                              <Image
+                                src={work.image}
+                                alt={work.title}
+                                loading={index === 0 ? "eager" : "lazy"}
+                                fetchpriority={index === 0 ? "high" : undefined}
+                                class="size-full object-cover"
+                              />
+                            </a>
+                          ) : (
+                            <div class="border-base-secondary bg-base-secondary glass:border-white/20 glass:bg-white/10 mb-3 block aspect-video overflow-hidden rounded-2xl border">
+                              <Image
+                                src={work.image}
+                                alt={work.title}
+                                loading={index === 0 ? "eager" : "lazy"}
+                                fetchpriority={index === 0 ? "high" : undefined}
+                                class="size-full object-cover"
+                              />
+                            </div>
+                          ))}
+
+                        {/* Link */}
+                        {work.link && (
                           <a
                             href={work.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border"
+                            class="text-accent-secondary glass:text-white/80 inline-flex items-center gap-2 hover:underline"
                           >
-                            <Image
-                              src={work.image}
-                              alt={work.title}
-                              loading={index === 0 ? "eager" : "lazy"}
-                              fetchpriority={index === 0 ? "high" : undefined}
-                              class="size-full object-cover"
-                            />
+                            <LinkIcon class="size-4" />
+                            <span>{work.link}</span>
                           </a>
-                        ) : (
-                          <div class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border">
-                            <Image
-                              src={work.image}
-                              alt={work.title}
-                              loading={index === 0 ? "eager" : "lazy"}
-                              fetchpriority={index === 0 ? "high" : undefined}
-                              class="size-full object-cover"
-                            />
-                          </div>
-                        ))}
-
-                      {/* Link */}
-                      {work.link && (
-                        <a
-                          href={work.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-accent-secondary inline-flex items-center gap-2 hover:underline"
-                        >
-                          <LinkIcon class="size-4" />
-                          <span>{work.link}</span>
-                        </a>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </article>
-            ))
-          }
-        </div>
-      </main>
+                </article>
+              ))
+            }
+          </div>
+        </main>
 
-      <!-- End of Timeline (Tweet Style) -->
-      <article id="end-of-timeline" class="border-base-secondary border-b">
-        <div class="p-4">
-          <div class="flex gap-3">
-            <div
-              class="bg-base-secondary h-10 w-10 shrink-0 overflow-hidden rounded-full"
-            >
-              <Avatar class="h-full w-full object-cover" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="mb-1 flex items-baseline gap-1">
-                <span class="truncate font-semibold">{profile.name}</span>
-                <span class="text-neutral-500">@{profile.username}</span>
+        <!-- End of Timeline (Tweet Style) -->
+        <article
+          id="end-of-timeline"
+          class="border-base-secondary glass:rounded-2xl glass:border glass:border-white/20 glass:bg-white/10 glass:shadow-xl glass:backdrop-blur-md border-b"
+        >
+          <div class="p-4">
+            <div class="flex gap-3">
+              <div
+                class="bg-base-secondary glass:bg-white/20 h-10 w-10 shrink-0 overflow-hidden rounded-full"
+              >
+                <Avatar class="h-full w-full object-cover" />
               </div>
-              <p class="text-neutral-300">ここで終わりです</p>
+              <div class="glass-text-shadow min-w-0 flex-1">
+                <div class="mb-1 flex items-baseline gap-1">
+                  <span class="truncate font-semibold">{profile.name}</span>
+                  <span class="glass:text-white/70 text-neutral-500"
+                    >@{profile.username}</span
+                  >
+                </div>
+                <p class="glass:text-white/90 text-neutral-300">
+                  ここで終わりです
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </article>
+        </article>
+      </div>
     </div>
 
     <!-- Footer -->
-    <footer class="px-4 py-8">
-      <p class="mt-4 text-center text-sm text-neutral-400">
+    <footer class="glass:py-6 px-4 py-8">
+      <p
+        class="glass-text-shadow glass:mt-0 glass:text-white/70 mt-4 text-center text-sm text-neutral-400"
+      >
         &copy; {new Date().getFullYear()}
         {profile.name}
       </p>
     </footer>
 
     <script>
+      // Theme Toggle
+      const themeToggle = document.getElementById("theme-toggle");
+      const body = document.body;
+
+      function toggleTheme() {
+        if (body.classList.contains("theme-glass")) {
+          body.classList.remove("theme-glass");
+          body.classList.add("theme-twitter");
+        } else {
+          body.classList.remove("theme-twitter");
+          body.classList.add("theme-glass");
+        }
+      }
+
+      themeToggle?.addEventListener("click", toggleTheme);
+
       // Web Share API
       const shareBtn = document.getElementById("share-btn");
       if (navigator.share && shareBtn) {
@@ -416,21 +485,48 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
       function switchTab(tab: string, updateHash = true) {
         // Update tab styles and aria-selected
         tabButtons.forEach((btn) => {
+          // Twitter theme styles
           btn.classList.remove("text-white");
           btn.classList.add("text-neutral-500");
+          // Glass theme styles - inactive state
+          btn.classList.remove(
+            "glass:border-white/30",
+            "glass:bg-white/20",
+            "glass:shadow-lg",
+            "glass:backdrop-blur-md"
+          );
+          btn.classList.add(
+            "glass:border-white/20",
+            "glass:bg-transparent",
+            "glass:text-white/70"
+          );
           btn.setAttribute("aria-selected", "false");
-          const indicator = btn.querySelector("div");
+          const indicator = btn.querySelector(".tab-indicator");
           if (indicator) indicator.remove();
         });
 
         const activeTab = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
         if (activeTab) {
+          // Twitter theme styles
           activeTab.classList.remove("text-neutral-500");
           activeTab.classList.add("text-white");
+          // Glass theme styles - active state
+          activeTab.classList.remove(
+            "glass:border-white/20",
+            "glass:bg-transparent",
+            "glass:text-white/70"
+          );
+          activeTab.classList.add(
+            "glass:border-white/30",
+            "glass:bg-white/20",
+            "glass:shadow-lg",
+            "glass:backdrop-blur-md"
+          );
           activeTab.setAttribute("aria-selected", "true");
+          // Twitter indicator (hidden in glass theme)
           const indicator = document.createElement("div");
           indicator.className =
-            "absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary rounded-full";
+            "tab-indicator absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-accent-primary glass:hidden rounded-full";
           activeTab.appendChild(indicator);
         }
 
