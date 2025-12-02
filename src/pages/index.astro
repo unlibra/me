@@ -141,120 +141,107 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
   <body
-    class="bg-base-primary min-h-screen text-x-base text-neutral-200 antialiased"
+    class="bg-base-primary text-x-base min-h-screen text-neutral-200 antialiased"
   >
-    <div
-      class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x"
-    >
+    <div class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x">
       <!-- Header Bar -->
-      <header
-        class="border-base-secondary flex items-center gap-6 border-b px-4 py-3"
-      >
-        <h1 class="text-lg font-semibold">{site.title}</h1>
+      <header class="border-base-secondary border-b">
+        <div class="flex items-center gap-6 px-4 py-3">
+          <h1 class="text-lg font-semibold">{site.title}</h1>
+        </div>
       </header>
 
       <!-- Banner Image -->
       <div
         class="from-accent-primary via-accent-secondary to-accent-primary relative aspect-3/1 bg-linear-to-r"
       >
-          <!-- <Image src={bannerImg} alt="Banner" loading="eager" fetchpriority="high" class="w-full h-full object-cover" /> -->
+        <!-- <Image src={bannerImg} alt="Banner" loading="eager" fetchpriority="high" class="w-full h-full object-cover" /> -->
+      </div>
+
+      <!-- Profile Section -->
+      <div class="relative space-y-3 p-4">
+        <!-- Avatar & Sponsor Button -->
+        <div class="relative flex items-start justify-between">
+          <!-- Avatar -->
+          <div class="relative -mt-16 sm:-mt-20">
+            <div
+              class="border-base-primary bg-base-secondary size-24 overflow-hidden rounded-full border-4 sm:size-32"
+            >
+              <Avatar class="h-full w-full object-cover" />
+            </div>
+          </div>
+
+          <!-- Share & Sponsor Buttons -->
+          <div class="flex gap-2">
+            <!-- Share Button -->
+            <button
+              id="share-btn"
+              type="button"
+              class="hidden cursor-pointer rounded-full border border-neutral-500 p-2 transition-colors hover:bg-neutral-700/60"
+              aria-label="Share"
+            >
+              <ShareIcon class="size-5" />
+            </button>
+
+            <!-- Sponsor Button -->
+            {profile.sponsor && <SponsorButton href={profile.sponsor} />}
+          </div>
         </div>
 
-        <!-- Profile Section -->
-        <div class="relative space-y-3 p-4">
-          <!-- Avatar & Buttons -->
-          <div class="relative flex items-start justify-between">
-            <!-- Avatar -->
-            <div class="relative -mt-16 sm:-mt-20">
-              <div
-                class="border-base-primary bg-base-secondary size-24 overflow-hidden rounded-full border-4 sm:size-32"
+        <!-- Name & Username -->
+        <div>
+          <h2 class="text-xl font-bold">{profile.name}</h2>
+          <p class="text-neutral-500">@{profile.username}</p>
+          <p class="mt-1 flex items-center gap-1 text-neutral-500">
+            <ParodyIcon class="size-5" />
+            <span class="translate-y-px">パロディサイト</span>
+          </p>
+        </div>
+
+        <!-- Bio -->
+        <p class="whitespace-pre-line">{profile.bio}</p>
+
+        <!-- Meta Info -->
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-neutral-500">
+          {
+            profile.location && (
+              <span class="flex items-center gap-1">
+                <LocationIcon class="h-4 w-4" />
+                <span class="translate-y-px">{profile.location}</span>
+              </span>
+            )
+          }
+          {
+            profile.website && (
+              <a
+                href={profile.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-accent-secondary flex items-center gap-1 hover:underline"
               >
-                <Avatar class="h-full w-full object-cover" />
-              </div>
-            </div>
-
-            <!-- Share & Sponsor Buttons -->
-            <div class="flex gap-2">
-              <!-- Share Button -->
-              <button
-                id="share-btn"
-                type="button"
-                class="hidden cursor-pointer rounded-full border border-neutral-500 p-2 transition-colors hover:bg-neutral-700/60"
-                aria-label="Share"
-              >
-                <ShareIcon class="size-5" />
-              </button>
-
-              <!-- Sponsor Button -->
-              {profile.sponsor && <SponsorButton href={profile.sponsor} />}
-            </div>
-          </div>
-
-          <!-- Name & Username -->
-          <div>
-            <h2 class="text-xl font-bold">{profile.name}</h2>
-            <p class="text-neutral-500">
-              @{profile.username}
-            </p>
-            <p
-              class="mt-1 flex items-center gap-1 text-neutral-500"
-            >
-              <ParodyIcon class="size-5" />
-              <span class="translate-y-px">パロディサイト</span>
-            </p>
-          </div>
-
-          <!-- Bio -->
-          <p class="whitespace-pre-line">{profile.bio}</p>
-
-          <!-- Meta Info -->
-          <div
-            class="flex flex-wrap gap-x-4 gap-y-1 text-neutral-500"
-          >
-            {
-              profile.location && (
-                <span class="flex items-center gap-1">
-                  <LocationIcon class="h-4 w-4" />
-                  <span class="translate-y-px">{profile.location}</span>
+                <LinkIcon class="h-4 w-4" />
+                <span class="translate-y-px">
+                  {profile.website.replace(/^https?:\/\//, "")}
                 </span>
-              )
-            }
-            {
-              profile.website && (
-                <a
-                  href={profile.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="text-accent-secondary flex items-center gap-1 hover:underline"
-                >
-                  <LinkIcon class="h-4 w-4" />
-                  <span class="translate-y-px">{profile.website.replace(/^https?:\/\//, "")}</span>
-                </a>
-              )
-            }
-            <span class="flex items-center gap-1">
-              <CalendarIcon class="h-4 w-4" />
-              <span class="translate-y-px">Updated {updatedAt}</span>
-            </span>
-          </div>
+              </a>
+            )
+          }
+          <span class="flex items-center gap-1">
+            <CalendarIcon class="h-4 w-4" />
+            <span class="translate-y-px">Updated {updatedAt}</span>
+          </span>
         </div>
       </div>
 
       <!-- Tabs -->
-      <nav
-        class="border-base-secondary bg-base-primary overflow-hidden border-x border-b"
-        aria-label="作品カテゴリ"
-      >
-        <div
-          class="flex justify-around"
-          role="tablist"
-        >
+      <nav class="border-base-secondary border-b" aria-label="作品カテゴリ">
+        <div class="flex justify-around" role="tablist">
           <button
             data-tab="all"
             role="tab"
             aria-selected="true"
             aria-controls="timeline"
-            class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer p-4 font-medium whitespace-nowrap transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+            class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer p-4 font-medium whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
           >
             All
             <div
@@ -269,7 +256,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                 role="tab"
                 aria-selected="false"
                 aria-controls="timeline"
-                class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer truncate p-4 font-medium whitespace-nowrap text-neutral-500 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
+                class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer truncate p-4 font-medium whitespace-nowrap text-neutral-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
               >
                 {label}
               </button>
@@ -278,147 +265,129 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
         </div>
       </nav>
 
-      <!-- Timeline -->
-      <div
-        class="border-base-secondary bg-base-primary overflow-hidden border-x"
-      >
-        <!-- Timeline / Works -->
-        <main class="">
-          <div id="timeline" role="tabpanel" aria-label="作品一覧" class="">
-            {
-              [...allWorks].reverse().map((work, index) => (
-                <article
-                  class="work-item border-base-secondary border-b"
-                  data-category={work.category}
-                >
-                  <div class="p-4">
-                    {/* Tweet Header */}
-                    <div class="flex gap-3">
-                      {/* Small Avatar */}
-                      <div class="bg-base-secondary size-10 shrink-0 overflow-hidden rounded-full">
-                        <Avatar class="size-full object-cover" />
+      <!-- Timeline / Works -->
+      <main>
+        <div id="timeline" role="tabpanel" aria-label="作品一覧">
+          {
+            [...allWorks].reverse().map((work, index) => (
+              <article
+                class="work-item border-base-secondary border-b"
+                data-category={work.category}
+              >
+                <div class="p-4">
+                  {/* Tweet Header */}
+                  <div class="flex gap-3">
+                    {/* Small Avatar */}
+                    <div class="bg-base-secondary size-10 shrink-0 overflow-hidden rounded-full">
+                      <Avatar class="size-full object-cover" />
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                      {/* Name & Date */}
+                      <div class="mb-1 flex items-baseline gap-1">
+                        <span class="truncate font-semibold">
+                          {profile.name}
+                        </span>
+                        <span class="text-neutral-500">
+                          @{profile.username}
+                        </span>
+                        <span class="text-neutral-500">･</span>
+                        <span class="leading-6 text-neutral-500">
+                          {work.year}
+                        </span>
                       </div>
 
-                      <div class="min-w-0 flex-1">
-                        {/* Name & Date */}
-                        <div class="mb-1 flex items-baseline gap-1">
-                          <span class="truncate font-semibold">
-                            {profile.name}
-                          </span>
-                          <span class="text-neutral-500">
-                            @{profile.username}
-                          </span>
-                          <span class="text-neutral-500">
-                            ･
-                          </span>
-                          <span class="leading-6 text-neutral-500">
-                            {work.year}
-                          </span>
-                        </div>
+                      {/* Title with Hashtag */}
+                      <div class="mb-1 flex flex-wrap items-center gap-2">
+                        <h3 class="text-lg font-bold">{work.title}</h3>
+                        <button
+                          class="hashtag-btn text-accent-secondary cursor-pointer hover:underline"
+                          data-category={work.category}
+                        >
+                          #
+                          {categories[
+                            work.category as keyof typeof categories
+                          ] || work.category}
+                        </button>
+                      </div>
 
-                        {/* Title with Hashtag */}
-                        <div class="mb-1 flex flex-wrap items-center gap-2">
-                          <h3 class="text-lg font-bold">{work.title}</h3>
-                          <button
-                            class="hashtag-btn text-accent-secondary cursor-pointer hover:underline"
-                            data-category={work.category}
-                          >
-                            #
-                            {categories[
-                              work.category as keyof typeof categories
-                            ] || work.category}
-                          </button>
-                        </div>
+                      {/* Description */}
+                      <p class="mb-3 whitespace-pre-line">{work.description}</p>
 
-                        {/* Description */}
-                        <p class="mb-3 whitespace-pre-line">
-                          {work.description}
-                        </p>
-
-                        {/* Image */}
-                        {work.image &&
-                          (work.link ? (
-                            <a
-                              href={work.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border"
-                            >
-                              <Image
-                                src={work.image}
-                                alt={work.title}
-                                loading={index === 0 ? "eager" : "lazy"}
-                                fetchpriority={index === 0 ? "high" : undefined}
-                                class="size-full object-cover"
-                              />
-                            </a>
-                          ) : (
-                            <div class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border">
-                              <Image
-                                src={work.image}
-                                alt={work.title}
-                                loading={index === 0 ? "eager" : "lazy"}
-                                fetchpriority={index === 0 ? "high" : undefined}
-                                class="size-full object-cover"
-                              />
-                            </div>
-                          ))}
-
-                        {/* Link */}
-                        {work.link && (
+                      {/* Image */}
+                      {work.image &&
+                        (work.link ? (
                           <a
                             href={work.link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            class="text-accent-secondary inline-flex items-center gap-2 hover:underline"
+                            class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border"
                           >
-                            <LinkIcon class="size-4" />
-                            <span>{work.link}</span>
+                            <Image
+                              src={work.image}
+                              alt={work.title}
+                              loading={index === 0 ? "eager" : "lazy"}
+                              fetchpriority={index === 0 ? "high" : undefined}
+                              class="size-full object-cover"
+                            />
                           </a>
-                        )}
-                      </div>
+                        ) : (
+                          <div class="border-base-secondary bg-base-secondary mb-3 block aspect-video overflow-hidden rounded-2xl border">
+                            <Image
+                              src={work.image}
+                              alt={work.title}
+                              loading={index === 0 ? "eager" : "lazy"}
+                              fetchpriority={index === 0 ? "high" : undefined}
+                              class="size-full object-cover"
+                            />
+                          </div>
+                        ))}
+
+                      {/* Link */}
+                      {work.link && (
+                        <a
+                          href={work.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="text-accent-secondary inline-flex items-center gap-2 hover:underline"
+                        >
+                          <LinkIcon class="size-4" />
+                          <span>{work.link}</span>
+                        </a>
+                      )}
                     </div>
                   </div>
-                </article>
-              ))
-            }
-          </div>
-        </main>
-
-        <!-- End of Timeline (Tweet Style) -->
-        <article
-          id="end-of-timeline"
-          class="border-base-secondary border-b"
-        >
-          <div class="p-4">
-            <div class="flex gap-3">
-              <div
-                class="bg-base-secondary h-10 w-10 shrink-0 overflow-hidden rounded-full"
-              >
-                <Avatar class="h-full w-full object-cover" />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="mb-1 flex items-baseline gap-1">
-                  <span class="truncate font-semibold">{profile.name}</span>
-                  <span class="text-neutral-500"
-                    >@{profile.username}</span
-                  >
                 </div>
-                <p>
-                  ここで終わりです
-                </p>
+              </article>
+            ))
+          }
+        </div>
+      </main>
+
+      <!-- End of Timeline (Tweet Style) -->
+      <article id="end-of-timeline" class="border-base-secondary border-b">
+        <div class="p-4">
+          <div class="flex gap-3">
+            <div
+              class="bg-base-secondary h-10 w-10 shrink-0 overflow-hidden rounded-full"
+            >
+              <Avatar class="h-full w-full object-cover" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="mb-1 flex items-baseline gap-1">
+                <span class="truncate font-semibold">{profile.name}</span>
+                <span class="text-neutral-500">@{profile.username}</span>
               </div>
+              <p>ここで終わりです</p>
             </div>
           </div>
-        </article>
-      </div>
+        </div>
+      </article>
     </div>
 
     <!-- Footer -->
     <footer class="px-4 py-8">
-      <p
-        class="mt-4 text-center text-neutral-500"
-      >
+      <p class="mt-4 text-center text-neutral-500">
         &copy; {new Date().getFullYear()}
         {profile.name}
       </p>
