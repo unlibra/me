@@ -12,6 +12,7 @@ import ParodyIcon from "../components/icons/ParodyIcon.astro";
 import LocationIcon from "../components/icons/LocationIcon.astro";
 import LinkIcon from "../components/icons/LinkIcon.astro";
 import CalendarIcon from "../components/icons/CalendarIcon.astro";
+import PinIcon from "../components/icons/PinIcon.astro";
 import miraImg from "../assets/works/mira.webp";
 import fostyNaturalImg from "../assets/works/fosty-natural.webp";
 import fostyDarkImg from "../assets/works/fosty-dark.webp";
@@ -28,6 +29,7 @@ interface Project {
   image?: ImageMetadata;
   year?: string;
   link?: string;
+  pinned?: boolean;
 }
 
 const site = {
@@ -68,7 +70,7 @@ const allWorks: Project[] = [
     category: "software",
     year: "2020",
     image: pypiImg,
-    link: 'https://pypi.org/project/tkinter-unblur'
+    link: "https://pypi.org/project/tkinter-unblur",
   },
   {
     id: "2",
@@ -106,6 +108,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
     year: "2025",
     image: eightPxImg,
     link: "https://8px.app",
+    pinned: true,
   },
   {
     id: "6",
@@ -118,16 +121,19 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
     image: iromideImg,
     link: "https://8px.app/iromide",
   },
-    {
+  {
     id: "7",
     title: "next-i18n-tiny",
     description: `最もシンプルなi18nライブラリを作りました。Next.js AppRouter向けの型安全で依存性のないi18nライブラリ。`,
     category: "software",
     year: "2025",
     image: npmImg,
-    link: 'https://www.npmjs.com/package/next-i18n-tiny'
+    link: "https://www.npmjs.com/package/next-i18n-tiny",
   },
 ];
+
+// Reverse chronological order (CSS handles pinned item ordering)
+const sortedWorks = [...allWorks].reverse();
 ---
 
 <!doctype html>
@@ -287,14 +293,27 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
 
       <!-- Timeline / Works -->
       <main>
-        <div id="timeline" role="tabpanel" aria-label="作品一覧">
+        <div
+          id="timeline"
+          role="tabpanel"
+          aria-label="作品一覧"
+          class="pinned-mode flex flex-col"
+        >
           {
-            [...allWorks].reverse().map((work, index) => (
+            sortedWorks.map((work, index) => (
               <article
                 class="work-item border-base-secondary border-b"
                 data-category={work.category}
+                data-pinned={work.pinned ? "true" : undefined}
               >
                 <div class="p-4">
+                  {/* Pinned Label - only shown in All tab */}
+                  {work.pinned && (
+                    <div class="pinned-label text-x-sm mb-0.5 flex items-center gap-2 font-semibold text-neutral-500">
+                      <PinIcon class="ml-7 size-4" />
+                      <span>固定</span>
+                    </div>
+                  )}
                   {/* Tweet Header */}
                   <div class="flex gap-3">
                     {/* Small Avatar */}
@@ -323,11 +342,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
                         <button
                           class="hashtag-btn text-accent-secondary cursor-pointer hover:underline"
                           data-category={work.category}
-                        >
-                          #{categories[
-                            work.category as keyof typeof categories
-                          ] || work.category}
-                        </button>
+                        >{`#${categories[work.category as keyof typeof categories] || work.category}`}</button>
                       </div>
 
                       {/* Description */}
@@ -432,6 +447,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
       const tabButtons = document.querySelectorAll(".tab-btn");
       const workItems = document.querySelectorAll(".work-item");
       const hashtagButtons = document.querySelectorAll(".hashtag-btn");
+      const timeline = document.getElementById("timeline");
 
       function switchTab(tab: string, updateHash = true) {
         // Update tab styles and aria-selected
@@ -454,7 +470,12 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
           activeTab.appendChild(indicator);
         }
 
-        // Filter works
+        // Toggle pinned mode (All tab only) - CSS handles label visibility and order
+        if (timeline) {
+          timeline.classList.toggle("pinned-mode", tab === "all");
+        }
+
+        // Filter works by category
         workItems.forEach((item) => {
           const category = item.getAttribute("data-category");
           if (tab === "all" || category === tab) {

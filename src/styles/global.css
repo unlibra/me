@@ -8,4 +8,19 @@
   --font-sans: "IBM Plex Sans JP", sans-serif;
   --text-x-base: 15px;
   --text-x-base--line-height: 20px;
+  --text-x-sm: 13px;
+  --text-x-sm--line-height: 16px;
+}
+
+/* Pinned items: only in pinned-mode (All tab) */
+#timeline.pinned-mode .work-item[data-pinned="true"] {
+  order: -1;
+}
+
+.pinned-label {
+  display: none;
+}
+
+#timeline.pinned-mode .pinned-label {
+  display: flex;
 }
