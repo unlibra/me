@@ -33,10 +33,11 @@ interface Project {
 }
 
 const site = {
-  title: "unlibra.com",
-  url: "https://unlibra.com",
+  title: import.meta.env.PUBLIC_SITE_TITLE || "unlibra.com",
+  url: import.meta.env.PUBLIC_SITE_URL || "https://unlibra.com",
+  canonicalUrl: "https://unlibra.com",
   description:
-    "unlibraのXオマージュポートフォリオサイト。Webアプリ開発やソフトウェア開発、自作キーボードなど制作実績を紹介しています。",
+    "Xオマージュのポートフォリオサイトです。Webアプリ開発やソフトウェア開発、自作キーボードなど開発・制作実績を紹介しています。",
   ogImage: "/ogp.png",
 };
 
@@ -146,7 +147,7 @@ const sortedWorks = [...allWorks].reverse();
     <!-- SEO -->
     <title>{site.title}</title>
     <meta name="description" content={site.description} />
-    <link rel="canonical" href={site.url} />
+    <link rel="canonical" href={site.canonicalUrl} />
 
     <!-- OGP -->
     <meta property="og:title" content={site.title} />
