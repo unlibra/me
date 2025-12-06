@@ -1,0 +1,26 @@
+---
+import Link from "@i18n-tiny/astro/router/Link.astro";
+import { locales, localeNames, type Locale } from "@/i18n";
+
+const currentLocale = (Astro.params.locale ?? "ja") as Locale;
+---
+
+<div class="flex items-center gap-1 rounded-full border border-neutral-700 bg-base-secondary p-1">
+  {
+    locales.map((loc) => (
+      <Link
+        href={Astro.url.pathname}
+        locale={loc}
+        normalize
+        class={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors text-neutral-200
+          ${
+            loc === currentLocale
+              ? "bg-accent-primary"
+              : "text-neutral-400 hover:text-white hover:bg-neutral-700/40"
+          }`}
+      >
+        {localeNames[loc]}
+      </Link>
+    ))
+  }
+</div>
