@@ -14,14 +14,10 @@ import LinkIcon from "@/components/icons/LinkIcon.astro";
 import CalendarIcon from "@/components/icons/CalendarIcon.astro";
 import PinIcon from "@/components/icons/PinIcon.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
-import miraImg from "@/assets/works/mira.webp";
-import fostyNaturalImg from "@/assets/works/fosty-natural.webp";
-import fostyDarkImg from "@/assets/works/fosty-dark.webp";
-import eightPxImg from "@/assets/works/8pxapp.webp";
-import iromideImg from "@/assets/works/iromide.webp";
-import npmImg from "@/assets/npm.svg";
-import pypiImg from "@/assets/pypi.svg";
 import { locales, getMessages } from "@/i18n";
+import { site as siteConfig } from "@/config/site";
+import { profile as profileConfig } from "@/config/profile";
+import { works as worksConfig } from "@/config/works";
 
 export function getStaticPaths() {
   return locales.map((locale) => ({
@@ -32,22 +28,10 @@ export function getStaticPaths() {
 const { locale } = Astro.params;
 const messages = getMessages(locale!);
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  image?: ImageMetadata;
-  year?: string;
-  link?: string;
-}
-
 const site = {
-  title: import.meta.env.PUBLIC_SITE_TITLE || messages.site.title,
-  url: import.meta.env.PUBLIC_SITE_URL || "https://unlibra.com",
-  canonicalUrl: "https://unlibra.com",
+  ...siteConfig,
+  title: siteConfig.title,
   description: messages.site.description,
-  ogImage: "/ogp.png",
 };
 
 const categories = {
@@ -57,12 +41,8 @@ const categories = {
 } as const;
 
 const profile = {
-  name: "unlibra",
-  username: "unlibra",
+  ...profileConfig,
   bio: messages.profile.bio,
-  location: "Tokyo, Japan",
-  website: "https://github.com/unlibra",
-  sponsor: "https://ofuse.me/unlibra",
 };
 
 const buildDate = new Date();
@@ -71,68 +51,14 @@ const updatedAt = buildDate.toLocaleDateString("en-US", {
   month: "short",
 });
 
-const allWorks: Project[] = [
-  {
-    id: "0",
-    title: messages.works["8pxapp"].title,
-    description: messages.works["8pxapp"].description,
-    category: "web",
-    year: "2025",
-    image: eightPxImg,
-    link: "https://8px.app",
-  },
-  {
-    id: "1",
-    title: messages.works["tkinter-unblur"].title,
-    description: messages.works["tkinter-unblur"].description,
-    category: "software",
-    year: "2020",
-    image: pypiImg,
-    link: "https://pypi.org/project/tkinter-unblur",
-  },
-  {
-    id: "2",
-    title: messages.works["mira-zero"].title,
-    description: messages.works["mira-zero"].description,
-    category: "keyboard",
-    year: "2024",
-    image: miraImg,
-  },
-  {
-    id: "3",
-    title: messages.works["fosty-natural"].title,
-    description: messages.works["fosty-natural"].description,
-    category: "keyboard",
-    year: "2025",
-    image: fostyNaturalImg,
-  },
-  {
-    id: "4",
-    title: messages.works["fosty-dark"].title,
-    description: messages.works["fosty-dark"].description,
-    category: "keyboard",
-    year: "2025",
-    image: fostyDarkImg,
-  },
-  {
-    id: "5",
-    title: messages.works.iromide.title,
-    description: messages.works.iromide.description,
-    category: "web",
-    year: "2025",
-    image: iromideImg,
-    link: "https://8px.app/iromide",
-  },
-  {
-    id: "6",
-    title: messages.works["next-i18n-tiny"].title,
-    description: messages.works["next-i18n-tiny"].description,
-    category: "software",
-    year: "2025",
-    image: npmImg,
-    link: "https://www.npmjs.com/package/next-i18n-tiny",
-  },
-];
+// Build works list from config + messages
+const allWorks = worksConfig.map((work, index) => ({
+  ...work,
+  // ID 0 is pinned
+  id: index === 0 ? "0" : String(index),
+  title: messages.works[work.id as keyof typeof messages.works].title,
+  description: messages.works[work.id as keyof typeof messages.works].description,
+}));
 
 // Reverse chronological order (CSS handles pinned item ordering)
 const sortedWorks = [...allWorks].reverse();
