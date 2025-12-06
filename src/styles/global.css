@@ -13,7 +13,7 @@
 }
 
 /* Pinned items: only in pinned-mode (All tab) */
-#timeline.pinned-mode .work-item[data-pinned="true"] {
+#timeline.pinned-mode .work-item[data-id="0"] {
   order: -1;
 }
 

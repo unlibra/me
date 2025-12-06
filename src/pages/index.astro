@@ -29,7 +29,6 @@ interface Project {
   image?: ImageMetadata;
   year?: string;
   link?: string;
-  pinned?: boolean;
 }
 
 const site = {
@@ -64,6 +63,16 @@ const updatedAt = buildDate.toLocaleDateString("en-US", {
 });
 
 const allWorks: Project[] = [
+  {
+    id: "0",
+    title: "8px.app",
+    description: `Favicon生成、カラーパレット作成、SVG最適化など、Web・アプリ開発者のためのツールセット。
+Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
+    category: "web",
+    year: "2025",
+    image: eightPxImg,
+    link: "https://8px.app",
+  },
   {
     id: "1",
     title: "tkinter-unblur",
@@ -102,17 +111,6 @@ const allWorks: Project[] = [
   },
   {
     id: "5",
-    title: "8px.app",
-    description: `Favicon生成、カラーパレット作成、SVG最適化など、Web・アプリ開発者のためのツールセット。
-Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
-    category: "web",
-    year: "2025",
-    image: eightPxImg,
-    link: "https://8px.app",
-    pinned: true,
-  },
-  {
-    id: "6",
     title: "推し色生成 イロマイド",
     description: `画像からカラーパレットを生成してチェキを作るサービス。
 8px.app内のサービスとして公開。
@@ -123,7 +121,7 @@ Tailwindに馴染むカラーパレットを作りたいという想いから始
     link: "https://8px.app/iromide",
   },
   {
-    id: "7",
+    id: "6",
     title: "next-i18n-tiny",
     description: `最もシンプルなi18nライブラリを作りました。Next.js AppRouter向けの型安全で依存性のないi18nライブラリ。`,
     category: "software",
@@ -305,11 +303,11 @@ const sortedWorks = [...allWorks].reverse();
               <article
                 class="work-item border-base-secondary border-b"
                 data-category={work.category}
-                data-pinned={work.pinned ? "true" : undefined}
+                data-id={work.id}
               >
                 <div class="p-4">
                   {/* Pinned Label - only shown in All tab */}
-                  {work.pinned && (
+                  {work.id === "0" && (
                     <div class="pinned-label text-x-sm mb-0.5 flex items-center gap-2 font-semibold text-neutral-500">
                       <PinIcon class="ml-7 size-4" />
                       <span>固定</span>
