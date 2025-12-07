@@ -14,7 +14,7 @@ import LinkIcon from "@/components/icons/LinkIcon.astro";
 import CalendarIcon from "@/components/icons/CalendarIcon.astro";
 import PinIcon from "@/components/icons/PinIcon.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
-import { locales, getMessages } from "@/i18n";
+import { locales, defaultLocale, getMessages } from "@/i18n";
 import { site as siteConfig } from "@/config/site";
 import { profile as profileConfig } from "@/config/profile";
 import { works as worksConfig } from "@/config/works";
@@ -63,8 +63,11 @@ const allWorks = worksConfig.map((work, index) => ({
 // Reverse chronological order (CSS handles pinned item ordering)
 const sortedWorks = [...allWorks].reverse();
 
-// Build locale-aware URLs
-const pageUrl = `${site.url}/${locale}/`;
+// Build locale-aware URLs (no trailing slash for cleaner URLs)
+// canonical/hreflang: use site.canonicalUrl (always points to main site, not mirror)
+// ogUrl: use site.url (for sharing, respects environment)
+const canonicalUrl = `${site.canonicalUrl}/${locale}`;
+const ogUrl = locale === defaultLocale ? site.url : `${site.url}/${locale}`;
 const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
 ---
 
@@ -78,19 +81,19 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
     <!-- SEO -->
     <title>{site.title}</title>
     <meta name="description" content={site.description} />
-    <link rel="canonical" href={pageUrl} />
+    <link rel="canonical" href={canonicalUrl} />
 
-    <!-- hreflang for alternate languages -->
+    <!-- hreflang for alternate languages (always points to main site) -->
     {locales.map((l) => (
-      <link rel="alternate" hreflang={l} href={`${site.url}/${l}/`} />
+      <link rel="alternate" hreflang={l} href={`${site.canonicalUrl}/${l}`} />
     ))}
-    <link rel="alternate" hreflang="x-default" href={site.url} />
+    <link rel="alternate" hreflang="x-default" href={site.canonicalUrl} />
 
     <!-- OGP -->
     <meta property="og:title" content={site.title} />
     <meta property="og:description" content={site.description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={pageUrl} />
+    <meta property="og:url" content={ogUrl} />
     <meta property="og:image" content={site.url + site.ogImage} />
     <meta property="og:locale" content={ogLocale} />
     <meta property="og:site_name" content={site.title} />

@@ -15,7 +15,6 @@ import { locales, defaultLocale } from "@/i18n";
 const middleware = create({
   locales,
   defaultLocale,
-  prefixDefault: true,
   excludePaths: ["/privacy"],
 });
 
