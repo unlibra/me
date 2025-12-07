@@ -5,7 +5,7 @@ import { locales, localeNames, type Locale } from "@/i18n";
 const currentLocale = (Astro.params.locale ?? "ja") as Locale;
 ---
 
-<div class="flex items-center gap-1 rounded-full border border-neutral-700 bg-base-secondary p-1">
+<div class="flex items-center gap-1 rounded-full border border-neutral-600 bg-base-secondary p-1">
   {
     locales.map((loc) => (
       <Link
@@ -16,7 +16,7 @@ const currentLocale = (Astro.params.locale ?? "ja") as Locale;
           ${
             loc === currentLocale
               ? "bg-accent-primary"
-              : "text-neutral-400 hover:text-white hover:bg-neutral-700/40"
+              : "hover:text-white hover:bg-neutral-600/40"
           }`}
       >
         {localeNames[loc]}
