@@ -4,7 +4,6 @@ import jaMessages from "@/messages/ja";
 
 export const locales = ["en", "ja"] as const;
 export const defaultLocale = "ja";
-export const fallbackLocale = "en";
 
 export type Locale = (typeof locales)[number];
 
