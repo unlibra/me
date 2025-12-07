@@ -11,6 +11,7 @@
  * - /ja* (Japanese locale - includes /ja and /ja/*)
  * - /en* (English locale - includes /en and /en/*)
  * - /privacy* (language-neutral pages)
+ * - Files with extensions (e.g., /icon.svg, /ogp.png)
  */
 
 interface Env {
@@ -36,7 +37,8 @@ export const onRequest = async ({ request, env, next }: EventContext): Promise<R
     path.startsWith("/_image/") ||
     path.startsWith("/ja") ||
     path.startsWith("/en") ||
-    path.startsWith("/privacy")
+    path.startsWith("/privacy") ||
+    path.includes(".")  // Static files with extensions (e.g., /icon.svg, /ogp.png)
   ) {
     return next();
   }
