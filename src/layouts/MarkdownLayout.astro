@@ -1,0 +1,103 @@
+---
+import "@/styles/global.css";
+import "@fontsource/ibm-plex-sans-jp/400.css";
+import "@fontsource/ibm-plex-sans-jp/500.css";
+import "@fontsource/ibm-plex-sans-jp/700.css";
+
+interface Props {
+  frontmatter?: {
+    title?: string;
+  };
+}
+
+const { frontmatter } = Astro.props;
+const title = frontmatter?.title || "プライバシーポリシー";
+const siteName = import.meta.env.PUBLIC_SITE_TITLE || "unlibra.com";
+const siteTitle = title + " - " + siteName;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{siteTitle}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  </head>
+  <body class="bg-base-primary text-neutral-200 antialiased">
+    <div class="mx-auto max-w-3xl px-4 py-8">
+      <header class="mb-8">
+        <a href="/" class="text-accent-secondary hover:underline">&lt; {siteName}</a>
+      </header>
+      <main class="prose prose-invert max-w-none">
+        <slot />
+      </main>
+      <footer class="mt-12 border-t border-neutral-700 pt-8 text-center text-sm text-neutral-500">
+        <a href="/" class="hover:underline">{siteName}</a>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  .prose {
+    color: #e5e7eb;
+  }
+
+  .prose h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #f3f4f6;
+  }
+
+  .prose h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #f3f4f6;
+  }
+
+  .prose h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #f3f4f6;
+  }
+
+  .prose p {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.75;
+  }
+
+  .prose strong {
+    color: #f3f4f6;
+    font-weight: 600;
+  }
+
+  .prose ul {
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    list-style-type: disc;
+  }
+
+  .prose li {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .prose a {
+    color: #3ba0be;
+    text-decoration: underline;
+  }
+
+  .prose a:hover {
+    color: #1a7ba0;
+  }
+</style>

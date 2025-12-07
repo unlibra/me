@@ -1,59 +1,48 @@
 ---
-import "../styles/global.css";
+import "@/styles/global.css";
 import "@fontsource/ibm-plex-sans-jp/400.css";
 import "@fontsource/ibm-plex-sans-jp/500.css";
 import "@fontsource/ibm-plex-sans-jp/700.css";
 import { Image } from "astro:assets";
 
-import Avatar from "../components/Avatar.astro";
-import SponsorButton from "../components/SponsorButton.astro";
-import ShareIcon from "../components/icons/ShareIcon.astro";
-import ParodyIcon from "../components/icons/ParodyIcon.astro";
-import LocationIcon from "../components/icons/LocationIcon.astro";
-import LinkIcon from "../components/icons/LinkIcon.astro";
-import CalendarIcon from "../components/icons/CalendarIcon.astro";
-import PinIcon from "../components/icons/PinIcon.astro";
-import miraImg from "../assets/works/mira.webp";
-import fostyNaturalImg from "../assets/works/fosty-natural.webp";
-import fostyDarkImg from "../assets/works/fosty-dark.webp";
-import eightPxImg from "../assets/works/8pxapp.webp";
-import iromideImg from "../assets/works/iromide.webp";
-import npmImg from "../../assets/npm.svg";
-import pypiImg from "../../assets/pypi.svg";
+import Avatar from "@/components/Avatar.astro";
+import SponsorButton from "@/components/SponsorButton.astro";
+import ShareIcon from "@/components/icons/ShareIcon.astro";
+import ParodyIcon from "@/components/icons/ParodyIcon.astro";
+import LocationIcon from "@/components/icons/LocationIcon.astro";
+import LinkIcon from "@/components/icons/LinkIcon.astro";
+import CalendarIcon from "@/components/icons/CalendarIcon.astro";
+import PinIcon from "@/components/icons/PinIcon.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import { locales, getMessages } from "@/i18n";
+import { site as siteConfig } from "@/config/site";
+import { profile as profileConfig } from "@/config/profile";
+import { works as worksConfig } from "@/config/works";
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  image?: ImageMetadata;
-  year?: string;
-  link?: string;
-  pinned?: boolean;
+export function getStaticPaths() {
+  return locales.map((locale) => ({
+    params: { locale },
+  }));
 }
 
+const { locale } = Astro.params;
+const messages = getMessages(locale!);
+
 const site = {
-  title: "unlibra.com",
-  url: "https://unlibra.com",
-  description:
-    "unlibraのXオマージュポートフォリオサイト。Webアプリ開発やソフトウェア開発、自作キーボードなど制作実績を紹介しています。",
-  ogImage: "/ogp.png",
+  ...siteConfig,
+  title: siteConfig.title,
+  description: messages.site.description,
 };
 
 const categories = {
-  web: "Web",
-  software: "Software",
-  keyboard: "Keyboard",
+  web: messages.categories.web,
+  software: messages.categories.software,
+  keyboard: messages.categories.keyboard,
 } as const;
 
 const profile = {
-  name: "unlibra",
-  username: "unlibra",
-  bio: `Xオマージュのポートフォリオサイトです
-これまでの開発・制作物をまとめています`,
-  location: "Tokyo, Japan",
-  website: "https://github.com/unlibra",
-  sponsor: "https://ofuse.me/unlibra",
+  ...profileConfig,
+  bio: messages.profile.bio,
 };
 
 const buildDate = new Date();
@@ -62,75 +51,14 @@ const updatedAt = buildDate.toLocaleDateString("en-US", {
   month: "short",
 });
 
-const allWorks: Project[] = [
-  {
-    id: "1",
-    title: "tkinter-unblur",
-    description: `Windowsの高DPI環境でPythonのTkinterがぼやけてしまう問題を修正したライブラリを作りました。`,
-    category: "software",
-    year: "2020",
-    image: pypiImg,
-    link: "https://pypi.org/project/tkinter-unblur",
-  },
-  {
-    id: "2",
-    title: "mira zero",
-    description: `40%分割カラムスタッガード配列ロープロ(ChocV1)キーボード。終売。
-初めて作った自作キーボード。`,
-    category: "keyboard",
-    year: "2024",
-    image: miraImg,
-  },
-  {
-    id: "3",
-    title: "fosty natural",
-    description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。アルミカラーモデル。非売品。
-6作目ぐらい。エンドゲーム。`,
-    category: "keyboard",
-    year: "2025",
-    image: fostyNaturalImg,
-  },
-  {
-    id: "4",
-    title: "fosty dark",
-    description: `HHKBインスパイア配列40%ロープロファイル(ChocV2)キーボード。ブラックモデル。非売品。
-黒もほしくなったので作った。`,
-    category: "keyboard",
-    year: "2025",
-    image: fostyDarkImg,
-  },
-  {
-    id: "5",
-    title: "8px.app",
-    description: `Favicon生成、カラーパレット作成、SVG最適化など、Web・アプリ開発者のためのツールセット。
-Tailwindに馴染むカラーパレットを作りたいという想いから始まり、ついでに自分が使うWEBサービスの機能を集約した。`,
-    category: "web",
-    year: "2025",
-    image: eightPxImg,
-    link: "https://8px.app",
-    pinned: true,
-  },
-  {
-    id: "6",
-    title: "推し色生成 イロマイド",
-    description: `画像からカラーパレットを生成してチェキを作るサービス。
-8px.app内のサービスとして公開。
-画像からカラーパレット作るツール作ってるうちにこうなった。`,
-    category: "web",
-    year: "2025",
-    image: iromideImg,
-    link: "https://8px.app/iromide",
-  },
-  {
-    id: "7",
-    title: "next-i18n-tiny",
-    description: `最もシンプルなi18nライブラリを作りました。Next.js AppRouter向けの型安全で依存性のないi18nライブラリ。`,
-    category: "software",
-    year: "2025",
-    image: npmImg,
-    link: "https://www.npmjs.com/package/next-i18n-tiny",
-  },
-];
+// Build works list from config + messages
+const allWorks = worksConfig.map((work, index) => ({
+  ...work,
+  // ID 0 is pinned
+  id: index === 0 ? "0" : String(index),
+  title: messages.works[work.id as keyof typeof messages.works].title,
+  description: messages.works[work.id as keyof typeof messages.works].description,
+}));
 
 // Reverse chronological order (CSS handles pinned item ordering)
 const sortedWorks = [...allWorks].reverse();
@@ -146,7 +74,7 @@ const sortedWorks = [...allWorks].reverse();
     <!-- SEO -->
     <title>{site.title}</title>
     <meta name="description" content={site.description} />
-    <link rel="canonical" href={site.url} />
+    <link rel="canonical" href={site.canonicalUrl} />
 
     <!-- OGP -->
     <meta property="og:title" content={site.title} />
@@ -172,8 +100,9 @@ const sortedWorks = [...allWorks].reverse();
     <div class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x">
       <!-- Header Bar -->
       <header class="border-base-secondary border-b">
-        <div class="flex items-center gap-6 px-4 py-3">
+        <div class="flex items-center justify-between gap-6 px-4 py-3">
           <h1 class="text-lg font-semibold">{site.title}</h1>
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -220,7 +149,7 @@ const sortedWorks = [...allWorks].reverse();
           <p class="text-neutral-500">@{profile.username}</p>
           <p class="mt-1 flex items-center gap-1 text-neutral-500">
             <ParodyIcon class="size-5" />
-            <span class="translate-y-px">パロディサイト</span>
+            <span class="translate-y-px">{messages.profile.parodyLabel}</span>
           </p>
         </div>
 
@@ -254,7 +183,7 @@ const sortedWorks = [...allWorks].reverse();
           }
           <span class="flex items-center gap-1">
             <CalendarIcon class="h-4 w-4" />
-            <span class="translate-y-px">Updated {updatedAt}</span>
+            <span class="translate-y-px">{messages.profile.updated} {updatedAt}</span>
           </span>
         </div>
       </div>
@@ -269,7 +198,7 @@ const sortedWorks = [...allWorks].reverse();
             aria-controls="timeline"
             class="tab-btn hover:bg-base-secondary focus-visible:ring-accent-primary relative cursor-pointer p-4 font-medium whitespace-nowrap transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset"
           >
-            All
+            {messages.categories.all}
             <div
               class="tab-indicator bg-accent-primary absolute bottom-0 left-1/2 h-1 w-16 -translate-x-1/2 rounded-full"
             >
@@ -304,14 +233,14 @@ const sortedWorks = [...allWorks].reverse();
               <article
                 class="work-item border-base-secondary border-b"
                 data-category={work.category}
-                data-pinned={work.pinned ? "true" : undefined}
+                data-id={work.id}
               >
                 <div class="p-4">
                   {/* Pinned Label - only shown in All tab */}
-                  {work.pinned && (
+                  {work.id === "0" && (
                     <div class="pinned-label text-x-sm mb-0.5 flex items-center gap-2 font-semibold text-neutral-500">
                       <PinIcon class="ml-7 size-4" />
-                      <span>固定</span>
+                      <span>{messages.pinned}</span>
                     </div>
                   )}
                   {/* Tweet Header */}
@@ -412,7 +341,7 @@ const sortedWorks = [...allWorks].reverse();
                 <span class="truncate font-semibold">{profile.name}</span>
                 <span class="text-neutral-500">@{profile.username}</span>
               </div>
-              <p>ここで終わりです</p>
+              <p>{messages.footer.endOfTimeline}</p>
             </div>
           </div>
         </div>
@@ -421,6 +350,9 @@ const sortedWorks = [...allWorks].reverse();
 
     <!-- Footer -->
     <footer class="px-4 py-8">
+      <p class="text-center text-neutral-500">
+        <a href="/privacy" class="hover:underline">{messages.footer.privacyPolicy}</a>
+      </p>
       <p class="mt-4 text-center text-neutral-500">
         &copy; {new Date().getFullYear()}
         {profile.name}
