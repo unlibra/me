@@ -114,7 +114,9 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
       <!-- Header Bar -->
       <header class="border-base-secondary border-b">
         <div class="flex items-center justify-between gap-6 px-4 py-3">
-          <h1 class="text-lg font-semibold">{site.title}</h1>
+          <h1 class="text-lg font-semibold">
+            <a href="/">{site.title}</a>
+          </h1>
           <LanguageSwitcher />
         </div>
       </header>
