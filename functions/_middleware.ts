@@ -41,9 +41,11 @@ export const onRequest = async ({ request, env, next }: EventContext): Promise<R
     return next();
   }
 
-  // Language detection from Accept-Language header
+  // Language detection from Accept-Language header (respect priority order)
   const acceptLang = request.headers.get("Accept-Language") ?? "";
-  const preferJa = acceptLang.toLowerCase().includes("ja");
+  // Parse Accept-Language and get the primary (highest priority) language
+  const primaryLang = acceptLang.split(",")[0]?.trim().toLowerCase() ?? "";
+  const preferJa = primaryLang.startsWith("ja");
 
   if (preferJa) {
     // Japanese: Internal rewrite (URL stays the same, content from /ja/*)
