@@ -20,7 +20,7 @@ export interface Work {
 
 export const works: Work[] = [
   {
-    id: "8pxapp",
+    id: "8px-app",
     category: "web",
     year: "2025",
     image: eightPxImg,

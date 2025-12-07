@@ -15,8 +15,7 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
     "@fontsource/ibm-plex-sans-jp": "^5.2.8",
-    "@i18n-tiny/astro": "file:../next-i18n-tiny/packages/astro",
-    "@i18n-tiny/core": "file:../next-i18n-tiny/packages/core",
+    "@i18n-tiny/astro": "^1.0.0",
     "@tailwindcss/vite": "^4.1.17",
     "astro": "^5.16.4",
     "tailwindcss": "^4.1.17"

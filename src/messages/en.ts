@@ -16,7 +16,7 @@ It features personal projects such as web services, apps, libraries, and self-de
     keyboard: "Keyboard",
   },
   works: {
-    "8pxapp": {
+    "8px-app": {
       title: "8px app",
       description: `A utility toolkit designed for web and app developers, offering Tailwind-friendly color palette generation, favicon creation, SVG optimization, and more.
 Born from the idea of “putting all the tools I personally want in one place,” it emphasizes intuitive usability and a smooth workflow.`,

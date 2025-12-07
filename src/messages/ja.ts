@@ -16,7 +16,7 @@ export default {
     keyboard: "Keyboard",
   },
   works: {
-    "8pxapp": {
+    "8px-app": {
       title: "8px app",
       description: `Tailwindと相性の良いカラーパレット生成を中心に、Favicon作成やSVG最適化など、Web・アプリ開発者が日常的に使うツールをまとめたユーティリティアプリ。
 「自分が本当に欲しい機能を一つに集約する」という発想から生まれ、直感的で扱いやすい操作性を重視して設計しています。`,
