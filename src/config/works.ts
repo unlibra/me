@@ -3,7 +3,7 @@ import miraImg from "@/assets/works/mira.webp";
 import botsuImg from "@/assets/works/botsu.webp"
 import fostyNaturalImg from "@/assets/works/fosty-natural.webp";
 import fostyDarkImg from "@/assets/works/fosty-dark.webp";
-import eightPxImg from "@/assets/works/8pxapp.webp";
+import liblabImg from "@/assets/works/liblab.webp";
 import iromideImg from "@/assets/works/iromide.webp";
 import npmImg from "@/assets/npm.svg";
 import pypiImg from "@/assets/pypi.svg";
@@ -23,7 +23,7 @@ export const works: Work[] = [
     id: "liblab",
     category: "web",
     year: "2025",
-    image: eightPxImg,
+    image: liblabImg,
     link: "https://unlibra.com/lab",
   },
   {
