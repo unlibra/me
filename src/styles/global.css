@@ -12,11 +12,6 @@
   --text-x-sm--line-height: 16px;
 }
 
-/* Pinned items: only in pinned-mode (All tab) */
-#timeline.pinned-mode .work-item[data-id="0"] {
-  order: -1;
-}
-
 .pinned-label {
   display: none;
 }

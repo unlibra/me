@@ -60,8 +60,8 @@ const allWorks = worksConfig.map((work, index) => ({
   description: messages.works[work.id as keyof typeof messages.works].description,
 }));
 
-// Reverse chronological order (CSS handles pinned item ordering)
-const sortedWorks = [...allWorks].reverse();
+// Works are displayed in array order (first item is pinned)
+const sortedWorks = allWorks;
 
 // Build locale-aware URLs (no trailing slash for cleaner URLs)
 // canonical/hreflang: use site.canonicalUrl (always points to main site, not mirror)

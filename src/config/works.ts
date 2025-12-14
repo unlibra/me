@@ -19,6 +19,7 @@ export interface Work {
 }
 
 export const works: Work[] = [
+  // First item is pinned
   {
     id: "liblab",
     category: "web",
@@ -27,42 +28,11 @@ export const works: Work[] = [
     link: "https://unlibra.com/lab",
   },
   {
-    id: "tkinter-unblur",
+    id: "i18n-tiny-astro",
     category: "software",
-    year: "2020",
-    image: pypiImg,
-    link: "https://pypi.org/project/tkinter-unblur",
-  },
-  {
-    id: "mira-zero",
-    category: "keyboard",
-    year: "2023",
-    image: miraImg,
-  },
-  {
-    id: "botsu",
-    category: "keyboard",
-    year: "2024",
-    image: botsuImg,
-  },
-  {
-    id: "fosty-natural",
-    category: "keyboard",
     year: "2025",
-    image: fostyNaturalImg,
-  },
-  {
-    id: "fosty-dark",
-    category: "keyboard",
-    year: "2025",
-    image: fostyDarkImg,
-  },
-  {
-    id: "iromide",
-    category: "web",
-    year: "2025",
-    image: iromideImg,
-    link: "https://unlibra.com/lab/iromide",
+    image: npmImg,
+    link: "https://www.npmjs.com/package/@i18n-tiny/astro",
   },
   {
     id: "i18n-tiny-next",
@@ -72,10 +42,48 @@ export const works: Work[] = [
     link: "https://www.npmjs.com/package/@i18n-tiny/next",
   },
   {
-    id: "i18n-tiny-astro",
-    category: "software",
+    id: "iromide",
+    category: "web",
     year: "2025",
-    image: npmImg,
-    link: "https://www.npmjs.com/package/@i18n-tiny/astro",
+    image: iromideImg,
+    link: "https://unlibra.com/lab/iromide",
+  },
+  // {
+  //   id: "liblab",
+  //   category: "web",
+  //   year: "2025",
+  //   image: liblabImg,
+  //   link: "https://unlibra.com/lab",
+  // },
+  {
+    id: "fosty-dark",
+    category: "keyboard",
+    year: "2025",
+    image: fostyDarkImg,
+  },
+  {
+    id: "fosty-natural",
+    category: "keyboard",
+    year: "2025",
+    image: fostyNaturalImg,
+  },
+  {
+    id: "botsu",
+    category: "keyboard",
+    year: "2024",
+    image: botsuImg,
+  },
+  {
+    id: "mira-zero",
+    category: "keyboard",
+    year: "2023",
+    image: miraImg,
+  },
+  {
+    id: "tkinter-unblur",
+    category: "software",
+    year: "2020",
+    image: pypiImg,
+    link: "https://pypi.org/project/tkinter-unblur",
   },
 ];
