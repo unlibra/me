@@ -3,6 +3,7 @@ import "@/styles/global.css";
 import "@fontsource/ibm-plex-sans-jp/400.css";
 import "@fontsource/ibm-plex-sans-jp/500.css";
 import "@fontsource/ibm-plex-sans-jp/700.css";
+import Analytics from "@/components/Analytics.astro";
 
 interface Props {
   frontmatter?: {
@@ -38,6 +39,7 @@ const siteTitle = title + " - " + siteName;
         <a href="/" class="hover:underline">{siteName}</a>
       </footer>
     </div>
+    <Analytics />
   </body>
 </html>
 

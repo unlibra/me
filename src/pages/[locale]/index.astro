@@ -14,6 +14,7 @@ import LinkIcon from "@/components/icons/LinkIcon.astro";
 import CalendarIcon from "@/components/icons/CalendarIcon.astro";
 import PinIcon from "@/components/icons/PinIcon.astro";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import Analytics from "@/components/Analytics.astro";
 import { locales, defaultLocale, getMessages } from "@/i18n";
 import { site as siteConfig } from "@/config/site";
 import { profile as profileConfig } from "@/config/profile";
@@ -471,5 +472,6 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
         switchTab(hash, false);
       });
     </script>
+    <Analytics />
   </body>
 </html>
