@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 
+export const prerender = true;
+
 export const GET: APIRoute = () => {
   const disableRobots = process.env.DISABLE_ROBOTS === "true";
   const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://unlibra.com";
