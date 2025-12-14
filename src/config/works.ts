@@ -20,11 +20,11 @@ export interface Work {
 
 export const works: Work[] = [
   {
-    id: "8px-app",
+    id: "liblab",
     category: "web",
     year: "2025",
     image: eightPxImg,
-    link: "https://8px.app",
+    link: "https://unlibra.com/lab",
   },
   {
     id: "tkinter-unblur",
@@ -62,7 +62,7 @@ export const works: Work[] = [
     category: "web",
     year: "2025",
     image: iromideImg,
-    link: "https://8px.app/iromide",
+    link: "https://unlibra.com/lab/iromide",
   },
   {
     id: "i18n-tiny-next",

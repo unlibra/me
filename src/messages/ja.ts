@@ -16,8 +16,8 @@ export default {
     keyboard: "Keyboard",
   },
   works: {
-    "8px-app": {
-      title: "8px app",
+    "liblab": {
+      title: "Lib Lab",
       description: `Tailwindと相性の良いカラーパレット生成を中心に、Favicon作成やSVG最適化など、Web・アプリ開発者が日常的に使うツールをまとめたユーティリティアプリ。
 「自分が本当に欲しい機能を一つに集約する」という発想から生まれ、直感的で扱いやすい操作性を重視して設計しています。`,
     },
@@ -53,7 +53,7 @@ export default {
       title: "推し色生成 イロマイド",
       description: `画像から推しのイメージカラーを抽出し、本物のチェキと同じ比率でレイアウトされたオリジナルチェキを生成できるWebサービス。
 カラーパレット抽出アルゴリズムを調整し、ワンポイントになりがちな推し色がしっかり拾われるよう最適化しているのが特徴。
-8px.app から利用可能。`,
+Lib Labから利用可能。`,
     },
     "i18n-tiny-next": {
       title: "@i18n-tiny/next",

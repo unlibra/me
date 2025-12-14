@@ -16,8 +16,8 @@ It features personal projects such as web services, apps, libraries, and self-de
     keyboard: "Keyboard",
   },
   works: {
-    "8px-app": {
-      title: "8px app",
+    "liblab": {
+      title: "Lib Lab",
       description: `A utility toolkit designed for web and app developers, offering Tailwind-friendly color palette generation, favicon creation, SVG optimization, and more.
 Born from the idea of “putting all the tools I personally want in one place,” it emphasizes intuitive usability and a smooth workflow.`,
     },
@@ -52,7 +52,7 @@ Built simply because I wanted a black version — another personal endgame build
       title: "Iromide — Oshi Color Generator",
       description: `A web service that extracts a character’s signature color from an image and generates a Polaroid-style layout using the exact aspect ratio of real Instax film.
 The color extraction algorithm is optimized to highlight key accent colors that often define the “oshi.”
-Available within 8px.app.`,
+Available within Lib Lab.`,
     },
     "i18n-tiny-next": {
       title: "@i18n-tiny/next",
