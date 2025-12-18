@@ -30,6 +30,12 @@ export const onRequest = async ({ request, env, next }: EventContext): Promise<R
   const url = new URL(request.url);
   const path = url.pathname;
 
+  // Remove trailing slash (except for root)
+  if (path !== "/" && path.endsWith("/")) {
+    const newPath = path.slice(0, -1);
+    return Response.redirect(new URL(newPath + url.search, url.origin), 301);
+  }
+
   // Excluded paths - pass through to static assets
   // Note: /ja and /en (without trailing slash) are included for language switcher links
   if (
@@ -44,10 +50,11 @@ export const onRequest = async ({ request, env, next }: EventContext): Promise<R
   }
 
   // Language detection from Accept-Language header (respect priority order)
+  // Default to Japanese when no Accept-Language (e.g., Googlebot)
   const acceptLang = request.headers.get("Accept-Language") ?? "";
   // Parse Accept-Language and get the primary (highest priority) language
   const primaryLang = acceptLang.split(",")[0]?.trim().toLowerCase() ?? "";
-  const preferJa = primaryLang.startsWith("ja");
+  const preferJa = !primaryLang || primaryLang.startsWith("ja");
 
   if (preferJa) {
     // Japanese: Internal rewrite (URL stays the same, content from /ja/*)
@@ -56,6 +63,6 @@ export const onRequest = async ({ request, env, next }: EventContext): Promise<R
   }
 
   // Other languages: Redirect to /en/*
-  const redirectPath = path === "/" ? "/en/" : `/en${path}`;
+  const redirectPath = path === "/" ? "/en" : `/en${path}`;
   return Response.redirect(new URL(redirectPath, url.origin), 302);
 };

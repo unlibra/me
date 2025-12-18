@@ -26,9 +26,10 @@ export default function middleware(request: Request) {
   }
 
   // Language detection from Accept-Language header
+  // Default to Japanese when no Accept-Language (e.g., Googlebot)
   const acceptLang = request.headers.get("Accept-Language") ?? "";
   const primaryLang = acceptLang.split(",")[0]?.trim().toLowerCase() ?? "";
-  const preferJa = primaryLang.startsWith("ja");
+  const preferJa = !primaryLang || primaryLang.startsWith("ja");
 
   if (preferJa) {
     // Japanese: Internal rewrite (URL stays the same, content from /ja/*)
@@ -39,7 +40,7 @@ export default function middleware(request: Request) {
   }
 
   // Other languages: Redirect to /en/*
-  const redirectPath = path === "/" ? "/en/" : `/en${path}`;
+  const redirectPath = path === "/" ? "/en" : `/en${path}`;
   return Response.redirect(new URL(redirectPath, url.origin), 302);
 }
 
