@@ -26,15 +26,12 @@ const siteTitle = title + " - " + siteName;
     <title>{siteTitle}</title>
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
-  <body class="bg-base-primary text-neutral-200 antialiased">
+  <body class="antialiased">
     <div class="mx-auto max-w-3xl px-4 py-8">
-      <header class="mb-8">
-        <a href="/" class="text-accent-secondary hover:underline">&lt; {siteName}</a>
-      </header>
-      <main class="prose prose-invert max-w-none">
+      <main class="prose max-w-none">
         <slot />
       </main>
-      <footer class="mt-12 border-t border-neutral-700 pt-8 text-center text-sm text-neutral-500">
+      <footer class="mt-12 border-t border-neutral-200 pt-8 text-center text-sm text-neutral-500">
         <a href="/" class="hover:underline">{siteName}</a>
       </footer>
     </div>
@@ -43,15 +40,10 @@ const siteTitle = title + " - " + siteName;
 </html>
 
 <style is:global>
-  .prose {
-    color: #e5e7eb;
-  }
-
   .prose h1 {
     font-size: 2rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
-    color: #f3f4f6;
   }
 
   .prose h2 {
@@ -59,7 +51,6 @@ const siteTitle = title + " - " + siteName;
     font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
-    color: #f3f4f6;
   }
 
   .prose h3 {
@@ -67,7 +58,6 @@ const siteTitle = title + " - " + siteName;
     font-weight: 600;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
-    color: #f3f4f6;
   }
 
   .prose p {
@@ -77,7 +67,6 @@ const siteTitle = title + " - " + siteName;
   }
 
   .prose strong {
-    color: #f3f4f6;
     font-weight: 600;
   }
 

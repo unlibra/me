@@ -24,7 +24,8 @@ Born from the idea of “putting all the tools I personally want in one place,�
     "tkinter-unblur": {
       title: "tkinter-unblur",
       description: `A minimalistic library that fixes the blurry Tkinter rendering issue on Windows high-DPI displays.
-Just replace the import—and it works. No complex settings required, and easily integrates into existing codebases.`,
+Just replace the import—and it works. No complex settings required, and easily integrates into existing codebases.
+Docs: https://unlibra.github.io/tkinter-unblur/`,
     },
     "mira-zero": {
       title: "mira zero",
@@ -60,14 +61,16 @@ Available within Lib Lab.`,
 Simply prepare translation files and call the define function—usable in both Server and Client Components immediately.
 All key paths such as messages.site.title and t("site.title") are fully typed and auto-suggested, eliminating typos.
 Static generation features like generateStaticParams can be written cleanly without per-page duplication.
-Routing, prefixes, and automatic language detection are all handled via a single middleware create() API.`,
+Routing, prefixes, and automatic language detection are all handled via a single middleware create() API.
+Docs: https://unlibra.github.io/i18n-tiny/next/introduction`,
     },
     "i18n-tiny-astro": {
       title: "@i18n-tiny/astro",
       description: `A zero-dependency, type-safe, minimal internationalization library for Astro.
 Works with both SSG and SSR. Configuration is completed by a single define function, with full auto-completion for key paths like messages.common.title.
 Locale handling in getStaticPaths requires only minimal setup, avoiding repetitive per-page definitions.
-Routing configuration is handled with middleware.create(), supporting prefix/no-prefix modes and automatic language detection.`,
+Routing configuration is handled with middleware.create(), supporting prefix/no-prefix modes and automatic language detection.
+Docs: https://unlibra.github.io/i18n-tiny/astro/introduction`,
     },
   },
   footer: {

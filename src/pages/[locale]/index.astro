@@ -64,6 +64,12 @@ const allWorks = worksConfig.map((work, index) => ({
 // Works are displayed in array order (first item is pinned)
 const sortedWorks = allWorks;
 
+// Convert URLs in text to clickable links
+const linkify = (text: string): string => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-accent-secondary hover:underline">$1</a>');
+};
+
 // Build locale-aware URLs (no trailing slash for cleaner URLs)
 // canonical/hreflang: use site.canonicalUrl (always points to main site, not mirror)
 // ogUrl: use site.url (for sharing, respects environment)
@@ -291,7 +297,7 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
                       </div>
 
                       {/* Description */}
-                      <p class="mb-3 whitespace-pre-line">{work.description}</p>
+                      <p class="mb-3 whitespace-pre-line" set:html={linkify(work.description)} />
 
                       {/* Image */}
                       {work.image &&

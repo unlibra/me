@@ -25,7 +25,8 @@ export default {
       title: "tkinter-unblur",
       description:
         `Windowsの高DPI環境でTkinterアプリがぼやけてしまう問題を、importを書き換えるだけという究極にシンプルなAPIで解決するライブラリ。
-複雑な設定不要で、既存コードに最小限の変更で組み込める点を重視して作りました。`,
+複雑な設定不要で、既存コードに最小限の変更で組み込める点を重視して作りました。
+ドキュメント: https://unlibra.github.io/tkinter-unblur/`,
     },
     "mira-zero": {
       title: "mira zero",
@@ -62,7 +63,8 @@ Lib Labから利用可能。`,
 翻訳ファイルを用意してdefine関数を呼ぶだけで、Server ComponentsとClient Componentsの両方で即座に利用可能。
 messages.site.titleやt("site.title")などのパスがすべて型付きで自動サジェストされ、タイポの心配がありません。
 generateStaticParamsなどのSSG設定もシンプルに記述でき、ページごとに設定を繰り返す必要なし。
-middleware / proxyもcreate関数一つで完結し、プレフィックスの有無や自動言語検出など柔軟な構成に対応します。`,
+middleware / proxyもcreate関数一つで完結し、プレフィックスの有無や自動言語検出など柔軟な構成に対応します。
+ドキュメント: https://unlibra.github.io/i18n-tiny/next/introduction`,
     },
     "i18n-tiny-astro": {
       title: "@i18n-tiny/astro",
@@ -70,7 +72,8 @@ middleware / proxyもcreate関数一つで完結し、プレフィックスの�
         `依存ゼロ・型安全・最小構成のAstro向けi18nライブラリ。
 SSGとSSRの両方に対応。define関数一つで設定が完了し、messages.common.titleなどのキーパスがすべて自動補完されます。
 getStaticPathsでのロケール設定も最小限の記述で済み、ページごとに繰り返し書く必要はありません。
-middleware.create()でルーティング設定も完結し、プレフィックスの有無や自動言語検出など柔軟な構成に対応します。`,
+middleware.create()でルーティング設定も完結し、プレフィックスの有無や自動言語検出など柔軟な構成に対応します。
+ドキュメント: https://unlibra.github.io/i18n-tiny/astro/introduction`,
     },
   },
   footer: {
