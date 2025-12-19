@@ -21,11 +21,10 @@ export interface Work {
 export const works: Work[] = [
   // First item is pinned
   {
-    id: "liblab",
-    category: "web",
+    id: "fosty-natural",
+    category: "keyboard",
     year: "2025",
-    image: liblabImg,
-    link: "https://unlibra.com/lab",
+    image: fostyNaturalImg,
   },
   {
     id: "i18n-tiny-astro",
@@ -48,25 +47,25 @@ export const works: Work[] = [
     image: iromideImg,
     link: "https://unlibra.com/lab/iromide",
   },
-  // {
-  //   id: "liblab",
-  //   category: "web",
-  //   year: "2025",
-  //   image: liblabImg,
-  //   link: "https://unlibra.com/lab",
-  // },
+  {
+    id: "liblab",
+    category: "web",
+    year: "2025",
+    image: liblabImg,
+    link: "https://unlibra.com/lab",
+  },
   {
     id: "fosty-dark",
     category: "keyboard",
     year: "2025",
     image: fostyDarkImg,
   },
-  {
-    id: "fosty-natural",
-    category: "keyboard",
-    year: "2025",
-    image: fostyNaturalImg,
-  },
+  // {
+  //   id: "fosty-natural",
+  //   category: "keyboard",
+  //   year: "2025",
+  //   image: fostyNaturalImg,
+  // },
   {
     id: "botsu",
     category: "keyboard",
