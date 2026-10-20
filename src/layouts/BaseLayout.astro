@@ -1,0 +1,94 @@
+---
+import "@fontsource-variable/noto-sans-jp";
+import "@fontsource/roboto-mono/400.css";
+import "@fontsource/roboto-mono/500.css";
+import "@/styles/global.css";
+
+import { defaultLocale, ogLocales, type Locale } from "@/config/locales";
+import { absoluteUrl, site, type SitePath } from "@/config/site";
+import { themeStorageKey } from "@/config/theme";
+
+interface Props {
+  lang: Locale;
+  /** Full document title. */
+  title: string;
+  description: string;
+  /**
+   * Whether this page has a canonical URL (and og:url). Pass `false` only for
+   * pages that are not addressable by their own URL, such as the 404 page.
+   */
+  canonical: boolean;
+  /** Path of the same page in the other language, if it exists. */
+  alternatePath?: SitePath;
+}
+
+const { lang, title, description, canonical, alternatePath } = Astro.props;
+
+const pageUrl = absoluteUrl(Astro.url.pathname as SitePath);
+const ogImage = absoluteUrl(site.ogImage);
+
+const alternates = alternatePath
+  ? {
+      [lang]: pageUrl,
+      [lang === "ja" ? "en" : "ja"]: absoluteUrl(alternatePath),
+    }
+  : undefined;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    {/* Apply the theme before the first paint to avoid a flash. */}
+    <script is:inline define:vars={{ themeStorageKey }}>
+      let preference = null;
+      try {
+        preference = localStorage.getItem(themeStorageKey);
+      } catch {
+        // Storage may be unavailable (privacy settings); follow the system.
+      }
+      const dark =
+        preference === "dark" ||
+        (preference !== "light" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", dark);
+    </script>
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={pageUrl} />}
+    {alternates && (
+      <>
+        <link rel="alternate" hreflang="ja" href={alternates.ja} />
+        <link rel="alternate" hreflang="en" href={alternates.en} />
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={alternates[defaultLocale]}
+        />
+      </>
+    )}
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {canonical && <meta property="og:url" content={pageUrl} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={ogLocales[lang]} />
+    <meta property="og:site_name" content={site.title} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  </head>
+  <body class="bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300">
+    <slot />
+  </body>
+</html>

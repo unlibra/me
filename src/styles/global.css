@@ -1,15 +1,46 @@
 @import "tailwindcss";
 
+/* Dark mode follows the `dark` class on <html>, set by BaseLayout's script. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --color-base-primary: #282c34;
-  --color-base-secondary: #333842;
+  --font-sans: "Noto Sans JP Variable", sans-serif;
+  --font-mono: "Roboto Mono", monospace;
+
+  /* Colors from liblab (tailwind.config.ts) */
+  --color-atom-one-dark-lighter: #3d4148;
+  --color-atom-one-dark-light: #333842;
+  --color-atom-one-dark: #282c34;
+  --color-atom-one-dark-deep: #21252b;
+  --color-logo-light: #5bc5dc;
+  --color-logo-medium: #3ba0be;
+  --color-logo-dark: #1a7ba0;
+  --color-logo-accent: #f88c49;
+
+  /*
+   * Tokens of the previous X-style top page. Phase 3 rebuilds that page and
+   * removes them. The base colors follow the theme (see `.dark` below).
+   */
+  --color-base-primary: #ffffff;
+  --color-base-secondary: #e5e7eb;
   --color-accent-primary: #1a7ba0;
   --color-accent-secondary: #3ba0be;
-  --font-sans: "IBM Plex Sans JP", sans-serif;
   --text-x-base: 15px;
   --text-x-base--line-height: 20px;
   --text-x-sm: 13px;
   --text-x-sm--line-height: 16px;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+    --color-base-primary: #282c34;
+    --color-base-secondary: #333842;
+  }
 }
 
 .pinned-label {

@@ -1,44 +1,40 @@
 ---
-import "@/styles/global.css";
-import "@fontsource/ibm-plex-sans-jp/400.css";
-import "@fontsource/ibm-plex-sans-jp/500.css";
-import "@fontsource/ibm-plex-sans-jp/700.css";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import { site } from "@/config/site";
 
 interface Props {
-  frontmatter?: {
+  frontmatter: {
     title?: string;
+    description?: string;
   };
 }
 
 const { frontmatter } = Astro.props;
-const title = frontmatter?.title || "プライバシーポリシー";
-const siteName = site.title;
-const siteTitle = title + " - " + siteName;
+if (!frontmatter.title || !frontmatter.description) {
+  throw new Error(
+    `${Astro.url.pathname}: frontmatter needs both "title" and "description".`,
+  );
+}
+const siteTitle = `${frontmatter.title} - ${site.title}`;
 ---
 
-<!doctype html>
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{siteTitle}</title>
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-  </head>
-  <body class="antialiased">
-    <div class="mx-auto max-w-3xl px-4 py-8">
-      <main class="prose max-w-none">
-        <slot />
-      </main>
-      <footer class="mt-12 border-t border-neutral-200 pt-8 text-center text-sm text-neutral-500">
-        <a href="/" class="hover:underline">
-          {siteName}
-        </a>
-      </footer>
-    </div>
-  </body>
-</html>
+<BaseLayout
+  lang="ja"
+  title={siteTitle}
+  description={frontmatter.description}
+  canonical={true}
+>
+  <div class="mx-auto max-w-3xl px-4 py-8">
+    <main class="prose max-w-none">
+      <slot />
+    </main>
+    <footer class="mt-12 border-t border-neutral-200 pt-8 text-center text-sm text-neutral-500">
+      <a href="/" class="hover:underline">
+        {site.title}
+      </a>
+    </footer>
+  </div>
+</BaseLayout>
 
 <style is:global>
   .prose h1 {

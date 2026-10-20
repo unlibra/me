@@ -1,10 +1,7 @@
 ---
-import "@/styles/global.css";
-import "@fontsource/ibm-plex-sans-jp/400.css";
-import "@fontsource/ibm-plex-sans-jp/500.css";
-import "@fontsource/ibm-plex-sans-jp/700.css";
 import { Image } from "astro:assets";
 
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import Avatar from "@/components/Avatar.astro";
 import SponsorButton from "@/components/SponsorButton.astro";
 import ShareIcon from "@/components/icons/ShareIcon.astro";
@@ -64,37 +61,13 @@ const linkify = (text: string): string => {
 };
 ---
 
-<!doctype html>
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-
-    <!-- SEO -->
-    <title>{site.title}</title>
-    <meta name="description" content={site.description} />
-    <link rel="canonical" href={site.url} />
-
-    <!-- OGP -->
-    <meta property="og:title" content={site.title} />
-    <meta property="og:description" content={site.description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={site.url} />
-    <meta property="og:image" content={site.url + site.ogImage} />
-    <meta property="og:locale" content="ja_JP" />
-    <meta property="og:site_name" content={site.title} />
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={site.title} />
-    <meta name="twitter:description" content={site.description} />
-    <meta name="twitter:image" content={site.url + site.ogImage} />
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-  </head>
-  <body class="bg-base-primary text-x-base min-h-screen text-neutral-200 antialiased">
+<BaseLayout
+  lang="ja"
+  title={site.title}
+  description={site.description}
+  canonical={true}
+>
+  <div class="text-x-base">
     <div class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x">
       <!-- Header Bar -->
       <header class="border-base-secondary border-b">
@@ -127,7 +100,7 @@ const linkify = (text: string): string => {
             <button
               id="share-btn"
               type="button"
-              class="hidden cursor-pointer rounded-full border border-neutral-600 p-2 transition-colors hover:bg-neutral-700/60"
+              class="hidden cursor-pointer rounded-full border border-gray-300 p-2 transition-colors hover:bg-black/5 dark:border-neutral-600 dark:hover:bg-neutral-700/60"
               aria-label="Share"
             >
               <ShareIcon class="size-5" />
@@ -364,11 +337,12 @@ const linkify = (text: string): string => {
       const workItems = document.querySelectorAll(".work-item");
       const hashtagButtons = document.querySelectorAll(".hashtag-btn");
       const timeline = document.getElementById("timeline");
+      const activeTabClasses = ["text-gray-900", "dark:text-white"];
 
       function switchTab(tab: string, updateHash = true) {
         // Update tab styles and aria-selected
         tabButtons.forEach((btn) => {
-          btn.classList.remove("text-white");
+          btn.classList.remove(...activeTabClasses);
           btn.classList.add("text-neutral-500");
           btn.setAttribute("aria-selected", "false");
           const indicator = btn.querySelector(".tab-indicator");
@@ -378,7 +352,7 @@ const linkify = (text: string): string => {
         const activeTab = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
         if (activeTab) {
           activeTab.classList.remove("text-neutral-500");
-          activeTab.classList.add("text-white");
+          activeTab.classList.add(...activeTabClasses);
           activeTab.setAttribute("aria-selected", "true");
           const indicator = document.createElement("div");
           indicator.className =
@@ -440,5 +414,5 @@ const linkify = (text: string): string => {
         switchTab(hash, false);
       });
     </script>
-  </body>
-</html>
+  </div>
+</BaseLayout>
