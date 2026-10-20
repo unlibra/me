@@ -34,10 +34,13 @@ The full text is in LICENSES/Heroicons-MIT.txt.
   - src/components/ui/Breadcrumb.astro
 
 Tailwind CSS v3 color palette (tailwindcss 3.4.18, https://tailwindcss.com)
+and values computed from it
 MIT License, Copyright (c) Tailwind Labs, Inc.
 The full text is in LICENSES/tailwindcss-MIT.txt.
 
   - src/tools/tw-palette-generator/tailwind-colors.ts
+  - src/tools/tw-palette-generator/palette-anchors.ts
+  - tests/fixtures/tw-palette-generator/tailwind-v3-colors.json
 
 DiceBear "Shapes" and "Thumbs" (https://www.dicebear.com)
 CC0 1.0 Universal.

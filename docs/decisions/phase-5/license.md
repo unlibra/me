@@ -67,7 +67,7 @@
 ## LI-8 ライセンスの全文の出どころと、テストでの確かめ方
 
 - 決めたこと：
-  - `LICENSES/Heroicons-MIT.txt` は `node_modules/@heroicons/react/LICENSE`（v2.2.0）から、`LICENSES/tailwindcss-MIT.txt` は `node_modules/tailwindcss/LICENSE`（v4.3.3）から写した。色の値の出どころは 3.4.18 だが、手元に 3.4.18 はない。v4.3.3 の `LICENSE` は Heroicons と1字も違わず、3.4.18 も同じ文面と考えているが未確認
+  - `LICENSES/Heroicons-MIT.txt` は `node_modules/@heroicons/react/LICENSE`（v2.2.0）から、`LICENSES/tailwindcss-MIT.txt` は `node_modules/tailwindcss/LICENSE`（v4.3.3）から写した。色の値の出どころは 3.4.18 で、手元に 3.4.18 はない。v4.3.3 の `LICENSE` は Heroicons と1字も違わない。3.4.18 の `LICENSE` と1バイトも違わないことは、レビューで npm キャッシュの tarball と比べて確かめられた
   - `LICENSES/CC0-1.0.txt` は `node_modules/@speed-highlight/core/LICENSE` から写した。もう1つの写し（`prettier-plugin-tailwindcss` 同梱）と本文が一致すること、文字数が 7048 バイトで、SHA-256（`a2010f34…0499`）が CC0 1.0 の `legalcode.txt` の値として記憶しているものと一致することを確かめた（creativecommons.org の原本との照合はしていない）
   - テストでは、MIT の原文をテストの中に定数で持ち、3つの MIT のファイルの本文（著作権表示の行を除く）と比べる。Heroicons と tailwindcss は、さらに依存パッケージの `LICENSE` と完全に一致することを確かめる。CC0 は SHA-256 で比べる（`@speed-highlight/core` は間接依存で、なくなるとテストが壊れるため）
 - 根拠：ライセンスの全文は1字でも違うと意味がない。手で打たずに、配布物から写す
@@ -87,3 +87,14 @@
 - 根拠：`npm ci` は `package.json` と lock の食い違いを見ないが、次に誰かが `npm install` したときに差分が出るのを避ける。計画の「触ってよい範囲」には `package-lock.json` が書かれていないが、Phase 1 の計画で `package.json` と組で扱うことになっている
 - 他の選択肢：lock は触らない
 - 戻すときの作業：その1行を消す
+
+## LI-11 Tailwind の色から作ったファイルと、出典の検査の範囲
+
+- 決めたこと（レビューの指摘による）：
+  - `tests/fixtures/tw-palette-generator/tailwind-v3-colors.json`（tailwindcss 3.4.18 の色の値そのもの）と `src/tools/tw-palette-generator/palette-anchors.ts`（先頭に「Data source: Extracted from Tailwind CSS colors」とある、Tailwind の色から計算した値）を、`LICENSE` 第2節の Tailwind の段落に足した。段落の見出しに「and values computed from it」を足した
+  - 出典の検査の対象を `src/` から `src/` と `tests/` に広げた（`tests/license.test.js` 自身は検査の文字列を含むので除く）。出典を示す文字列に `Data source:` を足した
+  - JSON はコメントを書けないので、テストの `WITHOUT_COMMENT` に挙げ、先頭の出典コメントの検査から外した。代わりに、`LICENSE` に挙がっていて実在すること、漏れなく列挙されていること（`WITHOUT_COMMENT` を列挙の期待値に足す）を確かめる
+- 根拠：JSON は値をそのまま写したもので、`LICENSE` に挙げないと冒頭の All rights reserved に入ってしまう。`palette-anchors.ts` は計算した値で、権利が及ぶかは怪しいが、出典を自ら書いているファイルなので挙げておくほうが安全側（Tailwind Labs の表示が落ちない）。どちらも MIT なので、挙げても利用者の不利にはならない
+- 他の選択肢：`palette-anchors.ts` は加工データとして挙げない。JSON に出典を書いた別ファイル（`tailwind-v3-colors.json.license` のような REUSE 方式）を置く
+- 戻すときの作業：`LICENSE` から2行を消し、`WITHOUT_COMMENT` から JSON を外し、`ATTRIBUTION` から `data source:` を外す
+- 見つけたが挙げていないもの：`tests/fixtures/svg-optimizer/icon.svg`（SVG 最適化のテスト用の入力）の `<polyline points="20 6 9 17 4 12">` と線の属性は、Feather Icons（MIT）の "check" と同じ形に見える。3点の折れ線と円だけで、著作物として保護される表現ではないと考え、`LICENSE` には挙げていない（要確認。挙げるなら Feather の MIT の全文が要るが、手元の `node_modules` にはない）

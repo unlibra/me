@@ -44,17 +44,39 @@ const thirdPartySources = () =>
 
 /** Matches an attribution of material by other authors. */
 const ATTRIBUTION =
-  /copyright \(c\)|\bMIT License\b|licensed under|SPDX-License-Identifier|dcterms:license|creativecommons\.org/i;
+  /copyright \(c\)|\bMIT License\b|licensed under|SPDX-License-Identifier|dcterms:license|creativecommons\.org|data source:/i;
 
-/** Tracked and untracked (not ignored) files under src/. */
+/**
+ * Files with material by other authors that cannot carry an attribution
+ * comment (JSON has no comments). They must still be listed in LICENSE.
+ */
+const WITHOUT_COMMENT = [
+  // tailwindcss 3.4.18 colors (docs/decisions/phase-4/tools.md T-21)
+  "tests/fixtures/tw-palette-generator/tailwind-v3-colors.json",
+];
+
+/**
+ * Tracked and untracked (not ignored) files under src/ and tests/, where
+ * material by other authors can be. This file is left out because it
+ * contains the attribution patterns themselves.
+ */
 const sourceFiles = () =>
   execFileSync(
     "git",
-    ["ls-files", "--cached", "--others", "--exclude-standard", "-z", "src"],
+    [
+      "ls-files",
+      "--cached",
+      "--others",
+      "--exclude-standard",
+      "-z",
+      "src",
+      "tests",
+    ],
     { cwd: root, encoding: "utf8" },
   )
     .split("\0")
     .filter(Boolean)
+    .filter((p) => p !== "tests/license.test.js")
     .filter((p) => existsSync(join(root, p)))
     .filter((p) => !/\.(png|webp|jpe?g|gif|ico|woff2?)$/i.test(p));
 
@@ -134,6 +156,7 @@ test("F2: listed third-party files exist and start with their attribution", () =
     const name = new RegExp(heading.split(" ")[0], "i");
     for (const file of files) {
       assert.ok(existsSync(join(root, file)), `${file} does not exist`);
+      if (WITHOUT_COMMENT.includes(file)) continue;
       const head = headOf(file);
       assert.match(head, ATTRIBUTION, `${file}: no attribution at the top`);
       assert.match(head, name, `${file}: attribution does not name ${name}`);
@@ -141,9 +164,10 @@ test("F2: listed third-party files exist and start with their attribution", () =
   }
 });
 
-test("F2: every source file with an attribution is listed in LICENSE", () => {
+test("F2: every file with material by other authors is listed in LICENSE", () => {
   const withAttribution = sourceFiles()
     .filter((p) => ATTRIBUTION.test(read(p)))
+    .concat(WITHOUT_COMMENT)
     .sort();
   const inLicense = thirdPartySources()
     .flatMap((s) => s.files)
