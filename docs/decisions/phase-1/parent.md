@@ -47,6 +47,13 @@
 - 他の選択肢：ビルド後に sitemap を書き換える自前の統合を足す（壊れやすい）。canonical を `/` 付きに揃える
 - 戻すときの作業：テストの期待値を1行戻す
 
+## P1-9 Node のバージョンを `.node-version` と `engines` で指定する
+
+- 決めたこと：`.node-version` に `24` を書き、`package.json` の `engines.node` を `>=22.22.0` にする
+- 根拠：Astro 7.4.1 は Node 22.22.0 以上を要求する。Cloudflare Workers Builds の既定の Node がこれを満たすかは未確認なので、ビルド環境に使う版を明示する。24 は手元の開発環境（v24.22.0）と同じ系列
+- 他の選択肢：Workers Builds のダッシュボードで環境変数 `NODE_VERSION` を設定する（リポジトリから見えなくなる）
+- 戻すときの作業：2ファイルを戻す。Phase 6 で Workers Builds が `.node-version` を読むことを確認する
+
 ## P1-5 テストは `node:test` で書く
 
 - 決めたこと：テストフレームワークは追加せず、Node 標準の `node:test` でビルド結果を検証する
