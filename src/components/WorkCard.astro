@@ -1,0 +1,79 @@
+---
+import { Image } from "astro:assets";
+
+import type { Work } from "@/config/works";
+import messages from "@/messages/ja";
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+const { title, description } = messages.works[work.id];
+const external = work.link?.startsWith("https://") ?? false;
+const focusRing =
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+---
+
+<article
+  class:list={[
+    "relative flex flex-col overflow-hidden rounded-lg border border-gray-200 dark:border-atom-one-dark-lighter",
+    work.link &&
+      "transition-colors has-[a:hover]:bg-gray-50 dark:has-[a:hover]:bg-atom-one-dark-light",
+  ]}
+  data-work={work.id}
+  data-subcategory={work.subcategory}
+>
+  <div class="flex aspect-video items-center justify-center overflow-hidden bg-gray-100 dark:bg-atom-one-dark-light">
+    {work.category === "web" ? (
+      <div class="flex size-20 items-center justify-center overflow-hidden rounded-full bg-logo-medium/70">
+        <Image src={work.image} alt="" class="size-20" />
+      </div>
+    ) : (
+      <Image src={work.image} alt={title} class="size-full object-cover" />
+    )}
+  </div>
+
+  <div class="flex flex-1 flex-col gap-2 p-4">
+    <div class="flex items-baseline justify-between gap-3">
+      <h3 class="font-semibold text-gray-900 dark:text-white">
+        {work.link ? (
+          <a
+            href={work.link}
+            target={external ? "_blank" : undefined}
+            rel={external ? "noopener noreferrer" : undefined}
+            class={`after:absolute after:inset-0 hover:underline ${focusRing}`}
+          >
+            {title}
+          </a>
+        ) : (
+          title
+        )}
+      </h3>
+      <time datetime={work.year} class="shrink-0 text-sm text-gray-500">
+        {work.year}
+      </time>
+    </div>
+
+    {work.subcategory && (
+      <p class="w-fit rounded-full bg-logo-accent/15 px-2.5 py-0.5 text-xs font-medium text-orange-800 dark:text-orange-200">
+        {messages.vrchatSubcategories[work.subcategory]}
+      </p>
+    )}
+
+    <p class="text-sm whitespace-pre-line text-gray-600 dark:text-gray-400">
+      {description}
+    </p>
+
+    {work.docs && (
+      <a
+        href={work.docs}
+        target="_blank"
+        rel="noopener noreferrer"
+        class={`relative z-10 mt-auto w-fit pt-2 text-sm text-blue-700 underline underline-offset-4 hover:text-blue-500 dark:text-blue-300 ${focusRing}`}
+      >
+        {messages.links.docs}
+      </a>
+    )}
+  </div>
+</article>

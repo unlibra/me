@@ -9,6 +9,8 @@ export const site = {
   links: {
     github: "https://github.com/unlibra",
     sponsor: "https://ofuse.me/unlibra",
+    /** BOOTH shop (provisional; replaced before release, design doc 3.6). */
+    booth: "https://unlibra-twin.booth.pm/",
   },
 } as const;
 
