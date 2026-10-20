@@ -30,7 +30,7 @@
 - 言語の自動振り分け（Accept-Language による判定）は行わない。言語切替ボタンだけにする
 - アクセス解析は Cloudflare Web Analytics に置き換える。`@vercel/analytics` は削除する
 - 削除するもの：`vercel.json`、`middleware.ts`、`src/middleware.ts`、`functions/`、`public/sitemap.xml`（静的ファイル版）
-- 既存の環境変数による設定（`PUBLIC_SITE_URL` などミラーサイト用）は維持する
+- ミラーサイトの仕組みは廃止する。サイトURL・サイト名・プロフィール名などは環境変数で切り替えず、コード上の定数にする。対象は `.env.example` にある `PUBLIC_SITE_URL`、`PUBLIC_SITE_TITLE`、`PUBLIC_PROFILE_NAME`、`PUBLIC_PROFILE_USERNAME`、`DISABLE_ROBOTS` と、`site.url` と `site.canonicalUrl` の区別
 
 ### 3.2 URL
 
@@ -95,14 +95,13 @@
 - 他の作者の素材が写っている BOOTH 商品画像は、どちらのライセンスの対象にもならないと明記する
 - `package.json` の `license` は `"SEE LICENSE IN LICENSE"`
 - liblab から持ってくるツールのコードは AGPL-3.0 から MIT に変える（作者は本人のみと確認済み）
-- フッターに著作権表示を出す。書式は「© 年 unlibra」（年は4章で未決）
+- フッターに著作権表示「© 2025 unlibra」を出す。2025 は liblab・me の公開年。年は固定で、ビルド年から自動で出さない
 
 ## 4. 未決
 
 | 項目 | 状況 |
 |---|---|
 | LINE Seed JP を使う箇所 | UIデザインの最終チェックで指示を受ける |
-| 著作権表示の年 | 案：2025（liblab・me の公開年）。ユーザー確認待ち |
 | BOOTH のショップURLと商品 | リリースまでにユーザーが用意する |
 | プロフィール文 | 仮の文面を入れ、ユーザーが確認する |
 
@@ -110,7 +109,7 @@
 
 | Phase | 内容 | 完了条件 |
 |---|---|---|
-| 1. 基盤 | `@astrojs/react` の追加。Vercel 関連ファイルと `@vercel/analytics` の削除。ロケール付きページの廃止。`wrangler.jsonc`（静的配信のみ）の追加。セキュリティヘッダーを `public/_headers` に移す。Cloudflare Web Analytics の導入 | `npm run build` と lint が通り、`wrangler dev` でトップページが表示される |
+| 1. 基盤 | `@astrojs/react` の追加。Vercel 関連ファイルと `@vercel/analytics` の削除。ロケール付きページの廃止。ミラーサイトの仕組みの廃止。`wrangler.jsonc`（静的配信のみ）の追加。セキュリティヘッダーを `public/_headers` に移す。Cloudflare Web Analytics の導入 | `npm run build` と lint が通り、`wrangler dev` でトップページが表示される |
 | 2. デザイン | liblab の色トークンを Tailwind v4 に移す。ヘッダー・フッター（日英）、ダークモード切替、Noto Sans JP、ロゴ・favicon・OGP 画像 | 全ページ共通のレイアウトがライト・ダーク両方で表示される |
 | 3. ポートフォリオ | カテゴリ構成、作品データの拡張、liblab・イロマイドの除外、ドキュメントリンクの修正、BOOTH の仮URLとダミー商品、著作権表示 | トップページに4カテゴリの作品が表示され、旧ドキュメントURLが残っていない |
 | 4. ツール移植 | 4ツールを React island として `/lab` と `/en/lab` に移す。Tailwind v4 への書き換え、`next/image` の置き換え。ツール一覧ページ、サイトマップ、hreflang | 4ツールが日英両方でブラウザ上で動作する |
@@ -125,5 +124,4 @@ Phase 6・7 の外部サービスの操作（ドメイン付け替え、Vercel �
 - [ ] BOOTH のショップURLを本番のものに差し替える
 - [ ] ダミーの BOOTH 商品と画像を本物に差し替える
 - [ ] プロフィール文を確定する
-- [ ] 著作権表示の年を確定する
 - [ ] LINE Seed JP の扱いを決めて反映する
