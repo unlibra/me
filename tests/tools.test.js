@@ -154,7 +154,7 @@ test("E3: tool pages have WebApplication and BreadcrumbList structured data", ()
 });
 
 /** Tools whose island is in place (grows as the tools are ported). */
-const PORTED = ["svg-optimizer", "password-generator"];
+const PORTED = ["favicon-generator", "svg-optimizer", "password-generator"];
 
 /** The page's islands as { component, client, props }. */
 const islands = (html) =>
