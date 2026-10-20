@@ -10,10 +10,18 @@ export default defineConfig({
   trailingSlash: "never",
   integrations: [react(), sitemap()],
   vite: {
-    // @ts-expect-error: @tailwindcss/vite uses Vite 7 types, but Astro uses Vite 6
     plugins: [tailwindcss()],
-    esbuild: {
-      drop: ["console", "debugger"],
+    build: {
+      rolldownOptions: {
+        output: {
+          minify: {
+            compress: {
+              dropConsole: true,
+              dropDebugger: true,
+            },
+          },
+        },
+      },
     },
   },
 });

@@ -152,7 +152,9 @@ test("A6: sitemap lists the top page and privacy only", () => {
   const locs = [...readDist("sitemap-0.xml").matchAll(/<loc>([^<]*)<\/loc>/g)]
     .map((m) => m[1])
     .sort();
-  assert.deepEqual(locs, [SITE, `${SITE}/privacy`]);
+  // @astrojs/sitemap 3.7.4+ writes the origin-only URL with "/", which is
+  // the same resource as the canonical URL without it.
+  assert.deepEqual(locs, [`${SITE}/`, `${SITE}/privacy`]);
 });
 
 test("A7: index.html canonical and og:url point to the site root, no hreflang", () => {
@@ -218,6 +220,11 @@ test("A9: wrangler.jsonc serves dist/ as static assets without a Worker script",
     Object.values(pkg.scripts).some((s) => /^wrangler dev\b/.test(s)),
     "package.json has no script running `wrangler dev`",
   );
+});
+
+test("index.html footer keeps the space between the year and the name", () => {
+  // Astro 7 compresses whitespace between expressions (compressHTML: "jsx").
+  assert.match(readDist("index.html"), /(?:&copy;|©) \d{4} unlibra</);
 });
 
 test("404 page links back to the top page in Japanese and English", () => {

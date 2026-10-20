@@ -6,6 +6,7 @@
 - 根拠：現行の Astro は 5.16。`@astrojs/react` の 5 系以降は Astro 6 以降向け（5.0.0 の開発依存が `astro@6.0.0`）で、4 系の最終版が Astro 5 向け
 - 他の選択肢：Astro ごと 6 系以降に上げる。Phase 1 の範囲を超えるので取らなかった
 - 戻すときの作業：Astro を上げるときに `@astrojs/react` も合わせて上げる
+- 追記（スコープ astro-upgrade）：Astro を 7.4.1 に上げたので、`@astrojs/react` を `^7.1.0` に上げた。7.1.0 は Astro 7 と同じ Vite 8 に依存し、Node の要件（`>=22.22.0`）も Astro 7 と同じ。React 19 と `@types/react` の置き場所は変えていない。新しく増えた任意の peer 依存 `oxc-transform-react` は入れていない
 
 ## B-2 `compatibility_date` は workerd のバージョンが示す日付にする
 
