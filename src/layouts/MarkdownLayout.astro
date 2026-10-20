@@ -3,7 +3,7 @@ import "@/styles/global.css";
 import "@fontsource/ibm-plex-sans-jp/400.css";
 import "@fontsource/ibm-plex-sans-jp/500.css";
 import "@fontsource/ibm-plex-sans-jp/700.css";
-import Analytics from "@/components/Analytics.astro";
+import { site } from "@/config/site";
 
 interface Props {
   frontmatter?: {
@@ -13,7 +13,7 @@ interface Props {
 
 const { frontmatter } = Astro.props;
 const title = frontmatter?.title || "プライバシーポリシー";
-const siteName = import.meta.env.PUBLIC_SITE_TITLE || "unlibra.com";
+const siteName = site.title;
 const siteTitle = title + " - " + siteName;
 ---
 
@@ -31,11 +31,12 @@ const siteTitle = title + " - " + siteName;
       <main class="prose max-w-none">
         <slot />
       </main>
-      <footer class="mt-12 border-t border-neutral-200 pt-8 text-center text-sm text-neutral-500">
+      <footer
+        class="mt-12 border-t border-neutral-200 pt-8 text-center text-sm text-neutral-500"
+      >
         <a href="/" class="hover:underline">{siteName}</a>
       </footer>
     </div>
-    <Analytics />
   </body>
 </html>
 

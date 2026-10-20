@@ -13,21 +13,10 @@ import LocationIcon from "@/components/icons/LocationIcon.astro";
 import LinkIcon from "@/components/icons/LinkIcon.astro";
 import CalendarIcon from "@/components/icons/CalendarIcon.astro";
 import PinIcon from "@/components/icons/PinIcon.astro";
-import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
-import Analytics from "@/components/Analytics.astro";
-import { locales, defaultLocale, getMessages } from "@/i18n";
+import messages from "@/messages/ja";
 import { site as siteConfig } from "@/config/site";
 import { profile as profileConfig } from "@/config/profile";
 import { works as worksConfig } from "@/config/works";
-
-export function getStaticPaths() {
-  return locales.map((locale) => ({
-    params: { locale },
-  }));
-}
-
-const { locale } = Astro.params;
-const messages = getMessages(locale!);
 
 const site = {
   ...siteConfig,
@@ -58,7 +47,8 @@ const allWorks = worksConfig.map((work, index) => ({
   // ID 0 is pinned
   id: index === 0 ? "0" : String(index),
   title: messages.works[work.id as keyof typeof messages.works].title,
-  description: messages.works[work.id as keyof typeof messages.works].description,
+  description:
+    messages.works[work.id as keyof typeof messages.works].description,
 }));
 
 // Works are displayed in array order (first item is pinned)
@@ -67,19 +57,15 @@ const sortedWorks = allWorks;
 // Convert URLs in text to clickable links
 const linkify = (text: string): string => {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-accent-secondary hover:underline">$1</a>');
+  return text.replace(
+    urlRegex,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-accent-secondary hover:underline">$1</a>',
+  );
 };
-
-// Build locale-aware URLs (no trailing slash for cleaner URLs)
-// canonical/hreflang: use site.canonicalUrl (always points to main site, not mirror)
-// ogUrl: use site.url (for sharing, respects environment)
-const canonicalUrl = `${site.canonicalUrl}/${locale}`;
-const ogUrl = locale === defaultLocale ? site.url : `${site.url}/${locale}`;
-const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
 ---
 
 <!doctype html>
-<html lang={locale}>
+<html lang="ja">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -88,21 +74,15 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
     <!-- SEO -->
     <title>{site.title}</title>
     <meta name="description" content={site.description} />
-    <link rel="canonical" href={canonicalUrl} />
-
-    <!-- hreflang for alternate languages (always points to main site) -->
-    {locales.map((l) => (
-      <link rel="alternate" hreflang={l} href={`${site.canonicalUrl}/${l}`} />
-    ))}
-    <link rel="alternate" hreflang="x-default" href={site.canonicalUrl} />
+    <link rel="canonical" href={site.url} />
 
     <!-- OGP -->
     <meta property="og:title" content={site.title} />
     <meta property="og:description" content={site.description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={ogUrl} />
+    <meta property="og:url" content={site.url} />
     <meta property="og:image" content={site.url + site.ogImage} />
-    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale" content="ja_JP" />
     <meta property="og:site_name" content={site.title} />
 
     <!-- Twitter Card -->
@@ -124,7 +104,6 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
           <h1 class="text-lg font-semibold">
             <a href="/">{site.title}</a>
           </h1>
-          <LanguageSwitcher />
         </div>
       </header>
 
@@ -205,7 +184,9 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
           }
           <span class="flex items-center gap-1">
             <CalendarIcon class="h-4 w-4" />
-            <span class="translate-y-px">{messages.profile.updated} {updatedAt}</span>
+            <span class="translate-y-px"
+              >{messages.profile.updated} {updatedAt}</span
+            >
           </span>
         </div>
       </div>
@@ -297,7 +278,10 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
                       </div>
 
                       {/* Description */}
-                      <p class="mb-3 whitespace-pre-line" set:html={linkify(work.description)} />
+                      <p
+                        class="mb-3 whitespace-pre-line"
+                        set:html={linkify(work.description)}
+                      />
 
                       {/* Image */}
                       {work.image &&
@@ -373,7 +357,9 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
     <!-- Footer -->
     <footer class="px-4 py-8">
       <p class="text-center text-neutral-500">
-        <a href="/privacy" class="hover:underline">{messages.footer.privacyPolicy}</a>
+        <a href="/privacy" class="hover:underline"
+          >{messages.footer.privacyPolicy}</a
+        >
       </p>
       <p class="mt-4 text-center text-neutral-500">
         &copy; {new Date().getFullYear()}
@@ -478,6 +464,5 @@ const ogLocale = locale === "ja" ? "ja_JP" : "en_US";
         switchTab(hash, false);
       });
     </script>
-    <Analytics />
   </body>
 </html>
