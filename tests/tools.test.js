@@ -153,9 +153,6 @@ test("E3: tool pages have WebApplication and BreadcrumbList structured data", ()
   }
 });
 
-/** Tools whose island is in place (grows as the tools are ported). */
-const PORTED = ["favicon-generator", "svg-optimizer", "password-generator"];
-
 /** The page's islands as { component, client, props }. */
 const islands = (html) =>
   [...html.matchAll(/<astro-island\s[^>]*>/g)].map((m) => ({
@@ -164,10 +161,10 @@ const islands = (html) =>
     props: JSON.parse(attr(m[0], "props").replace(/&quot;/g, '"')),
   }));
 
-test("E3: each ported tool page has its own island, loaded on page load", () => {
-  for (const { lang, tool, path } of pages.filter((p) =>
-    PORTED.includes(p.tool),
-  )) {
+test("E3: each tool page has its own island, loaded on page load", () => {
+  const toolPages = pages.filter((p) => p.tool);
+  assert.equal(toolPages.length, 8);
+  for (const { lang, tool, path } of toolPages) {
     const found = islands(readDist(fileOf(path)));
     assert.equal(found.length, 1, `${path}: island count`);
     const [island] = found;
@@ -342,4 +339,22 @@ test("E4: the repository's MIT code passes the license boundary rule", async () 
       .map((m) => `${r.filePath}:${m.line} ${m.message}`),
   );
   assert.deepEqual(errors, []);
+});
+
+test("the palette history is stored under the former tool's localStorage key", () => {
+  // Same origin and the same key, so history saved before the move carries
+  // over (plan item 8). The behavior itself is checked by hand (E7).
+  const html = readDist(fileOf(pathOf("ja", "tw-palette-generator")));
+  const [island] = islands(html);
+  const code = readDist(island.component.slice(1));
+  assert.match(code, /["'`]tw-palette-history["'`]/);
+  const source = readFileSync(
+    join(root, "src/tools/tw-palette-generator/tw-palette-generator.tsx"),
+    "utf8",
+  );
+  assert.match(source, /PALETTE_HISTORY_KEY = "tw-palette-history";/);
+  assert.equal(
+    source.match(/localStorage\.\w+Item\(PALETTE_HISTORY_KEY/g)?.length,
+    2,
+  );
 });
