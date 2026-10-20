@@ -117,7 +117,13 @@
 | 6. 切替           | `_redirects` の作成。プレビュー環境での確認。独自ドメインを Vercel から Workers に付け替える                                                                                                                                                              | 3.2 の旧URLがすべて301で新URLに転送される                                 |
 | 7. 廃止           | Vercel の3プロジェクト（me / liblab frontend / backend）の削除。liblab リポジトリの README 更新とアーカイブ                                                                                                                                               | —                                                                         |
 
-Phase 6・7 の外部サービスの操作（ドメイン付け替え、Vercel プロジェクト削除、リポジトリのアーカイブ）は、1つずつユーザーに確認してから行う。Cloudflare のダッシュボード操作（Workers Builds の接続、Web Analytics のトークン発行）はユーザーが行う。
+Phase 6・7 の外部サービスの操作（ドメイン付け替え、Vercel プロジェクト削除、リポジトリのアーカイブ）は、1つずつユーザーに確認してから行う。Cloudflare のダッシュボード操作（Workers Builds の接続、Web Analytics の有効化）はユーザーが行う。
+
+### 進捗
+
+| Phase   | 状況 | 計画・判断ログ            |
+| ------- | ---- | ------------------------- |
+| 1. 基盤 | 完了 | `docs/decisions/phase-1/` |
 
 ## 6. リリース前チェックリスト
 
