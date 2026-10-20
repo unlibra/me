@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, globSync, readFileSync } from "node:fs";
+import { existsSync, globSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -167,4 +167,63 @@ test("D5: no unlibra.github.io URLs remain in the source and dist/", () => {
     files.filter((p) => pattern.test(readFileSync(join(base, p), "utf8")));
   assert.deepEqual(found(dist, distTextFiles()), []);
   assert.deepEqual(found(root, sourceTextFiles()), []);
+});
+
+/** All files under a directory as posix-style relative paths. */
+const allFiles = (base, dir) =>
+  globSync(`${dir}/**/*`, { cwd: base })
+    .filter((p) => statSync(join(base, p)).isFile())
+    .map((p) => p.split(sep).join("/"));
+
+const isText = (p) =>
+  p === "_headers" ||
+  /\.(astro|ts|js|mjs|css|md|html|xml|txt|json|svg)$/i.test(p);
+
+test("D6: the removed works and X-style wording do not remain in src/ and dist/", () => {
+  // `/lab` links and tool IDs contain none of these.
+  const pattern = /liblab|lib lab|iromide|イロマイド|Xオマージュ|パロディ/i;
+  const found = [
+    ...allFiles(root, "src").map((p) => [root, p]),
+    ...allFiles(dist, ".").map((p) => [dist, p]),
+  ].filter(
+    ([base, p]) =>
+      pattern.test(p) ||
+      (isText(p) && pattern.test(readFileSync(join(base, p), "utf8"))),
+  );
+  assert.deepEqual(
+    found.map(([base, p]) => (base === dist ? `dist/${p}` : p)),
+    [],
+  );
+});
+
+test("D6: the X-style page parts and tokens are removed", () => {
+  for (const marker of [
+    /id="share-btn"/,
+    /role="tablist"/,
+    /end-of-timeline/,
+    /pinned/,
+    /Updated/,
+  ]) {
+    assert.doesNotMatch(top, marker);
+  }
+
+  const css = globSync("_astro/*.css", { cwd: dist })
+    .map((p) => readDist(p))
+    .join("\n");
+  assert.ok(css.length > 0, "no CSS in dist/_astro");
+  assert.doesNotMatch(
+    css,
+    /--color-(base|accent)-|--text-x-|\.pinned-label|pinned-mode/,
+  );
+
+  for (const path of [
+    "src/assets/icon.svg",
+    "src/components/icons/ShareIcon.astro",
+    "src/components/icons/ParodyIcon.astro",
+    "src/components/icons/PinIcon.astro",
+    "src/components/icons/CalendarIcon.astro",
+    "src/components/icons/LocationIcon.astro",
+  ]) {
+    assert.equal(existsSync(join(root, path)), false, path);
+  }
 });
