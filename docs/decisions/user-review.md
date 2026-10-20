@@ -6,6 +6,13 @@
 
 1. **ツールのアイコンのライセンス**：liblab から持ってきた4ツールのアイコン（`src/assets/tools/`）を、MIT（ツールのコードと同じ）にするか All rights reserved にするか。設計書 3.7 はコードと UI 部品だけを MIT と決めていて、画像素材は決まっていない。いまは狭いほう（All rights reserved）にしてある（`phase-5/parent.md` の P5-1）
 
+2. **SVG Optimizer の liblab から引き継いだ不具合を直すか**：いくつかのスイッチが効いていない。liblab は9つのプラグインを `{ name, active: false }` で無効にしようとしているが、svgo 4 は `active` を無視するため、スイッチに関係なく常に実行される。ユーザーから見えるのは次の現象で、本番の liblab も同じ挙動になっている
+   - 「おすすめ」プリセットでも `<title>` と `width`/`height` が消える
+   - `<script>`・`<style>` を残すスイッチを入れても消える
+   - 対象の9つ：removeViewBox、convertStyleToAttrs、cleanupListOfValues、removeTitle、removeDesc、removeDimensions、removeRasterImages、removeScripts、removeStyleElement
+   - レビュワーが svgo 4.1.0 のソースと実際の出力で、この主張が正しいことを確かめた。なお `removeViewBox` も常に動くが、後から動く `removeDimensions` が viewBox を作り直すため、出力には viewBox が残る
+   - いまは「機能を変えない」方針（P4-2）でそのまま移植してある。直す場合は、無効にしたプラグインを設定から外す数行の修正と、テストの期待値の作り直しで済む（`phase-4/tools.md` の T-18）
+
 ## 2. 仮で決めて進めたこと
 
 （各フェーズの判断ログのうち、ユーザーが別の選択をしそうなもの）
