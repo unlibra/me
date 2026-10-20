@@ -14,9 +14,14 @@
 
 `docs/decisions/phase-2/parent.md` の「最終UIチェックで確認してもらう項目」を参照。Phase 3 以降で増えた分はここに追記する。
 
+- Phase 3：`phase-3/portfolio.md` の PF-4（新しい文言、ダミー商品、画面に出る年、外部リンクを新しいタブで開くこと）
+- Phase 3：プロフィールから外した表示（所在地「Tokyo, Japan」、`@unlibra`、ウェブサイトのリンク）。X 風の表示の名残として外した（PF-5）。残すかを確認する
+- Phase 3：npm と PyPI の作品画像は白地の SVG なので、ダークモードで明るい四角に見える
+
 ## 4. 判断ログ（フェーズ別）
 
 | Phase | 親                                | スコープ                                                              |
 | ----- | --------------------------------- | --------------------------------------------------------------------- |
 | 1     | `phase-1/parent.md`（P1-1〜P1-9） | `phase-1/base.md`（B-1〜B-5）、`phase-1/astro-upgrade.md`（U-1〜U-6） |
 | 2     | `phase-2/parent.md`（P2-1〜P2-4） | `phase-2/layout.md`（L-1〜L-16）                                      |
+| 3     | `phase-3/parent.md`（P3-1〜P3-3） | `phase-3/portfolio.md`（PF-1〜PF-6）                                  |
