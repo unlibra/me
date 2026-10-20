@@ -90,7 +90,7 @@
 
 ### 3.7 ライセンスと著作権表示
 
-- ルートの `LICENSE`：全体は `Copyright (c) unlibra. All rights reserved.` とする
+- ルートの `LICENSE`：全体は `Copyright (c) 2025 unlibra. All rights reserved.` とする（年はフッターの著作権表示と同じ 2025）
 - 例外として、WEBツールの実装コードと共通UI部品は MIT とし、`LICENSES/MIT.txt` を置く。対象のディレクトリは `LICENSE` に明記する
 - 他の作者の素材が写っている BOOTH 商品画像は、どちらのライセンスの対象にもならないと明記する
 - `package.json` の `license` は `"SEE LICENSE IN LICENSE"`
@@ -127,6 +127,7 @@ Phase 6・7 の外部サービスの操作（ドメイン付け替え、Vercel �
 | 2. デザイン       | 完了（仮のデザイン）                 | `docs/decisions/phase-2/` |
 | 3. ポートフォリオ | 完了（仮のデザイン、BOOTH はダミー） | `docs/decisions/phase-3/` |
 | 4. ツール移植     | 完了                                 | `docs/decisions/phase-4/` |
+| 5. ライセンス     | 完了（LICENSE と README の文面は仮） | `docs/decisions/phase-5/` |
 
 ## 6. リリース前チェックリスト
 
