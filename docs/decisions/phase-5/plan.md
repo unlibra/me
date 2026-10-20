@@ -21,7 +21,7 @@
 1. **`LICENSE`**：英語で書く。構成は次のとおり
    - 全体：`Copyright (c) 2025 unlibra. All rights reserved.` 許諾をしないこと（閲覧以外の複製・改変・再配布の権利を与えないこと）を短く書く
    - 例外1（MIT）：`src/tools/` と `src/components/ui/` 以下。全文は `LICENSES/MIT.txt`
-   - 例外2（第三者）：Heroicons（MIT、Tailwind Labs）から写したアイコン。対象のファイルを列挙し、全文は `LICENSES/Heroicons-MIT.txt`。ほかに第三者のコードがあれば同じ形で載せる
+   - 例外2（第三者）：Heroicons（MIT、Tailwind Labs）から写したアイコン。対象のファイルを列挙し、全文は `LICENSES/Heroicons-MIT.txt`。ほかに第三者のコードがあれば同じ形で載せる。Phase 4 で、TW Palette Generator の色見本に tailwindcss 3.4.18 の色の値（MIT、Tailwind Labs）を書き写している（`phase-4/tools.md` の T-21）。これも第三者のコードとして載せ、`LICENSES/` に tailwindcss の MIT 全文を置く
    - 対象外：BOOTH 商品画像のうち、他の作者の素材が写っているもの（設計書 3.7）。現時点ではダミーしかないが、置き場所を決めて一文入れる
    - ビルド成果物に含まれる npm パッケージ（フォントを含む）は、それぞれのライセンスに従う旨
 2. **`LICENSES/MIT.txt`**：MIT の原文。著作権表示は `Copyright (c) 2025 unlibra`

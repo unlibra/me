@@ -126,6 +126,7 @@ Phase 6・7 の外部サービスの操作（ドメイン付け替え、Vercel �
 | 1. 基盤           | 完了                                 | `docs/decisions/phase-1/` |
 | 2. デザイン       | 完了（仮のデザイン）                 | `docs/decisions/phase-2/` |
 | 3. ポートフォリオ | 完了（仮のデザイン、BOOTH はダミー） | `docs/decisions/phase-3/` |
+| 4. ツール移植     | 完了                                 | `docs/decisions/phase-4/` |
 
 ## 6. リリース前チェックリスト
 
