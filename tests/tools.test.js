@@ -246,6 +246,13 @@ test("E4: MIT code cannot import All-rights-reserved files", async () => {
     ["src/tools/probe.ts", 'const m = import("@/config/site");'],
     ["src/tools/probe.ts", "const m = import(`@/config/${name}`);"],
     ["src/tools/probe.ts", 'import "/src/styles/global.css";'],
+    // Specifiers that start with a top-level directory of the repository
+    // (resolved from the project root, e.g. through a tsconfig baseUrl).
+    ["src/tools/probe.ts", 'import { site } from "src/config/site";'],
+    ["src/tools/probe.ts", 'import type { SitePath } from "src/config/site";'],
+    ["src/tools/probe.ts", 'export { site } from "src/config/site";'],
+    ["src/tools/probe.ts", 'export type S = import("@/config/site").SitePath;'],
+    ["src/tools/probe.ts", 'import site = require("@/config/site");'],
     [
       "src/components/ui/probe.tsx",
       'import Header from "../layout/Header.astro";',

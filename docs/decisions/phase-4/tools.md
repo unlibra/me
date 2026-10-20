@@ -28,6 +28,11 @@
 - 決めたこと：`eslint.config.js` に `local/license-boundary` ルールを置き、`src/tools/**` と `src/components/ui/**` のファイル（`.astro` の `<script>` を含む）で、import・export from・動的 import の行き先を解決し、MIT のディレクトリの外のファイルならエラーにする。`@/`、`/src/...`、相対パスを解決の対象とし、パッケージ（`react`、`astro:assets` など）は許す。動的 import の引数が文字列リテラルでないときもエラーにする（行き先を確かめられないため）
 - 根拠：計画の受け入れ条件 E4。`no-restricted-imports` は import の文字列だけを見るので、`../../config/site` のような相対パスを、深さに応じて正しく止められない。`eslint-plugin-import-x` の `no-restricted-paths` はパスの解決に別のリゾルバーの依存が要る。自前のルールなら依存が増えない
 - 対象外：CSS の `@import`、`import.meta.glob`。いまの MIT 側のコードには、MIT の外を指すものはない
+- Block 1 のレビューの指摘で追加：`tsconfig.json` に `"baseUrl": "."` があり、`src/config/site` のような書き方でもリポジトリのファイルに解決されていた。これをルールが素通ししていたので、次の2つを行った（親の指示）
+  - `tsconfig.json` から `baseUrl` を外した。`@/*` の `paths` は tsconfig からの相対で解決されるので、ビルドと型チェックはそのまま通る。`src/config/site` 形式の import は、型チェック（ts(2307)）とビルド（Rolldown が解決できない）の両方で失敗するようになったことを、一時的なページで確かめた
+  - ルール側でも、指定子の先頭がリポジトリ直下に実在するディレクトリ（`src` など）なら、パッケージではなくローカルのパスとして判定する
+  - あわせて、型の位置の `import("…").T`（`TSImportType`）と `import x = require("…")`（`TSImportEqualsDeclaration`）も検査の対象にした（レビューの推奨）
+- 戻すときの作業（追加分）：`tsconfig.json` に `baseUrl` を戻す。ルールの該当の分岐を消す
 - 他の選択肢：`eslint-plugin-import-x` と `eslint-import-resolver-typescript` を足す
 - 戻すときの作業：`eslint.config.js` のルールと `tests/tools.test.js` の E4 を消す
 
@@ -105,4 +110,7 @@
 
 流用したもの（仮扱いにしない）：ツールの名前・説明文・短い説明（liblab の `tools`）、ツール本体の文言（liblab の `common` と各ツールの文言）、フッターの見出し「Tools」（liblab の `categories.tools`）
 
-liblab のまま残した、最終UIチェックで見てほしい点：トーストの閉じるボタンの読み上げラベルは、英語ページでも「閉じる」（liblab と同じ固定の文字列）
+liblab のまま残した、最終UIチェックで見てほしい点：
+
+- トーストの閉じるボタンの読み上げラベルは、英語ページでも「閉じる」（liblab と同じ固定の文字列）
+- スライダー（`src/components/ui/slider.tsx`）にラベルを渡さないときの読み上げラベルの既定値は、英語ページでも「値を調整」（liblab と同じ固定の文字列）

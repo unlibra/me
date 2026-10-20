@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -15,6 +16,15 @@ const mitDirectories = ["src/tools", "src/components/ui"];
 /** Repository-relative posix path of an absolute path. */
 const fromRoot = (absolute) =>
   path.relative(root, absolute).split(path.sep).join("/");
+
+/** Whether a directory of this name exists at the repository root. */
+const isRootDirectory = (name) =>
+  name !== "" &&
+  !name.startsWith("@") &&
+  !name.includes(":") && // virtual modules such as astro:assets
+  fs
+    .statSync(path.join(root, name), { throwIfNoEntry: false })
+    ?.isDirectory() === true;
 
 const isMit = (relative) =>
   mitDirectories.some(
@@ -60,6 +70,10 @@ const licenseBoundary = {
         target = path.join(root, spec);
       } else if (spec.startsWith(".")) {
         target = path.resolve(path.dirname(filename), spec);
+      } else if (isRootDirectory(spec.split("/")[0])) {
+        // "src/config/site": resolvable from the project root by tools that
+        // take a base directory (such as a tsconfig baseUrl).
+        target = path.join(root, spec);
       } else {
         return; // A package (or a virtual module such as astro:assets).
       }
@@ -77,6 +91,20 @@ const licenseBoundary = {
       ExportNamedDeclaration: (node) => check(node, node.source),
       ExportAllDeclaration: (node) => check(node, node.source),
       ImportExpression: (node) => check(node, node.source),
+      // import("@/x").T in type positions.
+      TSImportType: (node) =>
+        check(
+          node,
+          node.argument?.type === "TSLiteralType"
+            ? node.argument.literal
+            : node.argument,
+        ),
+      // import x = require("@/x");
+      TSImportEqualsDeclaration: (node) => {
+        if (node.moduleReference.type === "TSExternalModuleReference") {
+          check(node, node.moduleReference.expression);
+        }
+      },
     };
   },
 };
