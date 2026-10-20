@@ -22,7 +22,7 @@
 
 ### 3.1 フレームワークと配信
 
-- Astro を継続し、ツールは `@astrojs/react` の island として載せる
+- Astro を継続し、ツールは `@astrojs/react` の island として載せる。Astro は Phase 2 の前に 7 系へ上げる（2026-10-21 時点の最新は 7.4.1）
 - Tailwind CSS v4
 - Cloudflare Workers の静的配信（Static Assets）で配信する。Worker のスクリプトは持たない
 - リダイレクトは `public/_redirects`、レスポンスヘッダーは `public/_headers` で設定する
@@ -121,9 +121,9 @@ Phase 6・7 の外部サービスの操作（ドメイン付け替え、Vercel �
 
 ### 進捗
 
-| Phase   | 状況 | 計画・判断ログ            |
-| ------- | ---- | ------------------------- |
-| 1. 基盤 | 完了 | `docs/decisions/phase-1/` |
+| Phase   | 状況               | 計画・判断ログ            |
+| ------- | ------------------ | ------------------------- |
+| 1. 基盤 | Astro 7 への更新中 | `docs/decisions/phase-1/` |
 
 ## 6. リリース前チェックリスト
 

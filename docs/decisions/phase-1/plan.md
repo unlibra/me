@@ -50,6 +50,27 @@
 
 **判断ログ**：`docs/decisions/phase-1/base.md`
 
+### astro-upgrade（`base` の完了後に追加）
+
+**触ってよい範囲**：`package.json`、`package-lock.json`、`astro.config.mjs`、`tsconfig.json`、`eslint.config.js`、`.prettierrc`、`src/`、`tests/`。Astro の移行ガイドで必要になった変更に限る。
+
+**やること**
+
+1. Astro を 5 系から最新の 7 系に上げる。`@astrojs/react`、`@astrojs/sitemap`、`@astrojs/check`、`eslint-plugin-astro`、`prettier-plugin-astro` など Astro に連動するパッケージも、Astro 7 に対応する版に上げる。公式のアップグレード手順（`npx @astrojs/upgrade` など）があれば使ってよい
+2. Astro 6 と 7 の移行ガイドを読み、このリポジトリに当たる破壊的変更に対応する
+3. `@astrojs/react` の版を決めた判断ログ B-1 を、更新後の内容に合わせて追記する（元の記録は消さない）
+
+**受け入れ条件**
+
+- U1：`package.json` の `astro` が 7 系で、`npm ls astro` に 7 系以外の Astro が出ない
+- U2：`base` の受け入れ条件 A1〜A9 が引き続き満たされる（既存テストをそのまま通す。テストを弱めない）
+- U3：Astro 7 の型チェック（`astro check`）が警告なく通る。非推奨 API の警告がビルドに出ない
+- U4：A10（`wrangler dev` での確認）を手で再確認して報告する
+
+**モデル**：標準、推論レベルは親と同じ
+
+**判断ログ**：`docs/decisions/phase-1/astro-upgrade.md`（B-1 の追記だけは `base.md` に書く）
+
 ## テスト
 
 - 既存のテストはない。依存を増やさないため、Node 標準の `node:test` を使う
