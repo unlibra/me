@@ -28,3 +28,21 @@
 - 根拠：ポートフォリオのページは操作できる部分がほぼなく、テーマ切替のためだけに React を読み込むと、Astro を選んだ利点（静的ページの JS を 0 にする）が失われる
 - 他の選択肢：React の island として作り、全ページで React を読み込む
 - 戻すときの作業：コンポーネント1つを書き直す
+
+## 最終UIチェックで確認してもらう項目
+
+ユーザーが最後に行うUIデザインのチェックで、次をまとめて確認してもらう。
+
+- ヘッダーの構成とサイト名の表記（P2-1）。LINE Seed JP をどこに使うか
+- フッターの構成（P2-2）と、`src/messages/layout.ts` にある新しい文言（`layout.md` の L-9）。いずれも子が仮に決めた文面で、Block 2 のレビューで「画面の文言は人間に聞く条件に当たる」と指摘された。ユーザーが UI を最後にまとめて確認すると決めているので、ここで確認してもらう
+  - フッターの説明文（ja）「unlibra の制作物をまとめたサイトです。自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを掲載しています。」
+  - フッターの説明文（en）"A collection of works by unlibra: custom keyboards, software, web tools, and VRChat items."
+  - 言語切替ボタンの読み上げラベル「言語を切り替え」/ "Change language"
+  - 英語ページのフッターのリンク "Privacy Policy (Japanese)"
+- 色トークン（P2-3）。旧 Lib Lab ロゴの色が新しいシンボルと合っていない
+- ダークモードでのシンボルの見え方。シンボルの円（#27272a）がダークの背景（#282c34）にほぼ溶け、白いマークだけが見える
+- プライバシーポリシーと404ページの meta description の仮の文面（`layout.md` の L-2）
+
+## Phase 5 への申し送り
+
+- Heroicons（MIT、Tailwind Labs）から写したアイコンのパスが `src/components/` にある。各ファイルの先頭には出典の1行コメントしかないので、`LICENSES/` に Heroicons の MIT ライセンス全文（著作権表示を含む）を置き、`LICENSE` で第三者のコードとして扱う
