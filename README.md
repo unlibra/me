@@ -1,70 +1,70 @@
 # unlibra.com
 
-A portfolio website with X (Twitter) profile page-inspired design.
+The website of unlibra. It has a portfolio of works (custom keyboards,
+software, web tools, and VRChat items) and a set of web tools that run in the
+browser.
 
-## Features
-
-- **X-style Design**: Design inspired by X's profile page
-- **SSG**: Fast loading with Astro static site generation
-- **Category Filtering**: Filter works by tabs and hashtags
-- **Image Optimization**: Automatic hashing and optimization with Astro Image
-- **Self-hosted Fonts**: Font self-hosting with @fontsource
+- `/` - Portfolio (Japanese)
+- `/lab` and `/en/lab` - Web tools (Japanese and English)
+- `/privacy` - Privacy policy (Japanese)
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) - Static Site Generator
-- [Tailwind CSS v4](https://tailwindcss.com/) - Styling
-- [IBM Plex Sans JP](https://fonts.google.com/specimen/IBM+Plex+Sans+JP) - Font (@fontsource)
-- TypeScript - Type safety
+- [Astro](https://astro.build/) 7 - Static site generation
+- [Tailwind CSS](https://tailwindcss.com/) v4 - Styling
+- [React](https://react.dev/) - Islands for the interactive web tools
+- [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) - Static asset hosting only (no Worker script)
+- TypeScript
 
 ## Development
 
+Requires Node.js 22.22.0 or later (`.node-version` pins 24).
+
 ```bash
 # Install dependencies
-npm install
+npm ci
 
-# Start dev server (port 4321)
+# Start the dev server (http://localhost:4321)
 npm run dev
 
-# Build for production
+# Type-check and build into dist/
 npm run build
 
-# Preview production build
-npm run preview
+# Run the tests against dist/ (run `npm run build` first)
+npm test
 
-# Lint
+# Serve dist/ with Wrangler, as on Cloudflare Workers
+npm run preview:cf
+
+# Lint and format
 npm run lint
+npm run format:check
+npm run format
+
+# Regenerate the icons and the OGP image from src/assets/brand/symbol.svg
+npm run generate:icons
 ```
 
-## Deployment
+## Project Structure
 
-Configured for Cloudflare Pages.
-
-### Build Configuration
-
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Node version: 18 or higher
-
-### Caching
-
-Immutable cache (1 year) is configured for `/_astro/*`.
-
-## Customization
-
-Edit `src/pages/index.astro`:
-
-- `site` - Site name, URL, OGP settings
-- `profile` - Name, bio, links
-- `categories` - Work categories
-- `allWorks` - Work data
-
-### Adding Images
-
-1. Place images in `src/assets/works/`
-2. Import in `index.astro`
-3. Set to `image` property in `allWorks`
+- `src/pages/` - Pages
+- `src/config/` - Site settings and the list of works
+- `src/components/` - Astro components
+- `src/components/ui/` - Shared UI parts (MIT)
+- `src/tools/` - Web tool implementations (MIT)
+- `public/_headers` - Security and cache headers for Cloudflare
+- `wrangler.jsonc` - Cloudflare Workers configuration
+- `docs/` - Design document and decision logs
 
 ## License
 
-MIT
+Copyright (c) 2025 unlibra. All rights reserved, with the exceptions below.
+See [LICENSE](LICENSE) for the full terms.
+
+- The web tools (`src/tools/`) and shared UI parts (`src/components/ui/`) are
+  licensed under the [MIT License](LICENSES/MIT.txt).
+- Some files contain material by other authors (Heroicons, the Tailwind CSS
+  color palette, DiceBear). They are listed in [LICENSE](LICENSE), with the
+  full license texts in [LICENSES/](LICENSES/).
+- BOOTH product images that show material by other creators are not covered by
+  any of these licenses.

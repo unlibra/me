@@ -1,1 +1,67 @@
 Copyright (c) 2025 unlibra. All rights reserved.
+
+Except as stated below, no license is granted to the files in this
+repository. You may view them, but you may not copy, modify, distribute, or
+otherwise use them without prior written permission from unlibra, except as
+permitted by the GitHub Terms of Service for public repositories.
+
+
+1. MIT License
+
+The files in the following directories are licensed under the MIT License.
+The full text is in LICENSES/MIT.txt.
+
+  - src/tools/
+  - src/components/ui/
+
+Material by other authors in these directories (listed in section 2) stays
+under the license of its author.
+
+
+2. Material by other authors
+
+The following files contain material by other authors, which is licensed
+under the license shown for each source. Other content in the same file
+follows the rest of this LICENSE.
+
+Heroicons v2.2.0 (https://heroicons.com)
+MIT License, Copyright (c) Tailwind Labs, Inc.
+The full text is in LICENSES/Heroicons-MIT.txt.
+
+  - src/components/icons/GlobeIcon.astro
+  - src/components/icons/MoonIcon.astro
+  - src/components/icons/SunIcon.astro
+  - src/components/ui/Breadcrumb.astro
+
+Tailwind CSS v3 color palette (tailwindcss 3.4.18, https://tailwindcss.com)
+MIT License, Copyright (c) Tailwind Labs, Inc.
+The full text is in LICENSES/tailwindcss-MIT.txt.
+
+  - src/tools/tw-palette-generator/tailwind-colors.ts
+
+DiceBear "Shapes" and "Thumbs" (https://www.dicebear.com)
+CC0 1.0 Universal.
+The full text is in LICENSES/CC0-1.0.txt.
+
+  - src/assets/tools/favicon-generator.svg
+  - src/assets/tools/password-generator.svg
+  - src/assets/tools/svg-optimizer.svg
+  - src/assets/tools/tw-palette-generator.svg
+  - src/components/Avatar.astro
+
+
+3. Not covered by this LICENSE
+
+BOOTH product images that show material by other creators are kept in
+src/assets/works/third-party/. They are not licensed under this LICENSE or
+any license in LICENSES/. The rights belong to their respective owners.
+
+Logos of other services, such as the GitHub mark in
+src/components/icons/GitHubIcon.astro, are trademarks of their owners and are
+not licensed under this LICENSE.
+
+
+4. Dependencies
+
+npm packages included in the build output, including fonts, are licensed
+under their own licenses.

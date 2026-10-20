@@ -253,8 +253,6 @@ test("C6: no IBM Plex references remain", () => {
     .filter(Boolean)
     .filter((p) => existsSync(join(root, p)))
     .filter((p) => !p.startsWith("docs/") && !p.startsWith("tests/"))
-    // README.md is rewritten in Phase 5 (outside this phase's scope).
-    .filter((p) => p !== "README.md")
     .filter((p) => !/\.(png|webp|jpe?g|gif|ico|woff2?)$/i.test(p));
   assert.deepEqual(
     sources.filter((p) => pattern.test(readFileSync(join(root, p), "utf8"))),
