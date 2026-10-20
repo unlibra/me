@@ -364,3 +364,83 @@ test("C8: header and footer texts have the same keys in ja and en", async () => 
     }
   }
 });
+
+/** Width and height from a PNG's IHDR chunk. */
+const pngSize = (buffer) => {
+  assert.equal(
+    buffer.subarray(0, 8).toString("hex"),
+    "89504e470d0a1a0a",
+    "not a PNG",
+  );
+  assert.equal(buffer.subarray(12, 16).toString("latin1"), "IHDR");
+  return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+};
+
+const readDistBuffer = (path) => readFileSync(join(dist, path));
+
+test("C5: icon files are in dist/ with the expected sizes", () => {
+  assert.deepEqual(pngSize(readDistBuffer("ogp.png")), {
+    width: 1200,
+    height: 630,
+  });
+  assert.deepEqual(pngSize(readDistBuffer("apple-touch-icon.png")), {
+    width: 180,
+    height: 180,
+  });
+
+  // favicon.ico: a directory of PNG images, one of them 32x32.
+  const ico = readDistBuffer("favicon.ico");
+  assert.equal(ico.readUInt16LE(0), 0);
+  assert.equal(ico.readUInt16LE(2), 1, "not an icon");
+  const sizes = [];
+  for (let i = 0; i < ico.readUInt16LE(4); i++) {
+    const entry = 6 + 16 * i;
+    const size = ico.readUInt8(entry) || 256;
+    const length = ico.readUInt32LE(entry + 8);
+    const offset = ico.readUInt32LE(entry + 12);
+    const image = ico.subarray(offset, offset + length);
+    assert.deepEqual(pngSize(image), { width: size, height: size });
+    sizes.push(size);
+  }
+  assert.ok(sizes.includes(32), `favicon.ico sizes: ${sizes}`);
+});
+
+test("C5: icon.svg is the brand symbol", () => {
+  const symbol = readFileSync(
+    join(root, "src/assets/brand/symbol.svg"),
+    "utf8",
+  );
+  const icon = readDist("icon.svg");
+  assert.match(icon, /^<svg width="512" height="512" /);
+  assert.equal(
+    icon.replace(' width="512" height="512"', "").trim(),
+    symbol.trim(),
+  );
+});
+
+test("C5: every page references the icons and the OGP image", () => {
+  for (const file of htmlPages()) {
+    const html = head(readDist(file));
+    const links = [...html.matchAll(/<link\s[^>]*>/g)].map((m) => ({
+      rel: attr(m[0], "rel"),
+      href: attr(m[0], "href"),
+    }));
+    for (const [rel, href] of [
+      ["icon", "/favicon.ico"],
+      ["icon", "/icon.svg"],
+      ["apple-touch-icon", "/apple-touch-icon.png"],
+    ]) {
+      assert.ok(
+        links.some((l) => l.rel === rel && l.href === href),
+        `${file}: <link rel="${rel}" href="${href}">`,
+      );
+      assert.ok(existsSync(join(dist, href.slice(1))), `dist${href}`);
+    }
+    const twitterImage = html.match(/<meta[^>]*name="twitter:image"[^>]*>/)[0];
+    assert.equal(attr(twitterImage, "content"), `${SITE}/ogp.png`, file);
+  }
+});
+
+test("C5: the old OGP frame image is removed", () => {
+  assert.equal(existsSync(join(root, "assets/ogp-frame.png")), false);
+});

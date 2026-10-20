@@ -89,3 +89,26 @@
 - 決めたこと：`SameStructure` 型（liblab の `type-utils.ts` と同じもの）で en の型を ja から作る。この型がキーの不足・余分・文字列以外の値を拒むことを、`tests/types/layout-messages.ts` の `@ts-expect-error` で確かめる（`astro check` の対象）。加えて `node:test` から `src/messages/layout.ts` を読み込み（Node の型ストリップ）、実際の値のキーが一致することも確かめる
 - 根拠：C8 は型での保証を求めている。`@ts-expect-error` は、印を付けた行がエラーでなくなると型チェック自体が失敗するので、型の保証が弱まったときに気づける
 - 戻すときの作業：テストのファイルを消す
+
+## L-14 アイコンと OGP 画像の生成方法
+
+- 決めたこと：`scripts/generate-icons.mjs`（`npm run generate:icons`）が `src/assets/brand/symbol.svg` から `public/icon.svg`・`favicon.ico`・`apple-touch-icon.png`・`ogp.png` を作る。ビルドには組み込まず、生成物をコミットする。`sharp` を devDependencies に足した（もとから Astro の依存として lock に載っていた版と同じ）。OGP 画像の文字は、`node_modules` の Noto Sans JP（`@fontsource-variable/noto-sans-jp` の latin の woff2）を `fontfile` で指定して描く。2回続けて生成し、出力が同じバイト列になることを確かめた
+- 根拠：計画どおり。フォントを OS から探させると、生成する環境で字形が変わる。`favicon.ico` は sharp が書き出せないので、PNG を入れた ICO をスクリプト内で組み立てる（主要なブラウザはどれも読める）
+- 他の選択肢：ビルドのたびに生成する（ビルドに sharp と時間が要る）。ICO 用のライブラリを足す
+- 戻すときの作業：スクリプトと `package.json` の1行を消す
+
+## L-15 アイコンと OGP 画像の見た目（仮）
+
+- 決めたこと：
+  - `ogp.png`：白い背景の中央に、シンボル（160px）と「unlibra.com」（Noto Sans JP の SemiBold、96px、シンボルの円と同じ `#27272a`）を横に並べる。文字は「unlibra.com」だけにした
+  - `apple-touch-icon.png`：iOS が透明部分を黒で埋めて角を丸めるので、角をシンボルの円と同じ色で塗る
+  - `favicon.ico`：16・32・48px
+  - `icon.svg`：シンボルに `width="512" height="512"` を足す。以前の `icon.svg` に幅と高さを明示したコミット（ee25f0c）に合わせた
+- 根拠：計画の仮方針。ヘッダーと同じ「シンボル＋サイト名」の並びにした。最終UIチェックで見直す前提
+- 戻すときの作業：スクリプトの値を変えて再生成する
+
+## L-16 アイコンの参照とキャッシュ
+
+- 決めたこと：`<head>` に `favicon.ico`（`sizes="32x32"`）、`icon.svg`、`apple-touch-icon.png` の3つを出す。`public/_headers` に、`favicon.ico` と `apple-touch-icon.png` のキャッシュ設定を `icon.svg`・`ogp.png` と同じ値で足した
+- 根拠：SVG に対応しないブラウザは ICO を、対応するブラウザは SVG を使う。キャッシュは Phase 1（B-3）で移した既存の設定と揃えた
+- 戻すときの作業：`BaseLayout.astro` の2行と `_headers` の2ブロックを消す
