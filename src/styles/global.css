@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../tools/styles.css";
 
 /* Dark mode follows the `dark` class on <html>, set by BaseLayout's script. */
 @custom-variant dark (&:where(.dark, .dark *));

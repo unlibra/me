@@ -6,12 +6,8 @@ import fostyDarkImg from "@/assets/works/fosty-dark.webp";
 import dummyImg from "@/assets/works/dummy.svg";
 import npmImg from "@/assets/npm.svg";
 import pypiImg from "@/assets/pypi.svg";
-import twPaletteGeneratorIcon from "@/assets/tools/tw-palette-generator.svg";
-import faviconGeneratorIcon from "@/assets/tools/favicon-generator.svg";
-import svgOptimizerIcon from "@/assets/tools/svg-optimizer.svg";
-import passwordGeneratorIcon from "@/assets/tools/password-generator.svg";
 import { site, type SitePath } from "@/config/site";
-import { toolPath } from "@/config/tools";
+import { toolIcons, toolPath } from "@/config/tools";
 import type messages from "@/messages/ja";
 
 /** Work categories in display order. */
@@ -102,29 +98,29 @@ export const works: Work[] = [
     id: "tw-palette-generator",
     category: "web",
     year: "2025",
-    image: twPaletteGeneratorIcon,
-    link: toolPath("tw-palette-generator"),
+    image: toolIcons["tw-palette-generator"],
+    link: toolPath("tw-palette-generator", "ja"),
   },
   {
     id: "favicon-generator",
     category: "web",
     year: "2025",
-    image: faviconGeneratorIcon,
-    link: toolPath("favicon-generator"),
+    image: toolIcons["favicon-generator"],
+    link: toolPath("favicon-generator", "ja"),
   },
   {
     id: "svg-optimizer",
     category: "web",
     year: "2025",
-    image: svgOptimizerIcon,
-    link: toolPath("svg-optimizer"),
+    image: toolIcons["svg-optimizer"],
+    link: toolPath("svg-optimizer", "ja"),
   },
   {
     id: "password-generator",
     category: "web",
     year: "2025",
-    image: passwordGeneratorIcon,
-    link: toolPath("password-generator"),
+    image: toolIcons["password-generator"],
+    link: toolPath("password-generator", "ja"),
   },
   // Dummy items until the real BOOTH items are ready (design doc 3.6).
   {

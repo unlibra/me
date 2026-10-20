@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { existsSync, globSync, readFileSync } from "node:fs";
+import { existsSync, globSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -106,12 +106,16 @@ test("A2: build output has the expected pages and files", () => {
 });
 
 test("A3: build output has no locale-prefixed pages", () => {
+  // The portfolio is Japanese only. The only English pages are the tools
+  // under /en/lab (design doc 3.2, added in Phase 4).
+  assert.equal(existsSync(join(dist, "ja")), false, "dist/ja/");
   for (const locale of ["ja", "en"]) {
-    assert.equal(existsSync(join(dist, locale)), false, `dist/${locale}/`);
     assert.equal(existsSync(join(dist, `${locale}.html`)), false);
   }
+  assert.deepEqual(readdirSync(join(dist, "en")), ["lab"]);
   const sitemap = readDist("sitemap-0.xml");
-  assert.doesNotMatch(sitemap, /unlibra\.com\/(ja|en)\b/);
+  assert.doesNotMatch(sitemap, /unlibra\.com\/ja\b/);
+  assert.doesNotMatch(sitemap, /unlibra\.com\/en(?!\/lab\b)/);
 });
 
 test("A4: no Vercel references in build output and source", () => {
@@ -144,7 +148,7 @@ test("A6: robots.txt allows all and points to sitemap-index.xml", () => {
   ]);
 });
 
-test("A6: sitemap lists the top page and privacy only", () => {
+test("A6: sitemap lists the top page, privacy, and the tool pages only", () => {
   assert.match(
     readDist("sitemap-index.xml"),
     new RegExp(`<loc>${SITE}/sitemap-0\\.xml</loc>`),
@@ -154,7 +158,20 @@ test("A6: sitemap lists the top page and privacy only", () => {
     .sort();
   // @astrojs/sitemap 3.7.4+ writes the origin-only URL with "/", which is
   // the same resource as the canonical URL without it.
-  assert.deepEqual(locs, [`${SITE}/`, `${SITE}/privacy`]);
+  const tools = [
+    "favicon-generator",
+    "password-generator",
+    "svg-optimizer",
+    "tw-palette-generator",
+  ];
+  assert.deepEqual(locs, [
+    `${SITE}/`,
+    `${SITE}/en/lab`,
+    ...tools.map((tool) => `${SITE}/en/lab/${tool}`),
+    `${SITE}/lab`,
+    ...tools.map((tool) => `${SITE}/lab/${tool}`),
+    `${SITE}/privacy`,
+  ]);
 });
 
 test("A7: index.html canonical and og:url point to the site root, no hreflang", () => {

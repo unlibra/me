@@ -45,12 +45,31 @@ const isThemeInit = (body) =>
 
 test("the build has the pages this test suite expects", () => {
   // Guards against the checks below passing on an empty page list.
-  assert.deepEqual(htmlPages(), [
-    "404.html",
-    "index.html",
-    "privacy/index.html",
-  ]);
+  const tools = [
+    "favicon-generator",
+    "password-generator",
+    "svg-optimizer",
+    "tw-palette-generator",
+  ];
+  assert.deepEqual(
+    htmlPages(),
+    [
+      "404.html",
+      ...tools.map((tool) => `en/lab/${tool}/index.html`),
+      "en/lab/index.html",
+      "index.html",
+      ...tools.map((tool) => `lab/${tool}/index.html`),
+      "lab/index.html",
+      "privacy/index.html",
+    ].sort(),
+  );
 });
+
+/** Language of a page: English under /en (the tool pages), otherwise ja. */
+const langOf = (file) => (file.startsWith("en/") ? "en" : "ja");
+
+/** Pages that exist in one language only. */
+const singleLanguagePages = ["404.html", "index.html", "privacy/index.html"];
 
 test("C2: pages other than 404 have exactly one canonical and a matching og:url", () => {
   for (const file of htmlPages().filter((f) => f !== "404.html")) {
@@ -95,7 +114,11 @@ test("pages have title, description, OGP and Twitter card metadata", () => {
     }
     const ogImage = html.match(/<meta[^>]*property="og:image"[^>]*>/)[0];
     assert.equal(attr(ogImage, "content"), `${SITE}/ogp.png`, file);
-    assert.match(readDist(file), /<html[^>]*lang="ja"/, file);
+    assert.match(
+      readDist(file),
+      new RegExp(`<html[^>]*lang="${langOf(file)}"`),
+      file,
+    );
   }
 });
 
@@ -294,15 +317,20 @@ test("C4: every page has the common header", () => {
     const header = sectionOf(readDist(file), "header");
     const links = hrefs(header);
     assert.ok(links.includes("/"), `${file}: home link`);
-    assert.ok(links.includes("/lab"), `${file}: tools link`);
+    const lang = langOf(file);
+    const toolsPath = lang === "en" ? "/en/lab" : "/lab";
+    assert.ok(links.includes(toolsPath), `${file}: tools link`);
     assert.ok(links.includes("https://github.com/unlibra"), `${file}: GitHub`);
     assert.match(header, />unlibra\.com</, `${file}: site name`);
     assert.match(header, /<svg[^>]*viewBox="0 0 512 512"/, `${file}: logo`);
 
     // Theme toggle: a button controlling a hidden panel of three choices.
+    const toggleLabel = lang === "en" ? "Toggle theme" : "テーマを切り替え";
     assert.match(
       header,
-      /<button[^>]*aria-label="テーマを切り替え"[^>]*aria-expanded="false"[^>]*aria-controls="theme-menu"/,
+      new RegExp(
+        `<button[^>]*aria-label="${toggleLabel}"[^>]*aria-expanded="false"[^>]*aria-controls="theme-menu"`,
+      ),
       file,
     );
     assert.match(header, /<div[^>]*id="theme-menu"[^>]*hidden/, file);
@@ -314,7 +342,7 @@ test("C4: every page has the common header", () => {
 });
 
 test("pages without another language version have no language switcher", () => {
-  for (const file of htmlPages()) {
+  for (const file of singleLanguagePages) {
     const html = readDist(file);
     assert.doesNotMatch(html, /data-language-switcher/, file);
     assert.doesNotMatch(html, /hreflang/, file);

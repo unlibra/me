@@ -3,7 +3,9 @@ import SymbolIcon from "@/assets/brand/symbol.svg";
 import GitHubIcon from "@/components/icons/GitHubIcon.astro";
 import type { Locale } from "@/config/locales";
 import { paths, site } from "@/config/site";
+import { toolIds, toolPath } from "@/config/tools";
 import { layoutMessages } from "@/messages/layout";
+import { toolMessages } from "@/tools/messages";
 
 interface Props {
   lang: Locale;
@@ -11,13 +13,14 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = layoutMessages[lang].footer;
+const tools = toolMessages[lang].tools;
 const link =
   "text-sm text-gray-600 transition-all hover:underline dark:text-gray-400";
 ---
 
 <footer class="bg-gray-100 py-12 dark:bg-atom-one-dark-light">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-[1fr_auto] lg:gap-12">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-[1fr_auto_auto] lg:gap-12">
       <div>
         <a
           href="/"
@@ -38,6 +41,21 @@ const link =
           <GitHubIcon class="size-5" />
           {t.github}
         </a>
+      </div>
+
+      <div>
+        <h2 class="mb-3 text-sm font-semibold tracking-wider uppercase">
+          {t.tools}
+        </h2>
+        <ul class="space-y-2">
+          {toolIds.map((tool) => (
+            <li>
+              <a href={toolPath(tool, lang)} class={link}>
+                {tools[tool].name}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div>

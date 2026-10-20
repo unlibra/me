@@ -1,0 +1,18 @@
+/*
+ * Styles the web tools rely on. The tools were written for Tailwind CSS v3;
+ * these rules restore the v3 defaults they depend on (from the Tailwind v4
+ * upgrade guide). Imported by src/styles/global.css.
+ */
+@layer base {
+  /* v4 no longer shows a pointer cursor on buttons. */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* v4 uses the text color at 50% for placeholders; v3 used gray-400. */
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-gray-400);
+  }
+}

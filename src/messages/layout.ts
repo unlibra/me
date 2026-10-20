@@ -21,6 +21,7 @@ const ja = {
     description:
       "unlibra の制作物をまとめたサイトです。自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを掲載しています。",
     github: "GitHub",
+    tools: "Tools",
     support: "Support",
     donate: "寄付・支援",
     privacyPolicy: "プライバシーポリシー",
@@ -48,6 +49,7 @@ const en: LayoutMessages = {
     description:
       "A collection of works by unlibra: custom keyboards, software, web tools, and VRChat items.",
     github: "GitHub",
+    tools: "Tools",
     support: "Support",
     donate: "Donate & Support",
     privacyPolicy: "Privacy Policy (Japanese)",
