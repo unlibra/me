@@ -1,6 +1,6 @@
 import type { ImageMetadata } from "astro";
 import miraImg from "@/assets/works/mira.webp";
-import botsuImg from "@/assets/works/botsu.webp"
+import botsuImg from "@/assets/works/botsu.webp";
 import fostyNaturalImg from "@/assets/works/fosty-natural.webp";
 import fostyDarkImg from "@/assets/works/fosty-dark.webp";
 import liblabImg from "@/assets/works/liblab.webp";
