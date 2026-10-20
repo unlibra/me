@@ -1,0 +1,129 @@
+# unlibra.com リプレイス計画
+
+ポートフォリオサイト（me）とツールサイト（liblab）を、me リポジトリ1つに統合する。この文書は設計書とフェーズ計画を兼ねる。ここに書いた「確定事項」は合意済み、「未決」は未合意である。
+
+## 1. 目的
+
+1. liblab を廃止し、残すWEBツールをポートフォリオの一カテゴリとして統合する
+2. me のデザインを X オマージュから liblab のデザインベースに変更する
+3. Vercel をやめて Cloudflare に一本化する
+4. BOOTH で販売している VRChat 関連アイテムを実績に追加する
+5. ドキュメントへのリンクを `docs.unlibra.com` に変更する
+6. フォントとロゴを変更する
+
+## 2. 現状（2026-10-21 時点）
+
+- `unlibra.com` は Cloudflare のプロキシ経由で Vercel から配信されている（`x-vercel-id` ヘッダーで確認）
+- `/lab/*` は me の `vercel.json` から `unlibra-lab.vercel.app` へ rewrite されている
+- liblab のバックエンド（FastAPI、Vercel 上）を使っているのはイロマイドだけ
+- me のフレームワークは Astro 5.16 + Tailwind v4、liblab は Next.js 16 + Tailwind v3
+
+## 3. 確定事項
+
+### 3.1 フレームワークと配信
+
+- Astro を継続し、ツールは `@astrojs/react` の island として載せる
+- Tailwind CSS v4
+- Cloudflare Workers の静的配信（Static Assets）で配信する。Worker のスクリプトは持たない
+- リダイレクトは `public/_redirects`、レスポンスヘッダーは `public/_headers` で設定する
+- URL の末尾スラッシュは付けない（現行 me と同じ `trailingSlash: "never"`）
+- 言語の自動振り分け（Accept-Language による判定）は行わない。言語切替ボタンだけにする
+- アクセス解析は Cloudflare Web Analytics に置き換える。`@vercel/analytics` は削除する
+- 削除するもの：`vercel.json`、`middleware.ts`、`src/middleware.ts`、`functions/`、`public/sitemap.xml`（静的ファイル版）
+- 既存の環境変数による設定（`PUBLIC_SITE_URL` などミラーサイト用）は維持する
+
+### 3.2 URL
+
+| 対象 | URL |
+|---|---|
+| ポートフォリオ（日本語のみ） | `/` |
+| プライバシーポリシー（日本語のみ） | `/privacy` |
+| ツール一覧（日本語・既定） | `/lab` |
+| ツール（日本語・既定） | `/lab/{tool}` |
+| ツール一覧（英語） | `/en/lab` |
+| ツール（英語） | `/en/lab/{tool}` |
+
+`{tool}` は `tw-palette-generator`、`favicon-generator`、`svg-optimizer`、`password-generator` の4つ。
+
+旧URLからの301リダイレクト：
+
+| 旧URL | 新URL |
+|---|---|
+| `/ja` | `/` |
+| `/en` | `/` |
+| `/lab/ja` | `/lab` |
+| `/lab/ja/*` | `/lab/:splat` |
+| `/lab/en` | `/en/lab` |
+| `/lab/en/*` | `/en/lab/:splat` |
+
+廃止したイロマイド（`/lab/{ja,en}/iromide`）は個別に扱わない。上の一括ルールで転送され、転送先が存在しないので404になる。
+
+### 3.3 多言語
+
+- ポートフォリオは日本語のみ。ロケール付きのページ（`src/pages/[locale]/`）はやめる
+- ツールは日本語（既定、接頭辞なし）と英語（`/en` 接頭辞）
+- ヘッダーとフッターは、ツールのページで使うため日本語版と英語版を用意する
+- ツールのページには hreflang（ja / en / x-default=ja）を出す
+
+### 3.4 WEBツール
+
+- 残す：TW Palette Generator、Favicon Generator、SVG Optimizer、Password Generator
+- 廃止：イロマイド、liblab のバックエンド
+- liblab の `src/components/ui/spinner.tsx` に含まれる Vercel 由来のコード（Apache-2.0）はイロマイドでしか使っていないので、移植しない
+
+### 3.5 デザイン
+
+- liblab のデザインをベースにする（ヘッダー、フッター、カード、色トークン `logo-*` と `atom-one-dark`、ダークモード切替）
+- 本文フォントは Noto Sans JP（`@fontsource-variable/noto-sans-jp`、自前ホスティング）
+- ロゴシンボルは `unlibra.github.io` リポジトリの `brand/symbol.svg`。favicon と OGP 画像もこれをもとに作り直す
+- LINE Seed JP は使う場所が未決（4章）。決まるまでは使わずに作り、UIデザインの最終チェックで指示を受ける
+
+### 3.6 ポートフォリオのコンテンツ
+
+- 作品カテゴリ：自作キーボード / ソフトウェア / WEBツール / VRChat
+- VRChat はサブ分類としてアバター / アセット / Unityツールを持つ
+- 作品一覧から `liblab` と `iromide` を外し、残す4ツールを WEBツールの作品として載せる。リンク先はサイト内の `/lab/{tool}`
+- ドキュメントのリンクは、パスはそのままでホストだけ `unlibra.github.io` から `docs.unlibra.com` に変える（3つとも 200 を返すことを確認済み）
+- BOOTH のショップURLは仮で `https://unlibra-twin.booth.pm/`（現在は非公開でつながらない）
+- BOOTH の商品画像はリポジトリに置く。それまではダミーの商品と画像を入れる。本番ビルドでダミーを除外する仕組みは作らない（6章のチェックリストで差し替える）
+- プロフィール文は X オマージュ前提の文面になっているので書き換える。新しい文面は仮のものを入れ、ユーザーの確認を受ける
+
+### 3.7 ライセンスと著作権表示
+
+- ルートの `LICENSE`：全体は `Copyright (c) unlibra. All rights reserved.` とする
+- 例外として、WEBツールの実装コードと共通UI部品は MIT とし、`LICENSES/MIT.txt` を置く。対象のディレクトリは `LICENSE` に明記する
+- 他の作者の素材が写っている BOOTH 商品画像は、どちらのライセンスの対象にもならないと明記する
+- `package.json` の `license` は `"SEE LICENSE IN LICENSE"`
+- liblab から持ってくるツールのコードは AGPL-3.0 から MIT に変える（作者は本人のみと確認済み）
+- フッターに著作権表示を出す。書式は「© 年 unlibra」（年は4章で未決）
+
+## 4. 未決
+
+| 項目 | 状況 |
+|---|---|
+| LINE Seed JP を使う箇所 | UIデザインの最終チェックで指示を受ける |
+| 著作権表示の年 | 案：2025（liblab・me の公開年）。ユーザー確認待ち |
+| BOOTH のショップURLと商品 | リリースまでにユーザーが用意する |
+| プロフィール文 | 仮の文面を入れ、ユーザーが確認する |
+
+## 5. フェーズ計画
+
+| Phase | 内容 | 完了条件 |
+|---|---|---|
+| 1. 基盤 | `@astrojs/react` の追加。Vercel 関連ファイルと `@vercel/analytics` の削除。ロケール付きページの廃止。`wrangler.jsonc`（静的配信のみ）の追加。セキュリティヘッダーを `public/_headers` に移す。Cloudflare Web Analytics の導入 | `npm run build` と lint が通り、`wrangler dev` でトップページが表示される |
+| 2. デザイン | liblab の色トークンを Tailwind v4 に移す。ヘッダー・フッター（日英）、ダークモード切替、Noto Sans JP、ロゴ・favicon・OGP 画像 | 全ページ共通のレイアウトがライト・ダーク両方で表示される |
+| 3. ポートフォリオ | カテゴリ構成、作品データの拡張、liblab・イロマイドの除外、ドキュメントリンクの修正、BOOTH の仮URLとダミー商品、著作権表示 | トップページに4カテゴリの作品が表示され、旧ドキュメントURLが残っていない |
+| 4. ツール移植 | 4ツールを React island として `/lab` と `/en/lab` に移す。Tailwind v4 への書き換え、`next/image` の置き換え。ツール一覧ページ、サイトマップ、hreflang | 4ツールが日英両方でブラウザ上で動作する |
+| 5. ライセンス | `LICENSE`、`LICENSES/MIT.txt`、`package.json`、README の更新 | 3.7 のとおりになっている |
+| 6. 切替 | `_redirects` の作成。プレビュー環境での確認。独自ドメインを Vercel から Workers に付け替える | 3.2 の旧URLがすべて301で新URLに転送される |
+| 7. 廃止 | Vercel の3プロジェクト（me / liblab frontend / backend）の削除。liblab リポジトリの README 更新とアーカイブ | — |
+
+Phase 6・7 の外部サービスの操作（ドメイン付け替え、Vercel プロジェクト削除、リポジトリのアーカイブ）は、1つずつユーザーに確認してから行う。Cloudflare のダッシュボード操作（Workers Builds の接続、Web Analytics のトークン発行）はユーザーが行う。
+
+## 6. リリース前チェックリスト
+
+- [ ] BOOTH のショップURLを本番のものに差し替える
+- [ ] ダミーの BOOTH 商品と画像を本物に差し替える
+- [ ] プロフィール文を確定する
+- [ ] 著作権表示の年を確定する
+- [ ] LINE Seed JP の扱いを決めて反映する
