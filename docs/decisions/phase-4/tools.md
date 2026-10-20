@@ -114,3 +114,40 @@ liblab のまま残した、最終UIチェックで見てほしい点：
 
 - トーストの閉じるボタンの読み上げラベルは、英語ページでも「閉じる」（liblab と同じ固定の文字列）
 - スライダー（`src/components/ui/slider.tsx`）にラベルを渡さないときの読み上げラベルの既定値は、英語ページでも「値を調整」（liblab と同じ固定の文字列）
+- Block 2 で移したツールにも、言語に関係なく同じ文字列のものがある（いずれも liblab のまま）
+  - SVG最適化：ファイルの検証エラー（「SVGファイルのみアップロードできます」「ファイルサイズが大きすぎます（最大10MB）」）と最適化の失敗（「SVGの最適化に失敗しました」）は日本語のみ。プレビュー画像の `alt` は「最適化後プレビュー」。プリセットのボタンの読み上げラベルは「Select preset: {プリセット名}」
+  - パスワードジェネレーター：文字種のボタンの読み上げラベルは英語のみ（「Toggle uppercase」など）
+
+## T-14 ツール本体の置き方（Block 2 以降）
+
+- 決めたこと：ツールごとに `src/tools/{tool}/` を作り、island の入口（`{tool}.tsx` の default export。`ToolRoot` で包む）、画面の部品、ロジック（`password.ts`、`svgo.ts` など）を置く。複数のツールで使うロジックは `src/tools/lib/`（`file.ts`）に置く。`ToolPage.astro` が、ツールの ID に応じて island を1つだけ `client:load` で出す（Astro は island のコンポーネントを静的に参照する必要があるので、ツールごとに条件分岐を書く）
+- liblab のコードからの変更は、Next.js と Tailwind v3 に依存する部分と、文言の参照（T-2）、Prettier の整形だけ。`svgo.ts` の `any[]` は lint（`no-explicit-any`）を通すため `Array<Record<string, unknown>>` にし、返すときに SVGO の型に変換する。中身は変えていない。使っていない文言のキー（SVG最適化の `custom`、`selectPreset`）は移していない
+- 根拠：liblab の `client` コンポーネントはページを開いた直後から動いていたので `client:load` にした
+- 戻すときの作業：—（構成の選択のみ）
+
+## T-15 svgo の版は liblab と同じ範囲（^4.0.0）にし、出力が同じことを確かめた
+
+- 決めたこと：`svgo` は liblab の `package.json` と同じ `^4.0.0` で入れた（入ったのは 4.1.0。liblab の lock は 4.0.0）。liblab のソース（`svgo.ts` と `svgo-presets.ts` を作業用の場所に写したもの）を svgo 4.0.0 で動かした出力を、`tests/fixtures/svg-optimizer/expected.json` に保存し、移植後のコードと 4.1.0 で同じ出力になることをテストで確かめる
+- 根拠：計画の E6（移植前と同じ結果）。版を 4.0.0 に固定するより、liblab の宣言した範囲の中で新しい版を使い、結果が変わっていないことをテストで守るほうがよい。版を上げて出力が変わったら、テストが落ちて気づける
+- 他の選択肢：`svgo` を 4.0.0 に固定する
+- 戻すときの作業：`package.json` の版を変える
+
+## T-16 E6 の単体テストは `node:test` で書いた（Vitest は入れていない）
+
+- 決めたこと：パスワード生成と SVG 最適化のロジックは、パスエイリアスを使う import がなく（型だけの import は Node の型の除去で消える）、Node から `.ts` をそのまま読み込める。そのため Vitest は入れず、既存と同じ `node:test` で `tests/password-generator.test.js`、`tests/svg-optimizer.test.js` を書いた
+  - パスワード生成：長さ、選んだ文字種だけを使うこと、選んだ文字種がすべて1文字以上入ること（長さが文字種の数より短いときは、どの文字も別の文字種から選ばれること）、紛らわしい文字の除外、文字種なしで空文字。加えて、`crypto.getRandomValues` を決まった数列を返すものに差し替え、liblab のソースを同じ数列で動かした結果と一致することを確かめる
+  - SVG最適化：2つの SVG（エディタの書き出しを模したものと、アイコン）×4つのオプション（3つのプリセットとカスタム）の出力が liblab と同じこと、プリセットの値、精度のオプションが SVGO の設定に渡ること、壊れた SVG で「SVGの最適化に失敗しました」のエラーになること
+- 根拠：計画の「`node:test` で書けなければ Vitest」。Block 3・4 のロジック（canvas を使う favicon 生成、色の計算）で書けなくなったら、そのときに検討する
+- 戻すときの作業：—
+
+## T-17 ビルド時のチャンクサイズの警告は残す
+
+- 決めたこと：svgo のチャンク（約 550KB）で Vite のチャンクサイズの警告が出る。`chunkSizeWarningLimit` は変えない
+- 根拠：svgo は liblab と同じく、最適化するときに初めて読み込む（動的 import）ので、ページの表示には影響しない。上限を上げると、ほかの大きなチャンクにも気づけなくなる
+- 戻すときの作業：—
+
+## T-18 SVG最適化の一部のオプションが効かない（liblab からの既存の不具合。直していない）
+
+- 見つけたこと：`buildSvgoConfig` は、プリセット外のプラグイン9つ（`removeViewBox`、`convertStyleToAttrs`、`cleanupListOfValues`、`removeTitle`、`removeDesc`、`removeDimensions`、`removeRasterImages`、`removeScripts`、`removeStyleElement`）を、オフのとき `{ name, active: false }` として渡している。svgo 4 は `active` を読まないので、これらはオプションに関係なく常に動く。たとえば「推奨」プリセット（`removeTitle: false`、`removeDimensions: false`）でも `<title>` と `width`・`height` が消え、「危険な設定」の `keepScripts`・`keepStyleElement` をオンにしても `<script>`・`<style>` は消える（`expected.json` の出力で確認できる。svgo 4.0.0 でも同じ）
+- 決めたこと：P4-2（機能を変えない）に従い、そのまま移した。テストの期待値も liblab の出力のまま
+- 直すときの作業：オフのプラグインを `plugins` に入れないようにする（数行）。生成結果が変わるので `expected.json` を作り直す。直すかどうかは親に判断を仰ぐ

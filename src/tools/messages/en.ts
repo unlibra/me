@@ -45,6 +45,57 @@ const en: ToolMessages = {
       shortDescription: "Quick and secure password generation.",
     },
   },
+  passwordGenerator: {
+    selectCharacterTypes: "Select Character Types",
+    copyToClipboard: "Copy Password to Clipboard",
+    length: "Length",
+    characterTypes: "Character Types",
+    characterTypesHint:
+      "Selected character types will each include at least one character.",
+    uppercase: "Uppercase",
+    lowercase: "Lowercase",
+    numbers: "Numbers",
+    symbols: "Symbols",
+    avoidAmbiguous: "Exclude Ambiguous Characters",
+    avoidAmbiguousHint: "e.g., 0 and O, 1 and l and I",
+    errors: {
+      copyFailed: "Failed to copy.",
+    },
+  },
+  svgOptimizer: {
+    uploadHint: "Upload SVG files (max 10MB).",
+    previewPlaceholder: {
+      line1: "Select an SVG file to",
+      line2: "see a preview.",
+    },
+    original: "Original",
+    optimized: "Optimized",
+    compressionRatio: "Compression Ratio",
+    preset: "Preset",
+    safe: "Recommended",
+    "svgo-default": "Standard Compression",
+    maximum: "Maximum Compression",
+    precisionSettings: "Precision Settings",
+    precisionHint:
+      "Adjust the numeric precision. Lower values increase compression but reduce accuracy.",
+    floatPrecision: "Floating Point Precision",
+    transformPrecision: "Transform Attribute Precision",
+    options: "Optimization Options",
+    groups: {
+      cleanup: "Cleanup",
+      optimization: "Optimization",
+      structural: "Structural Changes",
+      advanced: "Advanced Settings",
+      dangerous: "Dangerous Settings",
+      dangerousDescription:
+        "Security risks are present. Only use with trusted SVG files.",
+    },
+    errors: {
+      svgLoadFailed: "Failed to load SVG file.",
+      selectSvg: "Please select an SVG file.",
+      optimizeFailed: "Failed to optimize SVG.",
+    },
+  },
 };
 
 export default en;

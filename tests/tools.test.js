@@ -153,6 +153,42 @@ test("E3: tool pages have WebApplication and BreadcrumbList structured data", ()
   }
 });
 
+/** Tools whose island is in place (grows as the tools are ported). */
+const PORTED = ["svg-optimizer", "password-generator"];
+
+/** The page's islands as { component, client, props }. */
+const islands = (html) =>
+  [...html.matchAll(/<astro-island\s[^>]*>/g)].map((m) => ({
+    component: attr(m[0], "component-url"),
+    client: attr(m[0], "client"),
+    props: JSON.parse(attr(m[0], "props").replace(/&quot;/g, '"')),
+  }));
+
+test("E3: each ported tool page has its own island, loaded on page load", () => {
+  for (const { lang, tool, path } of pages.filter((p) =>
+    PORTED.includes(p.tool),
+  )) {
+    const found = islands(readDist(fileOf(path)));
+    assert.equal(found.length, 1, `${path}: island count`);
+    const [island] = found;
+    assert.match(
+      island.component,
+      new RegExp(`^/_astro/${tool}\\.[\\w-]+\\.js$`),
+      path,
+    );
+    assert.ok(existsSync(join(dist, island.component.slice(1))), path);
+    assert.equal(island.client, "load", path);
+    // Astro serializes each prop as [type, value]; 0 is a plain value.
+    assert.deepEqual(island.props, { locale: [0, lang] }, path);
+  }
+});
+
+test("E3: the tool list pages have no island", () => {
+  for (const lang of ["ja", "en"]) {
+    assert.deepEqual(islands(readDist(fileOf(pathOf(lang)))), [], lang);
+  }
+});
+
 test("tool list pages show a card for each tool in order", () => {
   for (const lang of ["ja", "en"]) {
     const html = readDist(fileOf(pathOf(lang)));
