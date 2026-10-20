@@ -45,3 +45,47 @@
 - 決めたこと：受け入れ条件 C6（IBM Plex の参照が残っていない）のソース検査で、`README.md` を対象から外した
 - 根拠：README は技術スタックの説明として IBM Plex Sans JP を挙げているが、このスコープで触ってよい範囲の外で、書き換えは Phase 5 で行う
 - 戻すときの作業：Phase 5 で README を書き換えたら、テストの除外を1行消す
+
+## L-8 ヘッダーとフッターは `BaseLayout` が出す
+
+- 決めたこと：`BaseLayout` が `Header`・本文・`Footer` を縦に並べて出す。各ページはヘッダーとフッターを自分で置かない。旧トップページのヘッダーバー（サイト名の `h1`）とフッター、`MarkdownLayout` 独自のフッターは消した。トップページの `h1` は、見出しの構造を保つため `sr-only` で残した
+- 根拠：ページごとに置くと付け忘れが起こりうる。ヘッダーとフッターのないページは今のところ想定していない
+- 他の選択肢：ページごとに `Header`・`Footer` を置く
+- 戻すときの作業：`BaseLayout.astro` から2つを外し、各ページに置く
+
+## L-9 ヘッダー・フッターの文言とフッターの並び
+
+- 決めたこと：
+  - liblab から引き継いだ文言：「テーマを切り替え / Toggle theme」「ライト・ダーク・システム」「寄付・支援 / Donate & Support」「プライバシーポリシー / Privacy Policy (Japanese)」「Support」「Language」
+  - 新しく決めた文言：「ツール / Tools」「言語を切り替え / Change language」
+  - フッターの説明文（仮）：ja「unlibra の制作物をまとめたサイトです。自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを掲載しています。」、en「A collection of works by unlibra: custom keyboards, software, web tools, and VRChat items.」
+  - 並びは liblab と同じで、左にロゴ・説明文・GitHub、右に「Support」の見出しと「寄付・支援」「プライバシーポリシー」、下に「© 2025 unlibra」。著作権表示とリンク先は `src/config/site.ts` の定数に置いた
+- 根拠：計画の仮方針（P2-1、P2-2）に沿い、文言はできるだけ liblab のものを使った。説明文は設計書 3.6 の作品カテゴリを並べた仮の文で、UIの最終チェックで差し替える前提
+- 他の選択肢：liblab の `site.description` を流用する（ツールサイトの説明なので合わない）
+- 戻すときの作業：`src/messages/layout.ts` の値を書き換える
+
+## L-10 ポップオーバーの操作方式
+
+- 決めたこと：テーマ切替と言語切替は、ボタン（`aria-expanded`・`aria-controls`）とパネルの組み合わせ（disclosure パターン）にした。開くと選択中の項目（なければ先頭）にフォーカスが移る。上下の矢印キー、Home・End で項目間を移動できる。Escape で閉じてボタンにフォーカスを戻す。外側をクリックするか、フォーカスが外に出ると閉じる。テーマの選択肢は `aria-pressed` で選択中を示す。ボタンの太陽と月のアイコンは CSS（`dark:` の有無）で切り替え、JS を待たずに正しいほうを表示する
+- 根拠：liblab が使っていた headlessui の Popover と同じ操作感にした。`role="menu"` にすると、矢印キー以外の操作（Tab での移動）に制約が増える。HTML の `popover` 属性は、ボタンの下に位置を合わせるのに anchor positioning が要り、対応ブラウザがまだ限られる
+- 他の選択肢：`role="menu"` と `menuitemradio`。`popover` 属性
+- 戻すときの作業：`src/scripts/popover.ts` と2つのコンポーネントを直す
+
+## L-11 システム設定とほかのタブへの追従
+
+- 決めたこと：設定が「システム」のとき、表示中に OS のテーマが変わったら追従する。ほかのタブでテーマを変えたら（`storage` イベント）、開いているタブにも反映する。保存に失敗しても、選んだテーマはそのページには適用する
+- 根拠：liblab の next-themes と同じ挙動。OS への追従は Block 1 のレビューで推奨された
+- 戻すときの作業：`src/scripts/theme.ts` の `watchPreference` を呼ばないようにする
+
+## L-12 アイコンの出どころ
+
+- 決めたこと：太陽・月・地球のアイコンは Heroicons v2.2.0（MIT、Copyright (c) Tailwind Labs, Inc.）の SVG パスを `src/components/icons/` に写し、各ファイルの先頭に出典とライセンスを書いた。GitHub のアイコンは liblab の `github-icon.tsx` と同じパス（GitHub のマーク）
+- 根拠：liblab は `@heroicons/react` を使っていたが、React に依存させないため、パスだけを写した。依存を増やさずに済む。MIT の著作権表示は、写した部分に添えて残す
+- 他の選択肢：`heroicons` パッケージを依存に加えて SVG を読み込む
+- 戻すときの作業：アイコンのファイルを差し替える。Phase 5 で `LICENSE` を書くとき、このアイコンの扱いも確認する
+
+## L-13 文言のキーが ja と en で揃っていることの検査
+
+- 決めたこと：`SameStructure` 型（liblab の `type-utils.ts` と同じもの）で en の型を ja から作る。この型がキーの不足・余分・文字列以外の値を拒むことを、`tests/types/layout-messages.ts` の `@ts-expect-error` で確かめる（`astro check` の対象）。加えて `node:test` から `src/messages/layout.ts` を読み込み（Node の型ストリップ）、実際の値のキーが一致することも確かめる
+- 根拠：C8 は型での保証を求めている。`@ts-expect-error` は、印を付けた行がエラーでなくなると型チェック自体が失敗するので、型の保証が弱まったときに気づける
+- 戻すときの作業：テストのファイルを消す

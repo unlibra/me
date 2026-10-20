@@ -1,0 +1,71 @@
+---
+import SymbolIcon from "@/assets/brand/symbol.svg";
+import GitHubIcon from "@/components/icons/GitHubIcon.astro";
+import type { Locale } from "@/config/locales";
+import { paths, site } from "@/config/site";
+import { layoutMessages } from "@/messages/layout";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = layoutMessages[lang].footer;
+const link =
+  "text-sm text-gray-600 transition-all hover:underline dark:text-gray-400";
+---
+
+<footer class="bg-gray-100 py-12 dark:bg-atom-one-dark-light">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-[1fr_auto] lg:gap-12">
+      <div>
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 transition-all hover:underline"
+        >
+          <SymbolIcon class="size-6" aria-hidden="true" />
+          <span class="text-xl font-semibold">{site.title}</span>
+        </a>
+        <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
+          {t.description}
+        </p>
+        <a
+          href={site.links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          class={`mt-4 inline-flex items-center gap-2 ${link}`}
+        >
+          <GitHubIcon class="size-5" />
+          {t.github}
+        </a>
+      </div>
+
+      <div>
+        <h2 class="mb-3 text-sm font-semibold tracking-wider uppercase">
+          {t.support}
+        </h2>
+        <ul class="space-y-2">
+          <li>
+            <a
+              href={site.links.sponsor}
+              target="_blank"
+              rel="noopener noreferrer"
+              class={link}
+            >
+              {t.donate}
+            </a>
+          </li>
+          <li>
+            <a href={paths.privacy} class={link}>
+              {t.privacyPolicy}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="mt-8 text-sm text-gray-600 dark:text-gray-400">
+      {site.copyright}
+    </p>
+  </div>
+</footer>

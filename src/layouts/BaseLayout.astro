@@ -4,6 +4,8 @@ import "@fontsource/roboto-mono/400.css";
 import "@fontsource/roboto-mono/500.css";
 import "@/styles/global.css";
 
+import Footer from "@/components/layout/Footer.astro";
+import Header from "@/components/layout/Header.astro";
 import { defaultLocale, ogLocales, type Locale } from "@/config/locales";
 import { absoluteUrl, site, type SitePath } from "@/config/site";
 import { themeStorageKey } from "@/config/theme";
@@ -24,14 +26,14 @@ interface Props {
 
 const { lang, title, description, canonical, alternatePath } = Astro.props;
 
-const pageUrl = absoluteUrl(Astro.url.pathname as SitePath);
+const currentPath = (Astro.url.pathname.replace(/\/+$/, "") || "/") as SitePath;
+const pageUrl = absoluteUrl(currentPath);
 const ogImage = absoluteUrl(site.ogImage);
 
-const alternates = alternatePath
-  ? {
-      [lang]: pageUrl,
-      [lang === "ja" ? "en" : "ja"]: absoluteUrl(alternatePath),
-    }
+const languagePaths: Record<Locale, SitePath> | undefined = alternatePath
+  ? lang === "ja"
+    ? { ja: currentPath, en: alternatePath }
+    : { ja: alternatePath, en: currentPath }
   : undefined;
 ---
 
@@ -59,14 +61,22 @@ const alternates = alternatePath
     <title>{title}</title>
     <meta name="description" content={description} />
     {canonical && <link rel="canonical" href={pageUrl} />}
-    {alternates && (
+    {languagePaths && (
       <>
-        <link rel="alternate" hreflang="ja" href={alternates.ja} />
-        <link rel="alternate" hreflang="en" href={alternates.en} />
+        <link
+          rel="alternate"
+          hreflang="ja"
+          href={absoluteUrl(languagePaths.ja)}
+        />
+        <link
+          rel="alternate"
+          hreflang="en"
+          href={absoluteUrl(languagePaths.en)}
+        />
         <link
           rel="alternate"
           hreflang="x-default"
-          href={alternates[defaultLocale]}
+          href={absoluteUrl(languagePaths[defaultLocale])}
         />
       </>
     )}
@@ -89,6 +99,12 @@ const alternates = alternatePath
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
   </head>
   <body class="bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300">
-    <slot />
+    <div class="flex min-h-screen flex-col overflow-x-hidden">
+      <Header lang={lang} languagePaths={languagePaths} />
+      <div class="flex-1">
+        <slot />
+      </div>
+      <Footer lang={lang} />
+    </div>
   </body>
 </html>

@@ -75,7 +75,6 @@ middleware.create()でルーティング設定も完結し、プレフィック�
   },
   footer: {
     endOfTimeline: "ここで終わりです",
-    privacyPolicy: "プライバシーポリシー",
   },
   pinned: "固定",
 };

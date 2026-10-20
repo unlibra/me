@@ -277,3 +277,90 @@ test("C7: the top page and privacy do not load the React runtime", () => {
     }
   }
 });
+
+const sectionOf = (html, tag) => {
+  const sections = html.match(
+    new RegExp(`<${tag}[\\s>][\\s\\S]*?</${tag}>`, "g"),
+  );
+  assert.equal(sections?.length, 1, `<${tag}> count`);
+  return sections[0];
+};
+
+const hrefs = (html) =>
+  [...html.matchAll(/<a\s[^>]*>/g)].map((m) => attr(m[0], "href"));
+
+test("C4: every page has the common header", () => {
+  for (const file of htmlPages()) {
+    const header = sectionOf(readDist(file), "header");
+    const links = hrefs(header);
+    assert.ok(links.includes("/"), `${file}: home link`);
+    assert.ok(links.includes("/lab"), `${file}: tools link`);
+    assert.ok(links.includes("https://github.com/unlibra"), `${file}: GitHub`);
+    assert.match(header, />unlibra\.com</, `${file}: site name`);
+    assert.match(header, /<svg[^>]*viewBox="0 0 512 512"/, `${file}: logo`);
+
+    // Theme toggle: a button controlling a hidden panel of three choices.
+    assert.match(
+      header,
+      /<button[^>]*aria-label="テーマを切り替え"[^>]*aria-expanded="false"[^>]*aria-controls="theme-menu"/,
+      file,
+    );
+    assert.match(header, /<div[^>]*id="theme-menu"[^>]*hidden/, file);
+    const options = [...header.matchAll(/data-theme-option="([^"]+)"/g)].map(
+      (m) => m[1],
+    );
+    assert.deepEqual(options, ["light", "dark", "system"], file);
+  }
+});
+
+test("pages without another language version have no language switcher", () => {
+  for (const file of htmlPages()) {
+    const html = readDist(file);
+    assert.doesNotMatch(html, /data-language-switcher/, file);
+    assert.doesNotMatch(html, /hreflang/, file);
+  }
+});
+
+test("C4: every page has the common footer with the required links", () => {
+  for (const file of htmlPages()) {
+    const footer = sectionOf(readDist(file), "footer");
+    assert.match(footer, />© 2025 unlibra</, `${file}: copyright`);
+    const links = hrefs(footer);
+    for (const href of [
+      "/",
+      "https://github.com/unlibra",
+      "https://ofuse.me/unlibra",
+      "/privacy",
+    ]) {
+      assert.ok(links.includes(href), `${file}: footer link to ${href}`);
+    }
+  }
+});
+
+/** Lists every key path of a nested object, e.g. "footer.github". */
+const keyPaths = (object, prefix = "") =>
+  Object.entries(object).flatMap(([key, value]) =>
+    typeof value === "object"
+      ? keyPaths(value, `${prefix}${key}.`)
+      : [`${prefix}${key}`],
+  );
+
+test("C8: header and footer texts have the same keys in ja and en", async () => {
+  // The type check (tests/types/layout-messages.ts) is the guarantee; this
+  // checks the actual values as well.
+  const { layoutMessages } = await import("../src/messages/layout.ts");
+  assert.deepEqual(Object.keys(layoutMessages).sort(), ["en", "ja"]);
+  assert.deepEqual(
+    keyPaths(layoutMessages.en).sort(),
+    keyPaths(layoutMessages.ja).sort(),
+  );
+  for (const locale of ["ja", "en"]) {
+    for (const path of keyPaths(layoutMessages[locale])) {
+      const value = path
+        .split(".")
+        .reduce((object, key) => object[key], layoutMessages[locale]);
+      assert.equal(typeof value, "string", `${locale}.${path}`);
+      assert.notEqual(value.trim(), "", `${locale}.${path}`);
+    }
+  }
+});

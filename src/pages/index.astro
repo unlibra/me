@@ -69,14 +69,7 @@ const linkify = (text: string): string => {
 >
   <div class="text-x-base">
     <div class="border-base-secondary mx-auto min-h-screen max-w-2xl border-x">
-      <!-- Header Bar -->
-      <header class="border-base-secondary border-b">
-        <div class="flex items-center justify-between gap-6 px-4 py-3">
-          <h1 class="text-lg font-semibold">
-            <a href="/">{site.title}</a>
-          </h1>
-        </div>
-      </header>
+      <h1 class="sr-only">{site.title}</h1>
 
       <!-- Banner Image -->
       <div class="from-accent-primary via-accent-secondary to-accent-primary relative aspect-3/1 bg-linear-to-r">
@@ -303,18 +296,6 @@ const linkify = (text: string): string => {
         </div>
       </article>
     </div>
-
-    <!-- Footer -->
-    <footer class="px-4 py-8">
-      <p class="text-center text-neutral-500">
-        <a href="/privacy" class="hover:underline">
-          {messages.footer.privacyPolicy}
-        </a>
-      </p>
-      <p class="mt-4 text-center text-neutral-500">
-        &copy; {new Date().getFullYear()} {profile.username}
-      </p>
-    </footer>
 
     <script>
       // Web Share API

@@ -1,0 +1,103 @@
+---
+import MoonIcon from "@/components/icons/MoonIcon.astro";
+import SunIcon from "@/components/icons/SunIcon.astro";
+import type { Locale } from "@/config/locales";
+import { themePreferences } from "@/config/theme";
+import { layoutMessages } from "@/messages/layout";
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const t = layoutMessages[lang].theme;
+---
+
+<div class="relative" data-popover data-theme-toggle>
+  <button
+    type="button"
+    class="flex cursor-pointer items-center justify-center rounded-full p-2 transition-colors outline-none hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/5 dark:focus-visible:bg-white/5"
+    aria-label={t.toggle}
+    aria-expanded="false"
+    aria-controls="theme-menu"
+    data-popover-button
+  >
+    <SunIcon class="size-5 dark:hidden" />
+    <MoonIcon class="hidden size-5 dark:block" />
+  </button>
+  <div
+    id="theme-menu"
+    class="absolute right-0 z-50 mt-2 w-32 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light"
+    data-popover-panel
+    hidden
+  >
+    {themePreferences.map((preference) => (
+      <button
+        type="button"
+        class="w-full cursor-pointer rounded-lg px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-gray-100 focus-visible:bg-gray-100 aria-pressed:bg-sky-50 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter dark:aria-pressed:bg-atom-one-dark-lighter"
+        aria-pressed="false"
+        data-popover-item
+        data-theme-option={preference}
+      >
+        {t[preference]}
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  import { setupPopover } from "@/scripts/popover";
+  import {
+    applyPreference,
+    readPreference,
+    savePreference,
+    watchPreference,
+  } from "@/scripts/theme";
+  import type { ThemePreference } from "@/config/theme";
+
+  // Kept in memory so the choice applies to this page even if it cannot be
+  // saved.
+  let current: ThemePreference = readPreference();
+
+  const toggles = document.querySelectorAll<HTMLElement>("[data-theme-toggle]");
+  const options = () =>
+    document.querySelectorAll<HTMLElement>("[data-theme-option]");
+
+  const render = () => {
+    for (const option of options()) {
+      option.setAttribute(
+        "aria-pressed",
+        String(option.dataset.themeOption === current),
+      );
+    }
+  };
+
+  const select = (preference: ThemePreference) => {
+    current = preference;
+    savePreference(preference);
+    applyPreference(preference);
+    render();
+  };
+
+  for (const toggle of toggles) {
+    const popover = setupPopover(toggle);
+    toggle.addEventListener("click", (event) => {
+      const option = (event.target as Element).closest<HTMLElement>(
+        "[data-theme-option]",
+      );
+      if (!option) return;
+      select(option.dataset.themeOption as ThemePreference);
+      popover.close(true);
+    });
+  }
+
+  render();
+  watchPreference(
+    () => current,
+    (preference) => {
+      current = preference;
+      applyPreference(preference);
+      render();
+    },
+  );
+</script>
