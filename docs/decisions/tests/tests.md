@@ -40,7 +40,7 @@
 
 ## I1 オプションと仕様のテストの対応
 
-`tests/spec/` のテストの名前（`I1 {ツール}: ...`）で引ける。「E2E」はブロック2で足す。
+`tests/spec/` のテストの名前（`I1 {ツール}: ...`）で引ける。「E2E」は `tests/e2e/` のテスト（I2 の表）。
 
 ### SVG Optimizer（`tests/spec/svg-optimizer.test.js`）
 
@@ -55,7 +55,7 @@
 | プリセット「標準圧縮」（`svgo-default`。TS-4 の6）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `the standard preset removes title, desc and viewBox and keeps size and images`                                                          |
 | プリセット「最大圧縮」                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `the maximum preset removes everything it can and rounds to one digit`                                                                   |
 | プリセットの危険な設定                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `the presets keep scripts and style elements out`                                                                                        |
-| スイッチを変えるとプリセットの選択が外れる                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | E2E（TS-2）                                                                                                                              |
+| スイッチを変えるとプリセットの選択が外れる                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | E2E（I2 の表）                                                                                                                           |
 
 ### Favicon Generator（`tests/spec/favicon-generator.test.js`）
 
@@ -66,7 +66,7 @@
 | 角丸（0・1・25・50・99・100%）                                                    | `the corner radius rounds every image but apple-touch-icon`                                                                                 |
 | 背景色（なし・あり × 角丸）                                                       | `the background color fills every image; apple-touch-icon is white without one`、`a rounded image's background is inside the rounded shape` |
 | 入力画像の縦横比                                                                  | `a non-square image is cropped to its center square`                                                                                        |
-| 選んだ形式だけが出力されること、1ファイルか ZIP か、サイズの並び                  | E2E（TS-2）                                                                                                                                 |
+| 選んだ形式だけが出力されること、1ファイルか ZIP か、サイズの並び                  | E2E（I2 の表）                                                                                                                              |
 
 ### Password Generator（`tests/spec/password-generator.test.js`）
 
@@ -85,4 +85,101 @@
 | 色相・明度・彩度のスライダー                                                   | `with every slider at the input's values, colors are unchanged`、`the hue slider ...`、`the lightness slider ...`、`the saturation slider ...`、`the sliders apply the same change to every shade` |
 | スライダーの起点、リセット                                                     | `the input color sets where the sliders start`、`reset puts the sliders back to the input's values and restores its palette`                                                                       |
 | 履歴の1件の形                                                                  | `a history entry keeps the BASE color, the palette and the time`                                                                                                                                   |
-| スライダーの差の計算、リセットの結果の画面への反映、履歴の保存・削除・読み込み | E2E（TS-2）                                                                                                                                                                                        |
+| スライダーの差の計算、リセットの結果の画面への反映、履歴の保存・削除・読み込み | E2E（I2 の表）                                                                                                                                                                                     |
+
+## TS-5 E2E の組み立て（ブロック2）
+
+- 決めたこと：
+  - `@playwright/test`（1.64.1、Apache-2.0。ユーザー承認済み）を devDependencies に足した。ブラウザは Chromium だけ（`npx playwright install chromium`。ブラウザはユーザーのキャッシュ（`%LOCALAPPDATA%\ms-playwright`）に入り、リポジトリには入らない）
+  - 設定は `playwright.config.js`、テストは `tests/e2e/*.spec.js`、共通の処理は `tests/e2e/helpers.js`。`npm test` の `tests/**/*.test.js` には当たらない名前にした。テストは既存と同じく JS で書き、文言は `src/tools/messages/{ja,en}.ts` と `src/messages/layout.ts` から読む（文言を変えてもテストを直さずに済み、日英の両方を同じテストで回せる）
+  - 配信は計画の第一案の `wrangler dev`（ポート 8788）。Playwright の `webServer` が起動し、終わると止める。`_redirects`・`_headers` も本番と同じ仕組みで効く
+  - `npm run test:e2e` は `astro build && playwright test`。古い `dist/` に対して走らないよう、毎回ビルドする（`astro check` は `npm run build` に任せて省いた）。CI では `npm run build` の後にもう一度ビルドすることになる
+  - 再試行（`retries`）は 0。不安定なテストを、2回目に通ったことで見逃さないため
+  - 失敗したテストのトレースとスクリーンショットを `test-results/` に、HTML のレポートを `playwright-report/` に出す（ブロック4で成果物にする）。どちらも `.gitignore` と ESLint の対象外に足した
+  - ページを開いたら、React の island の水和（`astro-island` の `ssr` 属性が消える）を待ってから操作する（`helpers.js` の `open`）。待たないと、水和の前のクリックが効かずに落ちた
+  - ファイルの投入は `<input type="file">` に `setInputFiles`、ドラッグ&ドロップは `DataTransfer` を作って `dragenter`（オーバーレイが出ることを確かめる）と `drop` を送る。ダウンロードは Playwright の `download` イベントで受け取り、中身（ICO の各画像、ZIP の中身、PNG の寸法と画素）を `sharp`・`jszip` で読む。テスト用の画像は `sharp` でその場で作る
+  - クリップボードはコンテキストに `clipboard-read`・`clipboard-write` を許可して `navigator.clipboard.readText()` で読む。Windows では改行が CRLF で戻るので、Tailwind Config の比較の前に LF にそろえる
+  - 横スクロールは、`<html>` の横スクロールに加えて、レイアウトの外側の `div`（`overflow-x-hidden` ではみ出しを隠している）の `scrollWidth` も見る（`<html>` だけでは、はみ出しが隠れて見つからない）
+- 他の選択肢：`astro preview` で配信する（`_redirects` が効かない）。`test:e2e` ではビルドせず、`dist/` があることだけを確かめる（CI の二重ビルドは避けられるが、古いビルドを試験しうる）。TS で書く
+- 戻すときの作業：`playwright.config.js`、`tests/e2e/`、`package.json` の `test:e2e` と `@playwright/test`、`.gitignore`・`eslint.config.js` の追加分を消す
+
+## TS-6 E2E の担当（TS-2）が、壊したときに落ちること
+
+ソースを一時的に次のように壊してビルドし、該当するテストが落ちることを確かめた（確かめた後に元に戻した）。
+
+| 壊し方                                                               | 落ちたテスト                                                                                                    |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| TW パレット：`handleReset` の `setTargetHue(reset.targetHue)` を消す | `reset puts the sliders, BASE and the palette back to the input's`（日英）                                      |
+| TW パレット：履歴の上限を 31 にする                                  | `the history keeps the newest 30 palettes`（日英）                                                              |
+| Favicon：1ファイルでも ZIP にする（`allFiles.length === 0`）         | `by default one favicon.ico ...`、`only the selected formats are output`、`an image can be dropped ...`（日英） |
+| SVG：スイッチを手で変えてもプリセットの選択を外さない                | `changing a switch by hand clears the preset and changes the output`（日英）                                    |
+
+## TS-7 E2E を書く中で気づいたこと（直していない）
+
+- TW Palette Generator：開いた直後（入力の色からパレットを作る 100ms の遅延の間）に「ヒストリーに保存」を押すと、初期表示の Tailwind の sky のパレット（`#0ea5e9` から作ったものとは少し違う）が `baseColor: "#0ea5e9"` として保存される。色見本のコピーも、その間は sky の値になる。liblab からの挙動で、人の操作ではほぼ起きない。テストは生成を待ってから操作する
+
+## I2 Phase 4 の手動確認（E7）と E2E の対応
+
+`tests/e2e/` のツールのテストは、日本語と英語のページの両方で回る（テスト名の `(ja)`・`(en)`）。幅の指定がないものは 1280px。
+
+### Block 2：パスワードジェネレーター、SVG最適化（`password-generator.spec.js`、`svg-optimizer.spec.js`）
+
+| E7 の項目                                                                       | テスト                                                                                                                                             |
+| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 開いた直後にパスワードが出る、文字数のスライダーで長さが変わる                  | `shows a password on opening, and the length slider sets its length`                                                                               |
+| 文字種の切り替え、全部オフで案内文が出て「再生成」「コピー」が押せない          | `the character types decide which characters are used`、`with no character type, it asks for one and cannot copy or regenerate`                    |
+| 「再生成」で別のパスワード                                                      | `regenerate gives a new password`                                                                                                                  |
+| 紛らわしい文字の除外をオフにすると出る                                          | `ambiguous characters are left out unless the switch is off`                                                                                       |
+| 「コピー」でパスワードが渡され、トーストが出る                                  | `copy puts the password on the clipboard and shows a toast`                                                                                        |
+| SVG：ファイルを選ぶとプレビューとサイズ・圧縮率が出る、ダウンロードの名前と中身 | `a selected file is previewed with its sizes and downloaded optimized`、`each preset sets the output`                                              |
+| スイッチを手で変えるとプリセットの選択が外れる                                  | `changing a switch by hand clears the preset and changes the output`                                                                               |
+| ドラッグ中のオーバーレイ、PNG を落とすとトースト、SVG を落とすと読み込まれる    | `files can be dropped anywhere: an SVG is loaded, other files are refused`                                                                         |
+| 幅 375px でオプションの折りたたみが開く                                         | `on a phone the options are folded and open on tap`                                                                                                |
+| （E7 になかったもの）危険な設定、精度のスライダー、選択での不正なファイル       | `the dangerous switches keep scripts`、`the precision sliders set the digits of the output`、`a file that is not an SVG is refused with a message` |
+| 共通：375px（ダーク）と 1280px（ライト）で横スクロールが出ない                  | `site.spec.js` の `no page is wider than 375px`・`1280px`（全ページと 404、ツールのオプションを開いた状態も）                                      |
+| 共通：スライダーの溝の色がテーマに追従する                                      | `the slider's track follows the theme`                                                                                                             |
+
+### Block 3：Favicon ジェネレーター（`favicon-generator.spec.js`）
+
+| E7 の項目                                                               | テスト                                                                                                               |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| PNG（300×200）で 200×200 のプレビュー                                   | `a selected image is previewed as a square of its shorter side`                                                      |
+| 既定で `favicon.ico`（16・32 の PNG を持つ ICO）                        | `by default one favicon.ico with 16 and 32 pixel images is downloaded`                                               |
+| Apple Touch Icon・Android Icon・48 を足すと `favicons.zip`（4ファイル） | `several files are downloaded as one ZIP, sizes in order`                                                            |
+| （TS-2）選んだ形式だけが出力される、1ファイルならそのまま               | `only the selected formats are output`                                                                               |
+| 角丸 100% で角が透明、背景色で角が背景色になる                          | `the corner radius and the background color reach the files`                                                         |
+| 出力形式を全部外すと「ダウンロード」が押せない（サイズの欄も消える）    | `without an output format the download button is disabled`                                                           |
+| favicon.ico だけでサイズを全部外すとトースト                            | `favicon.ico without sizes asks for a size`                                                                          |
+| `viewBox` だけの SVG（120×60）で 60×60 のプレビュー                     | `an SVG with only a viewBox takes its size from the viewBox`                                                         |
+| 幅 5000px の画像、テキストファイルのトースト                            | `a file that is not an image, or too large an image, is refused`                                                     |
+| SVG のドラッグ&ドロップと「Download」で `favicon.ico`                   | `an image can be dropped anywhere on the page`                                                                       |
+| 375px（ダーク）でオプションを開いても横スクロールが出ない、文言が英語   | `site.spec.js` の `no page is wider than 375px`。英語の文言は、`(en)` のテストが英語の文言で要素を探すことで確かめる |
+
+### Block 4：TW パレットジェネレーター（`tw-palette-generator.spec.js`）
+
+| E7 の項目                                                                       | テスト                                                                                                            |
+| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 開いた直後は #0ea5e9 のパレット                                                 | `opens with the sky palette of #0ea5e9`                                                                           |
+| 色見本の red-500 で入力欄とカラーピッカーが `#ef4444` になり、パレットが変わる  | `a Tailwind swatch sets the input`                                                                                |
+| `3ba0be` でパレットとスライダー（221・66・13）が変わる                          | `typing a color, with or without #, makes its palette`                                                            |
+| 色相を変えると BASE と各シェードが変わる（TS-2：起点との差）                    | `the sliders adjust BASE and the palette by the difference from the input`                                        |
+| 「調整をリセット」で戻る（TS-2：画面への反映）                                  | `reset puts the sliders, BASE and the palette back to the input's`                                                |
+| 色見本と Tailwind 設定のコピーとトースト                                        | `swatches and the Tailwind config are copied with a toast`                                                        |
+| 「ヒストリーに保存」2回で `localStorage` に2件、履歴に2行                       | `saving adds the palette to the history in localStorage`                                                          |
+| liblab の形の履歴が表示される、1件の削除、全削除で `[]` と案内文                | `history saved by the former tool is shown, and can be deleted`                                                   |
+| （TS-2）履歴の上限 30 件                                                        | `the history keeps the newest 30 palettes`                                                                        |
+| 375px（ダーク）で横スクロールが出ない、シェードの見出しが縦向き、保存のトースト | `site.spec.js` の `no page is wider than 375px`、`on a phone the shade headings turn sideways`、`saving adds ...` |
+
+### サイト全体（`site.spec.js`。計画のブロック2の項目）
+
+| 項目                                                         | テスト                                                                                                                                                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| テーマ切替（ライト / ダーク / システム、ページ遷移後の保持） | `light and dark are applied and kept on the next page`、`system follows the OS setting, also while the page is open`、`the chosen option is shown as pressed`            |
+| 言語切替                                                     | `{パス} switches to English and back`（ツール一覧と4ツール）、`the Japanese-only pages have no language switch`                                                          |
+| 幅 375px と 1280px で横スクロールが出ない                    | `no page is wider than 375px`・`1280px`                                                                                                                                  |
+| 旧URLの301（`_redirects` の全行）                            | `every rule of _redirects is a 301 to a page that exists`、`the removed Iromide is forwarded and ends in 404`、`the former tool URLs land on the new pages in a browser` |
+
+## I3 テストの後にプロセスが残らないこと
+
+- `npm run test:e2e` と `npx playwright test` の後に、`wrangler`・`workerd`・Playwright の Chromium のプロセスがないこと、ポート 8788 で待ち受けているものがないことを、PowerShell（`Get-CimInstance Win32_Process`、`Get-NetTCPConnection`）で確かめた（Windows）。サーバーは Playwright の `webServer` が起動して止めるので、テストの側で止める処理は持たない
+- 自動のテストにはしていない（Playwright はすべてのテストと `globalTeardown` の後にサーバーを止めるので、テストの中からは確かめられない）。CI（Linux）では、ジョブの終わりにランナーごと捨てられる

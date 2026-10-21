@@ -14,7 +14,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "generate:icons": "node scripts/generate-icons.mjs"
+    "generate:icons": "node scripts/generate-icons.mjs",
+    "test:e2e": "astro build && playwright test"
   },
   "dependencies": {
     "@astrojs/react": "^7.1.0",
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.11",
+    "@playwright/test": "^1.64.1",
     "@typescript-eslint/parser": "^8.72.0",
     "eslint": "^10.13.0",
     "eslint-plugin-astro": "^3.2.1",
