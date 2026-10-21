@@ -68,3 +68,7 @@ not licensed under this LICENSE.
 
 npm packages included in the build output, including fonts, are licensed
 under their own licenses.
+
+The website built from this repository lists these packages, with their
+license texts and copyright notices, in /third-party-licenses.txt. The list
+is generated at build time by scripts/third-party-licenses.mjs.

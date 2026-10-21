@@ -39,3 +39,48 @@
 - 見つけたが直していないこと：スライダーを動かしたときに `adjustColor` が `null` を返すと、BASE に入力欄の文字列がそのまま入る（`adjustedColor || inputColor`）。`null` になるのは入力が色として読めないときだけで、そのときはパレットも作られない
 - 他の選択肢：jsdom などを足してコンポーネントを描画して確かめる。`handleReset` の1行だけ直して、テストは手での確認だけにする
 - 戻すときの作業：`adjustments.ts` の中身をコンポーネントに戻し、テストを消す
+
+## FX-4 同梱ライブラリのライセンス一覧の作り方（新しい依存は足していない）
+
+- 決めたこと：
+  - 既製のパッケージは使わず、`scripts/third-party-licenses.mjs` に Astro のインテグレーションを書いた。中で Vite のプラグインを足し、ビルドの出力からパッケージを集めて、`astro:build:done` で `dist/third-party-licenses.txt` を書く。`astro.config.mjs` の `integrations` に足した
+  - 集める範囲：
+    - JS：クライアントのビルド（環境名 `client`）の各チャンクの `moduleIds` のうち、`node_modules` の中のもの
+    - フォントなどのファイル：すべての環境の出力ファイル（asset）の `originalFileNames` のうち、`node_modules` の中のもの。フォント（`@fontsource-variable/noto-sans-jp`、`@fontsource/roboto-mono`）は prerender の環境から出てくる。`LICENSE` 第4節の「フォントを含む」に合わせて入れた（計画は「クライアントの JS」と書いているので、範囲を広げたことになる）
+    - prerender の環境の JS は `dist/` に残らない（サーバー側で HTML を作るだけ）ので数えない
+  - 一覧の形：先頭にパッケージ名・版・ライセンス（`package.json` の `license`）の一覧、その後にパッケージごとの区切りと、`LICENSE*`・`LICENCE*`・`COPYING*`・`NOTICE*` の全文。英語で書いた（`LICENSE` と同じ言語）
+  - 同梱した JS には、Rolldown の `postBanner`（圧縮の後に足す）で `/*! Third-party licenses: https://unlibra.com/third-party-licenses.txt */` を各チャンクの先頭に入れた。動的 import を持つチャンクでは、Vite が `__vite__mapDeps` の1行をその前に足すので2行目になる。URL は `config.site` から作る
+  - 画面（フッターなど）にはリンクを出していない。文言を新しく決めることになるため
+- 根拠：計画の第一案（Vite のプラグインでチャンクのモジュール ID から割り出す）。依存を増やさない
+- 他の選択肢：`rollup-plugin-license` などの既製のプラグイン（依存が増える。prebundle の中身が見えない点は同じ）。フッターにリンクを出す
+- 戻すときの作業：`astro.config.mjs` から1行と import を消し、`scripts/third-party-licenses.mjs`、`tests/third-party-licenses.test.js` を消し、`LICENSE` 第4節の段落を消す
+
+## FX-5 モジュール ID から見えないコードを手で挙げた（親に確認してほしい）
+
+- 見つけたこと：計画の方式（モジュール ID）では、次のコードが見えない
+  - svgo の `dist/svgo.browser.js` と JSZip の `dist/jszip.min.js` は、それぞれのパッケージが自分で作った1ファイルのバンドルで、中に他のパッケージを含む。モジュール ID は svgo・jszip の1ファイルとしか出ない
+    - svgo 4.1.0：`css-select`、`css-what`、`boolbase`、`nth-check`、`domhandler`、`domelementtype`、`domutils`、`dom-serializer`、`entities`、`css-tree`、`mdn-data`（`css-tree` の構文データの元）、`source-map-js`、`csso`、`sax`。svgo の依存のうち、バンドルに入っていないのは `commander`・`picocolors`（Node 用）。各パッケージの特徴的な関数名や文字列（`SelectorType`、`nthCheck`、`isDocument`・`hasChildren`、`getOuterHTML`、`xmlReplacer`、`SourceMapGenerator`、`SAXParser`、CSS のプロパティの構文表など）がバンドルにあることで判断した。ソースからの対応づけはしていない（svgo のバンドルの設定は npm の配布物に入っていない）
+    - JSZip 3.10.2：`pako`、`lie`、`immediate`、`setimmediate`。`dist/jszip.js`（圧縮前の同じバンドル）のモジュール表で確かめた。`readable-stream` はブラウザ向けには使わない（`stream` を空にしている）ので入っていない
+  - Astro の島の読み込み用のスクリプト（`astro-island`）は、HTML に直接書き込まれる（ツールのページ）
+  - Tailwind CSS の基本のスタイル（preflight）と生成したクラスは、`@tailwindcss/vite` が CSS に書き出すので、モジュールとして出てこない
+- 決めたこと：
+  - svgo と JSZip は `PREBUNDLED` に、版と、中に含むパッケージを手で書いた。入っている版が書いた版と違うとビルドを止める（上げたら中身を確かめ直す）。含むパッケージのディレクトリは依存関係をたどって探す（`entities` は `dom-serializer` の下にある）
+  - Astro と Tailwind CSS は `OUTSIDE_MODULE_GRAPH` に理由と一緒に書き、常に一覧に入れる。テストで理由がまだ成り立つこと（HTML に `astro-island` の定義、CSS に preflight の一節）を確かめる
+- 限界：今後、別の自前バンドルのパッケージが増えても、自動では気づけない。テストの「一覧のパッケージが期待どおり」で、依存の変化に気づいたときに見直す運用になる
+- 親に確認してほしいこと：手で挙げる方式でよいか。とくに、バンドルの中身の判断が文字列の有無によること
+- 他の選択肢：svgo と JSZip の含むパッケージは一覧に入れない（計画の方式どおり。各パッケージの著作権表示が落ちる）。依存の全体を入れる（実際には入っていないパッケージも並ぶ）
+- 戻すときの作業：`PREBUNDLED`・`OUTSIDE_MODULE_GRAPH` の項目を消し、テストの期待するパッケージの一覧を直す
+
+## FX-6 ライセンスファイルのないパッケージ（boolbase）のライセンス文
+
+- 見つけたこと：svgo のバンドルに含まれる `boolbase` 1.0.0 は、パッケージにライセンスファイルがなく、`package.json` に `"license": "ISC"` と `"author": "Felix Boehm <me@feedic.com>"` があるだけ
+- 決めたこと：`LICENSE_FALLBACKS` に `boolbase@1.0.0` の文として、ISC License の定型文に `package.json` の作者名を入れたものを書いた。キーに版を含めたので、版が変わるとビルドが止まる。ライセンスファイルもこの表の項目もないパッケージがあれば、ビルドを止める（H6）
+- 根拠：ISC は著作権表示と許諾の文の同梱を求める。作者名は `package.json` から取ったもので、本人が書いた著作権表示ではない（年もない）
+- 他の選択肢：ライセンス文を載せず、名前とライセンス名だけを書く
+- 戻すときの作業：`LICENSE_FALLBACKS` の項目を消す（ビルドが止まるので、代わりの扱いを決める必要がある）
+
+## FX-7 `LICENSE` 第4節に足した文（仮）
+
+- 決めたこと：第4節に「このリポジトリから作ったウェブサイトでは、これらのパッケージをライセンス文と著作権表示とともに `/third-party-licenses.txt` に挙げている。一覧はビルド時に `scripts/third-party-licenses.mjs` が作る」という段落を英語で足した
+- 根拠：計画の H7。LI-1 と同じく、`LICENSE` の文面はユーザーの確認を経る前提の仮のもの
+- 戻すときの作業：その段落を消し、テスト（`tests/third-party-licenses.test.js` の H7）を消す

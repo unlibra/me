@@ -4,11 +4,13 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
+import thirdPartyLicenses from "./scripts/third-party-licenses.mjs";
+
 // https://astro.build/config
 export default defineConfig({
   site: "https://unlibra.com",
   trailingSlash: "never",
-  integrations: [react(), sitemap()],
+  integrations: [react(), sitemap(), thirdPartyLicenses()],
   vite: {
     plugins: [tailwindcss()],
     build: {
