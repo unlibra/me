@@ -286,6 +286,13 @@ export async function processImage(
 }
 
 /**
+ * How long a download's object URL is kept after the click. The browser
+ * starts the download after click() returns; revoking the URL at once can
+ * cancel it.
+ */
+export const DOWNLOAD_URL_LIFETIME_MS = 10_000;
+
+/**
  * Download blob
  */
 export function downloadBlob(blob: Blob, filename: string): void {
@@ -296,7 +303,7 @@ export function downloadBlob(blob: Blob, filename: string): void {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), DOWNLOAD_URL_LIFETIME_MS);
 }
 
 /**

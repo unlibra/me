@@ -98,6 +98,21 @@
 - 対応（親の判断）：`scripts/third-party-licenses.mjs` に `LICENSE_NOTES`（`name@version` ごとの注記）を足し、一覧の @fontsource/line-seed-jp の項に「Note: The copyright notice in the font files is "© LY Corporation". ...」を出す。パッケージの `LICENSE` はそのまま載せる。注記は版ごとなので、版を上げると `third-party-licenses.test.js` が落ち、見直しを求める。テストは、`dist/` の LINE Seed JP の WOFF の name テーブルから著作権表示を読み、すべて「© LY Corporation」であることと、一覧に注記が出ることを確かめる
 - 戻すときの作業：`LICENSE_NOTES` の項（または仕組みごと）と、そのテストを消す
 
+## UR2-13 レビューの指摘への対応（推奨2件・任意2件）
+
+- 詳細の閉じるボタン（推奨）：ボタンをスクロールする領域の外（`<dialog>` の直下。`<dialog>` が配置の基準）に出した。幅 375px・高さ 560px で fosty natural の説明を一番下までスクロールしても、閉じるボタンが見えて押せることを `works.spec.js` の `detail dialog on a phone › the close button stays in view ...` で確かめる（前の形に戻すと落ちることを確認済み）
+- カードの画像の `alt`（任意）：`FrameCard`・`FeaturedCard` の写真を `alt=""`（飾り）にした。作品名は隣の見出しのボタンで読まれる。詳細のダイアログの写真は `alt` に作品名を残した（ダイアログの中で見出しと離れているため）
+- ボタンの名前と「詳しく見る」（任意、WCAG 2.5.3）：カードのボタンの名前を `aria-labelledby`（ボタン自身と「詳しく見る」の `p`）で「{作品名} 詳しく見る」にした。「詳しく見る」の `p` は二重に読まれないよう `aria-hidden` のまま（`aria-labelledby` は隠れた要素の文字も名前に使う）。`works.spec.js` の `the card button's name has the visible 詳しく見る` で確かめる
+- 戻すときの作業：`WorkDialog.astro` のボタンを領域の中に戻す。`alt` を作品名に戻す。`OpenDetails.astro` の `aria-labelledby` と `id` を外す
+
+## UR2-14 liblab から引き継いだ不具合の修正：ダウンロードの URL をすぐに破棄していた
+
+- 決めたこと：`src/tools/lib/image.ts` の `downloadBlob` は、リンクの `click()` の直後に `URL.revokeObjectURL` を呼んでいた。Chromium は `click()` が返った後にダウンロードを始めるので、URL が先に破棄されてダウンロードが始まらないことがある（E2E で1回、SVG Optimizer のダウンロード待ちがタイムアウトした原因の候補）。破棄を 10 秒後（`DOWNLOAD_URL_LIFETIME_MS`）にした。SVG Optimizer の `handleDownload` は同じ処理を自分で書いていたので、`downloadBlob` を使うようにした。Favicon Generator（単体のファイルと zip）は前から `downloadBlob` を使っている。ほかの `revokeObjectURL`（画像の読み込みの後、プレビューの差し替え）はダウンロードではないので変えていない
+- ライセンス境界：変更は `src/tools/` の中だけで、All rights reserved 側を import していない
+- テスト：`tests/download-blob.test.js`（タイマーを偽にして、クリックの直後と 10 秒の手前では破棄せず、10 秒で破棄することを見る。前の実装では落ちる）。ダウンロードそのものは既存の E2E（Favicon・SVG のダウンロード）で見る
+- 他の選択肢：`setTimeout(..., 0)`（まだ早いことがある）。破棄しない（ページを閉じるまでメモリに残る）
+- 戻すときの作業：`downloadBlob` の `setTimeout` を外し、`svg-optimizer.tsx` の処理を前の形に戻す
+
 ## 直した既存のテストと理由（L1）
 
 | テスト                                                                                                  | 直した内容と理由                                                                                                                                                                    |

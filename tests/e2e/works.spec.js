@@ -219,3 +219,44 @@ test.describe("page width of the top page", () => {
     }
   }
 });
+
+test.describe("detail dialog on a phone", () => {
+  // Short enough that the long description scrolls.
+  test.use({ viewport: { width: 375, height: 560 } });
+
+  test("the close button stays in view when the details are scrolled to the end", async ({
+    page,
+  }) => {
+    await open(page, "/");
+    await card(page, "fosty-natural")
+      .getByRole("button", { name: "fosty natural" })
+      .click();
+    const details = dialog(page, "fosty natural");
+    await expect(details).toBeVisible();
+    // The long description scrolls inside the dialog.
+    const scrolled = await details.evaluate((element) => {
+      const area = [...element.querySelectorAll("div")].find(
+        (div) => getComputedStyle(div).overflowY === "auto",
+      );
+      area.scrollTop = area.scrollHeight;
+      return area.scrollTop > 0;
+    });
+    expect(scrolled).toBe(true);
+    const close = details.getByRole("button", { name: "閉じる" });
+    await expect(close).toBeInViewport();
+    await close.click();
+    await expect(details).toBeHidden();
+  });
+});
+
+test("the card button's name has the visible 詳しく見る (for voice control)", async ({
+  page,
+}) => {
+  await open(page, "/");
+  const button = card(page, "fosty-dark").getByRole("button", {
+    name: "fosty dark 詳しく見る",
+    exact: true,
+  });
+  await button.click();
+  await expect(dialog(page, "fosty dark")).toBeVisible();
+});

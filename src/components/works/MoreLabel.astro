@@ -1,18 +1,23 @@
 ---
 // "詳しく見る" with a chevron, at the end of every card: says that a click
-// opens the details. The card's button already has the title as its name and
-// announces the dialog, so this is hidden from screen readers.
+// opens the details. It is part of the card button's name (aria-labelledby),
+// so that voice control can use the visible words; it is hidden from screen
+// readers here so that it is not read twice.
 import ChevronRightIcon from "@/components/icons/ChevronRightIcon.astro";
+import { moreLabelId } from "@/components/works/ids";
+import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
 interface Props {
+  work: Work;
   class?: string;
 }
 
-const { class: className } = Astro.props;
+const { work, class: className } = Astro.props;
 ---
 
 <p
+  id={moreLabelId(work)}
   class:list={[
     "flex items-center gap-0.5 text-sm font-medium text-logo-dark dark:text-logo-light",
     className,

@@ -30,15 +30,16 @@ const focusRing =
   class="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-2xl overflow-hidden rounded-xl bg-white p-0 text-gray-700 shadow-xl backdrop:bg-black/60 dark:bg-atom-one-dark-deep dark:text-gray-300"
   data-work-dialog={work.id}
 >
+  <!-- Outside the scrolling area, so that it stays in view. -->
+  <button
+    type="button"
+    aria-label={messages.workDetails.close}
+    class={`absolute top-3 right-3 z-10 flex size-9 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 ${focusRing}`}
+    data-work-close
+  >
+    <XMarkIcon class="size-5" />
+  </button>
   <div class="relative max-h-[calc(100dvh-2rem)] overflow-y-auto">
-    <button
-      type="button"
-      aria-label={messages.workDetails.close}
-      class={`absolute top-3 right-3 z-10 flex size-9 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 ${focusRing}`}
-      data-work-close
-    >
-      <XMarkIcon class="size-5" />
-    </button>
     {photo ? (
       <div class="aspect-4/3 overflow-hidden bg-gray-100 sm:aspect-video dark:bg-atom-one-dark-light">
         <Image src={work.image} alt={title} class="size-full object-cover" />

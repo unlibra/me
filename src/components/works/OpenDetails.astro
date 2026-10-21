@@ -1,10 +1,11 @@
 ---
 // A work's title as the button that opens its details. The button's ::after
 // covers the card (which needs `relative`), so a click anywhere on the card
-// opens the details, and the focus ring goes around the card.
+// opens the details, and the focus ring goes around the card. Its name is
+// the title and the card's "詳しく見る" (MoreLabel).
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
-import { dialogId } from "@/components/works/ids";
+import { dialogId, moreLabelId, openButtonId } from "@/components/works/ids";
 
 interface Props {
   work: Work;
@@ -16,6 +17,8 @@ const { work, class: className } = Astro.props;
 
 <button
   type="button"
+  id={openButtonId(work)}
+  aria-labelledby={`${openButtonId(work)} ${moreLabelId(work)}`}
   aria-haspopup="dialog"
   aria-controls={dialogId(work)}
   data-work-open={work.id}

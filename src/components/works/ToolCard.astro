@@ -32,5 +32,5 @@ const { work } = Astro.props;
   <p class="text-sm text-gray-600 dark:text-gray-400" data-work-summary>
     {messages.works[work.id].summary}
   </p>
-  <MoreLabel class="mt-auto" />
+  <MoreLabel work={work} class="mt-auto" />
 </article>

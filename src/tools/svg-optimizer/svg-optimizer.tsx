@@ -22,6 +22,7 @@ import { FullPageDropZone } from "@/components/ui/full-page-drop-zone";
 import { useToast } from "@/components/ui/toast";
 import { useMessages } from "@/tools/i18n";
 import { validateSvgFile } from "@/tools/lib/file";
+import { downloadBlob } from "@/tools/lib/image";
 import type { ToolLocale } from "@/tools/messages";
 import { ToolRoot } from "@/tools/tool-root";
 
@@ -159,14 +160,7 @@ function SvgOptimizer() {
     try {
       const optimized = await optimizeSvg(originalSvg, options);
       const blob = new Blob([optimized], { type: "image/svg+xml" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName.replace(/\.svg$/i, "") + "-optimized.svg";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      downloadBlob(blob, fileName.replace(/\.svg$/i, "") + "-optimized.svg");
     } catch (err) {
       toast.error(t.errors.optimizeFailed);
       console.error(err);

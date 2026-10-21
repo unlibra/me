@@ -277,7 +277,7 @@ test("ui-revise2 3: a featured work is a large card, chosen by the data", () => 
   const tag = featured[0].match(/<article[^>]*>/)[0];
   assert.match(attr(tag, "class"), /\bcol-span-full\b/);
   assert.match(attr(tag, "class"), /\bmd:grid-cols-2\b/);
-  assert.match(featured[0], /<img[^>]*alt="fosty natural"/);
+  assert.match(featured[0], /<img[^>]*src="\/_astro\/fosty-natural\./);
 });
 
 test("ui-revise2 3: every card shows its one-line summary and opens its details", () => {
@@ -294,6 +294,23 @@ test("ui-revise2 3: every card shows its one-line summary and opens its details"
     assert.match(button[0], /aria-haspopup="dialog"/, work);
     assert.equal(attr(button[0], "aria-controls"), `work-${work}`, work);
     assert.match(button[0], /after:absolute after:inset-0/, work);
+    // Its name is the title and the visible "詳しく見る" (WCAG 2.5.3).
+    assert.equal(
+      attr(button[0], "aria-labelledby"),
+      `work-${work}-open work-${work}-more`,
+      work,
+    );
+    assert.equal(attr(button[0], "id"), `work-${work}-open`, work);
+    assert.match(
+      card,
+      new RegExp(`<p id="work-${work}-more"[^>]*data-work-more`),
+      work,
+    );
+    // Card images are decorative: the title is the heading beside them.
+    for (const img of card.match(/<img\s[^>]*>/g)) {
+      // Astro writes an empty alt as a bare `alt`.
+      assert.match(img, /\salt(="")?[\s>]/, work);
+    }
 
     // The summary: one short line on the card. The description (several
     // lines) is in the details only.
