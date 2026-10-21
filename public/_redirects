@@ -10,11 +10,16 @@
 # The static sitemap was replaced by @astrojs/sitemap
 /sitemap.xml /sitemap-index.xml 301
 
-# Tools index: Japanese moved to /lab, English to /en/lab
-/lab/ja /lab 301
-/lab/ja/ /lab 301
-/lab/en /en/lab 301
-/lab/en/ /en/lab 301
+# Tools index: there is no tool list page; the former and the removed list
+# URLs go to the web tools section of the top page
+/lab/ja /#web 301
+/lab/ja/ /#web 301
+/lab/en /#web 301
+/lab/en/ /#web 301
+/lab /#web 301
+/lab/ /#web 301
+/en/lab /#web 301
+/en/lab/ /#web 301
 
 # Tool pages with a trailing slash: drop it here so they arrive in one hop
 /lab/ja/:tool/ /lab/:tool 301

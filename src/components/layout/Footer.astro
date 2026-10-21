@@ -1,11 +1,10 @@
 ---
+// Footer: the layout of the former tool site's footer.
 import SymbolIcon from "@/assets/brand/symbol.svg";
 import GitHubIcon from "@/components/icons/GitHubIcon.astro";
 import type { Locale } from "@/config/locales";
-import { paths, site } from "@/config/site";
-import { toolIds, toolPath } from "@/config/tools";
+import { copyrightNotice, paths, site } from "@/config/site";
 import { layoutMessages } from "@/messages/layout";
-import { toolMessages } from "@/tools/messages";
 
 interface Props {
   lang: Locale;
@@ -13,14 +12,24 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = layoutMessages[lang].footer;
-const tools = toolMessages[lang].tools;
 const link =
   "text-sm text-gray-600 transition-all hover:underline dark:text-gray-400";
+const heading = "mb-3 text-sm font-semibold tracking-wider uppercase";
+
+// The build year ends the copyright notice (design doc 3.7).
+const copyright = copyrightNotice(new Date().getFullYear());
+
+const externalLinks = [
+  { href: site.links.github, label: t.github },
+  { href: site.links.docs, label: t.docs },
+  { href: site.links.booth, label: t.shop },
+];
 ---
 
 <footer class="bg-gray-100 py-12 dark:bg-atom-one-dark-light">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-[1fr_auto_auto] lg:gap-12">
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr_1fr] lg:gap-12">
+      <!-- Left: logo and site name -->
       <div>
         <a
           href="/"
@@ -29,7 +38,7 @@ const link =
           <SymbolIcon class="size-6" aria-hidden="true" />
           <span class="text-xl font-semibold">{site.title}</span>
         </a>
-        <p class="mt-3 text-sm text-gray-600 dark:text-gray-400">
+        <p class="mt-3 text-sm whitespace-pre-line text-gray-600 dark:text-gray-400">
           {t.description}
         </p>
         <a
@@ -43,25 +52,30 @@ const link =
         </a>
       </div>
 
-      <div>
-        <h2 class="mb-3 text-sm font-semibold tracking-wider uppercase">
-          {t.tools}
-        </h2>
-        <ul class="space-y-2">
-          {toolIds.map((tool) => (
-            <li>
-              <a href={toolPath(tool, lang)} class={link}>
-                {tools[tool].name}
-              </a>
-            </li>
-          ))}
-        </ul>
+      <!-- Center: links (where the former site listed the tools) -->
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <div data-footer-links>
+          <h2 class={heading}>{t.links}</h2>
+          <ul class="space-y-2">
+            {externalLinks.map(({ href, label }) => (
+              <li>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class={link}
+                >
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
+      <!-- Right: support -->
       <div>
-        <h2 class="mb-3 text-sm font-semibold tracking-wider uppercase">
-          {t.support}
-        </h2>
+        <h2 class={heading}>{t.support}</h2>
         <ul class="space-y-2">
           <li>
             <a
@@ -82,8 +96,6 @@ const link =
       </div>
     </div>
 
-    <p class="mt-8 text-sm text-gray-600 dark:text-gray-400">
-      {site.copyright}
-    </p>
+    <p class="mt-8 text-sm text-gray-600 dark:text-gray-400">{copyright}</p>
   </div>
 </footer>

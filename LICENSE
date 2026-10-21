@@ -28,9 +28,12 @@ Heroicons v2.2.0 (https://heroicons.com)
 MIT License, Copyright (c) Tailwind Labs, Inc.
 The full text is in LICENSES/Heroicons-MIT.txt.
 
+  - src/components/icons/Bars3Icon.astro
+  - src/components/icons/ChevronDownIcon.astro
   - src/components/icons/GlobeIcon.astro
   - src/components/icons/MoonIcon.astro
   - src/components/icons/SunIcon.astro
+  - src/components/icons/XMarkIcon.astro
   - src/components/ui/Breadcrumb.astro
 
 Tailwind CSS v3 color palette (tailwindcss 3.4.18, https://tailwindcss.com)
@@ -42,7 +45,7 @@ The full text is in LICENSES/tailwindcss-MIT.txt.
   - src/tools/tw-palette-generator/palette-anchors.ts
   - tests/fixtures/tw-palette-generator/tailwind-v3-colors.json
 
-DiceBear "Shapes" and "Thumbs" (https://www.dicebear.com)
+DiceBear "Shapes" (https://www.dicebear.com)
 CC0 1.0 Universal.
 The full text is in LICENSES/CC0-1.0.txt.
 
@@ -50,7 +53,6 @@ The full text is in LICENSES/CC0-1.0.txt.
   - src/assets/tools/password-generator.svg
   - src/assets/tools/svg-optimizer.svg
   - src/assets/tools/tw-palette-generator.svg
-  - src/components/Avatar.astro
 
 
 3. Not covered by this LICENSE

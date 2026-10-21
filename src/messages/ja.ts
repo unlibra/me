@@ -1,4 +1,5 @@
-import type { Category, VrchatSubcategory } from "@/config/works";
+import type { VrchatSubcategory } from "@/config/works";
+import { layoutMessages } from "@/messages/layout";
 
 export default {
   site: {
@@ -8,13 +9,7 @@ export default {
   profile: {
     bio: "自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを作っています。",
   },
-  categoryNav: "作品カテゴリ",
-  categories: {
-    keyboard: "自作キーボード",
-    software: "ソフトウェア",
-    web: "WEBツール",
-    vrchat: "VRChat",
-  } satisfies Record<Category, string>,
+  categories: layoutMessages.ja.header.categories,
   vrchatSubcategories: {
     avatar: "アバター",
     asset: "アセット",

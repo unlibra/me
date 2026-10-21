@@ -180,9 +180,7 @@ test("A6: sitemap lists the top page, privacy, and the tool pages only", () => {
   ];
   assert.deepEqual(locs, [
     `${SITE}/`,
-    `${SITE}/en/lab`,
     ...tools.map((tool) => `${SITE}/en/lab/${tool}`),
-    `${SITE}/lab`,
     ...tools.map((tool) => `${SITE}/lab/${tool}`),
     `${SITE}/privacy`,
   ]);
@@ -255,7 +253,10 @@ test("A9: wrangler.jsonc serves dist/ as static assets without a Worker script",
 
 test("index.html footer keeps the space between the year and the name", () => {
   // Astro 7 compresses whitespace between expressions (compressHTML: "jsx").
-  assert.match(readDist("index.html"), /(?:&copy;|©) \d{4} unlibra</);
+  assert.match(
+    readDist("index.html"),
+    /(?:&copy;|©) \d{4}(?:–\d{4})? unlibra</,
+  );
 });
 
 test("404 page links back to the top page in Japanese and English", () => {

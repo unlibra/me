@@ -33,13 +33,13 @@ const messages = { ja, en };
 const prefix = { ja: "", en: "/en" };
 const other = { ja: "en", en: "ja" };
 
-/** Site path of the tool list (tool = undefined) or a tool page. */
-const pathOf = (lang, tool) => `${prefix[lang]}/lab${tool ? `/${tool}` : ""}`;
+/** Site path of a tool page. */
+const pathOf = (lang, tool) => `${prefix[lang]}/lab/${tool}`;
 const fileOf = (path) => `${path.slice(1)}/index.html`;
 
-/** All ten pages of this phase as { lang, tool, path }. */
+/** The eight tool pages as { lang, tool, path }. */
 const pages = ["ja", "en"].flatMap((lang) =>
-  [undefined, ...TOOLS].map((tool) => ({
+  TOOLS.map((tool) => ({
     lang,
     tool,
     path: pathOf(lang, tool),
@@ -56,8 +56,8 @@ const jsonLd = (html) =>
     ),
   ].map((m) => JSON.parse(m[1]));
 
-test("E2: the ten tool pages exist with lang, canonical and hreflang", () => {
-  assert.equal(pages.length, 10);
+test("E2: the eight tool pages exist with lang, canonical and hreflang", () => {
+  assert.equal(pages.length, 8);
   for (const { lang, tool, path } of pages) {
     const html = readDist(fileOf(path));
     assert.match(html, new RegExp(`<html[^>]*lang="${lang}"`), path);
@@ -98,7 +98,7 @@ test("E2: the language switcher links to the same page in the other language", (
 });
 
 test("tool pages use the tool's name and description as title and description", () => {
-  for (const { lang, tool, path } of pages.filter((p) => p.tool)) {
+  for (const { lang, tool, path } of pages) {
     const h = head(readDist(fileOf(path)));
     const { name, description } = messages[lang].tools[tool];
     assert.match(h, new RegExp(`<title>${name} - unlibra\\.com</title>`));
@@ -109,7 +109,7 @@ test("tool pages use the tool's name and description as title and description", 
 });
 
 test("E3: tool pages have WebApplication and BreadcrumbList structured data", () => {
-  for (const { lang, tool, path } of pages.filter((p) => p.tool)) {
+  for (const { lang, tool, path } of pages) {
     const html = readDist(fileOf(path));
     const data = jsonLd(html);
     const { name, description } = messages[lang].tools[tool];
@@ -132,21 +132,23 @@ test("E3: tool pages have WebApplication and BreadcrumbList structured data", ()
 
     const breadcrumbs = data.filter((d) => d["@type"] === "BreadcrumbList");
     assert.equal(breadcrumbs.length, 1, `${path}: BreadcrumbList count`);
-    const listLabel = lang === "ja" ? "ツール" : "Tools";
+    // The first item is the top page (ui-revise: there is no tool list).
+    const homeLabel = lang === "ja" ? "ホーム" : "Home (Japanese)";
     assert.deepEqual(breadcrumbs[0].itemListElement, [
       {
         "@type": "ListItem",
         position: 1,
-        name: listLabel,
-        item: SITE + pathOf(lang),
+        name: homeLabel,
+        item: `${SITE}/`,
       },
       { "@type": "ListItem", position: 2, name },
     ]);
 
-    // Visible breadcrumb: a link to the list, then the current page.
+    // Visible breadcrumb: a link to the top page, then the current page.
     const nav = html.match(/<nav[^>]*aria-label="Breadcrumb"[\s\S]*?<\/nav>/);
     assert.ok(nav, `${path}: no breadcrumb`);
-    assert.deepEqual(hrefs(nav[0]), [pathOf(lang)]);
+    assert.deepEqual(hrefs(nav[0]), ["/"]);
+    assert.ok(nav[0].includes(`>${homeLabel}<`), `${path}: home label`);
     assert.match(nav[0], new RegExp(`aria-current="page">${name}<`));
 
     assert.match(html, new RegExp(`<h1[^>]*>${name}</h1>`), path);
@@ -162,9 +164,7 @@ const islands = (html) =>
   }));
 
 test("E3: each tool page has its own island, loaded on page load", () => {
-  const toolPages = pages.filter((p) => p.tool);
-  assert.equal(toolPages.length, 8);
-  for (const { lang, tool, path } of toolPages) {
+  for (const { lang, tool, path } of pages) {
     const found = islands(readDist(fileOf(path)));
     assert.equal(found.length, 1, `${path}: island count`);
     const [island] = found;
@@ -180,39 +180,17 @@ test("E3: each tool page has its own island, loaded on page load", () => {
   }
 });
 
-test("E3: the tool list pages have no island", () => {
+test("ui-revise 2: there are no tool list pages", () => {
   for (const lang of ["ja", "en"]) {
-    assert.deepEqual(islands(readDist(fileOf(pathOf(lang)))), [], lang);
+    const dir = `${prefix[lang]}/lab`.slice(1);
+    assert.equal(existsSync(join(dist, dir, "index.html")), false, lang);
+    assert.equal(existsSync(join(dist, `${dir}.html`)), false, lang);
   }
 });
 
-test("tool list pages show a card for each tool in order", () => {
-  for (const lang of ["ja", "en"]) {
-    const html = readDist(fileOf(pathOf(lang)));
-    const cards = [
-      ...html.matchAll(/<a\s[^>]*data-tool="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g),
-    ];
-    assert.deepEqual(
-      cards.map((m) => m[1]),
-      TOOLS,
-      lang,
-    );
-    for (const [tag, tool, body] of cards) {
-      assert.equal(attr(tag, "href"), pathOf(lang, tool));
-      const { name, shortDescription } = messages[lang].tools[tool];
-      assert.match(body, new RegExp(`>${name}<`));
-      assert.match(body, new RegExp(`>${shortDescription}<`));
-      const img = body.match(/<img\s[^>]*>/);
-      assert.ok(img, `${lang} ${tool}: icon`);
-      assert.ok(
-        existsSync(join(dist, attr(img[0], "src").replace(/^\//, ""))),
-        `${lang} ${tool}: icon file`,
-      );
-    }
-  }
-});
-
-test("E8: every page's footer lists the tools in the page's language", () => {
+test("E8: every page's header links to the tools in the page's language", () => {
+  // The footer listed the tools until ui-revise; the header's web tools
+  // menu and mobile menu list them now.
   const files = [
     "index.html",
     "privacy/index.html",
@@ -221,15 +199,22 @@ test("E8: every page's footer lists the tools in the page's language", () => {
   ];
   for (const file of files) {
     const lang = file.startsWith("en/") ? "en" : "ja";
-    const footer = readDist(file).match(/<footer[\s\S]*?<\/footer>/)[0];
-    const links = hrefs(footer);
+    // Without the language switcher, which links to the other language.
+    const header = readDist(file)
+      .match(/<header[\s\S]*?<\/header>/)[0]
+      .replace(/<div[^>]*data-language-switcher[\s\S]*?<\/div>\s*<\/div>/, "");
+    const links = hrefs(header);
     for (const tool of TOOLS) {
-      assert.ok(links.includes(pathOf(lang, tool)), `${file}: ${tool}`);
+      assert.equal(
+        links.filter((href) => href === pathOf(lang, tool)).length,
+        2,
+        `${file}: ${tool} in the menu and the mobile menu`,
+      );
       assert.ok(
         !links.includes(pathOf(other[lang], tool)),
         `${file}: ${tool} in the other language`,
       );
-      assert.match(footer, new RegExp(`>${messages[lang].tools[tool].name}<`));
+      assert.match(header, new RegExp(`>${messages[lang].tools[tool].name}<`));
     }
   }
 });

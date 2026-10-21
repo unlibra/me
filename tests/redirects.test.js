@@ -22,14 +22,21 @@ const TOOLS = [
   "password-generator",
 ];
 
-/** Former URLs and their new URLs (design doc 3.2, and P1-4 for the sitemap). */
+/**
+ * Former URLs and their new URLs (design doc 3.2, and P1-4 for the sitemap).
+ * The tool list pages were removed (ui-revise): the list URLs, former and
+ * new, go to the web tools section of the top page.
+ */
+const WEB_SECTION = "/#web";
 const EXPECTED = [
   ["/ja", "/"],
   ["/en", "/"],
-  ["/lab/ja", "/lab"],
+  ["/lab/ja", WEB_SECTION],
   ["/lab/ja/*", "/lab/:splat"],
-  ["/lab/en", "/en/lab"],
+  ["/lab/en", WEB_SECTION],
   ["/lab/en/*", "/en/lab/:splat"],
+  ["/lab", WEB_SECTION],
+  ["/en/lab", WEB_SECTION],
   ["/sitemap.xml", "/sitemap-index.xml"],
 ];
 
@@ -102,12 +109,24 @@ const servedPaths = () =>
     .filter((path) => !["/_headers", "/_redirects"].includes(path))
     .map((path) => path.replace(/\/index\.html$/, "") || "/");
 
-/** Whether a new URL path is a page or file in dist/. */
-const existsInDist = (path) =>
-  path === "/"
-    ? existsSync(join(dist, "index.html"))
-    : existsSync(join(dist, path, "index.html")) ||
-      (/\.\w+$/.test(path) && existsSync(join(dist, path)));
+/**
+ * Whether a new URL path is a page or file in dist/. With a fragment, the
+ * page must also have an element with that id.
+ */
+const existsInDist = (url) => {
+  const [path, fragment] = url.split("#");
+  const page =
+    path === "/" ? join(dist, "index.html") : join(dist, path, "index.html");
+  if (fragment !== undefined) {
+    return (
+      existsSync(page) &&
+      new RegExp(`\\sid="${fragment}"`).test(readFileSync(page, "utf8"))
+    );
+  }
+  return (
+    existsSync(page) || (/\.\w+$/.test(path) && existsSync(join(dist, path)))
+  );
+};
 
 test("G2: every line is a well-formed 301 redirect", () => {
   assert.ok(rules.length > 0);
@@ -141,8 +160,10 @@ test("G2: former URLs reach the new URL in one hop, with or without a trailing s
   const cases = [
     ["/ja", "/"],
     ["/en", "/"],
-    ["/lab/ja", "/lab"],
-    ["/lab/en", "/en/lab"],
+    ["/lab/ja", WEB_SECTION],
+    ["/lab/en", WEB_SECTION],
+    ["/lab", WEB_SECTION],
+    ["/en/lab", WEB_SECTION],
     ...TOOLS.flatMap((tool) => [
       [`/lab/ja/${tool}`, `/lab/${tool}`],
       [`/lab/en/${tool}`, `/en/lab/${tool}`],
@@ -157,10 +178,12 @@ test("G2: former URLs reach the new URL in one hop, with or without a trailing s
 
 test("G2: redirect destinations exist in the build output", () => {
   for (const { source, destination } of rules) {
-    // For a splat or placeholder, the part before it must exist (/lab, /en/lab).
-    const base = destination.split(/\/(?=\*|:[A-Za-z])/)[0] || "/";
-    assert.ok(existsInDist(base), `${source} -> ${destination}: ${base}`);
+    if (isDynamic(destination)) continue; // checked with real tools below
+    assert.ok(existsInDist(destination), `${source} -> ${destination}`);
   }
+  // The section the list URLs go to.
+  assert.ok(existsInDist(WEB_SECTION));
+  assert.ok(!existsInDist("/#no-such-section"), "self-check of fragments");
   for (const tool of TOOLS) {
     for (const from of [`/lab/ja/${tool}`, `/lab/en/${tool}`]) {
       assert.ok(existsInDist(resolve(from)), `${from} -> ${resolve(from)}`);
@@ -180,6 +203,7 @@ test("G2: the removed Iromide is forwarded by the bulk rules to a missing page",
 test("G2: no redirect shadows a page or file of the new site", () => {
   const paths = servedPaths();
   assert.ok(paths.includes("/lab/svg-optimizer"), "self-check of servedPaths");
+  assert.ok(!paths.includes("/lab") && !paths.includes("/en/lab"));
   for (const path of paths) {
     for (const candidate of new Set([path, `${path}/`.replace("//", "/")])) {
       assert.equal(resolve(candidate), null, `${candidate} is redirected`);

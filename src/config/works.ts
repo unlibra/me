@@ -148,3 +148,7 @@ export const works: Work[] = [
     link: site.links.booth,
   },
 ];
+
+/** Link to a category's section on the top page, e.g. "/#web". */
+export const categoryHref = (category: Category): `/#${Category}` =>
+  `/#${category}`;

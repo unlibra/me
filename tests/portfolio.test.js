@@ -65,18 +65,79 @@ test("D2: the top page has the four category sections in order", () => {
   }
 });
 
-test("D2: the top page links to each category section", () => {
-  const navs = [...top.matchAll(/<nav\s[^>]*>[\s\S]*?<\/nav>/g)]
-    .map((m) => m[0])
-    .filter((nav) => /href="#/.test(nav));
-  assert.equal(navs.length, 1, "category navigation count");
-  const anchors = [...navs[0].matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)].map(
-    (m) => [attr(m[0], "href"), text(m[1])],
+test("D2: the header links to each category section (ui-revise 4)", () => {
+  const header = top.match(/<header[\s>][\s\S]*?<\/header>/)[0];
+  const nav = header.match(/<ul[^>]*data-category-nav[\s\S]*?<\/ul>/)[0];
+  // Plain links, and the web tools menu's button and its first item.
+  const items = [
+    ...nav.matchAll(
+      /<a\s[^>]*>([\s\S]*?)<\/a>|<button\s[^>]*>([^<]*)<svg[\s\S]*?<\/button>/g,
+    ),
+  ].map((m) =>
+    m[0].startsWith("<a")
+      ? [attr(m[0], "href"), text(m[1])]
+      : [null, m[2].trim()],
   );
-  assert.deepEqual(
-    anchors,
-    CATEGORIES.map(([id, label]) => [`#${id}`, label]),
+  assert.deepEqual(items.slice(0, 4), [
+    ["/#keyboard", "自作キーボード"],
+    ["/#software", "ソフトウェア"],
+    [null, "WEBツール"],
+    ["/#web", "WEBツールの一覧"],
+  ]);
+  assert.deepEqual(items.at(-1), ["/#vrchat", "VRChat"]);
+  // Every section a header link points to exists.
+  for (const [id] of CATEGORIES) sectionOf(id);
+});
+
+test("ui-revise 4: the category buttons are gone from the top page", () => {
+  const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
+  assert.doesNotMatch(main, /href="#/);
+  assert.doesNotMatch(main, /<nav[\s>]/);
+});
+
+test("ui-revise 1: the hero has the symbol, the name and the profile text", () => {
+  const hero = top.match(/<div[^>]*data-hero[\s\S]*?<\/p>/)[0];
+  // The wave and the brand symbol.
+  assert.match(hero, /viewBox="0 0 1440 320"/);
+  assert.match(hero, /<svg[^>]*viewBox="0 0 512 512"/);
+  assert.match(hero, /<h1[^>]*>unlibra<\/h1>/);
+  assert.match(
+    hero,
+    />自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを作っています。</,
   );
+  assert.equal(top.match(/<h1[\s>]/g).length, 1);
+});
+
+test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the donate link", () => {
+  const pages = globSync("**/*.html", { cwd: dist });
+  assert.ok(pages.length >= 11, "self-check of the page list");
+  for (const page of pages) {
+    const html = readDist(page);
+    const footer = html.match(/<footer[\s>][\s\S]*?<\/footer>/)[0];
+    const rest = html.replace(footer, "");
+    for (const href of hrefs(rest)) {
+      assert.doesNotMatch(
+        href,
+        /ofuse\.me|twitter\.com\/intent|x\.com\/intent/,
+        page,
+      );
+    }
+    assert.doesNotMatch(
+      rest,
+      /navigator\.share|スポンサー|シェアする|ポストする/,
+      page,
+    );
+    assert.ok(hrefs(footer).includes("https://ofuse.me/unlibra"), page);
+  }
+  assert.equal(
+    existsSync(join(root, "src/components/SponsorButton.astro")),
+    false,
+  );
+});
+
+test("ui-revise 5: the profile has no GitHub button", () => {
+  const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
+  assert.ok(!hrefs(main).some((href) => href.includes("github.com")));
 });
 
 test("D3: the web tools section links to the four tools under /lab", () => {
@@ -135,7 +196,9 @@ test("D4: only VRChat works have a subcategory", () => {
 });
 
 test("D5: the three documentation links point to docs.unlibra.com", () => {
-  const docs = hrefs(top).filter((href) => /docs|github\.io/.test(href));
+  // The works' links (the footer links to the docs site's top since ui-revise).
+  const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
+  const docs = hrefs(main).filter((href) => /docs|github\.io/.test(href));
   assert.deepEqual(docs.sort(), [
     "https://docs.unlibra.com/i18n-tiny/astro/introduction",
     "https://docs.unlibra.com/i18n-tiny/next/introduction",

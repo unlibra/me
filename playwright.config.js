@@ -33,7 +33,7 @@ export default defineConfig({
   ],
   webServer: {
     command: `npx wrangler dev --port ${PORT} --ip localhost`,
-    url: `http://localhost:${PORT}/lab`,
+    url: `http://localhost:${PORT}/`,
     reuseExistingServer: false,
     timeout: 120_000,
     env: { WRANGLER_SEND_METRICS: "false" },

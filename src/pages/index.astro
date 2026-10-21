@@ -1,11 +1,8 @@
 ---
+import SymbolIcon from "@/assets/brand/symbol.svg";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import Avatar from "@/components/Avatar.astro";
-import SponsorButton from "@/components/SponsorButton.astro";
 import WorkCard from "@/components/WorkCard.astro";
-import GitHubIcon from "@/components/icons/GitHubIcon.astro";
 import messages from "@/messages/ja";
-import { layoutMessages } from "@/messages/layout";
 import { site } from "@/config/site";
 import { profile } from "@/config/profile";
 import { categories, works } from "@/config/works";
@@ -26,48 +23,38 @@ const link =
   description={messages.site.description}
   canonical={true}
 >
-  <main class="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:px-8">
-    <!-- Profile -->
-    <section class="flex flex-col items-center gap-4 py-12 text-center sm:py-16">
-      <div class="size-24 overflow-hidden rounded-full sm:size-28">
-        <Avatar class="size-full" />
-      </div>
-      <h1 class="text-3xl font-semibold text-gray-900 dark:text-white">
-        {profile.name}
-      </h1>
-      <p class="max-w-2xl">{messages.profile.bio}</p>
-      <div class="flex flex-wrap items-center justify-center gap-3">
-        <a
-          href={site.links.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          class={`inline-flex items-center gap-2 rounded-full border border-gray-300 px-4 py-2 font-medium transition-colors hover:bg-black/5 dark:border-gray-600 dark:hover:bg-white/5 ${link}`}
+  <main class="mx-auto w-full max-w-7xl px-4 pt-8 pb-12 sm:px-6 lg:px-8">
+    <!-- Hero with the wave background of the former tool site -->
+    <div class="relative -mt-6 mb-12 sm:mb-16" data-hero>
+      <!-- Wave background: full width, behind the header and below -->
+      <div class="absolute -top-24 -bottom-10 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden sm:-bottom-24 xl:-bottom-32">
+        <div class="absolute inset-0 border-b border-transparent bg-linear-to-b/srgb from-white/0 from-3% via-logo-light/60 to-logo-medium/80 dark:from-atom-one-dark/0 dark:from-3% dark:via-[#999999]/20 dark:to-[#CFCFCF]/20"></div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1440 320"
+          class="absolute bottom-0 h-20 w-full sm:h-48 xl:h-64"
+          preserveAspectRatio="none"
+          aria-hidden="true"
         >
-          <GitHubIcon class="size-5" />
-          {layoutMessages.ja.header.github}
-        </a>
-        <SponsorButton href={site.links.sponsor} />
+          <path
+            d="M0,64L48,90.7C96,117,192,171,288,192C384,213,480,203,576,181.3C672,160,768,128,864,149.3C960,171,1056,245,1152,261.3C1248,277,1344,235,1392,213.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+            class="fill-white dark:fill-atom-one-dark"
+          ></path>
+        </svg>
       </div>
-    </section>
 
-    <!-- Links to each category -->
-    <nav aria-label={messages.categoryNav} class="mb-12">
-      <ul class="flex flex-wrap justify-center gap-2">
-        {sections.map(({ category, label }) => (
-          <li>
-            <a
-              href={`#${category}`}
-              class={`block rounded-full bg-gray-100 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-200 dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter ${link}`}
-            >
-              {label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+      <!-- Hero content -->
+      <div class="relative mx-auto max-w-screen-sm pt-12 pb-20 text-center">
+        <div class="mb-4 flex justify-center">
+          <SymbolIcon class="size-16" aria-hidden="true" />
+        </div>
+        <h1 class="mb-6 text-4xl font-semibold">{profile.name}</h1>
+        <p class="font-medium whitespace-pre-line">{messages.profile.bio}</p>
+      </div>
+    </div>
 
     <!-- Works by category -->
-    <div class="space-y-16">
+    <div class="mb-12 space-y-12">
       {sections.map(({ category, label, works }) => (
         <section
           id={category}
@@ -75,10 +62,7 @@ const link =
           class="scroll-mt-4"
         >
           <div class="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-            <h2
-              id={`${category}-heading`}
-              class="text-2xl font-semibold text-gray-900 dark:text-white"
-            >
+            <h2 id={`${category}-heading`} class="text-2xl font-semibold">
               {label}
             </h2>
             {category === "vrchat" && (

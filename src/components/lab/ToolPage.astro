@@ -4,7 +4,7 @@ import { serializeJsonLd } from "@/components/ui/json-ld";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import type { Locale } from "@/config/locales";
 import { profile } from "@/config/profile";
-import { absoluteUrl, paths, site } from "@/config/site";
+import { absoluteUrl, site } from "@/config/site";
 import { toolPath, type ToolId } from "@/config/tools";
 import { layoutMessages } from "@/messages/layout";
 import FaviconGenerator from "@/tools/favicon-generator/favicon-generator";
@@ -68,7 +68,7 @@ const webApplication = {
     <Breadcrumb
       siteUrl={site.url}
       items={[
-        { label: layoutMessages[lang].header.tools, href: paths.tools[lang] },
+        { label: layoutMessages[lang].breadcrumb.home, href: "/" },
         { label: name },
       ]}
     />

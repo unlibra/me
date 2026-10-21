@@ -189,7 +189,7 @@ export async function checkSite(base, report) {
     check(
       response.status === Number(code) &&
         target?.origin === origin &&
-        target.pathname === to &&
+        target.pathname + target.hash === to &&
         landing.status === 200,
       `redirect ${from} -> ${to}`,
       `${response.status} ${location}, then ${landing.status}`,

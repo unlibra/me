@@ -23,8 +23,6 @@ const TOOLS = [
 const PAGES = [
   "/",
   "/privacy",
-  "/lab",
-  "/en/lab",
   ...TOOLS.flatMap((tool) => [`/lab/${tool}`, `/en/lab/${tool}`]),
 ];
 
@@ -47,14 +45,14 @@ test.describe("theme", () => {
     page,
   }) => {
     await page.emulateMedia({ colorScheme: "light" });
-    await open(page, "/lab");
+    await open(page, "/");
     await expect.poll(() => isDark(page)).toBe(false);
 
     await choose(page, "ja", "dark");
     await expect.poll(() => isDark(page)).toBe(true);
     await open(page, "/en/lab/svg-optimizer");
     await expect.poll(() => isDark(page)).toBe(true);
-    await page.goto("/");
+    await page.goto("/privacy");
     await expect.poll(() => isDark(page)).toBe(true);
 
     await choose(page, "ja", "light");
@@ -68,7 +66,7 @@ test.describe("theme", () => {
     page,
   }) => {
     await page.emulateMedia({ colorScheme: "dark" });
-    await open(page, "/en/lab");
+    await open(page, "/en/lab/password-generator");
     await choose(page, "en", "dark");
     await choose(page, "en", "system");
     await expect.poll(() => isDark(page)).toBe(true);
@@ -86,9 +84,10 @@ test.describe("theme", () => {
    * and lighter text.
    */
   const COLOR_TARGETS = [
-    ["/lab", "body", "backgroundColor", "background"],
-    ["/lab", "body", "color", "text"],
-    ["/lab", "a.group p.text-sm", "color", "text"],
+    ["/", "body", "backgroundColor", "background"],
+    ["/", "body", "color", "text"],
+    ["/", "article p.text-sm", "color", "text"],
+    ["/", "footer", "backgroundColor", "background"],
     [
       "/lab/password-generator",
       "div.relative.overflow-hidden.rounded-lg.border",
@@ -144,7 +143,7 @@ test.describe("theme", () => {
   }
 
   test("the chosen option is shown as pressed", async ({ page }) => {
-    await open(page, "/lab");
+    await open(page, "/");
     const t = layoutMessages.ja.theme;
     await choose(page, "ja", "dark");
     await page.getByRole("button", { name: t.toggle }).click();
@@ -158,7 +157,7 @@ test.describe("theme", () => {
 });
 
 test.describe("language switch", () => {
-  for (const path of ["/lab", ...TOOLS.map((tool) => `/lab/${tool}`)]) {
+  for (const path of TOOLS.map((tool) => `/lab/${tool}`)) {
     test(`${path} switches to English and back`, async ({ page }) => {
       await open(page, path);
       await expect(page.locator("html")).toHaveAttribute("lang", "ja");
@@ -251,10 +250,8 @@ test.describe("former URLs", () => {
       const [from, to] = sample(source, destination);
       const response = await request.get(from, { maxRedirects: 0 });
       expect(response.status(), from).toBe(301);
-      expect(
-        new URL(response.headers().location, "http://x").pathname,
-        from,
-      ).toBe(to);
+      const location = new URL(response.headers().location, "http://x");
+      expect(location.pathname + location.hash, from).toBe(to);
       const target = await request.get(to);
       expect(target.status(), to).toBe(200);
     }
@@ -282,5 +279,15 @@ test.describe("former URLs", () => {
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await page.goto("/ja");
     await expect(page).toHaveURL("/");
+  });
+
+  test("the tool list URLs land on the web tools section", async ({ page }) => {
+    for (const path of ["/lab/ja", "/lab/en/", "/lab", "/en/lab"]) {
+      await page.goto(path);
+      await expect(page, path).toHaveURL("/#web");
+      await expect(
+        page.getByRole("heading", { level: 2, name: "WEBツール" }),
+      ).toBeInViewport();
+    }
   });
 });

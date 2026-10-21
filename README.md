@@ -5,7 +5,7 @@ software, web tools, and VRChat items) and a set of web tools that run in the
 browser.
 
 - `/` - Portfolio (Japanese)
-- `/lab` and `/en/lab` - Web tools (Japanese and English)
+- `/lab/{tool}` and `/en/lab/{tool}` - Web tools (Japanese and English)
 - `/privacy` - Privacy policy (Japanese)
 
 ## Tech Stack

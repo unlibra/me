@@ -56,10 +56,8 @@ test("the build has the pages this test suite expects", () => {
     [
       "404.html",
       ...tools.map((tool) => `en/lab/${tool}/index.html`),
-      "en/lab/index.html",
       "index.html",
       ...tools.map((tool) => `lab/${tool}/index.html`),
-      "lab/index.html",
       "privacy/index.html",
     ].sort(),
   );
@@ -310,15 +308,117 @@ const sectionOf = (html, tag) => {
 const hrefs = (html) =>
   [...html.matchAll(/<a\s[^>]*>/g)].map((m) => attr(m[0], "href"));
 
+const TOOLS = [
+  "tw-palette-generator",
+  "favicon-generator",
+  "svg-optimizer",
+  "password-generator",
+];
+const CATEGORIES = ["keyboard", "software", "web", "vrchat"];
+
+/** Links (href and text) in a piece of HTML, in order. */
+const anchors = (html) =>
+  [...html.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({
+    href: attr(m[0], "href"),
+    text: m[1]
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim(),
+  }));
+
+test("ui-revise 4: the header links to the category sections of the top page", async () => {
+  const { layoutMessages } = await import("../src/messages/layout.ts");
+  const toolMessages = {
+    ja: (await import("../src/tools/messages/ja.ts")).default,
+    en: (await import("../src/tools/messages/en.ts")).default,
+  };
+  for (const file of htmlPages()) {
+    const lang = langOf(file);
+    const t = layoutMessages[lang].header;
+    const header = sectionOf(readDist(file), "header");
+
+    // Desktop: the categories in order; WEB tools is a menu.
+    const nav = header.match(/<ul[^>]*data-category-nav[\s\S]*?<\/ul>/);
+    assert.ok(nav, `${file}: no category navigation`);
+    const button = nav[0].match(
+      /<button[^>]*aria-controls="category-web-menu"[^>]*>([\s\S]*?)<\/button>/,
+    );
+    assert.ok(button, `${file}: no web tools menu button`);
+    assert.match(button[0], /aria-expanded="false"/);
+    assert.match(button[1], new RegExp(`^\\s*${t.categories.web}\\s*<svg`));
+    const panel = nav[0].match(
+      /<div[^>]*id="category-web-menu"[^>]*hidden[^>]*>[\s\S]*?<\/div>\s*<\/li>/,
+    );
+    assert.ok(panel, `${file}: no hidden web tools menu`);
+    const tools = toolMessages[lang].tools;
+    const prefix = lang === "en" ? "/en" : "";
+    assert.deepEqual(
+      anchors(panel[0]),
+      [
+        { href: "/#web", text: t.allWebTools },
+        ...TOOLS.map((tool) => ({
+          href: `${prefix}/lab/${tool}`,
+          text: `${tools[tool].name} ${tools[tool].shortDescription}`,
+        })),
+      ],
+      file,
+    );
+    assert.deepEqual(
+      anchors(nav[0].replace(panel[0], "")),
+      CATEGORIES.filter((c) => c !== "web").map((c) => ({
+        href: `/#${c}`,
+        text: t.categories[c],
+      })),
+      file,
+    );
+
+    // Mobile: the same links in a dialog opened by a menu button.
+    assert.match(
+      header,
+      new RegExp(
+        `<button[^>]*aria-label="${t.openMenu}"[^>]*aria-controls="mobile-menu"`,
+      ),
+      file,
+    );
+    const dialog = header.match(
+      /<dialog[^>]*id="mobile-menu"[\s\S]*?<\/dialog>/,
+    );
+    assert.ok(dialog, `${file}: no mobile menu`);
+    // Closed: no `open` attribute (`open:` in the class is a Tailwind variant).
+    assert.doesNotMatch(
+      dialog[0].match(/<dialog[^>]*>/)[0],
+      /\sopen(?=[\s=>])/,
+    );
+    assert.match(dialog[0], new RegExp(`aria-label="${t.closeMenu}"`));
+    assert.deepEqual(
+      anchors(dialog[0]).map((a) => a.href),
+      [
+        "/",
+        "/#keyboard",
+        "/#software",
+        "/#web",
+        ...TOOLS.map((tool) => `${prefix}/lab/${tool}`),
+        "/#vrchat",
+      ],
+      file,
+    );
+  }
+});
+
+test("ui-revise 1: the header has no GitHub button and no link to a tool list", () => {
+  for (const file of htmlPages()) {
+    const links = hrefs(sectionOf(readDist(file), "header"));
+    assert.ok(!links.includes("https://github.com/unlibra"), file);
+    assert.ok(!links.includes("/lab") && !links.includes("/en/lab"), file);
+  }
+});
+
 test("C4: every page has the common header", () => {
   for (const file of htmlPages()) {
     const header = sectionOf(readDist(file), "header");
     const links = hrefs(header);
     assert.ok(links.includes("/"), `${file}: home link`);
     const lang = langOf(file);
-    const toolsPath = lang === "en" ? "/en/lab" : "/lab";
-    assert.ok(links.includes(toolsPath), `${file}: tools link`);
-    assert.ok(links.includes("https://github.com/unlibra"), `${file}: GitHub`);
     assert.match(header, />unlibra\.com</, `${file}: site name`);
     assert.match(header, /<svg[^>]*viewBox="0 0 512 512"/, `${file}: logo`);
 
@@ -350,7 +450,10 @@ test("pages without another language version have no language switcher", () => {
 test("C4: every page has the common footer with the required links", () => {
   for (const file of htmlPages()) {
     const footer = sectionOf(readDist(file), "footer");
-    assert.match(footer, />© 2025 unlibra</, `${file}: copyright`);
+    // The build year ends the notice (ui-revise 7).
+    const year = new Date().getFullYear();
+    const notice = year === 2025 ? "© 2025 unlibra" : `© 2025–${year} unlibra`;
+    assert.ok(footer.includes(`>${notice}<`), `${file}: copyright`);
     const links = hrefs(footer);
     for (const href of [
       "/",
@@ -360,6 +463,43 @@ test("C4: every page has the common footer with the required links", () => {
     ]) {
       assert.ok(links.includes(href), `${file}: footer link to ${href}`);
     }
+  }
+});
+
+test("ui-revise 6: the footer has the GitHub, docs and BOOTH links in place of the tools", async () => {
+  const { layoutMessages } = await import("../src/messages/layout.ts");
+  for (const file of htmlPages()) {
+    const t = layoutMessages[langOf(file)].footer;
+    const footer = sectionOf(readDist(file), "footer");
+    const group = footer.match(/<div[^>]*data-footer-links[\s\S]*?<\/ul>/);
+    assert.ok(group, `${file}: no link group`);
+    assert.match(group[0], new RegExp(`<h2[^>]*>${t.links}</h2>`), file);
+    assert.deepEqual(
+      anchors(group[0]),
+      [
+        { href: "https://github.com/unlibra", text: t.github },
+        { href: "https://docs.unlibra.com/", text: t.docs },
+        { href: "https://unlibra-twin.booth.pm/", text: t.shop },
+      ],
+      file,
+    );
+    for (const tag of group[0].match(/<a\s[^>]*>/g)) {
+      assert.match(tag, /target="_blank"/, file);
+      assert.match(tag, /rel="noopener noreferrer"/, file);
+    }
+    // The former TOOLS column is gone.
+    assert.ok(!hrefs(footer).some((href) => /\/lab\b/.test(href)), file);
+    assert.doesNotMatch(footer, />Tools</, file);
+  }
+});
+
+test("ui-revise 7: the copyright notice runs from 2025 to the build year", async () => {
+  const { copyrightNotice } = await import("../src/config/site.ts");
+  assert.equal(copyrightNotice(2025), "© 2025 unlibra");
+  assert.equal(copyrightNotice(2026), "© 2025–2026 unlibra");
+  assert.equal(copyrightNotice(2031), "© 2025–2031 unlibra");
+  for (const year of [2024, 2025.5, Number.NaN]) {
+    assert.throws(() => copyrightNotice(year), /2025 or later/, String(year));
   }
 });
 
