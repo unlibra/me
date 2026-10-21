@@ -186,3 +186,23 @@
 
 - `npm run test:e2e` と `npx playwright test` の後に、`wrangler`・`workerd`・Playwright の Chromium のプロセスがないこと、ポート 8788 で待ち受けているものがないことを、PowerShell（`Get-CimInstance Win32_Process`、`Get-NetTCPConnection`）で確かめた（Windows）。サーバーは Playwright の `webServer` が起動して止めるので、テストの側で止める処理は持たない
 - 自動のテストにはしていない（Playwright はすべてのテストと `globalTeardown` の後にサーバーを止めるので、テストの中からは確かめられない）。CI（Linux）では、ジョブの終わりにランナーごと捨てられる
+
+## TS-9 GitHub Actions のワークフロー（ブロック4）
+
+- 決めたこと：
+  - `.github/workflows/test.yml`（ワークフロー名 `Test`）に、ジョブを1つ（ID・名前とも `test`）置いた。**ブランチ保護で必須にするチェックの名前は `test`**（GitHub の画面では「Test / test」と並ぶことがある）
+  - 起動は `push`（全ブランチ）と `pull_request`。`permissions` は `contents: read` だけ。シークレットは使わない。`actions/checkout` は `persist-credentials: false`
+  - 使う Action は公式の4つで、リリースのタグが指すコミットの SHA で固定した。SHA は `gh api repos/actions/<名前>/releases/latest` のタグ名から `git/ref/tags/<タグ>` を引き（4つとも軽量タグで、指す先は commit）、`commits/<タグ>` でも同じ SHA になることを確かめた（2026-10-21）
+    - `actions/checkout` v7.0.1 `3d3c42e5aac5ba805825da76410c181273ba90b1`
+    - `actions/setup-node` v7.1.0 `949feb2413d6458794dcd2491c4babbbce0c15c1`
+    - `actions/cache` v6.1.0 `55cc8345863c7cc4c66a329aec7e433d2d1c52a9`
+    - `actions/upload-artifact` v7.0.2 `cf430e030ddbb5b0abf93d22962f4752f3646cd9`
+  - 手順：`npm ci` → `npm run build` → `npm run lint` → `npm run format:check` → `npm test` → `npx playwright test`。ビルドは1回で、単体テストと E2E が同じ `dist/` を使う（親の判断。`npm run test:e2e` は使わない）。Node は `.node-version` から読み、npm のキャッシュは `setup-node` の `cache: npm`
+  - Playwright のブラウザは `~/.cache/ms-playwright` を `actions/cache` でキャッシュする。キーは OS と Playwright の版（`npx playwright --version` から取る）。キャッシュがないときは `npx playwright install --with-deps chromium`、あるときはシステムのライブラリだけ `npx playwright install-deps chromium` で入れる
+  - E2E の配信は、ローカルと同じ `playwright.config.js` の `webServer`（`wrangler dev`）。`WRANGLER_SEND_METRICS=false` を渡す
+  - どこかの手順が失敗したら、`playwright-report/` と `test-results/`（トレース・スクリーンショット）を成果物 `playwright-results` として14日残す（ファイルがなければ何もしない）
+  - 上の条件（起動、手順と順序、Chromium だけ、読み取りだけの権限、シークレットなし、`actions/*` を SHA で固定）は `tests/workflow.test.js` がファイルの文面で確かめる。ワークフローを書き換えて条件を外れたら `npm test` が落ちる（条件を1つずつ壊して落ちることを確かめた）
+- 根拠：計画のブロック4と親の補足
+- 未検証：GitHub 上での実行（親が push して確かめる）。とくに、Linux のランナーで `wrangler dev`（`workerd`）が起動すること、`npm ci` の時点で `workerd`・`esbuild` の install スクリプトが動くこと（ローカルの npm は「allowScripts で許可されていない install スクリプトがある」と警告を出すが、ローカルでは `wrangler dev` は動いている）
+- 他の選択肢：ジョブを単体テストと E2E に分ける（ビルドが2回になるか、成果物で `dist/` を受け渡すことになる）。Playwright の公式の Docker イメージを使う（`actions/*` だけという条件の外になる）
+- 戻すときの作業：`.github/workflows/test.yml` と `tests/workflow.test.js` を消す
