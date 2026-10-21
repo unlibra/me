@@ -12,6 +12,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runCases } from "./helpers/palette-cases.js";
+import {
+  createHistoryItem,
+  getResetState,
+  normalizeInputColor,
+} from "../src/tools/tw-palette-generator/adjustments.ts";
 import { hexToOklch } from "../src/tools/tw-palette-generator/color.ts";
 import {
   adjustColor,
@@ -73,4 +78,45 @@ test("E6: a generated palette has every shade as a hex color", () => {
     assert.match(hex, /^#[0-9A-F]{6}$/);
   }
   assert.equal(generatePalette("not a color"), null);
+});
+
+test("H3: resetting the adjustments after input without # puts # on BASE and the history", () => {
+  const basePalette = generatePalette("#3ba0be");
+  const reset = getResetState("3ba0be", {
+    hue: 221,
+    lightness: 66,
+    saturation: 13,
+    palette: basePalette,
+  });
+  assert.deepEqual(reset, {
+    targetHue: 221,
+    targetLightness: 66,
+    targetSaturation: 13,
+    palette: basePalette,
+    baseColor: "#3ba0be",
+  });
+  // The history saves the BASE color as it is.
+  const item = createHistoryItem(reset.baseColor, basePalette, 1700000000000);
+  assert.deepEqual(item, {
+    id: "1700000000000",
+    baseColor: "#3ba0be",
+    palette: basePalette,
+    timestamp: 1700000000000,
+  });
+  // Input that already has # stays as it is.
+  assert.equal(
+    getResetState("#3ba0be", {
+      hue: 221,
+      lightness: 66,
+      saturation: 13,
+      palette: basePalette,
+    }).baseColor,
+    "#3ba0be",
+  );
+});
+
+test("H3: the input color gets # only when it is missing", () => {
+  assert.equal(normalizeInputColor("3ba0be"), "#3ba0be");
+  assert.equal(normalizeInputColor("#3ba0be"), "#3ba0be");
+  assert.equal(normalizeInputColor(""), "#");
 });

@@ -12,6 +12,12 @@ import { useMessages } from "@/tools/i18n";
 import type { ToolLocale } from "@/tools/messages";
 import { ToolRoot } from "@/tools/tool-root";
 
+import {
+  createHistoryItem,
+  getResetState,
+  normalizeInputColor,
+  type PaletteHistoryItem,
+} from "./adjustments";
 import { hexToOklch } from "./color";
 import {
   adjustColor,
@@ -35,14 +41,6 @@ import {
  * move, so that history saved on the same origin carries over.
  */
 export const PALETTE_HISTORY_KEY = "tw-palette-history";
-
-// Palette history type
-type PaletteHistoryItem = {
-  id: string;
-  baseColor: string;
-  palette: ColorPalette;
-  timestamp: number;
-};
 
 /** Island entry: the tool body of the Tailwind palette generator page. */
 export default function TwPaletteGeneratorIsland({
@@ -90,9 +88,7 @@ function TailwindPaletteGenerator() {
   );
 
   // Normalize color: add # prefix if missing
-  const normalizedInputColor = inputColor.startsWith("#")
-    ? inputColor
-    : `#${inputColor}`;
+  const normalizedInputColor = normalizeInputColor(inputColor);
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -259,13 +255,19 @@ function TailwindPaletteGenerator() {
 
   // Reset adjustments to base values
   const handleReset = useCallback(() => {
-    setTargetHue(baseHue);
-    setTargetLightness(baseLightness);
-    setTargetSaturation(baseSaturation);
-    if (basePalette) {
-      setPalette(basePalette);
+    const reset = getResetState(inputColor, {
+      hue: baseHue,
+      lightness: baseLightness,
+      saturation: baseSaturation,
+      palette: basePalette,
+    });
+    setTargetHue(reset.targetHue);
+    setTargetLightness(reset.targetLightness);
+    setTargetSaturation(reset.targetSaturation);
+    if (reset.palette) {
+      setPalette(reset.palette);
     }
-    setBaseColor(inputColor);
+    setBaseColor(reset.baseColor);
   }, [baseHue, baseLightness, baseSaturation, basePalette, inputColor]);
 
   // Copy color to clipboard
@@ -300,12 +302,7 @@ function TailwindPaletteGenerator() {
   // Add current palette to history
   const handleAddToHistory = useCallback(() => {
     const MAX_HISTORY = 30;
-    const newItem: PaletteHistoryItem = {
-      id: Date.now().toString(),
-      baseColor,
-      palette,
-      timestamp: Date.now(),
-    };
+    const newItem = createHistoryItem(baseColor, palette, Date.now());
     setPaletteHistory((prev) => {
       const updated = [...prev, newItem];
       // Keep only the latest MAX_HISTORY items (remove oldest)
