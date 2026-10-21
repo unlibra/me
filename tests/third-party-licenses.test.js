@@ -15,9 +15,9 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { inflateSync } from "node:zlib";
 
 import {
+  DERIVED_ASSETS,
   LICENSE_FALLBACKS,
   LICENSE_NOTES,
   LICENSES_FILE,
@@ -28,6 +28,7 @@ import {
   packageOfPath,
   readLicense,
 } from "../scripts/third-party-licenses.mjs";
+import { nameOf, woff2Tables } from "./helpers/woff2.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -156,10 +157,15 @@ test("H4: license expressions are not wrapped in a second pair of parentheses", 
 
 test("H5: no build-only package is in the list", () => {
   const names = new Set(listedPackages().map((p) => p.name));
+  // Packages that a shipped file is made from (DERIVED_ASSETS) are
+  // devDependencies, and are listed.
+  const derived = new Set(
+    Object.values(DERIVED_ASSETS).map((asset) => asset.name),
+  );
   for (const name of [
     // vite and rolldown are listed for their runtime helpers (FX-8); their
     // plugins and other build tools must not be.
-    ...Object.keys(pkg.devDependencies),
+    ...Object.keys(pkg.devDependencies).filter((name) => !derived.has(name)),
     "@tailwindcss/vite",
     "@vitejs/plugin-react",
     "@astrojs/sitemap",
@@ -377,34 +383,6 @@ test("H4: rolldown's entry also has its THIRD-PARTY-LICENSE (Rollup's MIT)", () 
   assert.match(section, /github\.com\/rollup\/rollup\/graphs\/contributors/);
 });
 
-/** The copyright notice (name ID 0, Windows platform) in a WOFF file. */
-const woffCopyright = (file) => {
-  const buffer = readFileSync(file);
-  assert.equal(buffer.toString("latin1", 0, 4), "wOFF", file);
-  for (let i = 0; i < buffer.readUInt16BE(12); i++) {
-    const entry = 44 + i * 20;
-    if (buffer.toString("latin1", entry, entry + 4) !== "name") continue;
-    const offset = buffer.readUInt32BE(entry + 4);
-    const compressed = buffer.readUInt32BE(entry + 8);
-    const length = buffer.readUInt32BE(entry + 12);
-    let table = buffer.subarray(offset, offset + compressed);
-    if (compressed < length) table = inflateSync(table);
-    const strings = table.readUInt16BE(4);
-    for (let j = 0; j < table.readUInt16BE(2); j++) {
-      const record = 6 + j * 12;
-      if (table.readUInt16BE(record) !== 3) continue;
-      if (table.readUInt16BE(record + 6) !== 0) continue;
-      const start = strings + table.readUInt16BE(record + 10);
-      const bytes = table.subarray(
-        start,
-        start + table.readUInt16BE(record + 8),
-      );
-      return bytes.swap16().toString("utf16le");
-    }
-  }
-  throw new Error(`${file}: no copyright notice`);
-};
-
 test("ui-revise2 L5: LINE Seed JP's section notes the font's own copyright holder", () => {
   const dir = join(root, "node_modules/@fontsource/line-seed-jp");
   const { version } = JSON.parse(
@@ -412,22 +390,34 @@ test("ui-revise2 L5: LINE Seed JP's section notes the font's own copyright holde
   );
   // The note is for the installed version (an upgrade is checked again).
   assert.ok(LICENSE_NOTES[`@fontsource/line-seed-jp@${version}`], version);
-  // The copyright in the shipped font files.
-  const fonts = globSync("_astro/line-seed-jp-*.woff", { cwd: dist });
-  assert.ok(fonts.length > 0, "no LINE Seed JP files in dist/");
-  const holders = new Set(fonts.map((f) => woffCopyright(join(dist, f))));
-  assert.deepEqual([...holders], ["© LY Corporation"]);
+  // The copyright in the shipped font file (the subset of "unlibra").
+  const fonts = globSync("_astro/line-seed-jp-*.woff2", { cwd: dist });
+  assert.equal(fonts.length, 1, "LINE Seed JP files in dist/");
+  const { name } = woff2Tables(readFileSync(join(dist, fonts[0])));
+  assert.equal(nameOf(name, 0), "© LY Corporation");
 
   const section = sectionOf("@fontsource/line-seed-jp");
   assert.match(
     section,
     /^Note: The copyright notice in the font files is "© LY Corporation"\./m,
   );
-  // The package's own license file is kept as it is.
-  assert.ok(
-    normalize(section).includes(
-      normalize(readFileSync(join(dir, "LICENSE"), "utf8")),
-    ),
+  // The package's own license file (the full OFL) is kept as it is.
+  const license = readFileSync(join(dir, "LICENSE"), "utf8");
+  assert.match(license, /SIL OPEN FONT LICENSE Version 1\.1/);
+  assert.ok(normalize(section).includes(normalize(license)));
+});
+
+test("ui-revise2 4: the brand font made from LINE Seed JP is listed through DERIVED_ASSETS", () => {
+  assert.deepEqual(Object.keys(DERIVED_ASSETS), [
+    "src/assets/fonts/line-seed-jp-unlibra-700.woff2",
+  ]);
+  // The package is only the source of the subset: a devDependency.
+  assert.ok(pkg.devDependencies["@fontsource/line-seed-jp"]);
+  assert.equal(pkg.dependencies["@fontsource/line-seed-jp"], undefined);
+  // Its section says how it is included.
+  assert.match(
+    sectionOf("@fontsource/line-seed-jp"),
+    /^Included as: files\/line-seed-jp-latin-700-normal\.woff2, cut down to the letters of "unlibra" \(scripts\/subset-brand-font\.mjs\)$/m,
   );
 });
 

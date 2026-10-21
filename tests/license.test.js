@@ -228,3 +228,14 @@ test("F5: README describes the new site only", () => {
   }
   assert.match(readme, /\[LICENSE\]\(LICENSE\)/);
 });
+
+test("ui-revise2 4: LICENSE names each file made from a package, which exists", async () => {
+  const { DERIVED_ASSETS } =
+    await import("../scripts/third-party-licenses.mjs");
+  for (const [path, { name }] of Object.entries(DERIVED_ASSETS)) {
+    assert.ok(existsSync(join(root, path)), path);
+    const text = section(4).replace(/\s+/g, " ");
+    assert.ok(text.includes(path), `${path} in section 4`);
+    assert.ok(text.includes(name), `${name} in section 4`);
+  }
+});

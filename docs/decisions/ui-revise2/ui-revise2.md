@@ -30,18 +30,25 @@
 - 他の選択肢：中央の列の中で右端に寄せる（`justify-self-end`）。中央の列をなくして Links を Support の左に詰める
 - 戻すときの作業：`Footer.astro` の `md:col-start-2` を外す
 
-## UR2-5 LINE Seed JP：太さ 700 だけ、すべての文字の範囲を読み込む
+## UR2-5 LINE Seed JP：ロゴタイプ「unlibra」の7文字だけに絞ったフォント（ユーザーの判断、2026-10-22）
 
-- 決めたこと：`@fontsource/line-seed-jp/700.css` を `BaseLayout.astro` で読み込み、`--font-brand`（`"LINE Seed JP", "Noto Sans JP Variable", sans-serif`）と `font-brand` のクラスを作った。使うのはヘッダーのサイト名とヒーローの名前の2か所だけ。2か所の太さを `font-semibold`（600）から `font-bold`（700）にした
-- 根拠：LINE Seed JP には 100・400・700・800 しかない（600 を指定すると 700 が選ばれるか合成される）。文字の範囲は、名前が日本語になっても効くように、日本語を含むすべての範囲（`700.css`）にした。ブラウザは `unicode-range` で、使う文字の範囲のファイルだけを取りに行く（今は latin の1ファイル）
-- 影響：`dist/_astro/` に LINE Seed JP のファイルが 237 個（約 5.0 MB）増える。配信されるのは使う範囲だけ
-- 未決：モバイルメニューのパネルの上とフッターのロゴの横にもサイト名がある。計画の「2か所」に従い、この2つは本文のフォント（Noto Sans JP）のまま（親がユーザーに確認中。今は変えない）
-- 他の選択肢：latin の範囲だけ読み込む（`latin-700.css`。ファイルは減るが、日本語の名前にすると Noto Sans JP に落ちる）
-- 戻すときの作業：`BaseLayout.astro` の import、`global.css` の `--font-brand`、2か所の `font-brand font-bold` を消し、`package.json` から外す
+- 最初の形（置き換え済み）：`@fontsource/line-seed-jp/700.css` を読み込み、全文字の範囲（`dist/_astro/` に 237 ファイル、約 4.7 MB）を出していた
+- 決めたこと（ユーザーの判断）：
+  - 絞ったフォント `src/assets/fonts/line-seed-jp-unlibra-700.woff2` を `scripts/subset-brand-font.mjs`（`npm run generate:brand-font`）で一度だけ作り、リポジトリに入れた。元は `@fontsource/line-seed-jp` の `files/line-seed-jp-latin-700-normal.woff2`（34,760 バイト）、道具は `subset-font` 2.9.0（harfbuzz の wasm、BSD-3-Clause）。どちらも devDependencies。ビルドでは作らない
+  - 文字は `u n l i b r a` の7つ。レイアウトの機能から辿れる別の字形は入れない（`noLayoutClosure`。字形は `.notdef` と7文字の8つ、カーニングは残る）。name テーブル（著作権表示「© LY Corporation」、ファミリー名）は残る
+  - `src/styles/global.css` に `@font-face` を自分で書いた（太さ 700、`unicode-range: U+61-62, U+69, U+6C, U+6E, U+72, U+75`）。`@fontsource/line-seed-jp` の CSS は読み込まない。ほかの文字は `--font-brand` の次の Noto Sans JP で出る
+  - 太さは 700（LINE Seed JP に 600 はない）。ロゴタイプの要素は `font-semibold` から `font-bold` にした
+- 大きさ：絞る前は、ビルドの出力の LINE Seed JP が 237 ファイル・4,721,728 バイト（ブラウザが取りに行くのは latin の woff2 の 34,760 バイト）。絞った後は 1 ファイル・1,084 バイト
+- ライセンス：
+  - Reserved Font Name：npm パッケージの `LICENSE` と、Google Fonts の配布元の `ofl/lineseedjp/OFL.txt`（著作権の行は「© LY Corporation」）のどちらにも宣言はない（「Reserved Font Name」は OFL の定義の文の中に出てくるだけ）。なので、絞ったフォント（OFL の Modified Version）はファミリー名「LINE Seed JP」のままにした。宣言があった場合は別の名前にする必要がある
+  - 一覧への載せ方：絞ったフォントはプロジェクトのファイルなので、パッケージのファイルとしては自動で拾えない。`scripts/third-party-licenses.mjs` に `DERIVED_ASSETS`（プロジェクトのファイルのパス → 元のパッケージ）を足し、ビルドがそのファイルを出したときに、元のパッケージを OFL の全文と著作権表示（UR2-12 の注記）つきで一覧に載せる（「Included as: files/line-seed-jp-latin-700-normal.woff2, cut down to the letters of "unlibra" (scripts/subset-brand-font.mjs)」）。小さいファイルは Vite が CSS に data URL で埋め込むが、`DERIVED_ASSETS` のファイルは埋め込まないようにした（`assetsInlineLimit`。一覧に載せるため、またファイルとして見えるように）
+  - `LICENSE` の第4節に、このファイルが `@fontsource/line-seed-jp` から作った LINE Seed JP Bold で、OFL 1.1 のままであることを書いた
+- テスト：`layout.test.js` の `ui-revise2 4: LINE Seed JP is one font file with the letters of unlibra only`（出力の LINE Seed JP は1ファイルだけで、生成物と同じ。cmap の文字は7つで、「.」「c」「o」「m」「U」「あ」「漢」はない。字形は8つ。著作権表示とファミリー名が残る）。WOFF2 を読む処理は `tests/helpers/woff2.js`。`third-party-licenses.test.js` の `ui-revise2 4: the brand font made from LINE Seed JP is listed through DERIVED_ASSETS` と `ui-revise2 L5: ...`、`license.test.js` の `ui-revise2 4: LICENSE names each file made from a package, which exists`
+- 戻すときの作業：`global.css` の `@font-face` を消して `@fontsource/line-seed-jp/700.css` の import に戻し、パッケージを dependencies に戻す。生成のスクリプト、生成物、`DERIVED_ASSETS`、`subset-font` を消す
 
 ## UR2-6 サイト名を「unlibra」に統一（ユーザーの判断、2026-10-22）
 
-- 決めたこと：`site.title` を `"unlibra"` にした。ヘッダー、モバイルメニュー、フッターのロゴの横、`<title>`（トップは「unlibra」、ほかは「{ページ名} - unlibra」）、`og:title`・`og:site_name`・`twitter:title` がこれを使う。OGP 画像は `scripts/generate-icons.mjs` の文字を「unlibra」にして作り直した（フォントは前と同じ Noto Sans JP。`favicon.ico`・`apple-touch-icon.png`・`icon.svg` は変わらないことを `git status` で確かめた）。ドメイン（`site.url`、canonical、hreflang、リンク、`_redirects`、check-prod、`LICENSE`）は `unlibra.com` のまま
+- 決めたこと：`site.title` を `"unlibra"` にした。ヘッダー、モバイルメニュー、フッターのロゴの横、`<title>`（トップは「unlibra」、ほかは「{ページ名} - unlibra」）、`og:title`・`og:site_name`・`twitter:title` がこれを使う。OGP 画像は `scripts/generate-icons.mjs` の文字を「unlibra」にして作り直した（フォントは、このときは前と同じ Noto Sans JP。のちに UR2-15 で LINE Seed JP にした。`favicon.ico`・`apple-touch-icon.png`・`icon.svg` は変わらないことを `git status` で確かめた）。ドメイン（`site.url`、canonical、hreflang、リンク、`_redirects`、check-prod、`LICENSE`）は `unlibra.com` のまま
 - プライバシーポリシーの meta description は、親の判断で「unlibra のプライバシーポリシーです。…」（サイト名）にした。README の見出し（`# unlibra.com`）はリポジトリの説明なので変えていない
 - 戻すときの作業：`site.title` と `generate-icons.mjs` の文字を戻し、`npm run generate:icons` を実行する
 
@@ -113,24 +120,46 @@
 - 他の選択肢：`setTimeout(..., 0)`（まだ早いことがある）。破棄しない（ページを閉じるまでメモリに残る）
 - 戻すときの作業：`downloadBlob` の `setTimeout` を外し、`svg-optimizer.tsx` の処理を前の形に戻す
 
+## UR2-15 ロゴタイプ「unlibra」はすべて LINE Seed JP（ユーザーの判断、2026-10-22）
+
+- 決めたこと：ロゴタイプ（シンボルの横や見出しとして名前を出すところ）として出している「unlibra」に `font-brand font-bold` と `data-logotype` を付けた。本文の中の「unlibra」（説明文、`<title>`、meta、著作権表示、プライバシーポリシーの本文）は対象外
+- 一覧：
+
+  | 場所                         | ファイル                                        | 備考                                                          |
+  | ---------------------------- | ----------------------------------------------- | ------------------------------------------------------------- |
+  | ヘッダーのシンボルの横       | `Header.astro`                                  | 全ページ                                                      |
+  | モバイルメニューのパネルの上 | `MobileMenu.astro`                              | 全ページ（`lg` 未満で開いたとき）                             |
+  | フッターのシンボルの横       | `Footer.astro`                                  | 全ページ                                                      |
+  | ヒーローの名前（`h1`）       | `index.astro`                                   | トップ                                                        |
+  | OGP 画像の文字               | `scripts/generate-icons.mjs` → `public/ogp.png` | 絞ったフォントで描くようにして作り直した（前は Noto Sans JP） |
+
+- テスト：`layout.test.js` の `ui-revise2 4: the logotype is in LINE Seed JP everywhere it is shown, and only there`（HTML の4か所と、`font-brand` がそこだけにあること）、`works.spec.js` の `the logotype in LINE Seed JP › ...`（幅 375px でモバイルメニューを開き、4か所で LINE Seed JP・太さ 700 が当たり、そのフォントが読み込まれること。読み込まれた LINE Seed JP は 700 の1つだけ）。OGP 画像は目で確かめた
+- 戻すときの作業：各所の `font-brand font-bold` と `data-logotype` を外す。`generate-icons.mjs` のフォントを戻して作り直す
+
 ## 直した既存のテストと理由（L1）
 
-| テスト                                                                                                  | 直した内容と理由                                                                                                                                                                    |
-| ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `layout.test.js` の `ui-revise 4: the header links to the category sections of the top page`            | `ui-revise2 1, 6: the header links to the category sections, without menus` に置き換えた。WEBツールのメニューがなくなり（指示1）、カテゴリの ID と名前が変わった（指示6）           |
-| `layout.test.js` の `C4: every page has the common header`                                              | サイト名の確認を `>unlibra.com<` から `data-site-name>unlibra<` にした（サイト名。ドメインではない。ユーザーの判断）                                                                |
-| `portfolio.test.js` の `D2: the top page has the four category sections in order`                       | セクションの ID と見出しを新しい名前にした（指示6）。前の名前と ID が残っていないことも見るようにした                                                                               |
-| `portfolio.test.js` の `D2: the header links to each category section`                                  | WEBツールのボタンとメニューの1行目の確認を外し、4つのリンクにした（指示1・6）                                                                                                       |
-| `portfolio.test.js` の `ui-revise 1: the hero has ...`                                                  | プロフィール文をサブタイトル「昼はカフェ、夜はバー。」にし、名前に `font-brand` があることを見る（指示4・5、ユーザーの判断）                                                        |
-| `portfolio.test.js` の `D3`（2つ）                                                                      | セクションを `#apps` にした。ツールへのリンクはカードではなく詳細のダイアログの中を見る（指示3の4）                                                                                 |
-| `portfolio.test.js` の `D4`（2つ）                                                                      | セクションを `#vr-3d` にした。BOOTH へのリンクはダイアログの中を見る。見出しの横のショップのリンクは、カードとダイアログの外で見る（指示3の4・6）                                   |
-| `tools.test.js` の `tool pages use the tool's name and description as title and description`            | `<title>` の末尾を「 - unlibra.com」から「 - unlibra」にした（サイト名。ユーザーの判断）                                                                                            |
-| `tools.test.js` の `E8: every page's header links to the tools in the page's language`                  | ヘッダーにツールのリンクがなくなったので、「どのページのヘッダーにもツールのリンクがない」「トップ（日本語）の main が日本語のツールのページに1つずつリンクする」を見るテストにした |
-| `redirects.test.js`（`EXPECTED` など）                                                                  | 一覧のURLの転送先を `/#web` から `/#apps` にした（UR2-1）                                                                                                                           |
-| `third-party-licenses.test.js` の `H4/H5: the list has exactly the packages the build output ships`     | `@fontsource/line-seed-jp` を足した（指示4）                                                                                                                                        |
-| `tests/types/works.ts`                                                                                  | カテゴリの値を新しい ID にした（UR2-1）。型の検査の中身は同じ                                                                                                                       |
-| `header.spec.js` の `desktop › ...`・`mobile › the menu opens, links to sections and tools, and closes` | WEBツールのメニューのテストを「カテゴリはリンクだけで、開くメニューがない」にし、モバイルメニューからツールのリンクを外した。見出しの名前を新しい名前にした（指示1・6）             |
-| `site.spec.js` の `the tool list URLs land on the web tools section`                                    | `the tool list URLs land on the apps section` にし、転送先を `/#apps`、見出しを「Apps」にした（UR2-1）                                                                              |
+| テスト                                                                                                    | 直した内容と理由                                                                                                                                                                                                                            |
+| --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout.test.js` の `ui-revise 4: the header links to the category sections of the top page`              | `ui-revise2 1, 6: the header links to the category sections, without menus` に置き換えた。WEBツールのメニューがなくなり（指示1）、カテゴリの ID と名前が変わった（指示6）                                                                   |
+| `layout.test.js` の `C4: every page has the common header`                                                | サイト名の確認を `>unlibra.com<` から `data-site-name>unlibra<` にした（サイト名。ドメインではない。ユーザーの判断）                                                                                                                        |
+| `portfolio.test.js` の `D2: the top page has the four category sections in order`                         | セクションの ID と見出しを新しい名前にした（指示6）。前の名前と ID が残っていないことも見るようにした                                                                                                                                       |
+| `portfolio.test.js` の `D2: the header links to each category section`                                    | WEBツールのボタンとメニューの1行目の確認を外し、4つのリンクにした（指示1・6）                                                                                                                                                               |
+| `portfolio.test.js` の `ui-revise 1: the hero has ...`                                                    | プロフィール文をサブタイトル「昼はカフェ、夜はバー。」にし、名前に `font-brand` があることを見る（指示4・5、ユーザーの判断）                                                                                                                |
+| `portfolio.test.js` の `D3`（2つ）                                                                        | セクションを `#apps` にした。ツールへのリンクはカードではなく詳細のダイアログの中を見る（指示3の4）                                                                                                                                         |
+| `portfolio.test.js` の `D4`（2つ）                                                                        | セクションを `#vr-3d` にした。BOOTH へのリンクはダイアログの中を見る。見出しの横のショップのリンクは、カードとダイアログの外で見る（指示3の4・6）                                                                                           |
+| `tools.test.js` の `tool pages use the tool's name and description as title and description`              | `<title>` の末尾を「 - unlibra.com」から「 - unlibra」にした（サイト名。ユーザーの判断）                                                                                                                                                    |
+| `tools.test.js` の `E8: every page's header links to the tools in the page's language`                    | ヘッダーにツールのリンクがなくなったので、「どのページのヘッダーにもツールのリンクがない」「トップ（日本語）の main が日本語のツールのページに1つずつリンクする」を見るテストにした                                                         |
+| `redirects.test.js`（`EXPECTED` など）                                                                    | 一覧のURLの転送先を `/#web` から `/#apps` にした（UR2-1）                                                                                                                                                                                   |
+| `third-party-licenses.test.js` の `H4/H5: the list has exactly the packages the build output ships`       | `@fontsource/line-seed-jp` を足した（指示4）                                                                                                                                                                                                |
+| `tests/types/works.ts`                                                                                    | カテゴリの値を新しい ID にした（UR2-1）。型の検査の中身は同じ                                                                                                                                                                               |
+| `header.spec.js` の `desktop › ...`・`mobile › the menu opens, links to sections and tools, and closes`   | WEBツールのメニューのテストを「カテゴリはリンクだけで、開くメニューがない」にし、モバイルメニューからツールのリンクを外した。見出しの名前を新しい名前にした（指示1・6）                                                                     |
+| `site.spec.js` の `the tool list URLs land on the web tools section`                                      | `the tool list URLs land on the apps section` にし、転送先を `/#apps`、見出しを「Apps」にした（UR2-1）                                                                                                                                      |
+| `layout.test.js` の `ui-revise2 4: LINE Seed JP is loaded in bold for the font-brand class only`          | `ui-revise2 4: LINE Seed JP is one font file with the letters of unlibra only` と `ui-revise2 4: the logotype is in LINE Seed JP everywhere it is shown, and only there` に置き換えた（絞ったフォントと、ロゴタイプの4か所。UR2-5・UR2-15） |
+| `layout.test.js` の `ui-revise2 4: the site name is unlibra; ...`・`C4: every page has the common header` | ロゴタイプの要素に `data-logotype` を足したので、サイト名の確認の正規表現を合わせた。ロゴタイプの場所の確認は上のテストに移した                                                                                                             |
+| `portfolio.test.js` の `ui-revise 1, ui-revise2 4, 5: ...`                                                | `h1` の属性が増えたので、正規表現を合わせた                                                                                                                                                                                                 |
+| `third-party-licenses.test.js` の `ui-revise2 L5: ...`                                                    | 出力の LINE Seed JP が WOFF2 の1ファイルになったので、その name テーブルを読むようにした                                                                                                                                                    |
+| `third-party-licenses.test.js` の `H5: no build-only package is in the list`                              | `DERIVED_ASSETS` の元のパッケージ（devDependencies だが、出力のファイルの元として一覧に載る）を除いた                                                                                                                                       |
+| `works.spec.js` の `ui-revise2 4: the site name and the hero's name are in LINE Seed JP`                  | `the logotype in LINE Seed JP › ...`（4か所）に置き換えた                                                                                                                                                                                   |
 
 `build.test.js` の `unlibra\.com/ja` などはサイトマップのURL（ドメイン）なので変えていない。
 

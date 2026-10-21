@@ -74,3 +74,9 @@ under their own licenses.
 The website built from this repository lists these packages, with their
 license texts and copyright notices, in /third-party-licenses.txt. The list
 is generated at build time by scripts/third-party-licenses.mjs.
+
+src/assets/fonts/line-seed-jp-unlibra-700.woff2 is LINE Seed JP Bold
+(© LY Corporation) from the npm package @fontsource/line-seed-jp, cut down to
+a few letters by scripts/subset-brand-font.mjs. It stays under the SIL Open
+Font License 1.1, and is listed in /third-party-licenses.txt with the license
+text.

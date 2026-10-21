@@ -35,7 +35,9 @@ const externalLinks = [
           class="inline-flex items-center gap-2 transition-all hover:underline"
         >
           <BrandSymbol class="size-6" />
-          <span class="text-xl font-semibold">{site.title}</span>
+          <span class="font-brand text-xl font-bold" data-logotype>
+            {site.title}
+          </span>
         </a>
         <p class="mt-3 text-sm whitespace-pre-line text-gray-600 dark:text-gray-400">
           {t.description}

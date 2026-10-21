@@ -115,7 +115,7 @@ test("ui-revise 1, ui-revise2 4, 5: the hero has the symbol, the name and the su
   assert.match(hero, /viewBox="0 0 1440 320"/);
   assert.match(hero, /<svg[^>]*viewBox="0 0 512 512"/);
   // The name in LINE Seed JP (the font-brand class).
-  assert.match(hero, /<h1 class="[^"]*\bfont-brand\b[^"]*">unlibra<\/h1>/);
+  assert.match(hero, /<h1 class="[^"]*\bfont-brand\b[^"]*"[^>]*>unlibra<\/h1>/);
   assert.match(hero, /<p[^>]*>昼はカフェ、夜はバー。<\/p>/);
   assert.equal(top.match(/<h1[\s>]/g).length, 1);
 });

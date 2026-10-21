@@ -8,6 +8,13 @@ import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
+import {
+  cmapCharacters,
+  glyphCount,
+  nameOf,
+  woff2Tables,
+} from "./helpers/woff2.js";
+
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const SITE = "https://unlibra.com";
@@ -394,7 +401,11 @@ test("C4: every page has the common header", () => {
     const links = hrefs(header);
     assert.ok(links.includes("/"), `${file}: home link`);
     const lang = langOf(file);
-    assert.match(header, /data-site-name>unlibra</, `${file}: site name`);
+    assert.match(
+      header,
+      /data-site-name data-logotype>unlibra</,
+      `${file}: site name`,
+    );
     assert.match(header, /<svg[^>]*viewBox="0 0 512 512"/, `${file}: logo`);
 
     // Theme toggle: a button controlling a hidden panel of three choices.
@@ -528,19 +539,8 @@ test("ui-revise2 4: the site name is unlibra; the domain stays unlibra.com", () 
     assert.equal(meta("name", "twitter:title"), title, file);
     assert.equal(meta("property", "og:site_name"), "unlibra", file);
 
-    // The header (in LINE Seed JP), the mobile menu and the footer.
-    const header = sectionOf(html, "header");
-    assert.match(
-      header,
-      /<span class="font-brand [^"]*" data-site-name>unlibra<\/span>/,
-      file,
-    );
-    assert.match(header, /<\/svg>unlibra<\/a>/, `${file}: mobile menu`);
-    assert.match(
-      sectionOf(html, "footer"),
-      /<span[^>]*>unlibra<\/span>/,
-      `${file}: footer`,
-    );
+    // The logotypes (header, mobile menu, footer, hero): see the LINE Seed JP
+    // test below.
     // The domain as text is gone; URLs keep it.
     assert.doesNotMatch(
       html.replace(/<script[\s\S]*?<\/script>/g, ""),
@@ -558,24 +558,84 @@ test("ui-revise2 4: the site name is unlibra; the domain stays unlibra.com", () 
   assert.doesNotMatch(script, />unlibra\.com</);
 });
 
-test("ui-revise2 4: LINE Seed JP is loaded in bold for the font-brand class only", () => {
+/** Where the logotype "unlibra" is shown, in LINE Seed JP (ui-revise2 4). */
+const LOGOTYPES = {
+  header:
+    /<header[\s\S]*?<span class="font-brand [^"]*" data-site-name data-logotype>unlibra<\/span>/,
+  "mobile menu":
+    /<dialog[^>]*id="mobile-menu"[\s\S]*?<span class="font-brand [^"]*" data-logotype>unlibra<\/span>/,
+  footer:
+    /<footer[\s\S]*?<span class="font-brand [^"]*" data-logotype>unlibra<\/span>/,
+};
+const HERO_LOGOTYPE =
+  /<h1 class="[^"]*\bfont-brand\b[^"]*" data-logotype>unlibra<\/h1>/;
+
+test("ui-revise2 4: the logotype is in LINE Seed JP everywhere it is shown, and only there", () => {
+  for (const file of htmlPages()) {
+    const html = readDist(file);
+    for (const [place, pattern] of Object.entries(LOGOTYPES)) {
+      assert.match(html, pattern, `${file}: ${place}`);
+    }
+    const hero = file === "index.html";
+    if (hero) assert.match(html, HERO_LOGOTYPE, `${file}: hero`);
+    // The font-brand class is on the logotypes only.
+    const count = Object.keys(LOGOTYPES).length + (hero ? 1 : 0);
+    assert.equal(
+      (html.match(/class="[^"]*\bfont-brand\b/g) ?? []).length,
+      count,
+      file,
+    );
+    assert.equal(
+      (html.match(/\sdata-logotype[\s>]/g) ?? []).length,
+      count,
+      file,
+    );
+  }
+});
+
+test("ui-revise2 4: LINE Seed JP is one font file with the letters of unlibra only", async () => {
+  const { BRAND_FONT_FILE, BRAND_FONT_TEXT } =
+    await import("../scripts/subset-brand-font.mjs");
+  assert.equal(BRAND_FONT_TEXT, "unlibra");
+
+  // One @font-face, bold, limited to the seven letters, pointing to one file.
   const css = globSync("_astro/*.css", { cwd: dist })
     .map((p) => readDist(p))
     .join("\n");
   const faces = [...css.matchAll(/@font-face\{[^}]*\}/g)]
     .map((m) => m[0])
     .filter((face) => /LINE Seed JP/.test(face));
-  assert.ok(faces.length > 0, "no LINE Seed JP font faces");
-  for (const face of faces) {
-    assert.match(face, /font-weight:700/, face.slice(0, 80));
-  }
+  assert.equal(faces.length, 1, "LINE Seed JP font faces");
+  assert.match(faces[0], /font-weight:700/);
+  assert.match(
+    faces[0],
+    /unicode-range:U\+61-62,U\+69,U\+6C,U\+6E,U\+72,U\+75[;}]/,
+  );
+  const url = faces[0].match(/url\(([^)]+)\)format\("woff2"\)/)[1];
+  assert.match(url, /^\/_astro\/line-seed-jp-unlibra-700\.[\w-]+\.woff2$/);
   assert.match(css, /\.font-brand\{font-family:var\(--font-brand\)\}/);
   assert.match(css, /--font-brand:"LINE Seed JP",/);
-  // Used by the header's site name and the hero's name only.
-  for (const file of htmlPages()) {
-    const uses = readDist(file).match(/class="[^"]*\bfont-brand\b/g) ?? [];
-    assert.equal(uses.length, file === "index.html" ? 2 : 1, file);
+
+  // The only LINE Seed JP file in the output, the same as the generated one.
+  const files = globSync("**/*line-seed*", { cwd: dist });
+  assert.deepEqual(
+    files.map((p) => p.split(sep).join("/")),
+    [url.slice(1)],
+  );
+  const font = readFileSync(join(dist, url.slice(1)));
+  assert.ok(font.equals(readFileSync(join(root, BRAND_FONT_FILE))));
+
+  // Its characters: the seven letters, nothing else.
+  const tables = woff2Tables(font);
+  const characters = cmapCharacters(tables.cmap);
+  assert.deepEqual([...characters].sort(), [..."abilnru"]);
+  for (const other of [".", "c", "o", "m", "U", "あ", "漢"]) {
+    assert.equal(characters.has(other), false, other);
   }
+  assert.equal(glyphCount(tables.maxp), 8, ".notdef and the seven letters");
+  // The family name and the copyright notice of the original are kept.
+  assert.equal(nameOf(tables.name, 1), "LINE Seed JP");
+  assert.equal(nameOf(tables.name, 0), "© LY Corporation");
 });
 
 /** Lists every key path of a nested object, e.g. "footer.github". */

@@ -133,6 +133,28 @@ export const LICENSE_CUTS = {
 };
 
 /**
+ * Files of this project made from a package (generated once and kept in the
+ * repository), keyed by their path from the project root. When the build
+ * ships one, the package is listed with the note (the package itself is a
+ * devDependency).
+ */
+export const DERIVED_ASSETS = {
+  "src/assets/fonts/line-seed-jp-unlibra-700.woff2": {
+    name: "@fontsource/line-seed-jp",
+    note:
+      "files/line-seed-jp-latin-700-normal.woff2, cut down to the letters " +
+      'of "unlibra" (scripts/subset-brand-font.mjs)',
+  },
+};
+
+/** Whether a file (absolute path) is one of DERIVED_ASSETS. */
+const isDerivedAsset = (file, projectRoot) =>
+  Object.hasOwn(
+    DERIVED_ASSETS,
+    relative(projectRoot, file.replace(/[?#].*$/, "")).replaceAll("\\", "/"),
+  );
+
+/**
  * Notes added to a package's section, for what its license files do not say.
  * Keyed by name@version so that an upgrade is checked again (the tests fail
  * when the installed version has no entry).
@@ -404,6 +426,17 @@ export default function thirdPartyLicenses() {
             : environment === "client"
               ? output.moduleIds.map((id) => packageOfModule(id, projectRoot))
               : [];
+        if (output.type === "asset") {
+          for (const name of output.originalFileNames) {
+            const derived = DERIVED_ASSETS[name.replaceAll("\\", "/")];
+            if (!derived) continue;
+            const dir = findPackageDir(derived.name, projectRoot);
+            if (!dir) {
+              throw new Error(`${LICENSES_FILE}: ${derived.name} not found`);
+            }
+            add(dir, derived.note);
+          }
+        }
         for (const found of packages) {
           if (!found) continue;
           add(found.dir, found.note);
@@ -435,7 +468,18 @@ export default function thirdPartyLicenses() {
         projectRoot = fileURLToPath(config.root);
         site = config.site;
         if (!site) throw new Error(`${LICENSES_FILE}: config.site is not set`);
-        updateConfig({ vite: { plugins: [plugin] } });
+        updateConfig({
+          vite: {
+            plugins: [plugin],
+            build: {
+              // Derived assets are always files (never inlined as data
+              // URLs), so that the build output shows them and they are
+              // listed.
+              assetsInlineLimit: (file) =>
+                isDerivedAsset(file, projectRoot) ? false : undefined,
+            },
+          },
+        });
       },
       "astro:build:done": ({ dir }) => {
         for (const [name, note] of Object.entries(OUTSIDE_MODULE_GRAPH)) {

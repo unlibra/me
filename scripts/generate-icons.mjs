@@ -2,14 +2,16 @@
 //
 //   npm run generate:icons
 //
-// Inputs:  src/assets/brand/symbol.svg, Noto Sans JP from node_modules
+// Inputs:  src/assets/brand/symbol.svg, the logotype font
+//   src/assets/fonts/line-seed-jp-unlibra-700.woff2 (npm run generate:brand-font)
 // Outputs (committed): public/icon.svg, public/favicon.ico,
 //   public/apple-touch-icon.png, public/ogp.png
 import { readFileSync, writeFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+
+import { BRAND_FONT_FILE } from "./subset-brand-font.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = join(root, "public");
@@ -18,9 +20,8 @@ const symbolSvg = readFileSync(join(root, "src/assets/brand/symbol.svg"));
 /** Background color of the symbol's circle. */
 const symbolColor = "#27272a";
 
-const fontFile = createRequire(import.meta.url).resolve(
-  "@fontsource-variable/noto-sans-jp/files/noto-sans-jp-latin-wght-normal.woff2",
-);
+/** The logotype's font: LINE Seed JP Bold with the letters of "unlibra". */
+const fontFile = join(root, BRAND_FONT_FILE);
 
 /** Rasterizes the symbol to a square PNG of the given size. */
 const symbolPng = (size) =>
@@ -86,7 +87,7 @@ const gap = 40;
 const text = await sharp({
   text: {
     text: `<span foreground="${symbolColor}">unlibra</span>`,
-    font: "Noto Sans JP Semi-Bold 96",
+    font: "LINE Seed JP Bold 96",
     fontfile: fontFile,
     rgba: true,
     dpi: 72,

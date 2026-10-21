@@ -152,42 +152,54 @@ test("ui-revise2 2: the footer's Links group is in the right half of the center 
   expect(box.x).toBeGreaterThanOrEqual(center.x + center.width / 2 - 1);
 });
 
-test("ui-revise2 4: the site name and the hero's name are in LINE Seed JP", async ({
-  page,
-}) => {
-  await open(page, "/");
-  await page.evaluate(() => document.fonts.ready);
-  for (const locator of [
-    page.locator("header [data-site-name]"),
-    page.locator("[data-hero] h1"),
-  ]) {
-    await expect(locator).toHaveText("unlibra");
-    const { family, weight, loaded } = await locator.evaluate(
-      async (element) => {
-        const style = getComputedStyle(element);
-        await document.fonts.load(
-          `${style.fontWeight} 16px "LINE Seed JP"`,
-          element.textContent,
-        );
-        return {
-          family: style.fontFamily,
-          weight: style.fontWeight,
-          loaded: document.fonts.check(
-            `${style.fontWeight} 16px "LINE Seed JP"`,
-            element.textContent,
-          ),
-        };
-      },
+test.describe("the logotype in LINE Seed JP", () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test("ui-revise2 4: the header, the mobile menu, the footer and the hero show unlibra in LINE Seed JP", async ({
+    page,
+  }) => {
+    await open(page, "/");
+    // The mobile menu is open, so that every logotype is rendered.
+    await page.getByRole("button", { name: "メニューを開く" }).click();
+    await page.evaluate(() => document.fonts.ready);
+    const places = {
+      header: page.locator("header nav > a [data-logotype]"),
+      "mobile menu": page.locator("#mobile-menu [data-logotype]"),
+      footer: page.locator("footer [data-logotype]"),
+      hero: page.locator("[data-hero] h1"),
+    };
+    await expect(page.locator("[data-logotype]")).toHaveCount(4);
+    for (const [place, locator] of Object.entries(places)) {
+      await expect(locator, place).toHaveText("unlibra");
+      const { family, weight, loaded } = await locator.evaluate(
+        async (element) => {
+          const style = getComputedStyle(element);
+          const font = `${style.fontWeight} 16px "LINE Seed JP"`;
+          await document.fonts.load(font, element.textContent);
+          return {
+            family: style.fontFamily,
+            weight: style.fontWeight,
+            loaded: document.fonts.check(font, element.textContent),
+          };
+        },
+      );
+      expect(family, place).toMatch(/^"LINE Seed JP"/);
+      expect(weight, place).toBe("700");
+      expect(loaded, place).toBe(true);
+    }
+    // The one font file of LINE Seed JP is the one loaded.
+    const loadedFaces = await page.evaluate(() =>
+      [...document.fonts]
+        .filter((face) => face.family.replace(/"/g, "") === "LINE Seed JP")
+        .map((face) => [face.weight, face.status]),
     );
-    expect(family).toMatch(/^"LINE Seed JP"/);
-    expect(weight).toBe("700");
-    expect(loaded).toBe(true);
-  }
-  // The rest of the page keeps the body font.
-  await expect(page.locator("footer span").first()).not.toHaveCSS(
-    "font-family",
-    /LINE Seed JP/,
-  );
+    expect(loadedFaces).toEqual([["700", "loaded"]]);
+    // Text that is not the logotype keeps the body font.
+    await expect(page.locator("footer p").first()).not.toHaveCSS(
+      "font-family",
+      /LINE Seed JP/,
+    );
+  });
 });
 
 test.describe("page width of the top page", () => {
