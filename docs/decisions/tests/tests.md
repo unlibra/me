@@ -26,11 +26,14 @@
 
 - 解決済み（fixes2 の A）：FX-1 の `removeDesc`：オンにしたとき、空でもエディターのものでもない `<desc>` が消えないこと（`removeAny`）は、ユーザーの確認待ちのためテストしていない。`removeDesc` のオンは、エディターが書いた `<desc>`（`Created with ...`）が消えることだけを見る。オフで残ることは FX-1 で直した挙動として見る
   - ユーザーの判断で、オンのときはすべての `<desc>` を消すようにした。`removeDesc on makes its change, off does not`（ふつうの `<desc>`）と `removeDesc removes every description` で確かめる（`fixes2/fixes2.md`）
-- FX-3 のスライダー：`adjustColor` が `null` を返したときに BASE に入力欄の文字列が入ることは、ユーザーの確認待ちのためテストしていない
+- 解決済み（fixes2 の E）：FX-3 のスライダー：`adjustColor` が `null` を返したときに BASE に入力欄の文字列が入ることは、ユーザーの確認待ちのためテストしていない
+  - ユーザーの判断で、`#` を補った入力（`normalizeInputColor`）を入れるようにした。スライダーの計算を `adjustments.ts` の `getAdjustedState` に出し、`with an input that is not a color, BASE is the input with #`（単体）と E2E の `with an input that is not a color, the sliders set BASE to the input with #` で確かめる（`fixes2/fixes2.md`）
 
 ## TS-4 ブロック1で見つけた、仕様として決まっていない挙動（直していない。親に判断してほしい）
 
 テストを書く中で見つけた。どれも liblab からの既存の挙動で、6 を除き、今の挙動を固定するテストは書いていない。
+
+2026-10-21 にユーザーが判断し、6つとも `fixes2` で対応した（各項目の「解決済み」。修正後の挙動を正としてテストする）。
 
 1. SVG Optimizer の「小数点以下の桁数」（`floatPrecision`）は、`cleanupNumericValues` が丸める数値（`r`、`width` など）にしか効かない。パスデータ（`convertPathData`）と値のリスト（`cleanupListOfValues`。`x`・`y`・`points`・`viewBox` など）は、svgo の既定の3桁のままになる。たとえば「最大圧縮」（1桁）でもパスの座標は3桁、0 にしても3桁、5 にしても3桁に丸められる。画面の文言は「小数点以下の桁数」なので、利用者はパスにも効くと受け取りうる。直すなら svgo の設定の `floatPrecision`（全プラグインに効く）を渡すか、該当プラグインに個別に渡す（出力が変わるので `expected.json` を作り直す）
    - 解決済み（fixes2 の B）：パスデータと値のリストにも効くようにした。`floatPrecision sets the decimal places of lists of values`、`floatPrecision sets the decimal places of path data` で確かめる
@@ -39,7 +42,9 @@
 3. SVG Optimizer の「transform属性の精度」（`transformPrecision`）は、`translate` などの桁数には効くが、`rotate` の角度は svgo が3桁までに抑える（`degPrecision`）
    - 解決済み（fixes2 の D）：角度（`rotate`・`skewX`・`skewY`）にも効くようにした。`transformPrecision sets the decimal places of angles` で確かめる
 4. TW Palette Generator の入力欄は、16進数の後ろに別の文字が続く入力（`12345g`、`0x1234`）を色として受け付け、パレットを作る（`hexToRgb` の `parseInt` が先頭の読める部分だけを読むため。`12345g` は `#012345` になる）。6文字や3文字の長さの確認はしている
+   - 解決済み（fixes2 の F）：3桁か6桁の16進数だけを受け付けるようにした。`input that is not a color gives no palette`（単体）と E2E の `input that is not a color leaves the palette as it was` で確かめる
 5. TW Palette Generator の明度スライダーを一番下まで下げても、真っ黒（`#000000`）にはならず、色味がわずかに残る（`#3ba0be` で `#000005`）。一番上では `#FFFFFF` になる
+   - 解決済み（fixes2 の G）：明度が 0 なら `#000000` にした。`at lightness 0 the color is black`、`above lightness 0 the lightness slider works as before`、`the lightness slider at 0 makes BASE black`（単体）と、同じ名前の E2E で確かめる
 6. SVG Optimizer のプリセット「標準圧縮」（ID は `svgo-default`、コメントは「SVGO's actual default preset」）の中身は、svgo 4.1.0 の実際の `preset-default` と違う。`removeTitle`・`removeViewBox` がオン（svgo 4 の `preset-default` には入っていない）、`sortAttrs` がオフ（svgo 4 の `preset-default` には入っている）。画面の名前は「標準圧縮 / Standard Compression」なので不具合とは言い切れない。テストは今の中身を「標準圧縮」として確かめ、テスト名で「SVGO default」とは呼んでいない
    - 解決済み（fixes2 の H）：ユーザーの判断で中身は変えず、コードのコメントを実際の中身に合わせて直した
 
@@ -84,14 +89,15 @@
 
 ### TW Palette Generator（`tests/spec/tw-palette-generator.test.js`）
 
-| オプション                                                                     | テスト                                                                                                                                                                                             |
-| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 入力の形式（`#` の有無、大文字小文字、3桁）                                    | `the input works with or without #, in either case`、`a three-digit input is the six-digit color with each digit doubled`、`input that is not a color gives no palette`（TS-4 の4を除く）          |
-| 生成されるパレット                                                             | `a palette has the eleven shades, each a hex color`、`a Tailwind color gives back its own hue`                                                                                                     |
-| 色相・明度・彩度のスライダー                                                   | `with every slider at the input's values, colors are unchanged`、`the hue slider ...`、`the lightness slider ...`、`the saturation slider ...`、`the sliders apply the same change to every shade` |
-| スライダーの起点、リセット                                                     | `the input color sets where the sliders start`、`reset puts the sliders back to the input's values and restores its palette`                                                                       |
-| 履歴の1件の形                                                                  | `a history entry keeps the BASE color, the palette and the time`                                                                                                                                   |
-| スライダーの差の計算、リセットの結果の画面への反映、履歴の保存・削除・読み込み | E2E（I2 の表）                                                                                                                                                                                     |
+| オプション                                                                                               | テスト                                                                                                                                                                                                                                                                                          |
+| -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 入力の形式（`#` の有無、大文字小文字、3桁）                                                              | `the input works with or without #, in either case`、`a three-digit input is the six-digit color with each digit doubled`、`input that is not a color gives no palette`（`12345g`・`0x1234` など。fixes2 の F）                                                                                 |
+| 生成されるパレット                                                                                       | `a palette has the eleven shades, each a hex color`、`a Tailwind color gives back its own hue`                                                                                                                                                                                                  |
+| 色相・明度・彩度のスライダー                                                                             | `with every slider at the input's values, colors are unchanged`、`the hue slider ...`、`the lightness slider ...`、`the saturation slider ...`、`the sliders apply the same change to every shade`                                                                                              |
+| スライダーの差の計算、入力が色でないときの BASE、明度 0（fixes2 の E・G）                                | `the sliders adjust BASE and the palette by the difference from the input's values`、`with an input that is not a color, BASE is the input with #`、`at lightness 0 the color is black`、`above lightness 0 the lightness slider works as before`、`the lightness slider at 0 makes BASE black` |
+| スライダーの起点、リセット                                                                               | `the input color sets where the sliders start`、`reset puts the sliders back to the input's values and restores its palette`                                                                                                                                                                    |
+| 履歴の1件の形                                                                                            | `a history entry keeps the BASE color, the palette and the time`                                                                                                                                                                                                                                |
+| スライダーの値の画面への反映、リセットの結果の画面への反映、履歴の保存・削除・読み込み、開いた直後の保存 | E2E（I2 の表）                                                                                                                                                                                                                                                                                  |
 
 ## TS-5 E2E の組み立て（ブロック2）
 
@@ -126,6 +132,7 @@
 ## TS-7 E2E を書く中で気づいたこと（直していない）
 
 - TW Palette Generator：開いた直後（入力の色からパレットを作る 100ms の遅延の間）に「ヒストリーに保存」を押すと、初期表示の Tailwind の sky のパレット（`#0ea5e9` から作ったものとは少し違う）が `baseColor: "#0ea5e9"` として保存される。色見本のコピーも、その間は sky の値になる。liblab からの挙動で、人の操作ではほぼ起きない。テストは生成を待ってから操作する
+  - 解決済み（fixes2 の I）：初期の状態を `#0ea5e9` から作ったパレットとスライダーの値にした。E2E の `saving right after opening saves the input color's palette`（Playwright の時計を止めて、遅延が終わらないまま保存する）で確かめる
 
 ## I2 Phase 4 の手動確認（E7）と E2E の対応
 
@@ -166,18 +173,19 @@
 
 ### Block 4：TW パレットジェネレーター（`tw-palette-generator.spec.js`）
 
-| E7 の項目                                                                       | テスト                                                                                                            |
-| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| 開いた直後は #0ea5e9 のパレット                                                 | `opens with the sky palette of #0ea5e9`                                                                           |
-| 色見本の red-500 で入力欄とカラーピッカーが `#ef4444` になり、パレットが変わる  | `a Tailwind swatch sets the input`                                                                                |
-| `3ba0be` でパレットとスライダー（221・66・13）が変わる                          | `typing a color, with or without #, makes its palette`                                                            |
-| 色相を変えると BASE と各シェードが変わる（TS-2：起点との差）                    | `the sliders adjust BASE and the palette by the difference from the input`                                        |
-| 「調整をリセット」で戻る（TS-2：画面への反映）                                  | `reset puts the sliders, BASE and the palette back to the input's`                                                |
-| 色見本と Tailwind 設定のコピーとトースト                                        | `swatches and the Tailwind config are copied with a toast`                                                        |
-| 「ヒストリーに保存」2回で `localStorage` に2件、履歴に2行                       | `saving adds the palette to the history in localStorage`                                                          |
-| liblab の形の履歴が表示される、1件の削除、全削除で `[]` と案内文                | `history saved by the former tool is shown, and can be deleted`                                                   |
-| （TS-2）履歴の上限 30 件                                                        | `the history keeps the newest 30 palettes`                                                                        |
-| 375px（ダーク）で横スクロールが出ない、シェードの見出しが縦向き、保存のトースト | `site.spec.js` の `no page is wider than 375px`、`on a phone the shade headings turn sideways`、`saving adds ...` |
+| E7 の項目                                                                                    | テスト                                                                                                                                                                                                                                              |
+| -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 開いた直後は #0ea5e9 のパレット                                                              | `opens with the sky palette of #0ea5e9`                                                                                                                                                                                                             |
+| 色見本の red-500 で入力欄とカラーピッカーが `#ef4444` になり、パレットが変わる               | `a Tailwind swatch sets the input`                                                                                                                                                                                                                  |
+| `3ba0be` でパレットとスライダー（221・66・13）が変わる                                       | `typing a color, with or without #, makes its palette`                                                                                                                                                                                              |
+| 色相を変えると BASE と各シェードが変わる（TS-2：起点との差）                                 | `the sliders adjust BASE and the palette by the difference from the input`                                                                                                                                                                          |
+| 「調整をリセット」で戻る（TS-2：画面への反映）                                               | `reset puts the sliders, BASE and the palette back to the input's`                                                                                                                                                                                  |
+| 色見本と Tailwind 設定のコピーとトースト                                                     | `swatches and the Tailwind config are copied with a toast`                                                                                                                                                                                          |
+| 「ヒストリーに保存」2回で `localStorage` に2件、履歴に2行                                    | `saving adds the palette to the history in localStorage`                                                                                                                                                                                            |
+| liblab の形の履歴が表示される、1件の削除、全削除で `[]` と案内文                             | `history saved by the former tool is shown, and can be deleted`                                                                                                                                                                                     |
+| （TS-2）履歴の上限 30 件                                                                     | `the history keeps the newest 30 palettes`                                                                                                                                                                                                          |
+| （fixes2 の F・E・G・I）不正な入力、入力が色でないときのスライダー、明度 0、開いた直後の保存 | `input that is not a color leaves the palette as it was`、`with an input that is not a color, the sliders set BASE to the input with #`、`the lightness slider at 0 makes BASE black`、`saving right after opening saves the input color's palette` |
+| 375px（ダーク）で横スクロールが出ない、シェードの見出しが縦向き、保存のトースト              | `site.spec.js` の `no page is wider than 375px`、`on a phone the shade headings turn sideways`、`saving adds ...`                                                                                                                                   |
 
 ### サイト全体（`site.spec.js`。計画のブロック2の項目）
 

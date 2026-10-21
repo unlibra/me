@@ -203,8 +203,6 @@ for (const locale of LOCALES) {
       page,
     }) => {
       await expect(page.getByText(m.historyEmptyMessage)).toBeVisible();
-      // The palette shown before the first one is generated is Tailwind's
-      // sky; wait for the generated one.
       await expect
         .poll(async () => (await shown(page)).palette)
         .toEqual(upper(former["#0ea5e9"].palette));
@@ -277,6 +275,92 @@ for (const locale of LOCALES) {
       await expect(historyRows(page)).toHaveCount(0);
       await expect(page.getByText(m.historyEmptyMessage)).toBeVisible();
       expect(await history(page)).toEqual([]);
+    });
+
+    // fixes2.md (F): "12345g" and "0x1234" are not colors.
+    test("input that is not a color leaves the palette as it was", async ({
+      page,
+    }) => {
+      await input(page).fill("3ba0be");
+      const before = {
+        base: "#3BA0BE",
+        palette: upper(former["#3ba0be"].palette),
+      };
+      await expect.poll(() => shown(page)).toEqual(before);
+      for (const typed of ["12345g", "0x1234", "#12345g"]) {
+        await input(page).fill(typed);
+        // Longer than the wait before a palette is made (100ms).
+        await page.waitForTimeout(500);
+        expect(await shown(page)).toEqual(before);
+        expect(await sliders(page)).toEqual(["221", "66", "13"]);
+      }
+    });
+
+    // fixes2.md (E): the sliders still adjust the last palette, and BASE is
+    // the input with the # prefix.
+    test("with an input that is not a color, the sliders set BASE to the input with #", async ({
+      page,
+    }) => {
+      await input(page).fill("3ba0be");
+      await expect.poll(() => sliders(page)).toEqual(["221", "66", "13"]);
+      await input(page).fill("3ba0bz");
+      await setRange(slider(page, m.hue), 120);
+      await expect
+        .poll(() => shown(page))
+        .toEqual({
+          base: "#3BA0BZ",
+          palette: upper(adjustPalette(former["#3ba0be"].palette, -101, 0, 0)),
+        });
+    });
+
+    // fixes2.md (G)
+    test("the lightness slider at 0 makes BASE black", async ({ page }) => {
+      // #3ba0be's lightness is 65.998 (66 on the slider), #3b82f6's 62.31
+      // (62): moving to 0 leaves 0.31 unless the slider's 0 counts as 0.
+      for (const [typed, sliderValues] of [
+        ["3ba0be", ["221", "66", "13"]],
+        ["#3b82f6", ["260", "62", "24"]],
+      ]) {
+        await input(page).fill(typed);
+        await expect.poll(() => sliders(page)).toEqual(sliderValues);
+        await setRange(slider(page, m.lightness), 0);
+        const hex = typed.startsWith("#") ? typed : `#${typed}`;
+        await expect
+          .poll(() => shown(page))
+          .toEqual({
+            base: "#000000",
+            palette: upper(
+              adjustPalette(
+                former[hex].palette,
+                0,
+                -Number(sliderValues[1]),
+                0,
+              ),
+            ),
+          });
+      }
+    });
+
+    // fixes2.md (I): before the 100ms wait ends, the palette shown and saved
+    // is already the input color's.
+    test("saving right after opening saves the input color's palette", async ({
+      page,
+    }) => {
+      // The clock stands still, so the wait before a palette is made does
+      // not end.
+      await page.clock.install({ time: 1760000000000 });
+      await page.clock.pauseAt(1760000000000);
+      await open(page, url);
+      expect(await shown(page)).toEqual({
+        base: "#0EA5E9",
+        palette: upper(former["#0ea5e9"].palette),
+      });
+      expect(await sliders(page)).toEqual(["237", "68", "19"]);
+      await page.getByRole("button", { name: m.saveToHistory }).click();
+      await expect(historyRows(page)).toHaveCount(1);
+      const [item] = await history(page);
+      expect(item.baseColor).toBe("#0ea5e9");
+      expect(item.palette).toEqual(former["#0ea5e9"].palette);
     });
 
     test("on a phone the shade headings turn sideways", async ({ page }) => {

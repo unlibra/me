@@ -3,6 +3,9 @@
 // tests/fixtures/tw-palette-generator/expected.json holds the output of the
 // former tool site's palette generator source for the cases in
 // tests/helpers/palette-cases.js; the ported code must give the same output.
+// The exception: the 41 adjusted colors whose lightness reaches 0 were remade
+// with this code, as black (docs/decisions/fixes2/fixes2.md). The former tool
+// left a trace of the hue in them.
 // tailwind-v3-colors.json is the palette of tailwindcss 3.4.18 (the version
 // in the former tool's lock file), read from `tailwindcss/colors`.
 import { test } from "node:test";

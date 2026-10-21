@@ -3,7 +3,12 @@
  * they can be unit tested.
  */
 import { hexToOklch } from "./color.ts";
-import { generatePalette, type ColorPalette } from "./palette.ts";
+import {
+  adjustColor,
+  adjustPalette,
+  generatePalette,
+  type ColorPalette,
+} from "./palette.ts";
 
 /** A palette saved in the history (`localStorage`). */
 export type PaletteHistoryItem = {
@@ -80,6 +85,51 @@ export function getResetState(
     targetSaturation: base.saturation,
     palette: base.palette,
     baseColor: normalizeInputColor(inputColor),
+  };
+}
+
+/** Where the three sliders are. */
+export type SliderValues = Pick<BaseState, "hue" | "lightness" | "saturation">;
+
+/** BASE and the palette for the sliders' values. */
+export type AdjustedState = {
+  baseColor: string;
+  palette: ColorPalette;
+};
+
+/**
+ * BASE and the palette after moving a slider: the input color and its
+ * palette, shifted by the difference between the sliders and the input
+ * color's values. `null` while no palette has been generated.
+ */
+export function getAdjustedState(
+  inputColor: string,
+  base: SliderBase,
+  target: SliderValues,
+): AdjustedState | null {
+  if (!base.palette) return null;
+  const hueShift = target.hue - base.hue;
+  const lightnessShift = target.lightness - base.lightness;
+  const saturationShift = target.saturation - base.saturation;
+  // The slider at 0 is lightness 0 for BASE (then black), also when the
+  // input's lightness was rounded down for the slider and the difference
+  // would leave a fraction of it. Lightness is 0 to 100.
+  const baseLightnessShift = target.lightness === 0 ? -100 : lightnessShift;
+  const adjustedColor = adjustColor(
+    inputColor,
+    hueShift,
+    baseLightnessShift,
+    saturationShift,
+  );
+  return {
+    // Not a color (the input field changed since the palette was made)
+    baseColor: adjustedColor ?? normalizeInputColor(inputColor),
+    palette: adjustPalette(
+      base.palette,
+      hueShift,
+      lightnessShift,
+      saturationShift,
+    ),
   };
 }
 

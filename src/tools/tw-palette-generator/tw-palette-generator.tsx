@@ -14,18 +14,16 @@ import { ToolRoot } from "@/tools/tool-root";
 
 import {
   createHistoryItem,
+  getAdjustedState,
   getBaseState,
   getResetState,
   normalizeInputColor,
+  type BaseState,
   type SliderBase,
+  type SliderValues,
   type PaletteHistoryItem,
 } from "./adjustments";
-import {
-  adjustColor,
-  adjustPalette,
-  getShadeLabels,
-  type ColorPalette,
-} from "./palette";
+import { getShadeLabels, type ColorPalette } from "./palette";
 import { HueSlider, LightnessSlider, SaturationSlider } from "./sliders";
 import {
   getColorNames,
@@ -41,6 +39,16 @@ import {
  * move, so that history saved on the same origin carries over.
  */
 export const PALETTE_HISTORY_KEY = "tw-palette-history";
+
+/** The input color when the page opens: Tailwind's sky-500. */
+const DEFAULT_INPUT_COLOR = "#0ea5e9";
+
+/** The default input color's palette and slider values. */
+const INITIAL_BASE: BaseState = (() => {
+  const state = getBaseState(DEFAULT_INPUT_COLOR);
+  if (!state) throw new Error("The default input color is not a color");
+  return state;
+})();
 
 /** Island entry: the tool body of the Tailwind palette generator page. */
 export default function TwPaletteGeneratorIsland({
@@ -59,33 +67,21 @@ function TailwindPaletteGenerator() {
   const { twPaletteGenerator: t } = useMessages();
   const toast = useToast();
 
-  // State
-  const [inputColor, setInputColor] = useState("#0ea5e9"); // Default: Tailwind blue-500
-  const [baseColor, setBaseColor] = useState(inputColor);
-  const [palette, setPalette] = useState<ColorPalette>({
-    // Default: Tailwind sky
-    50: "#f0f9ff",
-    100: "#e0f2fe",
-    200: "#bae6fd",
-    300: "#7dd3fc",
-    400: "#38bdf8",
-    500: "#0ea5e9",
-    600: "#0284c7",
-    700: "#0369a1",
-    800: "#075985",
-    900: "#0c4a6e",
-    950: "#082f49",
-  });
+  // State: from the start, the default color's palette and slider values, as
+  // the palette made after the input wait sets them, so that what is shown
+  // (and saved) before that wait ends is the input color's
+  const [inputColor, setInputColor] = useState(DEFAULT_INPUT_COLOR);
+  const [baseColor, setBaseColor] = useState(INITIAL_BASE.baseColor);
+  const [palette, setPalette] = useState<ColorPalette>(INITIAL_BASE.palette);
   // The input color's values (H, L, C) and palette: where the sliders reset to
-  const [base, setBase] = useState<SliderBase>({
-    hue: 237,
-    lightness: 68,
-    saturation: 19,
-    palette: null,
-  });
-  const [targetHue, setTargetHue] = useState(237); // Current slider value
-  const [targetLightness, setTargetLightness] = useState(68); // Current slider value
-  const [targetSaturation, setTargetSaturation] = useState(19); // Current slider value
+  const [base, setBase] = useState<SliderBase>(INITIAL_BASE);
+  const [targetHue, setTargetHue] = useState(INITIAL_BASE.hue); // Current slider value
+  const [targetLightness, setTargetLightness] = useState(
+    INITIAL_BASE.lightness,
+  ); // Current slider value
+  const [targetSaturation, setTargetSaturation] = useState(
+    INITIAL_BASE.saturation,
+  ); // Current slider value
   const [paletteHistory, setPaletteHistory] = useState<PaletteHistoryItem[]>(
     [],
   );
@@ -147,85 +143,55 @@ function TailwindPaletteGenerator() {
     [],
   );
 
+  // Apply the sliders' values to BASE and the palette
+  const applySliders = useCallback(
+    (target: SliderValues) => {
+      const adjusted = getAdjustedState(inputColor, base, target);
+      if (adjusted) {
+        setBaseColor(adjusted.baseColor);
+        setPalette(adjusted.palette);
+      }
+    },
+    [inputColor, base],
+  );
+
   // Adjust hue
   const handleHueChange = useCallback(
     (sliderValue: number) => {
       setTargetHue(sliderValue);
-      if (base.palette) {
-        const hueShift = sliderValue - base.hue;
-        const lightnessShift = targetLightness - base.lightness;
-        const saturationShift = targetSaturation - base.saturation;
-        const adjustedColor = adjustColor(
-          inputColor,
-          hueShift,
-          lightnessShift,
-          saturationShift,
-        );
-        setBaseColor(adjustedColor || inputColor);
-        const adjustedPalette = adjustPalette(
-          base.palette,
-          hueShift,
-          lightnessShift,
-          saturationShift,
-        );
-        setPalette(adjustedPalette);
-      }
+      applySliders({
+        hue: sliderValue,
+        lightness: targetLightness,
+        saturation: targetSaturation,
+      });
     },
-    [inputColor, base, targetLightness, targetSaturation],
+    [applySliders, targetLightness, targetSaturation],
   );
 
   // Adjust lightness
   const handleLightnessChange = useCallback(
     (sliderValue: number) => {
       setTargetLightness(sliderValue);
-      if (base.palette) {
-        const hueShift = targetHue - base.hue;
-        const lightnessShift = sliderValue - base.lightness;
-        const saturationShift = targetSaturation - base.saturation;
-        const adjustedColor = adjustColor(
-          inputColor,
-          hueShift,
-          lightnessShift,
-          saturationShift,
-        );
-        setBaseColor(adjustedColor || inputColor);
-        const adjustedPalette = adjustPalette(
-          base.palette,
-          hueShift,
-          lightnessShift,
-          saturationShift,
-        );
-        setPalette(adjustedPalette);
-      }
+      applySliders({
+        hue: targetHue,
+        lightness: sliderValue,
+        saturation: targetSaturation,
+      });
     },
-    [inputColor, base, targetHue, targetSaturation],
+    [applySliders, targetHue, targetSaturation],
   );
 
   // Adjust saturation
   const handleSaturationChange = useCallback(
     (sliderValue: number) => {
       setTargetSaturation(sliderValue);
-      if (base.palette) {
-        const hueShift = targetHue - base.hue;
-        const lightnessShift = targetLightness - base.lightness;
-        const saturationShift = sliderValue - base.saturation;
-        const adjustedColor = adjustColor(
-          inputColor,
-          hueShift,
-          lightnessShift,
-          saturationShift,
-        );
-        setBaseColor(adjustedColor || inputColor);
-        const adjustedPalette = adjustPalette(
-          base.palette,
-          hueShift,
-          lightnessShift,
-          saturationShift,
-        );
-        setPalette(adjustedPalette);
-      }
+      applySliders({
+        hue: targetHue,
+        lightness: targetLightness,
+        saturation: sliderValue,
+      });
     },
-    [inputColor, base, targetLightness, targetHue],
+    [applySliders, targetHue, targetLightness],
   );
 
   // Reset adjustments to base values

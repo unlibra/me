@@ -78,6 +78,11 @@ export function hexToRgb(hex: string): RGB | null {
   // Remove # if present
   hex = hex.replace(/^#/, "");
 
+  // Only three or six hex digits: parseInt would read "12345g" as "12345"
+  if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) {
+    return null;
+  }
+
   // Expand shorthand (#RGB to #RRGGBB)
   if (hex.length === 3) {
     hex = hex

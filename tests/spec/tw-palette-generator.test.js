@@ -11,6 +11,7 @@ import { readFileSync } from "node:fs";
 
 import {
   createHistoryItem,
+  getAdjustedState,
   getBaseState,
   getResetState,
   normalizeInputColor,
@@ -58,9 +59,18 @@ test("I1 palette: a three-digit input is the six-digit color with each digit dou
 });
 
 test("I1 palette: input that is not a color gives no palette", () => {
-  // Not listed: hex digits followed by other characters ("12345g"), which
-  // are read as a color today (reported to the parent).
   for (const input of [
+    // Hex digits mixed with other characters (fixes2.md).
+    "12345g",
+    "#12345g",
+    "0x1234",
+    "#0x1234",
+    "12g",
+    "#1 2",
+    "12345 ",
+    " 12345",
+    "+12345",
+    "-12345",
     "",
     "#",
     "#1",
@@ -140,6 +150,45 @@ test("I1 palette: the lightness slider moves the lightness by the difference", (
   assert.equal(adjustColor(BASE, 0, 100, 0), "#FFFFFF");
   const darkest = adjustColor(BASE, 0, -100, 0);
   assert.ok(hexToOklch(darkest).l < hexToOklch(adjustColor(BASE, 0, -60, 0)).l);
+});
+
+// fixes2.md: at lightness 0 the chroma goes too, so the color is black.
+test("I1 palette: at lightness 0 the color is black", () => {
+  for (const hex of ["#3ba0be", "#ef4444", "#f88c49", "#0ea5e9", "#ffffff"]) {
+    for (const [hue, saturation] of [
+      [0, 0],
+      [40, 10],
+      [-90, -5],
+    ]) {
+      assert.equal(
+        adjustColor(hex, hue, -100, saturation),
+        "#000000",
+        `${hex} ${hue} ${saturation}`,
+      );
+    }
+  }
+  // #ef4444's lightness is 63.68: 64 down reaches 0.
+  assert.equal(adjustColor("#ef4444", 0, -64, 0), "#000000");
+});
+
+// Above 0 nothing changes: the values the tool gave before the fix above.
+test("I1 palette: above lightness 0 the lightness slider works as before", () => {
+  for (const [hex, hue, lightness, saturation, expected] of [
+    ["#3ba0be", 0, -30, 0, "#004556"],
+    ["#3ba0be", 0, -64, 0, "#010008"], // lightness 2
+    ["#3ba0be", 20, -50, 5, "#000F1F"],
+    ["#ef4444", 0, -30, 0, "#6D010C"],
+    ["#ef4444", 20, -50, 5, "#1C0000"],
+    ["#f88c49", 0, -30, 0, "#853C02"],
+    ["#f88c49", 0, -64, 0, "#150000"],
+    ["#f88c49", 20, -50, 5, "#311B00"],
+  ]) {
+    assert.equal(
+      adjustColor(hex, hue, lightness, saturation),
+      expected,
+      `${hex} ${hue} ${lightness} ${saturation}`,
+    );
+  }
 });
 
 test("I1 palette: the saturation slider raises and lowers the chroma", () => {
@@ -237,6 +286,75 @@ test("I1 palette: reset puts the sliders back to the input's values and restores
       baseColor: "#3ba0be",
     },
   );
+});
+
+test("I1 palette: the sliders adjust BASE and the palette by the difference from the input's values", () => {
+  const base = getBaseState("#3ba0be");
+  for (const input of ["3ba0be", "#3ba0be"]) {
+    assert.deepEqual(
+      getAdjustedState(input, base, {
+        hue: 221,
+        lightness: 66,
+        saturation: 13,
+      }),
+      { baseColor: "#3BA0BE", palette: adjustPalette(base.palette, 0, 0, 0) },
+    );
+    assert.deepEqual(
+      getAdjustedState(input, base, {
+        hue: 120,
+        lightness: 50,
+        saturation: 20,
+      }),
+      {
+        baseColor: adjustColor("#3ba0be", -101, -16, 7),
+        palette: adjustPalette(base.palette, -101, -16, 7),
+      },
+    );
+  }
+  // Nothing to adjust before the first palette is generated.
+  assert.equal(
+    getAdjustedState(
+      "#3ba0be",
+      { hue: 221, lightness: 66, saturation: 13, palette: null },
+      { hue: 120, lightness: 50, saturation: 20 },
+    ),
+    null,
+  );
+});
+
+// fixes2.md: when the input field no longer holds a color, the sliders still
+// adjust the last palette, and BASE is the input with the # prefix.
+test("I1 palette: with an input that is not a color, BASE is the input with #", () => {
+  const base = getBaseState("#3ba0be");
+  const target = { hue: 120, lightness: 50, saturation: 20 };
+  for (const [input, baseColor] of [
+    ["3ba0bz", "#3ba0bz"],
+    ["#3ba0bz", "#3ba0bz"],
+    ["", "#"],
+  ]) {
+    assert.deepEqual(getAdjustedState(input, base, target), {
+      baseColor,
+      palette: adjustPalette(base.palette, -101, -16, 7),
+    });
+  }
+});
+
+// fixes2.md: the lightness slider at 0 makes BASE black, whichever way the
+// input's lightness was rounded for the slider.
+test("I1 palette: the lightness slider at 0 makes BASE black", () => {
+  for (const shades of Object.values(tailwindColors)) {
+    for (const hex of Object.values(shades)) {
+      const base = getBaseState(hex);
+      const target = { hue: base.hue + 30, lightness: 0, saturation: 5 };
+      const adjusted = getAdjustedState(hex, base, target);
+      assert.equal(adjusted.baseColor, "#000000", hex);
+      assert.deepEqual(
+        adjusted.palette,
+        adjustPalette(base.palette, 30, -base.lightness, 5 - base.saturation),
+        hex,
+      );
+    }
+  }
 });
 
 test("I1 palette: a history entry keeps the BASE color, the palette and the time", () => {

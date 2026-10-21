@@ -476,6 +476,11 @@ export function adjustColor(
     }
   }
 
+  // At lightness 0 no chroma is left: black, not a trace of the hue
+  if (oklch.l === 0) {
+    oklch.c = 0;
+  }
+
   return oklchToHex(oklch);
 }
 
