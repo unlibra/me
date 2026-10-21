@@ -53,18 +53,17 @@ export type SvgoOptions = {
  */
 export function buildSvgoConfig(options: SvgoOptions): Config {
   // Build plugins array with overrides for preset-default plugins
-  // Loosely typed: the entries with `active: false` are not in SVGO's types.
   const plugins: Array<Record<string, unknown>> = [
     // Start with preset-default but customize specific plugins
     {
       name: "preset-default",
       params: {
         overrides: {
-          // Numeric precision overrides
-          cleanupNumericValues: {
+          // Numeric precision overrides (false = disable)
+          cleanupNumericValues: options.cleanupNumericValues && {
             floatPrecision: options.floatPrecision,
           },
-          convertTransform: {
+          convertTransform: options.convertTransform && {
             floatPrecision: options.transformPrecision,
           },
           // Boolean plugin overrides (false = disable, true = use default params)
@@ -93,32 +92,32 @@ export function buildSvgoConfig(options: SvgoOptions): Config {
           mergePaths: options.mergePaths,
           convertShapeToPath: options.convertShapeToPath,
           sortAttrs: options.sortAttrs,
+          // Also in preset-default, where it removes only empty and editor
+          // descriptions; switched off, it must not run there either.
+          removeDesc: options.removeDesc,
         },
       },
     },
   ];
 
-  // Standalone plugins (not part of preset-default)
-  const standalonePlugins: Array<{ name: string; active: boolean }> = [
-    { name: "removeViewBox", active: options.removeViewBox },
-    { name: "convertStyleToAttrs", active: options.convertStyleToAttrs },
-    { name: "cleanupListOfValues", active: options.cleanupListOfValues },
-    { name: "removeTitle", active: options.removeTitle },
-    { name: "removeDesc", active: options.removeDesc },
-    { name: "removeDimensions", active: options.removeDimensions },
-    { name: "removeRasterImages", active: options.removeRasterImages },
+  // Standalone plugins (not part of preset-default). A plugin that is switched
+  // off is left out: SVGO 4 ignores `active: false` and would still run it.
+  const standalonePlugins: Array<[name: string, enabled: boolean]> = [
+    ["removeViewBox", options.removeViewBox],
+    ["convertStyleToAttrs", options.convertStyleToAttrs],
+    ["cleanupListOfValues", options.cleanupListOfValues],
+    ["removeTitle", options.removeTitle],
+    ["removeDesc", options.removeDesc],
+    ["removeDimensions", options.removeDimensions],
+    ["removeRasterImages", options.removeRasterImages],
     // Security plugins (inverted logic: keepScripts=false means remove)
-    { name: "removeScripts", active: !options.keepScripts },
-    { name: "removeStyleElement", active: !options.keepStyleElement },
+    ["removeScripts", !options.keepScripts],
+    ["removeStyleElement", !options.keepStyleElement],
   ];
 
-  standalonePlugins.forEach((plugin) => {
-    plugins.push(
-      plugin.active
-        ? { name: plugin.name }
-        : { name: plugin.name, active: false },
-    );
-  });
+  for (const [name, enabled] of standalonePlugins) {
+    if (enabled) plugins.push({ name });
+  }
 
   return {
     plugins: plugins as unknown as Config["plugins"],
