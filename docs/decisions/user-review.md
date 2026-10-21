@@ -60,3 +60,18 @@
 | 4     | `phase-4/parent.md`（P4-1〜P4-4） | `phase-4/tools.md`（T-1〜T-24、手動確認の記録）                       |
 | 5     | `phase-5/parent.md`（P5-1、P5-2） | `phase-5/license.md`（LI-1〜LI-11）                                   |
 | 6     | —                                 | `phase-6/cutover.md`（C-1〜C-3、手動確認の記録 G3）                   |
+
+## 5. ユーザーの回答（2026-10-21）
+
+- 質問1：CC0 素材は転載NGの対象外でよい。CC0 素材を使っているページ全体に CC0 が及ぶわけではない（素材そのものだけ）
+- 質問2・3：不具合を直す（`fixes/plan.md`）。同じ種類の不具合（スイッチが効かない）が計画外に3つ見つかり、あわせて直した（`fixes/fixes.md` の FX-1）
+- 質問4：旧版 MIT の一文は書き加えない（法的な効果は変わらないため）
+- 質問5：対応する。`/third-party-licenses.txt` を生成して配信する（`fixes/fixes.md` の FX-4〜FX-6）
+- 質問6：一時的に壊れても止まってもよい。手順は「main にマージ → Workers Builds を main に接続 → Custom Domain で付け替え」の単純な形にする。デプロイは Workers Builds（セキュリティ上の推奨）、テストは GitHub Actions、main にブランチ保護をかける
+- テスト：仕様のテストと Playwright の E2E を足し、ツールの挙動をすべて自動テストで確かめる（`tests/plan.md`）
+- ライセンス変更のコミットが遅かった件：ブランチの先頭に All rights reserved の `LICENSE` を差し込むよう履歴を書き換え、force-push する（ユーザー許可済み）
+
+## 6. 新しく出た確認事項
+
+1. **SVG Optimizer の「説明（desc）を削除」スイッチ**：入れても、エディタが書き出した説明や空の説明しか消えず、ふつうの `<desc>` は残る（svgo の `removeAny: false` の既定のまま。liblab と同じ）。すべての `<desc>` を消すように変えるか（`fixes/fixes.md` の FX-1）
+2. **TW Palette Generator のスライダーで色の計算に失敗したとき**：BASE に入力欄の文字がそのまま入る（`#` が付かない場合がある）。直すか（`fixes/fixes.md` の FX-3）
