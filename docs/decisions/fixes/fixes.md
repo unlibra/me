@@ -59,12 +59,12 @@
 
 - 見つけたこと：計画の方式（モジュール ID）では、次のコードが見えない
   - svgo の `dist/svgo.browser.js` と JSZip の `dist/jszip.min.js` は、それぞれのパッケージが自分で作った1ファイルのバンドルで、中に他のパッケージを含む。モジュール ID は svgo・jszip の1ファイルとしか出ない
-    - svgo 4.1.0：`css-select`、`css-what`、`boolbase`、`nth-check`、`domhandler`、`domelementtype`、`domutils`、`dom-serializer`、`entities`、`css-tree`、`mdn-data`（`css-tree` の構文データの元）、`source-map-js`、`csso`、`sax`。svgo の依存のうち、バンドルに入っていないのは `commander`・`picocolors`（Node 用）。各パッケージの特徴的な関数名や文字列（`SelectorType`、`nthCheck`、`isDocument`・`hasChildren`、`getOuterHTML`、`xmlReplacer`、`SourceMapGenerator`、`SAXParser`、CSS のプロパティの構文表など）がバンドルにあることで判断した。ソースからの対応づけはしていない（svgo のバンドルの設定は npm の配布物に入っていない）
+    - svgo 4.1.0：`css-select`、`css-what`、`boolbase`、`nth-check`、`domhandler`、`domelementtype`、`domutils`、`dom-serializer`、`entities`、`css-tree`（3.2.1 と、`csso` の下の 2.2.1 の2つの版）、`mdn-data`（`css-tree` の構文データの元。2.27.1 と 2.0.28）、`source-map-js`、`csso`、`sax`。svgo の依存のうち、バンドルに入っていないのは `commander`・`picocolors`（Node 用）。各パッケージの特徴的な関数名や文字列（`SelectorType`、`nthCheck`、`isDocument`・`hasChildren`、`getOuterHTML`、`xmlReplacer`、`SourceMapGenerator`、`SAXParser`、CSS のプロパティの構文表など）がバンドルにあることで判断した。ソースからの対応づけはしていない（svgo のバンドルの設定は npm の配布物に入っていない）
     - JSZip 3.10.2：`pako`、`lie`、`immediate`、`setimmediate`。`dist/jszip.js`（圧縮前の同じバンドル）のモジュール表で確かめた。`readable-stream` はブラウザ向けには使わない（`stream` を空にしている）ので入っていない
   - Astro の島の読み込み用のスクリプト（`astro-island`）は、HTML に直接書き込まれる（ツールのページ）
   - Tailwind CSS の基本のスタイル（preflight）と生成したクラスは、`@tailwindcss/vite` が CSS に書き出すので、モジュールとして出てこない
 - 決めたこと：
-  - svgo と JSZip は `PREBUNDLED` に、版と、中に含むパッケージを手で書いた。入っている版が書いた版と違うとビルドを止める（上げたら中身を確かめ直す）。含むパッケージのディレクトリは依存関係をたどって探す（`entities` は `dom-serializer` の下にある）
+  - svgo と JSZip は `PREBUNDLED` に、版と、中に含むパッケージを手で書いた。入っている版が書いた版と違うとビルドを止める（上げたら中身を確かめ直す）。含むパッケージも `名前@版` で書き、ディレクトリは依存関係をたどって探す（`entities` は `dom-serializer` の下、`css-tree@2.2.1` と `mdn-data@2.0.28` は `csso` の下にある）。同じ名前の別の版も別の項目として一覧に載る（FX-8）
   - Astro と Tailwind CSS は `OUTSIDE_MODULE_GRAPH` に理由と一緒に書き、常に一覧に入れる。テストで理由がまだ成り立つこと（HTML に `astro-island` の定義、CSS に preflight の一節）を確かめる
 - 限界：今後、別の自前バンドルのパッケージが増えても、自動では気づけない。テストの「一覧のパッケージが期待どおり」で、依存の変化に気づいたときに見直す運用になる
 - 親に確認してほしいこと：手で挙げる方式でよいか。とくに、バンドルの中身の判断が文字列の有無によること
@@ -74,7 +74,7 @@
 ## FX-6 ライセンスファイルのないパッケージ（boolbase）のライセンス文
 
 - 見つけたこと：svgo のバンドルに含まれる `boolbase` 1.0.0 は、パッケージにライセンスファイルがなく、`package.json` に `"license": "ISC"` と `"author": "Felix Boehm <me@feedic.com>"` があるだけ
-- 決めたこと：`LICENSE_FALLBACKS` に `boolbase@1.0.0` の文として、ISC License の定型文に `package.json` の作者名を入れたものを書いた。キーに版を含めたので、版が変わるとビルドが止まる。ライセンスファイルもこの表の項目もないパッケージがあれば、ビルドを止める（H6）
+- 決めたこと：`LICENSE_FALLBACKS` に `boolbase@1.0.0` の文として、ISC License の定型文に `package.json` の作者名を入れたものを書いた。一覧の boolbase の項目には、「パッケージにライセンスファイルがないので、`package.json` の `license` と `author` から ISC の定型文を作った」という注記（`Note:`）を出す（レビューの推奨による）。キーに版を含めたので、版が変わるとビルドが止まる。ライセンスファイルもこの表の項目もないパッケージがあれば、ビルドを止める（H6）
 - 根拠：ISC は著作権表示と許諾の文の同梱を求める。作者名は `package.json` から取ったもので、本人が書いた著作権表示ではない（年もない）
 - 他の選択肢：ライセンス文を載せず、名前とライセンス名だけを書く
 - 戻すときの作業：`LICENSE_FALLBACKS` の項目を消す（ビルドが止まるので、代わりの扱いを決める必要がある）
@@ -84,3 +84,15 @@
 - 決めたこと：第4節に「このリポジトリから作ったウェブサイトでは、これらのパッケージをライセンス文と著作権表示とともに `/third-party-licenses.txt` に挙げている。一覧はビルド時に `scripts/third-party-licenses.mjs` が作る」という段落を英語で足した
 - 根拠：計画の H7。LI-1 と同じく、`LICENSE` の文面はユーザーの確認を経る前提の仮のもの
 - 戻すときの作業：その段落を消し、テスト（`tests/third-party-licenses.test.js` の H7）を消す
+
+## FX-8 レビューの指摘で直したこと：同じ名前の別の版、バンドラーのランタイム、vite のライセンス文
+
+- 必須の指摘：svgo のバンドルには `css-tree` が2つの版（svgo の 3.2.1 と、`csso` の下の 2.2.1）で入っていて、2.2.1 とその `mdn-data` 2.0.28 が一覧から漏れていた。`findDependencyDirs` が1つの名前につき1つの版しか拾わなかったため
+  - 直したこと：`PREBUNDLED` の含むパッケージを `名前@版` で書き、`findDependencyDirs` は `名前@版` ごとに探すようにした。テストの期待する一覧に2つの版を足し、2つの版が両方載ることを確かめるテストを足した（直す前のビルドで落ちることを確かめた）
+- 推奨の指摘（親の判断：載せすぎても害がないので載せる）：クライアントの JS には、Vite の `vite/preload-helper.js` と Rolldown の `rolldown/runtime.js` が仮想モジュール（`�` で始まる ID）として入っている
+  - 直したこと：`VIRTUAL_MODULES` に、ID とそのパッケージを書いて一覧に載せる。表にない仮想モジュールや、`node_modules` にもプロジェクトの中にもないモジュールが出てきたらビルドを止める（`packageOfModule`）。テストの H5（ビルド用ツールがないこと）から vite と rolldown を外した。devDependencies、`@tailwindcss/vite`、`@vitejs/plugin-react` などは引き続き確かめる
+  - vite の `LICENSE.md` は、Vite のライセンスの後に、Vite の Node.js 用のコードに同梱した依存（`@vercel/detect-agent` など）のライセンスが続く。そのまま載せると、既存のテスト A4（配布物に Vercel の文字列がないこと）に当たった。配るのは Vite 自身のコード（preload-helper）だけなので、`LICENSE_CUTS` で「# Licenses of bundled dependencies」より前（Vite のライセンス）だけを載せ、その旨を注記に出す。区切りの見出しが見つからなければビルドを止める。A4 は変えていない
+  - rolldown は `LICENSE`（MIT）だけを載せる。`THIRD-PARTY-LICENSE` はファイル名の形に当たらないので読まない。`runtime.js` は Rolldown 自身のコードと考えた（確かめていない）
+- 任意の指摘：SPDX の式がすでに括弧で囲まれているとき（jszip、pako）、先頭の一覧で括弧が二重になっていた。式の全体が1組の括弧で囲まれているときはそのまま出すようにした
+- 他の選択肢：vite の `LICENSE.md` を全文載せ、A4 の検査から一覧ファイルを外す（既存のテストを弱めることになる）
+- 戻すときの作業：`VIRTUAL_MODULES`・`LICENSE_CUTS` を消し、`packageOfModule` を `packageOfPath` に戻し、テストの期待値を直す

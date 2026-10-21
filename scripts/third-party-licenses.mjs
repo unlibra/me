@@ -5,12 +5,12 @@
 // - JavaScript: the modules of each chunk of the client build
 // - Fonts and other files: the source paths of the emitted assets
 // Code that reaches the output without passing through the module graph is
-// listed by hand (PREBUNDLED and OUTSIDE_MODULE_GRAPH below).
+// listed by hand (PREBUNDLED, VIRTUAL_MODULES and OUTSIDE_MODULE_GRAPH below).
 //
 // The build fails when a shipped package has no license file and no
 // LICENSE_FALLBACKS entry, so that no package is left out silently.
 import { readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /** Path of the list in dist/ (and on the site). */
@@ -19,34 +19,61 @@ export const LICENSES_FILE = "third-party-licenses.txt";
 /**
  * Packages whose shipped file is their own prebuilt bundle, which contains
  * other packages that the module graph cannot see. Keyed by package name.
- * The version is pinned: after an upgrade, check the bundle again and
- * update `packages` (docs/decisions/fixes/fixes.md, FX-5).
+ * All versions are pinned (a package can be bundled at two versions): after
+ * an upgrade, check the bundle again and update this (FX-5, FX-8 in
+ * docs/decisions/fixes/fixes.md).
  */
 export const PREBUNDLED = {
   svgo: {
     version: "4.1.0",
     file: "dist/svgo.browser.js",
     packages: [
-      "boolbase",
-      "css-select",
-      "css-tree",
-      "css-what",
-      "csso",
-      "dom-serializer",
-      "domelementtype",
-      "domhandler",
-      "domutils",
-      "entities",
-      "mdn-data",
-      "nth-check",
-      "sax",
-      "source-map-js",
+      "boolbase@1.0.0",
+      "css-select@6.0.0",
+      "css-tree@3.2.1",
+      // csso's own copy (node_modules/csso/node_modules/), with its data
+      "css-tree@2.2.1",
+      "css-what@7.0.0",
+      "csso@5.0.5",
+      "dom-serializer@2.0.0",
+      "domelementtype@2.3.0",
+      "domhandler@5.0.3",
+      "domutils@3.2.2",
+      "entities@4.5.0",
+      "mdn-data@2.27.1",
+      "mdn-data@2.0.28",
+      "nth-check@2.1.1",
+      "sax@1.6.1",
+      "source-map-js@1.2.2",
     ],
   },
   jszip: {
     version: "3.10.2",
     file: "dist/jszip.min.js",
-    packages: ["immediate", "lie", "pako", "setimmediate"],
+    packages: [
+      "immediate@3.0.6",
+      "lie@3.3.0",
+      "pako@1.0.11",
+      "setimmediate@1.0.5",
+    ],
+  },
+};
+
+/**
+ * Virtual modules (ids starting with "\0") that the bundler puts into the
+ * client JavaScript, and the package each comes from (resolved from the
+ * project root, or from the package in `from`). Any other virtual module
+ * stops the build, so that it is looked at.
+ */
+export const VIRTUAL_MODULES = {
+  "\0vite/preload-helper.js": {
+    name: "vite",
+    note: "runtime helper vite/preload-helper.js, added by the bundler",
+  },
+  "\0rolldown/runtime.js": {
+    name: "rolldown",
+    from: "vite",
+    note: "runtime helper rolldown/runtime.js, added by the bundler",
   },
 };
 
@@ -61,12 +88,16 @@ export const OUTSIDE_MODULE_GRAPH = {
 
 /**
  * License texts for shipped packages that have no license file. Keyed by
- * name@version so that an upgrade is checked again.
+ * name@version so that an upgrade is checked again. The note is shown in the
+ * list.
  */
 export const LICENSE_FALLBACKS = {
-  // The package (and its repository) has no license file; package.json says
-  // "license": "ISC" and "author": "Felix Boehm <me@feedic.com>".
-  "boolbase@1.0.0": `ISC License
+  "boolbase@1.0.0": {
+    note:
+      "The package has no license file. The license text below is the ISC " +
+      'License template, filled in from "license" and "author" in its ' +
+      "package.json.",
+    text: `ISC License
 
 Copyright (c) Felix Boehm <me@feedic.com>
 
@@ -82,6 +113,23 @@ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 `,
+  },
+};
+
+/**
+ * Packages whose license file also covers code that is not shipped: only the
+ * text before `before` is used. Stops the build if `before` is not found.
+ */
+export const LICENSE_CUTS = {
+  // LICENSE.md also lists the dependencies bundled into Vite's Node.js code.
+  // Only Vite's own runtime helper (preload-helper) is shipped.
+  vite: {
+    before: "# Licenses of bundled dependencies",
+    note:
+      "Only the Vite core license is shown. The licenses of the dependencies " +
+      "bundled into Vite's Node.js code are left out, as that code is not " +
+      "part of this website.",
+  },
 };
 
 const LICENSE_FILE_PATTERN = /^(licen[cs]e|copying|notice)([.-].*)?$/i;
@@ -127,10 +175,44 @@ function findPackageDir(name, fromDir) {
 }
 
 /**
- * The directories of `names` among the dependencies (direct or indirect)
- * of the package in `rootDir`.
+ * The package a module of the client build belongs to: a package in
+ * node_modules, a known virtual module (VIRTUAL_MODULES), or null for the
+ * project's own files. Throws for anything else.
  */
-export function findDependencyDirs(rootDir, names) {
+export function packageOfModule(id, projectRoot) {
+  const found = packageOfPath(id);
+  if (found) return { ...found, note: "" };
+  if (id.startsWith("\0")) {
+    const virtual = VIRTUAL_MODULES[id];
+    if (!virtual) {
+      throw new Error(
+        `${LICENSES_FILE}: unknown virtual module ${JSON.stringify(id)} in the client build. ` +
+          "Add the package it comes from to VIRTUAL_MODULES in scripts/third-party-licenses.mjs.",
+      );
+    }
+    const fromDir = virtual.from
+      ? findPackageDir(virtual.from, projectRoot)
+      : projectRoot;
+    const dir = fromDir && findPackageDir(virtual.name, fromDir);
+    if (!dir) throw new Error(`${LICENSES_FILE}: ${virtual.name} not found`);
+    return { name: virtual.name, dir, file: null, note: virtual.note };
+  }
+  const path = resolve(id.replace(/[?#].*$/, ""));
+  const fromRoot = relative(projectRoot, path);
+  if (fromRoot !== "" && !fromRoot.startsWith("..") && !isAbsolute(fromRoot)) {
+    return null;
+  }
+  throw new Error(
+    `${LICENSES_FILE}: module ${JSON.stringify(id)} in the client build is neither in node_modules nor in the project`,
+  );
+}
+
+/**
+ * The directories of the packages in `specs` (name@version) among the
+ * dependencies (direct or indirect) of the package in `rootDir`. Keyed by
+ * the spec.
+ */
+export function findDependencyDirs(rootDir, specs) {
   const found = new Map();
   const visited = new Set();
   const queue = [rootDir];
@@ -139,15 +221,16 @@ export function findDependencyDirs(rootDir, names) {
     if (visited.has(dir)) continue;
     visited.add(dir);
     const pkg = readPackageJson(dir);
-    if (dir !== rootDir && names.includes(pkg.name) && !found.has(pkg.name)) {
-      found.set(pkg.name, dir);
+    const spec = `${pkg.name}@${pkg.version}`;
+    if (dir !== rootDir && specs.includes(spec) && !found.has(spec)) {
+      found.set(spec, dir);
     }
     for (const dep of Object.keys(pkg.dependencies ?? {})) {
       const depDir = findPackageDir(dep, dir);
       if (depDir) queue.push(depDir);
     }
   }
-  const missing = names.filter((name) => !found.has(name));
+  const missing = specs.filter((spec) => !found.has(spec));
   if (missing.length > 0) {
     throw new Error(
       `${LICENSES_FILE}: not found among the dependencies of ${rootDir}: ${missing.join(", ")}`,
@@ -157,25 +240,58 @@ export function findDependencyDirs(rootDir, names) {
 }
 
 /**
- * The license texts of the package in `dir`: its license and notice files,
- * or its LICENSE_FALLBACKS entry. Throws when there is neither.
+ * The license texts of the package in `dir` (its license and notice files,
+ * or its LICENSE_FALLBACKS entry with the entry's note). Throws when there
+ * is neither.
  */
-export function readLicenseTexts(dir, fallbacks = LICENSE_FALLBACKS) {
+export function readLicense(
+  dir,
+  fallbacks = LICENSE_FALLBACKS,
+  cuts = LICENSE_CUTS,
+) {
   const pkg = readPackageJson(dir);
   const files = readdirSync(dir)
     .filter((file) => LICENSE_FILE_PATTERN.test(file))
     .filter((file) => statSync(join(dir, file)).isFile())
     .sort();
   if (files.length > 0) {
-    return files.map((file) => readFileSync(join(dir, file), "utf8").trim());
+    const texts = files.map((file) =>
+      readFileSync(join(dir, file), "utf8").trim(),
+    );
+    const cut = cuts[pkg.name];
+    if (!cut) return { texts, note: "" };
+    const index = texts.findIndex((text) => text.includes(cut.before));
+    if (index === -1) {
+      throw new Error(
+        `${LICENSES_FILE}: ${pkg.name}@${pkg.version}: ${JSON.stringify(cut.before)} not found in its license files. Check LICENSE_CUTS.`,
+      );
+    }
+    texts[index] = texts[index].slice(0, texts[index].indexOf(cut.before));
+    return { texts: texts.map((text) => text.trim()), note: cut.note };
   }
   const fallback = fallbacks[`${pkg.name}@${pkg.version}`];
-  if (fallback) return [fallback.trim()];
+  if (fallback) return { texts: [fallback.text.trim()], note: fallback.note };
   throw new Error(
     `${LICENSES_FILE}: ${pkg.name}@${pkg.version} (${dir}) has no license file. ` +
       "Add its license text to LICENSE_FALLBACKS in scripts/third-party-licenses.mjs.",
   );
 }
+
+/** Whether one pair of parentheses encloses the whole expression. */
+const isEnclosed = (expression) => {
+  if (!expression.startsWith("(")) return false;
+  let depth = 0;
+  for (const [index, char] of [...expression].entries()) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth -= 1;
+    if (depth === 0) return index === expression.length - 1;
+  }
+  return false;
+};
+
+/** An SPDX expression in parentheses, unless it already has them. */
+const parenthesize = (expression) =>
+  isEnclosed(expression) ? expression : `(${expression})`;
 
 const RULE = "=".repeat(78);
 const THIN_RULE = "-".repeat(78);
@@ -185,7 +301,7 @@ export function renderLicenses(packages) {
   const entries = [...packages]
     .map(([dir, note]) => {
       const pkg = readPackageJson(dir);
-      return { pkg, note, texts: readLicenseTexts(dir) };
+      return { pkg, note, license: readLicense(dir) };
     })
     .sort(
       (a, b) =>
@@ -201,17 +317,19 @@ export function renderLicenses(packages) {
     "full text and copyright notices follow.",
     "",
     ...entries.map(
-      ({ pkg }) => `  - ${pkg.name} ${pkg.version} (${pkg.license})`,
+      ({ pkg }) =>
+        `  - ${pkg.name} ${pkg.version} ${parenthesize(pkg.license)}`,
     ),
   ];
-  const sections = entries.map(({ pkg, note, texts }) =>
+  const sections = entries.map(({ pkg, note, license }) =>
     [
       RULE,
       `${pkg.name} ${pkg.version}`,
       `License: ${pkg.license}`,
       ...(note ? [`Included as: ${note}`] : []),
+      ...(license.note ? [`Note: ${license.note}`] : []),
       THIN_RULE,
-      texts.join(`\n\n${THIN_RULE}\n\n`),
+      license.texts.join(`\n\n${THIN_RULE}\n\n`),
     ].join("\n"),
   );
   return `${[header.join("\n"), ...sections].join("\n\n")}\n`;
@@ -247,18 +365,19 @@ export default function thirdPartyLicenses() {
       const environment = this.environment?.name;
       for (const output of Object.values(bundle)) {
         // Assets of every environment are copied to dist/ (fonts come from
-        // the prerender build). Chunks only ship from the client build.
-        // Asset source paths are relative to the project root.
-        const ids =
+        // the prerender build); their source paths are relative to the
+        // project root. Chunks only ship from the client build.
+        const packages =
           output.type === "asset"
-            ? output.originalFileNames.map((name) => resolve(projectRoot, name))
+            ? output.originalFileNames.map((name) =>
+                packageOfPath(resolve(projectRoot, name)),
+              )
             : environment === "client"
-              ? output.moduleIds
+              ? output.moduleIds.map((id) => packageOfModule(id, projectRoot))
               : [];
-        for (const id of ids) {
-          const found = packageOfPath(id);
+        for (const found of packages) {
           if (!found) continue;
-          add(found.dir);
+          add(found.dir, found.note);
           const prebundled = PREBUNDLED[found.name];
           if (prebundled && found.file === prebundled.file) {
             const { version } = readPackageJson(found.dir);

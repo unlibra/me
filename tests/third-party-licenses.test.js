@@ -21,8 +21,10 @@ import {
   LICENSES_FILE,
   OUTSIDE_MODULE_GRAPH,
   PREBUNDLED,
+  findDependencyDirs,
+  packageOfModule,
   packageOfPath,
-  readLicenseTexts,
+  readLicense,
 } from "../scripts/third-party-licenses.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -42,11 +44,11 @@ const listedPackages = () =>
     version,
   }));
 
-/** The section of the list for one package. */
-const sectionOf = (name) => {
+/** The section of the list for one package (and version, if given). */
+const sectionOf = (name, version = "") => {
   const sections = list.split(/^={78}$/m).slice(1);
-  const found = sections.filter((s) => s.startsWith(`\n${name} `));
-  assert.equal(found.length, 1, `one section for ${name}`);
+  const found = sections.filter((s) => s.startsWith(`\n${name} ${version}`));
+  assert.equal(found.length, 1, `one section for ${name} ${version}`);
   return found[0];
 };
 
@@ -90,6 +92,7 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
       "boolbase",
       "css-select",
       "css-tree",
+      "css-tree",
       "css-what",
       "csso",
       "dom-serializer",
@@ -101,28 +104,59 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
       "jszip",
       "lie",
       "mdn-data",
+      "mdn-data",
       "nth-check",
       "pako",
       "react",
       "react-aria",
       "react-dom",
       "react-stately",
+      "rolldown",
       "sax",
       "scheduler",
       "setimmediate",
       "source-map-js",
       "svgo",
       "tailwindcss",
+      "vite",
     ],
   );
+});
+
+test("H4: packages that svgo bundles at two versions are listed at both", () => {
+  // css-tree 3 for svgo itself, css-tree 2 under csso (with their mdn-data).
+  const listed = listedPackages().map((p) => `${p.name} ${p.version}`);
+  for (const entry of [
+    "css-tree 2.2.1",
+    "css-tree 3.2.1",
+    "mdn-data 2.0.28",
+    "mdn-data 2.27.1",
+  ]) {
+    assert.ok(listed.includes(entry), entry);
+  }
+  assert.match(
+    sectionOf("css-tree", "2.2.1"),
+    /^Included as: part of svgo 4\.1\.0 /m,
+  );
+});
+
+test("H4: the bundler's runtime helpers are listed", () => {
+  assert.match(sectionOf("vite"), /^Included as: .*vite\/preload-helper/m);
+  assert.match(sectionOf("rolldown"), /^Included as: .*rolldown\/runtime/m);
+});
+
+test("H4: license expressions are not wrapped in a second pair of parentheses", () => {
+  assert.doesNotMatch(list, /\(\(/);
+  assert.match(list, /^ {2}- jszip 3\.10\.2 \(MIT OR GPL-3\.0-or-later\)$/m);
+  assert.match(list, /^ {2}- react 19\.3\.1 \(MIT\)$/m);
 });
 
 test("H5: no build-only package is in the list", () => {
   const names = new Set(listedPackages().map((p) => p.name));
   for (const name of [
+    // vite and rolldown are listed for their runtime helpers (FX-8); their
+    // plugins and other build tools must not be.
     ...Object.keys(pkg.devDependencies),
-    "vite",
-    "rolldown",
     "@tailwindcss/vite",
     "@vitejs/plugin-react",
     "@astrojs/sitemap",
@@ -145,18 +179,23 @@ test("H6: a package without a license file stops the build", () => {
     );
     writeFileSync(join(pkgDir, "README.md"), "MIT");
     assert.throws(
-      () => readLicenseTexts(pkgDir),
+      () => readLicense(pkgDir),
       /no-license@1\.0\.0.*no license file/,
     );
     // A fallback text is used when there is one.
     assert.deepEqual(
-      readLicenseTexts(pkgDir, { "no-license@1.0.0": "Text\n" }),
-      ["Text"],
+      readLicense(pkgDir, {
+        "no-license@1.0.0": { note: "Made up.", text: "Text\n" },
+      }),
+      { texts: ["Text"], note: "Made up." },
     );
     // License and notice files are all read.
     writeFileSync(join(pkgDir, "LICENSE.md"), "License\n");
     writeFileSync(join(pkgDir, "NOTICE"), "Notice\n");
-    assert.deepEqual(readLicenseTexts(pkgDir), ["License", "Notice"]);
+    assert.deepEqual(readLicense(pkgDir), {
+      texts: ["License", "Notice"],
+      note: "",
+    });
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -174,7 +213,9 @@ test("H6: each license fallback is for a shipped package that has no license fil
       [],
       key,
     );
-    assert.ok(sectionOf(name).includes(LICENSE_FALLBACKS[key].trim()), key);
+    const section = sectionOf(name);
+    assert.ok(section.includes(LICENSE_FALLBACKS[key].text.trim()), key);
+    assert.ok(section.includes(`Note: ${LICENSE_FALLBACKS[key].note}`), key);
   }
 });
 
@@ -254,4 +295,71 @@ test("H7: LICENSE section 4 points to the list on the website", () => {
   const section4 = license.slice(license.indexOf("\n4. Dependencies\n"));
   assert.match(section4, /\/third-party-licenses\.txt/);
   assert.match(section4, /scripts\/third-party-licenses\.mjs/);
+});
+
+test("findDependencyDirs finds each name@version, also when nested", () => {
+  const svgo = join(root, "node_modules", "svgo");
+  const found = findDependencyDirs(svgo, ["css-tree@3.2.1", "css-tree@2.2.1"]);
+  assert.equal(found.size, 2);
+  assert.match(
+    found.get("css-tree@2.2.1").replaceAll("\\", "/"),
+    /node_modules\/csso\/node_modules\/css-tree$/,
+  );
+  assert.throws(
+    () => findDependencyDirs(svgo, ["css-tree@9.9.9"]),
+    /css-tree@9\.9\.9/,
+  );
+});
+
+test("packageOfModule maps known virtual modules and stops on unknown ones", () => {
+  assert.equal(packageOfModule("\0vite/preload-helper.js", root).name, "vite");
+  assert.equal(packageOfModule("\0rolldown/runtime.js", root).name, "rolldown");
+  assert.equal(
+    packageOfModule(join(root, "node_modules/react/index.js"), root).name,
+    "react",
+  );
+  assert.equal(
+    packageOfModule(join(root, "src/tools/svg-optimizer/svgo.ts"), root),
+    null,
+  );
+  assert.throws(
+    () => packageOfModule("\0some-plugin/helper.js", root),
+    /some-plugin\/helper\.js/,
+  );
+  assert.throws(
+    () => packageOfModule("/elsewhere/helper.js", root),
+    /elsewhere/,
+  );
+});
+
+test("H4: vite shows only its core license, not those of its Node.js bundle", () => {
+  const section = sectionOf("vite");
+  assert.match(section, /^# Vite core license$/m);
+  assert.match(
+    section,
+    /^Copyright \(c\) .*VoidZero Inc\. and Vite contributors$/m,
+  );
+  assert.doesNotMatch(section, /Licenses of bundled dependencies/);
+  assert.match(section, /^Note: Only the Vite core license is shown\./m);
+});
+
+test("a license cut whose marker is missing stops the build", () => {
+  const dir = mkdtempSync(join(tmpdir(), "tpl-"));
+  try {
+    writeFileSync(
+      join(dir, "package.json"),
+      JSON.stringify({ name: "cut-me", version: "1.0.0" }),
+    );
+    writeFileSync(join(dir, "LICENSE"), "Own\n\n# Others\nOther\n");
+    assert.deepEqual(
+      readLicense(dir, {}, { "cut-me": { before: "# Others", note: "N" } }),
+      { texts: ["Own"], note: "N" },
+    );
+    assert.throws(
+      () => readLicense(dir, {}, { "cut-me": { before: "# Gone", note: "N" } }),
+      /cut-me@1\.0\.0.*# Gone/,
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
