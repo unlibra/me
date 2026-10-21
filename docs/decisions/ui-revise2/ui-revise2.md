@@ -35,14 +35,17 @@
 - 最初の形（置き換え済み）：`@fontsource/line-seed-jp/700.css` を読み込み、全文字の範囲（`dist/_astro/` に 237 ファイル、約 4.7 MB）を出していた
 - 決めたこと（ユーザーの判断）：
   - 絞ったフォント `src/assets/fonts/line-seed-jp-unlibra-700.woff2` を `scripts/subset-brand-font.mjs`（`npm run generate:brand-font`）で一度だけ作り、リポジトリに入れた。元は `@fontsource/line-seed-jp` の `files/line-seed-jp-latin-700-normal.woff2`（34,760 バイト）、道具は `subset-font` 2.9.0（harfbuzz の wasm、BSD-3-Clause）。どちらも devDependencies。ビルドでは作らない
-  - 文字は `u n l i b r a` の7つ。レイアウトの機能から辿れる別の字形は入れない（`noLayoutClosure`。字形は `.notdef` と7文字の8つ、カーニングは残る）。name テーブル（著作権表示「© LY Corporation」、ファミリー名）は残る
+  - 文字は `u n l i b r a` の7つ。レイアウトの機能から辿れる別の字形は入れない（`noLayoutClosure`。字形は `.notdef` と7文字の8つ、カーニングは残る）。name テーブル（著作権表示「© LY Corporation」、ファミリー名、ライセンスの URL）は残る
   - `src/styles/global.css` に `@font-face` を自分で書いた（太さ 700、`unicode-range: U+61-62, U+69, U+6C, U+6E, U+72, U+75`）。`@fontsource/line-seed-jp` の CSS は読み込まない。ほかの文字は `--font-brand` の次の Noto Sans JP で出る
   - 太さは 700（LINE Seed JP に 600 はない）。ロゴタイプの要素は `font-semibold` から `font-bold` にした
-- 大きさ：絞る前は、ビルドの出力の LINE Seed JP が 237 ファイル・4,721,728 バイト（ブラウザが取りに行くのは latin の woff2 の 34,760 バイト）。絞った後は 1 ファイル・1,084 バイト
+- 大きさ：絞る前は、ビルドの出力の LINE Seed JP が 237 ファイル・4,721,728 バイト（ブラウザが取りに行くのは latin の woff2 の 34,760 バイト）。絞った後は 1 ファイル・1,128 バイト（name ID 14 を残す前は 1,084 バイト）
 - ライセンス：
   - Reserved Font Name：npm パッケージの `LICENSE` と、Google Fonts の配布元の `ofl/lineseedjp/OFL.txt`（著作権の行は「© LY Corporation」）のどちらにも宣言はない（「Reserved Font Name」は OFL の定義の文の中に出てくるだけ）。なので、絞ったフォント（OFL の Modified Version）はファミリー名「LINE Seed JP」のままにした。宣言があった場合は別の名前にする必要がある
   - 一覧への載せ方：絞ったフォントはプロジェクトのファイルなので、パッケージのファイルとしては自動で拾えない。`scripts/third-party-licenses.mjs` に `DERIVED_ASSETS`（プロジェクトのファイルのパス → 元のパッケージ）を足し、ビルドがそのファイルを出したときに、元のパッケージを OFL の全文と著作権表示（UR2-12 の注記）つきで一覧に載せる（「Included as: files/line-seed-jp-latin-700-normal.woff2, cut down to the letters of "unlibra" (scripts/subset-brand-font.mjs)」）。小さいファイルは Vite が CSS に data URL で埋め込むが、`DERIVED_ASSETS` のファイルは埋め込まないようにした（`assetsInlineLimit`。一覧に載せるため、またファイルとして見えるように）
   - `LICENSE` の第4節に、このファイルが `@fontsource/line-seed-jp` から作った LINE Seed JP Bold で、OFL 1.1 のままであることを書いた
+  - リポジトリでの配布（レビューの必須の指摘、親の判断）：生成物をコミットすることは OFL の Modified Version の配布にあたるので、条件2（各コピーに著作権表示とライセンスを含める）のために次の2つをした
+    - `LICENSES/OFL-1.1.txt` を足した。1行目の著作権表示は「© LY Corporation」（フォント本体の name ID 0 と Google Fonts の OFL.txt に合わせた）、2行目から後は npm パッケージの `LICENSE`（1行目が Fontsource のひな形の「Google Inc.」）をそのまま写した。`LICENSE` の第4節からこのファイルを指す。`license.test.js` の `ui-revise2 4: LICENSES/OFL-1.1.txt is the OFL with LINE Seed JP's copyright notice` で確かめる
+    - サブセットに name ID 13（ライセンスの説明）と 14（ライセンスの URL）も残すようにした（`preserveNameIds: [13, 14]`。harfbuzz の既定は ID 0〜6 だけ）。元のファイルには 14（`https://openfontlicense.org`）だけがあり、13 はない。作り直したフォントは 1,128 バイト。`layout.test.js` の `ui-revise2 4: LINE Seed JP is one font file ...` で、ID 13・14 が元と同じことを確かめる。OGP 画像は作り直しても変わらなかった
 - テスト：`layout.test.js` の `ui-revise2 4: LINE Seed JP is one font file with the letters of unlibra only`（出力の LINE Seed JP は1ファイルだけで、生成物と同じ。cmap の文字は7つで、「.」「c」「o」「m」「U」「あ」「漢」はない。字形は8つ。著作権表示とファミリー名が残る）。WOFF2 を読む処理は `tests/helpers/woff2.js`。`third-party-licenses.test.js` の `ui-revise2 4: the brand font made from LINE Seed JP is listed through DERIVED_ASSETS` と `ui-revise2 L5: ...`、`license.test.js` の `ui-revise2 4: LICENSE names each file made from a package, which exists`
 - 戻すときの作業：`global.css` の `@font-face` を消して `@fontsource/line-seed-jp/700.css` の import に戻し、パッケージを dependencies に戻す。生成のスクリプト、生成物、`DERIVED_ASSETS`、`subset-font` を消す
 

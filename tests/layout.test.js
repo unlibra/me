@@ -636,6 +636,19 @@ test("ui-revise2 4: LINE Seed JP is one font file with the letters of unlibra on
   // The family name and the copyright notice of the original are kept.
   assert.equal(nameOf(tables.name, 1), "LINE Seed JP");
   assert.equal(nameOf(tables.name, 0), "© LY Corporation");
+  // The license description and URL (IDs 13 and 14) as in the original
+  // (OFL condition 2); LINE Seed JP has the URL only.
+  const { BRAND_FONT_SOURCE } =
+    await import("../scripts/subset-brand-font.mjs");
+  const source = woff2Tables(readFileSync(join(root, BRAND_FONT_SOURCE)));
+  assert.equal(nameOf(tables.name, 14), "https://openfontlicense.org");
+  for (const id of [13, 14]) {
+    assert.equal(
+      nameOf(tables.name, id),
+      nameOf(source.name, id),
+      `name ${id}`,
+    );
+  }
 });
 
 /** Lists every key path of a nested object, e.g. "footer.github". */

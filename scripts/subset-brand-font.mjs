@@ -6,7 +6,8 @@
 //
 // LINE Seed JP is under the SIL Open Font License 1.1 with no Reserved Font
 // Name, so the subset keeps the family name. The subset keeps the font's
-// name table (its copyright notice). The license is listed in
+// copyright notice and license URL (name table). The license text is in
+// LICENSES/OFL-1.1.txt. The license is listed in
 // /third-party-licenses.txt (DERIVED_ASSETS in scripts/third-party-licenses.mjs).
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -35,6 +36,10 @@ if (isMain) {
     // Only the glyphs of the letters (no alternates reached through layout
     // features); kerning between them is kept.
     noLayoutClosure: true,
+    // Besides the default names (IDs 0-6: copyright, family and so on),
+    // the license description and URL, where the original has them (OFL
+    // condition 2). LINE Seed JP has ID 14 only.
+    preserveNameIds: [13, 14],
   });
   writeFileSync(join(root, BRAND_FONT_FILE), subset);
   console.log(

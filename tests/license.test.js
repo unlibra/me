@@ -239,3 +239,29 @@ test("ui-revise2 4: LICENSE names each file made from a package, which exists", 
     assert.ok(text.includes(name), `${name} in section 4`);
   }
 });
+
+test("ui-revise2 4: LICENSES/OFL-1.1.txt is the OFL with LINE Seed JP's copyright notice", () => {
+  const text = read("LICENSES/OFL-1.1.txt");
+  // The copyright notice of the font files and of Google Fonts' OFL.txt.
+  assert.equal(text.split("\n")[0], "© LY Corporation");
+  // The rest is the npm package's license file (whose first line is
+  // Fontsource's template "Google Inc."), copied verbatim.
+  const original = read("node_modules/@fontsource/line-seed-jp/LICENSE");
+  assert.equal(original.split("\n")[0], "Google Inc.");
+  assert.equal(
+    text.split("\n").slice(1).join("\n"),
+    original.split("\n").slice(1).join("\n"),
+  );
+  assert.match(
+    text,
+    /^SIL OPEN FONT LICENSE Version 1\.1 - 26 February 2007$/m,
+  );
+  assert.match(text, /^PERMISSION & CONDITIONS$/m);
+  assert.match(text, /^DISCLAIMER$/m);
+  // LICENSE points to it for the font made from LINE Seed JP.
+  const text4 = section(4).replace(/\s+/g, " ");
+  assert.ok(text4.includes("LICENSES/OFL-1.1.txt"));
+  assert.ok(
+    existsSync(join(root, "src/assets/fonts/line-seed-jp-unlibra-700.woff2")),
+  );
+});
