@@ -59,7 +59,7 @@
 
 ## UR-9 フッター：liblab の3列の形に戻し、中央の列にリンクのグループを置いた
 
-- 決めたこと：liblab と同じ `md:grid-cols-[1fr_2fr_1fr]`。中央（liblab の TOYS / TOOLS の位置）に「Links」のグループ（GitHub、ドキュメント `https://docs.unlibra.com/`、BOOTH ショップ）。3つとも新しいタブで開く。説明文は liblab と同じく `whitespace-pre-line`。liblab にあるロゴの下（左の列）の GitHub のリンクは、ユーザーの判断（2026-10-21）で消し、GitHub へのリンクは Links のグループの1つだけにした。使わなくなった `GitHubIcon.astro` は、`LICENSE` の3節が例として名前を挙げているので残した（消すなら `LICENSE` の文面も直す）
+- 決めたこと：liblab と同じ `md:grid-cols-[1fr_2fr_1fr]`。中央（liblab の TOYS / TOOLS の位置）に「Links」のグループ（GitHub、ドキュメント `https://docs.unlibra.com/`、BOOTH ショップ）。3つとも新しいタブで開く。説明文は liblab と同じく `whitespace-pre-line`。liblab にあるロゴの下（左の列）の GitHub のリンクは、ユーザーの判断（2026-10-21）で消し、GitHub へのリンクは Links のグループの1つだけにした。使わなくなった `GitHubIcon.astro` は親の判断で消し、`LICENSE` の3節の他社ロゴの例を、実在する npm・PyPI のロゴ（`src/assets/npm.svg`・`src/assets/pypi.svg`）に差し替えた
 - 根拠：指示6。ロゴの下の GitHub は、最初は liblab の形のまま残したが、重複になるのでユーザーが消すと判断した
 - 他の選択肢：ロゴの下の GitHub も残す（liblab どおり）。今までの `1fr_auto_auto` の形
 - 戻すときの作業：`Footer.astro` を直す（ロゴの下の GitHub を戻すなら、前のコミットの `<a>` を戻し、`layout.test.js` の `ui-revise 6` の「GitHub は1つ」の確認を外す）
@@ -93,6 +93,12 @@
 - 確かめたこと：`header.spec.js` の `brand symbol` の2つのテスト（トップと英語のツールページで、ライトとダークの円とマークの色が入れ替わる）。`BrandSymbol.astro` の `dark:` のクラスを消すと2つとも落ちることを確かめた
 - 他の選択肢：ダーク用の SVG ファイルを別に作る
 - 戻すときの作業：`BrandSymbol.astro` のクラスを消す（部品は残してよい）
+
+## UR-14 astro check の対象から Playwright の生成物を外す
+
+- 決めたこと：`tsconfig.json` の `exclude` に `playwright-report` と `test-results` を足した（親の判断）
+- 根拠：E2E が失敗すると、HTML レポートに Trace Viewer の JS（`playwright-report/trace/`）が入り、`npm run build` の astro check がそれを拾って hints を出していた。同じ状態を作って数えると、外す前は 315 件（うち 314 件が `playwright-report/trace`）、外した後は 1 件（`tests/check-prod.test.js`。前からあるもの）。エラーと警告はどちらも 0
+- 戻すときの作業：`exclude` を `["dist"]` に戻す
 
 ## 直した既存のテストと理由（K1）
 

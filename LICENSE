@@ -61,9 +61,9 @@ BOOTH product images that show material by other creators are kept in
 src/assets/works/third-party/. They are not licensed under this LICENSE or
 any license in LICENSES/. The rights belong to their respective owners.
 
-Logos of other services, such as the GitHub mark in
-src/components/icons/GitHubIcon.astro, are trademarks of their owners and are
-not licensed under this LICENSE.
+Logos of other services, such as the npm and PyPI logos in src/assets/npm.svg
+and src/assets/pypi.svg, are trademarks of their owners and are not licensed
+under this LICENSE.
 
 
 4. Dependencies
