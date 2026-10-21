@@ -1,0 +1,25 @@
+# Redirects from the former URLs to the new ones (docs/replace-plan.md 3.2).
+# Static rules must come before dynamic rules (splats and placeholders).
+
+# Portfolio: the locale prefix was removed (Japanese only)
+/ja / 301
+/ja/ / 301
+/en / 301
+/en/ / 301
+
+# The static sitemap was replaced by @astrojs/sitemap
+/sitemap.xml /sitemap-index.xml 301
+
+# Tools index: Japanese moved to /lab, English to /en/lab
+/lab/ja /lab 301
+/lab/ja/ /lab 301
+/lab/en /en/lab 301
+/lab/en/ /en/lab 301
+
+# Tool pages with a trailing slash: drop it here so they arrive in one hop
+/lab/ja/:tool/ /lab/:tool 301
+/lab/en/:tool/ /en/lab/:tool 301
+
+# Tool pages (the removed Iromide is forwarded too and ends in 404)
+/lab/ja/* /lab/:splat 301
+/lab/en/* /en/lab/:splat 301
