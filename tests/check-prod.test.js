@@ -9,6 +9,7 @@ import { createServer } from "node:http";
 import {
   BEACON,
   checkSite,
+  HINTS,
   parseHeaders,
   parseRedirects,
 } from "../scripts/check-prod.mjs";
@@ -29,7 +30,7 @@ before(async () => {
       case "/sitemap-0.xml":
         return send(
           200,
-          "<loc>https://unlibra.com/</loc><loc>https://unlibra.com/missing</loc><loc>https://example.com/lab</loc>",
+          "<loc>https://unlibra.com/</loc><loc>https://unlibra.com/missing</loc><loc>https://unlibra.com/blocked</loc><loc>https://example.com/lab</loc>",
         );
       case "/":
         return send(
@@ -38,6 +39,8 @@ before(async () => {
         );
       case "/missing":
         return send(404, "");
+      case "/blocked":
+        return send(403, "");
       default:
         // Everything else: 200 from "Vercel", no redirects, no headers.
         return send(200, "", { "x-vercel-id": "hnd1::abc" });
@@ -50,7 +53,9 @@ after(() => server.close());
 
 const run = async () => {
   const reports = [];
-  await checkSite(base, (status, name) => reports.push([status, name]));
+  await checkSite(base, (status, name, detail, hints) =>
+    reports.push([status, name, hints]),
+  );
   return reports;
 };
 
@@ -61,7 +66,8 @@ test("check:prod reports what is wrong on a broken site", async () => {
 
   assert.deepEqual(status("robots.txt"), ["fail"]);
   assert.deepEqual(status("sitemap-index.xml"), ["ok"]);
-  assert.deepEqual(status("page /"), ["ok", "fail", "fail"]); // /, /missing, other host
+  // /, /missing, /blocked, other host
+  assert.deepEqual(status("page /"), ["ok", "fail", "fail", "fail"]);
   const redirects = status("redirect ");
   assert.equal(
     redirects.length,
@@ -74,6 +80,20 @@ test("check:prod reports what is wrong on a broken site", async () => {
   assert.ok(status("headers ").length > 0);
   assert.deepEqual(status("no x-vercel-id"), ["fail"]);
   assert.deepEqual(status("Web Analytics"), ["ok"]);
+});
+
+test("check:prod adds hints for what the Cloudflare zone may change", async () => {
+  const reports = await run();
+  const hints = (name) => reports.find(([, n]) => n.startsWith(name))[2];
+
+  assert.deepEqual(hints("robots.txt"), [HINTS.robots]);
+  // Every header of "/*" is missing, HSTS and nosniff among them.
+  assert.deepEqual(hints("headers /* "), [HINTS.hsts]);
+  assert.deepEqual(hints("headers /icon.svg "), [HINTS.cache]);
+  assert.deepEqual(hints("page /blocked"), [HINTS.blocked]);
+  assert.deepEqual(hints("page /missing"), []);
+  // Passing checks have none.
+  assert.deepEqual(hints("sitemap-index.xml"), []);
 });
 
 test("check:prod warns, without failing, when the beacon is missing", async () => {
@@ -90,12 +110,18 @@ test("check:prod warns, without failing, when the beacon is missing", async () =
     const reports = await run();
     assert.deepEqual(
       reports.filter(([, name]) => name.startsWith("Web Analytics")),
-      [["warn", "Web Analytics beacon in /"]],
+      [["warn", "Web Analytics beacon in /", []]],
     );
   } finally {
     server.removeAllListeners("request");
     server.on("request", original);
   }
+});
+
+test("check:prod skips header lines that come before any path", () => {
+  assert.deepEqual(parseHeaders("  A: 1\n/x\n  B: 2\n"), [
+    { path: "/x", headers: [["b", "2"]] },
+  ]);
 });
 
 test("check:prod reads _headers rules with their headers", () => {

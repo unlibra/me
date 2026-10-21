@@ -218,5 +218,9 @@
   - 計測タグ（`static.cloudflareinsights.com/beacon.min.js`）は `/` の HTML にあれば `OK`、なければ `WARN`（失敗にしない。P1-1）
 - テスト：`tests/check-prod.test.js`（壊れた応答を返すローカルのサーバーに対して、各項目が `FAIL` になり、計測タグがないときは `WARN` だけになること）と、`tests/e2e/check-prod.spec.js`（I4：E2E の `wrangler dev` に対してスクリプトを動かし、`FAIL` がなく、`WARN` が計測タグの1件だけであること）。手でも `wrangler dev`（ポート 8789）に対して実行し、38件のレスポンスで `0 failed, 1 warnings` になることを見た
 - 他の選択肢：検査先の HTML から全ページを辿る。期待値を `dist/` から読む（ビルドが要る）
-- 戻すときの作業：スクリプトと2つのテスト、`package.json` の `check:prod` を消す
+- レビューの推奨で足したこと：
+  - `docs/deploy.md` に 2.5「付け替える前に、`unlibra.com` のゾーンの設定を確かめる」を足した。管理された robots.txt、HSTS と No-Sniff、Browser Cache TTL（Respect Existing Headers）、Bot Fight Mode などのボット対策。公式で確かめた画面名と挙動だけを書き、記載のないこと（既定で有効か、HSTS が二重に付いたときの扱い、`workers.dev` に効くか、本番の Workers が HTML に付ける `Cache-Control`）は要確認とした。HTML の `Cache-Control: public, max-age=0, must-revalidate` は `wrangler dev` で見た値
+  - `FAIL` の行の下に、原因になりうるゾーンの設定のヒントを1行ずつ出す（判定は変えない）。`robots.txt` の中身の食い違い → 管理された robots.txt、`strict-transport-security`・`x-content-type-options` の食い違い → HSTS・No-Sniff、`cache-control` の食い違い → Browser Cache TTL、検査の中で 403 を受けた → ボット対策。`tests/check-prod.test.js` で、それぞれの場合にそのヒントが出て、関係のない失敗（404）や通った項目には出ないことを確かめる
+  - 任意の指摘：`parseHeaders` は、パスの行より前のヘッダーの行を読み飛ばす（前は例外で落ちた。テストつき）
+- 戻すときの作業：スクリプトと2つのテスト、`package.json` の `check:prod`、`docs/deploy.md` の 2.5 を消す
 - 既存のテスト A4 との関係（親の判断：案1、除外は最小）：A4（`tests/build.test.js`）は `docs/`・`tests/` 以外のソースに `vercel` の文字列がないことを確かめる。このスクリプトは計画の検査項目として `x-vercel-id` のヘッダー名を書くので、A4 で `scripts/check-prod.mjs` の1ファイルだけ、`x-vercel-id` を取り除いてから `vercel` を探すようにした。同じファイルでもヘッダー名以外の `vercel`（コメントや変数名を含む）が書かれたら A4 は落ちる（`// Vercel` を足して落ちることを確かめた）。スクリプトのコメントと変数名は「the former host」に書き換えた。A4 は、このファイルが検査の対象に入っていることも確かめる。他の選択肢：ヘッダー名を文字列の連結で書く（A4 の意図をすり抜ける）、検査を Cloudflare からの配信の確認に変える（判定に使うヘッダーが要確認で、計画の項目から外れる）

@@ -41,6 +41,8 @@ export const parseHeaders = (text) => {
       rules.push({ path: line.trim(), headers: [] });
       continue;
     }
+    // A header line before any path belongs to no rule: skipped.
+    if (rules.length === 0) continue;
     const index = line.indexOf(":");
     rules
       .at(-1)
@@ -70,10 +72,38 @@ export const redirectSample = (source, destination) => {
   return [source, destination];
 };
 
+/**
+ * Hints printed under a failed check: settings of the Cloudflare zone that
+ * can change what the site sends (docs/deploy.md, 2.5). The checks
+ * themselves stay exact.
+ */
+export const HINTS = {
+  robots:
+    "Cloudflare's managed robots.txt adds its lines before the site's; see docs/deploy.md 2.5",
+  hsts: "the zone's HSTS / No-Sniff settings (Edge Certificates) also send these headers; see docs/deploy.md 2.5",
+  cache:
+    "the zone's Browser Cache TTL rewrites shorter Cache-Control values unless it is Respect Existing Headers; see docs/deploy.md 2.5",
+  blocked:
+    "403: bot protection (such as Bot Fight Mode) may be challenging this script; see docs/deploy.md 2.5",
+};
+
+/** Hints for the headers that differ from `_headers`. */
+const headerHints = (names) => [
+  ...(names.some(
+    (n) => n === "strict-transport-security" || n === "x-content-type-options",
+  )
+    ? [HINTS.hsts]
+    : []),
+  ...(names.includes("cache-control") ? [HINTS.cache] : []),
+];
+
 const locs = (xml) =>
   [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map((match) => match[1]);
 
-/** Runs every check against `base` and reports through `report`. */
+/**
+ * Runs every check against `base` and reports each through
+ * `report(status, name, detail, hints)`.
+ */
 export async function checkSite(base, report) {
   const origin = new URL(base).origin;
   const fetched = [];
@@ -84,8 +114,17 @@ export async function checkSite(base, report) {
     fetched.push([path, response.headers.get("x-vercel-id")]);
     return response;
   };
-  const check = (ok, name, detail = "") =>
-    report(ok ? "ok" : "fail", name, ok ? "" : detail);
+  /**
+   * Reports a check. On failure, `hints` and the bot protection hint (when
+   * one of `responses` was 403) are reported with it.
+   */
+  const check = (ok, name, detail = "", { hints = [], responses = [] } = {}) =>
+    ok
+      ? report("ok", name, "", [])
+      : report("fail", name, detail, [
+          ...hints,
+          ...(responses.some((r) => r?.status === 403) ? [HINTS.blocked] : []),
+        ]);
 
   // robots.txt and the sitemap
   const robots = await get("/robots.txt");
@@ -96,6 +135,10 @@ export async function checkSite(base, report) {
         `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap-index.xml\n`,
     "robots.txt",
     `${robots.status}: ${JSON.stringify(robotsText)}`,
+    {
+      hints: robots.status === 200 ? [HINTS.robots] : [],
+      responses: [robots],
+    },
   );
   const index = await get("/sitemap-index.xml");
   const sitemaps = locs(await index.text());
@@ -105,6 +148,7 @@ export async function checkSite(base, report) {
       sitemaps.every((url) => url.startsWith(`${site.url}/`)),
     "sitemap-index.xml",
     `${index.status}: ${sitemaps.join(", ") || "no sitemaps"}`,
+    { responses: [index] },
   );
   const pages = [];
   for (const sitemap of sitemaps) {
@@ -115,6 +159,7 @@ export async function checkSite(base, report) {
       response.status === 200 && urls.length > 0,
       path,
       `${response.status}, ${urls.length} pages`,
+      { responses: [response] },
     );
     pages.push(...urls);
   }
@@ -127,6 +172,7 @@ export async function checkSite(base, report) {
       url.startsWith(`${site.url}/`) && response.status === 200,
       `page ${path}`,
       `${url}: ${response.status}`,
+      { responses: [response] },
     );
   }
 
@@ -147,6 +193,7 @@ export async function checkSite(base, report) {
         landing.status === 200,
       `redirect ${from} -> ${to}`,
       `${response.status} ${location}, then ${landing.status}`,
+      { responses: [response, landing] },
     );
   }
 
@@ -174,6 +221,10 @@ export async function checkSite(base, report) {
       `${response.status}; ${wrong
         .map(([name]) => `${name}: ${response.headers.get(name)}`)
         .join("; ")}`,
+      {
+        hints: headerHints(wrong.map(([name]) => name)),
+        responses: [response],
+      },
     );
   }
 
@@ -190,6 +241,7 @@ export async function checkSite(base, report) {
     html.includes(BEACON) ? "ok" : "warn",
     "Web Analytics beacon in /",
     html.includes(BEACON) ? "" : `${BEACON} is not in the HTML`,
+    [],
   );
 }
 
@@ -201,11 +253,12 @@ const main = async () => {
   }
   let failed = 0;
   let warned = 0;
-  await checkSite(base, (status, name, detail) => {
+  await checkSite(base, (status, name, detail, hints) => {
     if (status === "fail") failed++;
     if (status === "warn") warned++;
     const label = { ok: "OK  ", fail: "FAIL", warn: "WARN" }[status];
     console.log(`${label} ${name}${detail ? ` — ${detail}` : ""}`);
+    for (const hint of hints) console.log(`     hint: ${hint}`);
   });
   console.log(`\n${failed} failed, ${warned} warnings`);
   process.exit(failed > 0 ? 1 : 0);

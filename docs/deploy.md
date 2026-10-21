@@ -124,6 +124,15 @@ Custom Domain（案C）か Route（案R）かを選ぶ。違いは3章の表に�
 - このサイトは計測タグをコードに書かず、Cloudflare のプロキシによる自動挿入（automatic setup）に任せる（Phase 1 の判断 P1-1）。自動挿入は「Cloudflare にプロキシされているサイト」が対象（公式 [Get started](https://developers.cloudflare.com/web-analytics/get-started/)）
 - `workers.dev` が自動挿入の対象になるかは公式に記載がない（要確認）。ここで `/` の HTML に `static.cloudflareinsights.com/beacon.min.js` が出ていなくても、切替の中止の理由にはしない。4章で独自ドメインで確かめる
 
+### 2.5 付け替える前に、`unlibra.com` のゾーンの設定を確かめる
+
+付け替えの後は、`unlibra.com` のゾーンの設定が Worker のレスポンスに重なる。`_headers` と `robots.txt` の内容と食い違わないか、ダッシュボードで次を見ておく。どれも `workers.dev` の確認（2.1〜2.3）では表に出ない。4章の確認（`npm run check:prod -- https://unlibra.com`）で食い違いが出たら、ここに戻る。
+
+- 管理された robots.txt（公式 [Managed robots.txt](https://developers.cloudflare.com/bots/additional-configurations/managed-robots-txt/)）：有効にすると、Cloudflare が AI クローラー向けの `Disallow` を、サイトの `robots.txt` の前に足して返す。公式の手順では **Security Settings** で **Bot traffic** に絞り、**Configure AI bot policies** から設定する。このサイトの `robots.txt` をそのまま返すなら、無効になっていることを確かめる。既定で有効かどうかは公式に記載がない（要確認）
+- HSTS と No-Sniff（公式 [HTTP Strict Transport Security](https://developers.cloudflare.com/ssl/edge-certificates/additional-options/http-strict-transport-security/)）：**Edge Certificates** のページの **HTTP Strict Transport Security (HSTS)** で設定する。有効にすると Cloudflare が `Strict-Transport-Security` を、**No-Sniff Header** を有効にすると `X-Content-Type-Options: nosniff` を付ける。`_headers` も同じヘッダーを付けている（`max-age=63072000; includeSubDomains; preload`、`nosniff`）。両方が付けたときにどちらが残るか、値が違うと重なるかは公式に記載がない（要確認）。有効なら、値が `_headers` と同じであることを確かめる
+- ブラウザキャッシュの TTL（公式 [Browser Cache TTL](https://developers.cloudflare.com/cache/how-to/edge-browser-cache-ttl/)）：**Caching** > **Configuration** の **Browser Cache TTL**。既定は 4 時間で、配信元の `Cache-Control` の値がそれより短いと Cloudflare が書き換える。`_headers` はアイコン・`robots.txt`・サイトマップに `max-age=0` を付けていて、HTML には Workers の静的配信が `max-age=0, must-revalidate` を付ける（`wrangler dev` で見た。本番の Workers でも同じかは要確認）。これらが書き換えられないよう、**Respect Existing Headers** になっていることを確かめる
+- ボット対策（公式 [Bot Fight Mode](https://developers.cloudflare.com/bots/get-started/bot-fight-mode/)）：**Security Settings** で **Bot traffic** に絞った **Bot fight mode**。有効だと自動化したリクエストにチャレンジを返すことがあり、`check:prod` の検査が 403 などで失敗しうる。Bot Fight Mode は WAF のルールなどで除外できない（公式）。そのときは一時的に無効にして検査するか、ブラウザで確かめる。ほかのボット対策（Super Bot Fight Mode、WAF のルール）が使われているかも見る。`workers.dev` に効くかは公式に記載がない（要確認）
+
 ## 3. 独自ドメインを Vercel から Workers に付け替える
 
 付け替えの方式は未決。次の2つの案から、実行前にユーザーが選ぶ。
