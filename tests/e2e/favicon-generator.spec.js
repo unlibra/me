@@ -169,6 +169,41 @@ for (const locale of LOCALES) {
       expect((await corner())[3]).toBe(0);
     });
 
+    test("the corner radius and the background color show in the preview", async ({
+      page,
+    }) => {
+      await loadPng(page);
+      /** A pixel of the preview image, read by drawing it on a canvas. */
+      const pixel = (x, y) =>
+        preview(page).evaluate(
+          async (img, [px, py]) => {
+            await img.decode();
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            const context = canvas.getContext("2d");
+            context.drawImage(img, 0, 0);
+            return [...context.getImageData(px, py, 1, 1).data];
+          },
+          [x, y],
+        );
+      // The image's corners are transparent; its middle is red.
+      await expect.poll(() => pixel(0, 0)).toEqual([0, 0, 0, 0]);
+      expect(await pixel(100, 100)).toEqual([255, 0, 0, 255]);
+
+      await page.getByLabel(m.addBackgroundColor).check();
+      await page
+        .getByRole("textbox", { name: m.backgroundColorCode })
+        .fill("#00ff00");
+      await expect.poll(() => pixel(0, 0)).toEqual([0, 255, 0, 255]);
+      expect(await pixel(100, 100)).toEqual([255, 0, 0, 255]);
+
+      // Fully rounded: the corner is outside the circle, background or not.
+      await setRange(page.getByRole("slider", { name: "値を調整" }), 100);
+      await expect.poll(async () => (await pixel(0, 0))[3]).toBe(0);
+      expect(await pixel(100, 100)).toEqual([255, 0, 0, 255]);
+    });
+
     test("without an output format the download button is disabled", async ({
       page,
     }) => {

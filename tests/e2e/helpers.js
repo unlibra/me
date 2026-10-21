@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { expect } from "@playwright/test";
 import sharp from "sharp";
 
+import { layoutMessages } from "../../src/messages/layout.ts";
 import en from "../../src/tools/messages/en.ts";
 import ja from "../../src/tools/messages/ja.ts";
 
@@ -183,3 +184,32 @@ export const open = async (page, path) => {
     ),
   );
 };
+
+/** Chooses a theme with the header's theme button, as a user does. */
+export const chooseTheme = async (page, lang, preference) => {
+  const t = layoutMessages[lang].theme;
+  await page.getByRole("button", { name: t.toggle }).click();
+  await page.getByRole("button", { name: t[preference], exact: true }).click();
+};
+
+/**
+ * The relative luminance (0 black to 1 white) of a computed color of the
+ * element: Tailwind's colors are oklch(), so the browser turns the color
+ * into RGB by painting it on a canvas.
+ */
+export const luminance = (locator, property) =>
+  locator.evaluate((element, name) => {
+    const color = getComputedStyle(element)[name];
+    const canvas = document.createElement("canvas");
+    canvas.width = canvas.height = 1;
+    const context = canvas.getContext("2d");
+    context.fillStyle = color;
+    context.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = context.getImageData(0, 0, 1, 1).data;
+    if (a === 0) throw new Error(`${name} is transparent`);
+    const linear = (v) => {
+      const c = v / 255;
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * linear(r) + 0.7152 * linear(g) + 0.0722 * linear(b);
+  }, property);

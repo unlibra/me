@@ -2,6 +2,7 @@
 import { expect, test } from "@playwright/test";
 
 import {
+  chooseTheme,
   grantClipboard,
   LOCALES,
   open,
@@ -113,11 +114,9 @@ for (const locale of LOCALES) {
     test("the slider's track follows the theme", async ({ page }) => {
       const slider = page.getByRole("slider", { name: m.length });
       const track = () => slider.evaluate((input) => input.style.background);
-      await page.evaluate(() =>
-        document.documentElement.classList.remove("dark"),
-      );
+      await chooseTheme(page, locale.lang, "light");
       await expect.poll(track).toContain("rgb(226, 232, 240)");
-      await page.evaluate(() => document.documentElement.classList.add("dark"));
+      await chooseTheme(page, locale.lang, "dark");
       await expect.poll(track).toContain("rgb(75, 85, 99)");
     });
 

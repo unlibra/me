@@ -7,7 +7,12 @@ import { expect, test } from "@playwright/test";
 import { layoutMessages } from "../../src/messages/layout.ts";
 import en from "../../src/tools/messages/en.ts";
 import ja from "../../src/tools/messages/ja.ts";
-import { hasHorizontalScroll, open } from "./helpers.js";
+import {
+  chooseTheme,
+  hasHorizontalScroll,
+  luminance,
+  open,
+} from "./helpers.js";
 
 const TOOLS = [
   "tw-palette-generator",
@@ -36,33 +41,27 @@ const isDark = (page) =>
   page.evaluate(() => document.documentElement.classList.contains("dark"));
 
 test.describe("theme", () => {
-  const choose = async (page, lang, preference) => {
-    const t = layoutMessages[lang].theme;
-    await page.getByRole("button", { name: t.toggle }).click();
-    await page
-      .getByRole("button", { name: t[preference], exact: true })
-      .click();
-  };
+  const choose = chooseTheme;
 
   test("light and dark are applied and kept on the next page", async ({
     page,
   }) => {
     await page.emulateMedia({ colorScheme: "light" });
     await open(page, "/lab");
-    expect(await isDark(page)).toBe(false);
+    await expect.poll(() => isDark(page)).toBe(false);
 
     await choose(page, "ja", "dark");
-    expect(await isDark(page)).toBe(true);
+    await expect.poll(() => isDark(page)).toBe(true);
     await open(page, "/en/lab/svg-optimizer");
-    expect(await isDark(page)).toBe(true);
+    await expect.poll(() => isDark(page)).toBe(true);
     await page.goto("/");
-    expect(await isDark(page)).toBe(true);
+    await expect.poll(() => isDark(page)).toBe(true);
 
     await choose(page, "ja", "light");
-    expect(await isDark(page)).toBe(false);
+    await expect.poll(() => isDark(page)).toBe(false);
     await page.emulateMedia({ colorScheme: "dark" });
     await open(page, "/lab/password-generator");
-    expect(await isDark(page)).toBe(false);
+    await expect.poll(() => isDark(page)).toBe(false);
   });
 
   test("system follows the OS setting, also while the page is open", async ({
@@ -72,14 +71,77 @@ test.describe("theme", () => {
     await open(page, "/en/lab");
     await choose(page, "en", "dark");
     await choose(page, "en", "system");
-    expect(await isDark(page)).toBe(true);
+    await expect.poll(() => isDark(page)).toBe(true);
     await page.emulateMedia({ colorScheme: "light" });
     await expect.poll(() => isDark(page)).toBe(false);
     await page.goto("/privacy");
-    expect(await isDark(page)).toBe(false);
+    await expect.poll(() => isDark(page)).toBe(false);
     await page.emulateMedia({ colorScheme: "dark" });
     await expect.poll(() => isDark(page)).toBe(true);
   });
+
+  /**
+   * Representative parts of each kind of page: the page background and
+   * text, and the tools' panels and fields. Dark means darker backgrounds
+   * and lighter text.
+   */
+  const COLOR_TARGETS = [
+    ["/lab", "body", "backgroundColor", "background"],
+    ["/lab", "body", "color", "text"],
+    ["/lab", "a.group p.text-sm", "color", "text"],
+    [
+      "/lab/password-generator",
+      "div.relative.overflow-hidden.rounded-lg.border",
+      "backgroundColor",
+      "background",
+    ],
+    ["/lab/password-generator", "div.font-mono", "color", "text"],
+    [
+      "/lab/favicon-generator",
+      "div.rounded-lg.border.border-sky-200",
+      "backgroundColor",
+      "background",
+    ],
+    [
+      "/en/lab/svg-optimizer",
+      "div.rounded-lg.border.border-sky-200",
+      "backgroundColor",
+      "background",
+    ],
+    [
+      "/en/lab/tw-palette-generator",
+      'input[name="hex-input"]',
+      "backgroundColor",
+      "background",
+    ],
+  ];
+
+  for (const path of new Set(COLOR_TARGETS.map(([p]) => p))) {
+    test(`${path}: the theme button switches the colors`, async ({ page }) => {
+      const lang = path.startsWith("/en/") ? "en" : "ja";
+      const targets = COLOR_TARGETS.filter(([p]) => p === path);
+      const read = () =>
+        Promise.all(
+          targets.map(([, selector, property]) =>
+            luminance(page.locator(selector).first(), property),
+          ),
+        );
+      await page.emulateMedia({ colorScheme: "light" });
+      await open(page, path);
+      await chooseTheme(page, lang, "light");
+      const light = await read();
+      await chooseTheme(page, lang, "dark");
+      await expect
+        .poll(async () => {
+          const dark = await read();
+          return targets.map(([, selector, , kind], i) => [
+            selector,
+            kind === "background" ? dark[i] < light[i] : dark[i] > light[i],
+          ]);
+        })
+        .toEqual(targets.map(([, selector]) => [selector, true]));
+    });
+  }
 
   test("the chosen option is shown as pressed", async ({ page }) => {
     await open(page, "/lab");

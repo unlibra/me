@@ -155,7 +155,7 @@ for (const locale of LOCALES) {
         .not.toBe("#3BA0BE");
 
       await page.getByRole("button", { name: m.resetAdjustment }).click();
-      expect(await sliders(page)).toEqual(["221", "66", "13"]);
+      await expect.poll(() => sliders(page)).toEqual(["221", "66", "13"]);
       await expect
         .poll(() => shown(page))
         .toEqual({

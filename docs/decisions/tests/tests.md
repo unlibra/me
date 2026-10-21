@@ -100,6 +100,7 @@
   - ファイルの投入は `<input type="file">` に `setInputFiles`、ドラッグ&ドロップは `DataTransfer` を作って `dragenter`（オーバーレイが出ることを確かめる）と `drop` を送る。ダウンロードは Playwright の `download` イベントで受け取り、中身（ICO の各画像、ZIP の中身、PNG の寸法と画素）を `sharp`・`jszip` で読む。テスト用の画像は `sharp` でその場で作る
   - クリップボードはコンテキストに `clipboard-read`・`clipboard-write` を許可して `navigator.clipboard.readText()` で読む。Windows では改行が CRLF で戻るので、Tailwind Config の比較の前に LF にそろえる
   - 横スクロールは、`<html>` の横スクロールに加えて、レイアウトの外側の `div`（`overflow-x-hidden` ではみ出しを隠している）の `scrollWidth` も見る（`<html>` だけでは、はみ出しが隠れて見つからない）
+  - 配色は、テーマ切替ボタンでライトとダークを選び、代表的な要素の計算後の色を比べる（ダークでは背景が暗く、文字が明るくなる）。Tailwind v4 の色は `oklch()` で返るので、ページの中で canvas に塗って RGB にし、相対輝度で比べる（`helpers.js` の `luminance`）。色の値そのものは固定しない
 - 他の選択肢：`astro preview` で配信する（`_redirects` が効かない）。`test:e2e` ではビルドせず、`dist/` があることだけを確かめる（CI の二重ビルドは避けられるが、古いビルドを試験しうる）。TS で書く
 - 戻すときの作業：`playwright.config.js`、`tests/e2e/`、`package.json` の `test:e2e` と `@playwright/test`、`.gitignore`・`eslint.config.js` の追加分を消す
 
@@ -107,12 +108,14 @@
 
 ソースを一時的に次のように壊してビルドし、該当するテストが落ちることを確かめた（確かめた後に元に戻した）。
 
-| 壊し方                                                               | 落ちたテスト                                                                                                    |
-| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| TW パレット：`handleReset` の `setTargetHue(reset.targetHue)` を消す | `reset puts the sliders, BASE and the palette back to the input's`（日英）                                      |
-| TW パレット：履歴の上限を 31 にする                                  | `the history keeps the newest 30 palettes`（日英）                                                              |
-| Favicon：1ファイルでも ZIP にする（`allFiles.length === 0`）         | `by default one favicon.ico ...`、`only the selected formats are output`、`an image can be dropped ...`（日英） |
-| SVG：スイッチを手で変えてもプリセットの選択を外さない                | `changing a switch by hand clears the preset and changes the output`（日英）                                    |
+| 壊し方                                                                                                                                                           | 落ちたテスト                                                                                                    |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| TW パレット：`handleReset` の `setTargetHue(reset.targetHue)` を消す                                                                                             | `reset puts the sliders, BASE and the palette back to the input's`（日英）                                      |
+| TW パレット：履歴の上限を 31 にする                                                                                                                              | `the history keeps the newest 30 palettes`（日英）                                                              |
+| Favicon：1ファイルでも ZIP にする（`allFiles.length === 0`）                                                                                                     | `by default one favicon.ico ...`、`only the selected formats are output`、`an image can be dropped ...`（日英） |
+| SVG：スイッチを手で変えてもプリセットの選択を外さない                                                                                                            | `changing a switch by hand clears the preset and changes the output`（日英）                                    |
+| Favicon：プレビューの `processImage` に角丸と背景色を渡さない                                                                                                    | `the corner radius and the background color show in the preview`（日英）                                        |
+| ダークの配色を消す（ページの `body`、ツールの一覧の説明文、パスワードの表示欄と文字、Favicon・SVG のプライバシーの案内、TW パレットの入力欄の `dark:` のクラス） | `{パス}: the theme button switches the colors`（5ページすべて。8か所それぞれが「切り替わらない」と報告された）  |
 
 ## TS-7 E2E を書く中で気づいたこと（直していない）
 
@@ -124,36 +127,36 @@
 
 ### Block 2：パスワードジェネレーター、SVG最適化（`password-generator.spec.js`、`svg-optimizer.spec.js`）
 
-| E7 の項目                                                                       | テスト                                                                                                                                             |
-| ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 開いた直後にパスワードが出る、文字数のスライダーで長さが変わる                  | `shows a password on opening, and the length slider sets its length`                                                                               |
-| 文字種の切り替え、全部オフで案内文が出て「再生成」「コピー」が押せない          | `the character types decide which characters are used`、`with no character type, it asks for one and cannot copy or regenerate`                    |
-| 「再生成」で別のパスワード                                                      | `regenerate gives a new password`                                                                                                                  |
-| 紛らわしい文字の除外をオフにすると出る                                          | `ambiguous characters are left out unless the switch is off`                                                                                       |
-| 「コピー」でパスワードが渡され、トーストが出る                                  | `copy puts the password on the clipboard and shows a toast`                                                                                        |
-| SVG：ファイルを選ぶとプレビューとサイズ・圧縮率が出る、ダウンロードの名前と中身 | `a selected file is previewed with its sizes and downloaded optimized`、`each preset sets the output`                                              |
-| スイッチを手で変えるとプリセットの選択が外れる                                  | `changing a switch by hand clears the preset and changes the output`                                                                               |
-| ドラッグ中のオーバーレイ、PNG を落とすとトースト、SVG を落とすと読み込まれる    | `files can be dropped anywhere: an SVG is loaded, other files are refused`                                                                         |
-| 幅 375px でオプションの折りたたみが開く                                         | `on a phone the options are folded and open on tap`                                                                                                |
-| （E7 になかったもの）危険な設定、精度のスライダー、選択での不正なファイル       | `the dangerous switches keep scripts`、`the precision sliders set the digits of the output`、`a file that is not an SVG is refused with a message` |
-| 共通：375px（ダーク）と 1280px（ライト）で横スクロールが出ない                  | `site.spec.js` の `no page is wider than 375px`・`1280px`（全ページと 404、ツールのオプションを開いた状態も）                                      |
-| 共通：スライダーの溝の色がテーマに追従する                                      | `the slider's track follows the theme`                                                                                                             |
+| E7 の項目                                                                       | テスト                                                                                                                                                                                                                                                                                                          |
+| ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 開いた直後にパスワードが出る、文字数のスライダーで長さが変わる                  | `shows a password on opening, and the length slider sets its length`                                                                                                                                                                                                                                            |
+| 文字種の切り替え、全部オフで案内文が出て「再生成」「コピー」が押せない          | `the character types decide which characters are used`、`with no character type, it asks for one and cannot copy or regenerate`                                                                                                                                                                                 |
+| 「再生成」で別のパスワード                                                      | `regenerate gives a new password`                                                                                                                                                                                                                                                                               |
+| 紛らわしい文字の除外をオフにすると出る                                          | `ambiguous characters are left out unless the switch is off`                                                                                                                                                                                                                                                    |
+| 「コピー」でパスワードが渡され、トーストが出る                                  | `copy puts the password on the clipboard and shows a toast`                                                                                                                                                                                                                                                     |
+| SVG：ファイルを選ぶとプレビューとサイズ・圧縮率が出る、ダウンロードの名前と中身 | `a selected file is previewed with its sizes and downloaded optimized`、`each preset sets the output`                                                                                                                                                                                                           |
+| スイッチを手で変えるとプリセットの選択が外れる                                  | `changing a switch by hand clears the preset and changes the output`                                                                                                                                                                                                                                            |
+| ドラッグ中のオーバーレイ、PNG を落とすとトースト、SVG を落とすと読み込まれる    | `files can be dropped anywhere: an SVG is loaded, other files are refused`                                                                                                                                                                                                                                      |
+| 幅 375px でオプションの折りたたみが開く                                         | `on a phone the options are folded and open on tap`                                                                                                                                                                                                                                                             |
+| （E7 になかったもの）危険な設定、精度のスライダー、選択での不正なファイル       | `the dangerous switches keep scripts`、`the precision sliders set the digits of the output`、`a file that is not an SVG is refused with a message`                                                                                                                                                              |
+| 共通：375px（ダーク）と 1280px（ライト）で横スクロールが出ない                  | `site.spec.js` の `no page is wider than 375px`・`1280px`（全ページと 404、ツールのオプションを開いた状態も）                                                                                                                                                                                                   |
+| 共通：ダークの配色、スライダーの溝の色がテーマに追従する                        | `site.spec.js` の `{パス}: the theme button switches the colors`（ツール一覧と4ツール。ページの背景と文字、ツールの一覧の説明文、パスワードの表示欄の背景と文字、Favicon・SVG のプライバシーの案内の背景、TW パレットの入力欄の背景）、`the slider's track follows the theme`（どちらもテーマ切替ボタンを通す） |
 
 ### Block 3：Favicon ジェネレーター（`favicon-generator.spec.js`）
 
-| E7 の項目                                                               | テスト                                                                                                               |
-| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| PNG（300×200）で 200×200 のプレビュー                                   | `a selected image is previewed as a square of its shorter side`                                                      |
-| 既定で `favicon.ico`（16・32 の PNG を持つ ICO）                        | `by default one favicon.ico with 16 and 32 pixel images is downloaded`                                               |
-| Apple Touch Icon・Android Icon・48 を足すと `favicons.zip`（4ファイル） | `several files are downloaded as one ZIP, sizes in order`                                                            |
-| （TS-2）選んだ形式だけが出力される、1ファイルならそのまま               | `only the selected formats are output`                                                                               |
-| 角丸 100% で角が透明、背景色で角が背景色になる                          | `the corner radius and the background color reach the files`                                                         |
-| 出力形式を全部外すと「ダウンロード」が押せない（サイズの欄も消える）    | `without an output format the download button is disabled`                                                           |
-| favicon.ico だけでサイズを全部外すとトースト                            | `favicon.ico without sizes asks for a size`                                                                          |
-| `viewBox` だけの SVG（120×60）で 60×60 のプレビュー                     | `an SVG with only a viewBox takes its size from the viewBox`                                                         |
-| 幅 5000px の画像、テキストファイルのトースト                            | `a file that is not an image, or too large an image, is refused`                                                     |
-| SVG のドラッグ&ドロップと「Download」で `favicon.ico`                   | `an image can be dropped anywhere on the page`                                                                       |
-| 375px（ダーク）でオプションを開いても横スクロールが出ない、文言が英語   | `site.spec.js` の `no page is wider than 375px`。英語の文言は、`(en)` のテストが英語の文言で要素を探すことで確かめる |
+| E7 の項目                                                               | テスト                                                                                                                                                                                                                          |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PNG（300×200）で 200×200 のプレビュー                                   | `a selected image is previewed as a square of its shorter side`                                                                                                                                                                 |
+| 既定で `favicon.ico`（16・32 の PNG を持つ ICO）                        | `by default one favicon.ico with 16 and 32 pixel images is downloaded`                                                                                                                                                          |
+| Apple Touch Icon・Android Icon・48 を足すと `favicons.zip`（4ファイル） | `several files are downloaded as one ZIP, sizes in order`                                                                                                                                                                       |
+| （TS-2）選んだ形式だけが出力される、1ファイルならそのまま               | `only the selected formats are output`                                                                                                                                                                                          |
+| 角丸 100% でプレビューの角が透明、背景色ありで角丸 0% なら角が背景色    | `the corner radius and the background color show in the preview`（プレビューの `<img>` を canvas に描いて角と中央の画素を読む）、`the corner radius and the background color reach the files`（ダウンロードしたファイルの画素） |
+| 出力形式を全部外すと「ダウンロード」が押せない（サイズの欄も消える）    | `without an output format the download button is disabled`                                                                                                                                                                      |
+| favicon.ico だけでサイズを全部外すとトースト                            | `favicon.ico without sizes asks for a size`                                                                                                                                                                                     |
+| `viewBox` だけの SVG（120×60）で 60×60 のプレビュー                     | `an SVG with only a viewBox takes its size from the viewBox`                                                                                                                                                                    |
+| 幅 5000px の画像、テキストファイルのトースト                            | `a file that is not an image, or too large an image, is refused`                                                                                                                                                                |
+| SVG のドラッグ&ドロップと「Download」で `favicon.ico`                   | `an image can be dropped anywhere on the page`                                                                                                                                                                                  |
+| 375px（ダーク）でオプションを開いても横スクロールが出ない、文言が英語   | `site.spec.js` の `no page is wider than 375px`。英語の文言は、`(en)` のテストが英語の文言で要素を探すことで確かめる                                                                                                            |
 
 ### Block 4：TW パレットジェネレーター（`tw-palette-generator.spec.js`）
 
@@ -172,12 +175,12 @@
 
 ### サイト全体（`site.spec.js`。計画のブロック2の項目）
 
-| 項目                                                         | テスト                                                                                                                                                                   |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| テーマ切替（ライト / ダーク / システム、ページ遷移後の保持） | `light and dark are applied and kept on the next page`、`system follows the OS setting, also while the page is open`、`the chosen option is shown as pressed`            |
-| 言語切替                                                     | `{パス} switches to English and back`（ツール一覧と4ツール）、`the Japanese-only pages have no language switch`                                                          |
-| 幅 375px と 1280px で横スクロールが出ない                    | `no page is wider than 375px`・`1280px`                                                                                                                                  |
-| 旧URLの301（`_redirects` の全行）                            | `every rule of _redirects is a 301 to a page that exists`、`the removed Iromide is forwarded and ends in 404`、`the former tool URLs land on the new pages in a browser` |
+| 項目                                                         | テスト                                                                                                                                                                                                        |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| テーマ切替（ライト / ダーク / システム、ページ遷移後の保持） | `{パス}: the theme button switches the colors`、`light and dark are applied and kept on the next page`、`system follows the OS setting, also while the page is open`、`the chosen option is shown as pressed` |
+| 言語切替                                                     | `{パス} switches to English and back`（ツール一覧と4ツール）、`the Japanese-only pages have no language switch`                                                                                               |
+| 幅 375px と 1280px で横スクロールが出ない                    | `no page is wider than 375px`・`1280px`                                                                                                                                                                       |
+| 旧URLの301（`_redirects` の全行）                            | `every rule of _redirects is a 301 to a page that exists`、`the removed Iromide is forwarded and ends in 404`、`the former tool URLs land on the new pages in a browser`                                      |
 
 ## I3 テストの後にプロセスが残らないこと
 
