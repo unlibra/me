@@ -72,3 +72,13 @@ Phase 4 のツールの単体テストは「liblab と同じ出力になるこ�
 - 判断ログ：`docs/decisions/tests/tests.md`
 - 実行方法とログの扱いは `docs/decisions/phase-1/plan.md` の「実行方法」と同じ
 - コミットメッセージは英語。`Co-Authored-By` のフッターは付けない
+
+## 親の記録：ブランチ保護（2026-10-21、ユーザー承認済み）
+
+GitHub Actions の `Test` ワークフローが GitHub 上で通ったこと（run 39572302668、Linux で E2E を含めて成功）を確かめてから、main にブランチ保護をかけた。
+
+- 必須のステータスチェック：`test`（GitHub Actions のアプリ、app_id 15368 に限定。同名のチェックを別のアプリが出しても通らない）
+- `strict`（マージ前にブランチを最新にすること）：オフ
+- force-push と削除：禁止
+- 管理者への適用（`enforce_admins`）：オフ。リポジトリの管理者は緊急時に保護を迂回できる
+- PR のレビュー必須：なし（一人で開発しているため）
