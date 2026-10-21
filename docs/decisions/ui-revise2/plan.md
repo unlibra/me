@@ -35,3 +35,8 @@
 - 判断ログ：`docs/decisions/ui-revise2/ui-revise2.md`
 - 実行方法は `docs/decisions/phase-1/plan.md` の「実行方法」と同じ。ポート 8790 のプレビューサーバー（`%TEMP%\claude\me-preview` から起動）は親のものなので触らない
 - コミットメッセージは英語。`Co-Authored-By` のフッターは付けない
+
+## 追加の決定（2026-10-22、ユーザー）
+
+- 4：サイト名は「unlibra」に統一する。ヘッダー、ヒーロー、フッター、ブラウザのタブのタイトル（トップは「unlibra」、ほかは「{ページ名} - unlibra」）、OGP の site_name・og:title、Twitter カード、OGP 画像の文字。ドメイン（URL、canonical、リンク先、`site.url` など）は `unlibra.com` のまま
+- 5：ヒーローのサブタイトルは、暫定で「昼はカフェ、夜はバー。」

@@ -41,7 +41,7 @@
 | ツール（日本語・既定）             | `/lab/{tool}`    |
 | ツール（英語）                     | `/en/lab/{tool}` |
 
-`{tool}` は `tw-palette-generator`、`favicon-generator`、`svg-optimizer`、`password-generator` の4つ。ツール一覧ページ（`/lab`、`/en/lab`）は、ユーザーの最終UIチェックの指示で廃止した（2026-10-21、`docs/decisions/ui-revise/`）。ツールへの入口はトップの WEBツールのセクション（`/#web`）とヘッダー。
+`{tool}` は `tw-palette-generator`、`favicon-generator`、`svg-optimizer`、`password-generator` の4つ。ツール一覧ページ（`/lab`、`/en/lab`）は、ユーザーの最終UIチェックの指示で廃止した（2026-10-21、`docs/decisions/ui-revise/`）。ツールへの入口はトップの Apps のセクション（`/#apps`）とヘッダー（2026-10-22 にカテゴリ名を変更。`docs/decisions/ui-revise2/`）。
 
 旧URLからの301リダイレクト：
 
@@ -49,11 +49,11 @@
 | ------------------------------------------------------------ | ---------------- |
 | `/ja`                                                        | `/`              |
 | `/en`                                                        | `/`              |
-| `/lab/ja`                                                    | `/#web`          |
+| `/lab/ja`                                                    | `/#apps`         |
 | `/lab/ja/*`                                                  | `/lab/:splat`    |
-| `/lab/en`                                                    | `/#web`          |
+| `/lab/en`                                                    | `/#apps`         |
 | `/lab/en/*`                                                  | `/en/lab/:splat` |
-| `/lab`、`/en/lab`（Phase 4 で作った一覧。2026-10-21 に廃止） | `/#web`          |
+| `/lab`、`/en/lab`（Phase 4 で作った一覧。2026-10-21 に廃止） | `/#apps`         |
 
 廃止したイロマイド（`/lab/{ja,en}/iromide`）は個別に扱わない。上の一括ルールで転送され、転送先が存在しないので404になる。
 
@@ -79,9 +79,9 @@
 
 ### 3.6 ポートフォリオのコンテンツ
 
-- 作品カテゴリ：自作キーボード / ソフトウェア / WEBツール / VRChat
-- VRChat はサブ分類としてアバター / アセット / Unityツールを持つ
-- 作品一覧から `liblab` と `iromide` を外し、残す4ツールを WEBツールの作品として載せる。リンク先はサイト内の `/lab/{tool}`
+- 作品カテゴリ：DIY Keyboards / Libraries / Apps / VR & 3D（2026-10-22 に「自作キーボード / ソフトウェア / WEBツール / VRChat」から改名。表記は先頭大文字）
+- VR & 3D（旧 VRChat）はサブ分類としてアバター / アセット / Unityツールを持つ
+- 作品一覧から `liblab` と `iromide` を外し、残す4ツールを Apps（旧 WEBツール）の作品として載せる。リンク先はサイト内の `/lab/{tool}`
 - ドキュメントのリンクは、パスはそのままでホストだけ `unlibra.github.io` から `docs.unlibra.com` に変える（3つとも 200 を返すことを確認済み）
 - BOOTH のショップURLは仮で `https://unlibra-twin.booth.pm/`（現在は非公開でつながらない）
 - BOOTH の商品画像はリポジトリに置く。それまではダミーの商品と画像を入れる。本番ビルドでダミーを除外する仕組みは作らない（6章のチェックリストで差し替える）
