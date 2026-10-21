@@ -281,12 +281,12 @@ test.describe("former URLs", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("the tool list URLs land on the web tools section", async ({ page }) => {
+  test("the tool list URLs land on the apps section", async ({ page }) => {
     for (const path of ["/lab/ja", "/lab/en/", "/lab", "/en/lab"]) {
       await page.goto(path);
-      await expect(page, path).toHaveURL("/#web");
+      await expect(page, path).toHaveURL("/#apps");
       await expect(
-        page.getByRole("heading", { level: 2, name: "WEBツール" }),
+        page.getByRole("heading", { level: 2, name: "Apps" }),
       ).toBeInViewport();
     }
   });

@@ -1,17 +1,15 @@
 ---
 // Header: the layout of the former tool site's header. The work
-// categories take the place of its category menus.
+// categories take the place of its category menus, as links to their
+// sections of the top page.
 import BrandSymbol from "@/components/BrandSymbol.astro";
-import ChevronDownIcon from "@/components/icons/ChevronDownIcon.astro";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
 import MobileMenu from "@/components/layout/MobileMenu.astro";
 import ThemeToggle from "@/components/layout/ThemeToggle.astro";
 import type { Locale } from "@/config/locales";
 import { site, type SitePath } from "@/config/site";
-import { toolIds, toolPath } from "@/config/tools";
 import { categories, categoryHref } from "@/config/works";
 import { layoutMessages } from "@/messages/layout";
-import { toolMessages } from "@/tools/messages";
 
 interface Props {
   lang: Locale;
@@ -21,11 +19,8 @@ interface Props {
 
 const { lang, languagePaths } = Astro.props;
 const t = layoutMessages[lang].header;
-const tools = toolMessages[lang].tools;
 const menuItem =
-  "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors outline-none hover:bg-black/5 focus-visible:bg-black/5 aria-expanded:bg-black/5 dark:hover:bg-white/5 dark:focus-visible:bg-white/5 dark:aria-expanded:bg-white/5";
-const panelItem =
-  "flex w-full items-center gap-3 rounded-md px-3 py-2 transition-colors outline-none hover:bg-gray-100 focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter";
+  "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors outline-none hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/5 dark:focus-visible:bg-white/5";
 ---
 
 <header>
@@ -39,64 +34,21 @@ const panelItem =
       class="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-500 lg:static lg:translate-x-0"
     >
       <BrandSymbol class="size-6" />
-      <span class="text-xl font-semibold">{site.title}</span>
+      <span class="font-brand text-xl font-bold" data-site-name>
+        {site.title}
+      </span>
     </a>
 
     <div class="z-10 flex items-center gap-2 lg:gap-3">
       <!-- Work categories (desktop) -->
       <ul class="hidden items-center gap-2 lg:flex" data-category-nav>
-        {categories.map((category) =>
-          category === "web" ? (
-            <li class="group relative" data-popover data-category-menu>
-              <button
-                type="button"
-                class={`${menuItem} cursor-pointer`}
-                aria-expanded="false"
-                aria-controls="category-web-menu"
-                data-popover-button
-              >
-                {t.categories[category]}
-                <ChevronDownIcon class="size-4 transition-transform group-has-[[aria-expanded=true]]:rotate-180" />
-              </button>
-              <div
-                id="category-web-menu"
-                class="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-gray-700 dark:bg-atom-one-dark-light"
-                data-popover-panel
-                hidden
-              >
-                <a
-                  href={categoryHref(category)}
-                  class={panelItem}
-                  data-popover-item
-                >
-                  <span class="text-sm font-medium">{t.allWebTools}</span>
-                </a>
-                {toolIds.map((tool) => (
-                  <a
-                    href={toolPath(tool, lang)}
-                    class={panelItem}
-                    data-popover-item
-                  >
-                    <div class="space-y-0.5">
-                      <span class="text-sm font-medium">
-                        {tools[tool].name}
-                      </span>
-                      <span class="line-clamp-2 text-xs text-gray-500">
-                        {tools[tool].shortDescription}
-                      </span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            </li>
-          ) : (
-            <li>
-              <a href={categoryHref(category)} class={menuItem}>
-                {t.categories[category]}
-              </a>
-            </li>
-          ),
-        )}
+        {categories.map((category) => (
+          <li>
+            <a href={categoryHref(category)} class={menuItem}>
+              {t.categories[category]}
+            </a>
+          </li>
+        ))}
       </ul>
 
       {languagePaths && <LanguageSwitcher lang={lang} paths={languagePaths} />}
@@ -104,20 +56,3 @@ const panelItem =
     </div>
   </nav>
 </header>
-
-<script>
-  import { setupPopover } from "@/scripts/popover";
-
-  for (const root of document.querySelectorAll<HTMLElement>(
-    "[data-category-menu]",
-  )) {
-    const popover = setupPopover(root);
-    // A link to a section of the same page does not leave the page, so the
-    // menu is closed by hand.
-    root.addEventListener("click", (event) => {
-      if ((event.target as Element).closest("a[data-popover-item]")) {
-        popover.close(false);
-      }
-    });
-  }
-</script>

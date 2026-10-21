@@ -85,7 +85,7 @@ const symbolSize = 160;
 const gap = 40;
 const text = await sharp({
   text: {
-    text: `<span foreground="${symbolColor}">unlibra.com</span>`,
+    text: `<span foreground="${symbolColor}">unlibra</span>`,
     font: "Noto Sans JP Semi-Bold 96",
     fontfile: fontFile,
     rgba: true,

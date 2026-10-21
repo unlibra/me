@@ -25,18 +25,18 @@ const TOOLS = [
 /**
  * Former URLs and their new URLs (design doc 3.2, and P1-4 for the sitemap).
  * The tool list pages were removed (ui-revise): the list URLs, former and
- * new, go to the web tools section of the top page.
+ * new, go to the apps section of the top page (#apps since ui-revise2).
  */
-const WEB_SECTION = "/#web";
+const APPS_SECTION = "/#apps";
 const EXPECTED = [
   ["/ja", "/"],
   ["/en", "/"],
-  ["/lab/ja", WEB_SECTION],
+  ["/lab/ja", APPS_SECTION],
   ["/lab/ja/*", "/lab/:splat"],
-  ["/lab/en", WEB_SECTION],
+  ["/lab/en", APPS_SECTION],
   ["/lab/en/*", "/en/lab/:splat"],
-  ["/lab", WEB_SECTION],
-  ["/en/lab", WEB_SECTION],
+  ["/lab", APPS_SECTION],
+  ["/en/lab", APPS_SECTION],
   ["/sitemap.xml", "/sitemap-index.xml"],
 ];
 
@@ -160,10 +160,10 @@ test("G2: former URLs reach the new URL in one hop, with or without a trailing s
   const cases = [
     ["/ja", "/"],
     ["/en", "/"],
-    ["/lab/ja", WEB_SECTION],
-    ["/lab/en", WEB_SECTION],
-    ["/lab", WEB_SECTION],
-    ["/en/lab", WEB_SECTION],
+    ["/lab/ja", APPS_SECTION],
+    ["/lab/en", APPS_SECTION],
+    ["/lab", APPS_SECTION],
+    ["/en/lab", APPS_SECTION],
     ...TOOLS.flatMap((tool) => [
       [`/lab/ja/${tool}`, `/lab/${tool}`],
       [`/lab/en/${tool}`, `/en/lab/${tool}`],
@@ -182,7 +182,7 @@ test("G2: redirect destinations exist in the build output", () => {
     assert.ok(existsInDist(destination), `${source} -> ${destination}`);
   }
   // The section the list URLs go to.
-  assert.ok(existsInDist(WEB_SECTION));
+  assert.ok(existsInDist(APPS_SECTION));
   assert.ok(!existsInDist("/#no-such-section"), "self-check of fragments");
   for (const tool of TOOLS) {
     for (const from of [`/lab/ja/${tool}`, `/lab/en/${tool}`]) {

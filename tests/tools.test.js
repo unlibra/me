@@ -101,7 +101,8 @@ test("tool pages use the tool's name and description as title and description", 
   for (const { lang, tool, path } of pages) {
     const h = head(readDist(fileOf(path)));
     const { name, description } = messages[lang].tools[tool];
-    assert.match(h, new RegExp(`<title>${name} - unlibra\\.com</title>`));
+    // The site name is "unlibra" (ui-revise2 4).
+    assert.match(h, new RegExp(`<title>${name} - unlibra</title>`));
     const meta = h.match(/<meta[^>]*name="description"[^>]*>/)[0];
     const decoded = attr(meta, "content").replace(/&#39;/g, "'");
     assert.equal(decoded, description.replace(/\r?\n/g, ""), path);
@@ -188,9 +189,10 @@ test("ui-revise 2: there are no tool list pages", () => {
   }
 });
 
-test("E8: every page's header links to the tools in the page's language", () => {
-  // The footer listed the tools until ui-revise; the header's web tools
-  // menu and mobile menu list them now.
+test("E8: the tools are linked from the top page in Japanese, not from the header", () => {
+  // The footer listed the tools until ui-revise, the header's web tools
+  // menu until ui-revise2 (1). The apps section's details link to them now;
+  // the top page is in Japanese only.
   const files = [
     "index.html",
     "privacy/index.html",
@@ -198,24 +200,24 @@ test("E8: every page's header links to the tools in the page's language", () => 
     ...pages.map((p) => fileOf(p.path)),
   ];
   for (const file of files) {
-    const lang = file.startsWith("en/") ? "en" : "ja";
     // Without the language switcher, which links to the other language.
     const header = readDist(file)
       .match(/<header[\s\S]*?<\/header>/)[0]
       .replace(/<div[^>]*data-language-switcher[\s\S]*?<\/div>\s*<\/div>/, "");
-    const links = hrefs(header);
     for (const tool of TOOLS) {
-      assert.equal(
-        links.filter((href) => href === pathOf(lang, tool)).length,
-        2,
-        `${file}: ${tool} in the menu and the mobile menu`,
-      );
-      assert.ok(
-        !links.includes(pathOf(other[lang], tool)),
-        `${file}: ${tool} in the other language`,
-      );
-      assert.match(header, new RegExp(`>${messages[lang].tools[tool].name}<`));
+      for (const lang of ["ja", "en"]) {
+        assert.ok(!hrefs(header).includes(pathOf(lang, tool)), file);
+      }
     }
+  }
+  const main = readDist("index.html").match(/<main[\s\S]*?<\/main>/)[0];
+  for (const tool of TOOLS) {
+    assert.equal(
+      hrefs(main).filter((href) => href === pathOf("ja", tool)).length,
+      1,
+      tool,
+    );
+    assert.ok(!hrefs(main).includes(pathOf("en", tool)), tool);
   }
 });
 

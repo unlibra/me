@@ -85,6 +85,7 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
     [
       "@astrojs/react",
       "@fontsource-variable/noto-sans-jp",
+      "@fontsource/line-seed-jp",
       "@fontsource/roboto-mono",
       "@headlessui/react",
       "@heroicons/react",

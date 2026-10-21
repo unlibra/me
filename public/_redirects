@@ -11,15 +11,15 @@
 /sitemap.xml /sitemap-index.xml 301
 
 # Tools index: there is no tool list page; the former and the removed list
-# URLs go to the web tools section of the top page
-/lab/ja /#web 301
-/lab/ja/ /#web 301
-/lab/en /#web 301
-/lab/en/ /#web 301
-/lab /#web 301
-/lab/ /#web 301
-/en/lab /#web 301
-/en/lab/ /#web 301
+# URLs go to the apps section of the top page
+/lab/ja /#apps 301
+/lab/ja/ /#apps 301
+/lab/en /#apps 301
+/lab/en/ /#apps 301
+/lab /#apps 301
+/lab/ /#apps 301
+/en/lab /#apps 301
+/en/lab/ /#apps 301
 
 # Tool pages with a trailing slash: drop it here so they arrive in one hop
 /lab/ja/:tool/ /lab/:tool 301

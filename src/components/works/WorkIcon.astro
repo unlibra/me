@@ -1,0 +1,40 @@
+---
+// A work's icon on a circle, as on the former tool site's cards: the tool
+// icons on the brand color, the npm and PyPI logos on their own white.
+import { Image } from "astro:assets";
+
+import type { Work } from "@/config/works";
+
+interface Props {
+  work: Work;
+  /** Tailwind size class, e.g. "size-10". */
+  size: string;
+}
+
+const { work, size } = Astro.props;
+---
+
+{work.category === "apps" ? (
+  <div
+    class:list={[
+      "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-logo-medium/70",
+      size,
+    ]}
+  >
+    <Image src={work.image} alt="" class="size-full" />
+  </div>
+) : (
+  <div
+    class:list={[
+      "shrink-0 overflow-hidden rounded-full bg-white ring-1 ring-gray-200 dark:ring-atom-one-dark-lighter",
+      size,
+    ]}
+  >
+    {/* The logo images are 16:9 with the logo small in the middle: crop to it. */}
+    <Image
+      src={work.image}
+      alt=""
+      class="size-full scale-[2.25] object-cover"
+    />
+  </div>
+)}

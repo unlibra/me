@@ -6,10 +6,8 @@ import Bars3Icon from "@/components/icons/Bars3Icon.astro";
 import XMarkIcon from "@/components/icons/XMarkIcon.astro";
 import type { Locale } from "@/config/locales";
 import { site } from "@/config/site";
-import { toolIds, toolPath } from "@/config/tools";
 import { categories, categoryHref } from "@/config/works";
 import { layoutMessages } from "@/messages/layout";
-import { toolMessages } from "@/tools/messages";
 
 interface Props {
   lang: Locale;
@@ -17,7 +15,6 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = layoutMessages[lang].header;
-const tools = toolMessages[lang].tools;
 const iconButton =
   "flex cursor-pointer items-center justify-center rounded-lg p-2 transition outline-none hover:bg-black/5 focus-visible:bg-black/5 active:bg-black/10 dark:hover:bg-white/5 dark:focus-visible:bg-white/5 dark:active:bg-white/10";
 const item =
@@ -58,32 +55,13 @@ const item =
         </button>
       </div>
       <ul class="mt-6 space-y-1">
-        {categories.map((category) =>
-          category === "web" ? (
-            <li class="space-y-1">
-              <div class="px-3 py-2 text-xs font-semibold tracking-wider text-gray-600 uppercase dark:text-gray-400">
-                {t.categories[category]}
-              </div>
-              <a href={categoryHref(category)} class={item}>
-                <div class="text-sm font-medium">{t.allWebTools}</div>
-              </a>
-              {toolIds.map((tool) => (
-                <a href={toolPath(tool, lang)} class={item}>
-                  <div class="text-sm font-medium">{tools[tool].name}</div>
-                  <div class="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
-                    {tools[tool].shortDescription}
-                  </div>
-                </a>
-              ))}
-            </li>
-          ) : (
-            <li>
-              <a href={categoryHref(category)} class={item}>
-                <div class="text-sm font-medium">{t.categories[category]}</div>
-              </a>
-            </li>
-          ),
-        )}
+        {categories.map((category) => (
+          <li>
+            <a href={categoryHref(category)} class={item}>
+              <div class="text-sm font-medium">{t.categories[category]}</div>
+            </a>
+          </li>
+        ))}
       </ul>
     </div>
   </dialog>

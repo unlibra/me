@@ -1,0 +1,25 @@
+---
+// "詳しく見る" with a chevron, at the end of every card: says that a click
+// opens the details. The card's button already has the title as its name and
+// announces the dialog, so this is hidden from screen readers.
+import ChevronRightIcon from "@/components/icons/ChevronRightIcon.astro";
+import messages from "@/messages/ja";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<p
+  class:list={[
+    "flex items-center gap-0.5 text-sm font-medium text-logo-dark dark:text-logo-light",
+    className,
+  ]}
+  aria-hidden="true"
+  data-work-more
+>
+  {messages.workDetails.more}
+  <ChevronRightIcon class="size-4 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" />
+</p>

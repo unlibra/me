@@ -7,6 +7,8 @@
 @theme {
   --font-sans: "Noto Sans JP Variable", sans-serif;
   --font-mono: "Roboto Mono", monospace;
+  /* The site name in the header and the name in the hero (bold only). */
+  --font-brand: "LINE Seed JP", "Noto Sans JP Variable", sans-serif;
 
   /* Colors carried over from the former tool site's Tailwind config. */
   --color-atom-one-dark-lighter: #3d4148;

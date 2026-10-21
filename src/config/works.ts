@@ -11,12 +11,12 @@ import { toolIcons, toolPath } from "@/config/tools";
 import type messages from "@/messages/ja";
 
 /** Work categories in display order. */
-export const categories = ["keyboard", "software", "web", "vrchat"] as const;
+export const categories = ["keyboards", "libraries", "apps", "vr-3d"] as const;
 export type Category = (typeof categories)[number];
 
-/** Subcategories of VRChat works, in display order. */
-export const vrchatSubcategories = ["avatar", "asset", "unity-tool"] as const;
-export type VrchatSubcategory = (typeof vrchatSubcategories)[number];
+/** Subcategories of VR & 3D works, in display order. */
+export const vr3dSubcategories = ["avatar", "asset", "unity-tool"] as const;
+export type Vr3dSubcategory = (typeof vr3dSubcategories)[number];
 
 /** Documentation pages live on docs.unlibra.com (design doc 3.6). */
 export type DocsUrl = `https://docs.unlibra.com/${string}`;
@@ -31,48 +31,51 @@ interface WorkBase {
   /** Where the work is published or sold: a site path or an external URL. */
   link?: SitePath | `https://${string}`;
   docs?: DocsUrl;
+  /** Shown as a large, full-width card in its category. */
+  featured?: true;
 }
 
-/** Only VRChat works have a subcategory, and they always have one. */
+/** Only VR & 3D works have a subcategory, and they always have one. */
 export type Work =
   | (WorkBase & {
-      category: Exclude<Category, "vrchat">;
+      category: Exclude<Category, "vr-3d">;
       subcategory?: never;
     })
   | (WorkBase & {
-      category: "vrchat";
-      subcategory: VrchatSubcategory;
+      category: "vr-3d";
+      subcategory: Vr3dSubcategory;
     });
 
 /** Works in display order within each category. */
 export const works: Work[] = [
   {
     id: "fosty-natural",
-    category: "keyboard",
+    category: "keyboards",
     year: "2025",
     image: fostyNaturalImg,
+    featured: true,
   },
   {
     id: "fosty-dark",
-    category: "keyboard",
+    category: "keyboards",
     year: "2025",
     image: fostyDarkImg,
   },
   {
     id: "botsu",
-    category: "keyboard",
+    category: "keyboards",
     year: "2024",
     image: botsuImg,
   },
   {
     id: "mira-zero",
-    category: "keyboard",
+    category: "keyboards",
     year: "2023",
     image: miraImg,
   },
   {
     id: "i18n-tiny-astro",
-    category: "software",
+    category: "libraries",
     year: "2025",
     image: npmImg,
     link: "https://www.npmjs.com/package/@i18n-tiny/astro",
@@ -80,7 +83,7 @@ export const works: Work[] = [
   },
   {
     id: "i18n-tiny-next",
-    category: "software",
+    category: "libraries",
     year: "2025",
     image: npmImg,
     link: "https://www.npmjs.com/package/@i18n-tiny/next",
@@ -88,7 +91,7 @@ export const works: Work[] = [
   },
   {
     id: "tkinter-unblur",
-    category: "software",
+    category: "libraries",
     year: "2020",
     image: pypiImg,
     link: "https://pypi.org/project/tkinter-unblur",
@@ -96,28 +99,28 @@ export const works: Work[] = [
   },
   {
     id: "tw-palette-generator",
-    category: "web",
+    category: "apps",
     year: "2025",
     image: toolIcons["tw-palette-generator"],
     link: toolPath("tw-palette-generator", "ja"),
   },
   {
     id: "favicon-generator",
-    category: "web",
+    category: "apps",
     year: "2025",
     image: toolIcons["favicon-generator"],
     link: toolPath("favicon-generator", "ja"),
   },
   {
     id: "svg-optimizer",
-    category: "web",
+    category: "apps",
     year: "2025",
     image: toolIcons["svg-optimizer"],
     link: toolPath("svg-optimizer", "ja"),
   },
   {
     id: "password-generator",
-    category: "web",
+    category: "apps",
     year: "2025",
     image: toolIcons["password-generator"],
     link: toolPath("password-generator", "ja"),
@@ -125,7 +128,7 @@ export const works: Work[] = [
   // Dummy items until the real BOOTH items are ready (design doc 3.6).
   {
     id: "dummy-avatar",
-    category: "vrchat",
+    category: "vr-3d",
     subcategory: "avatar",
     year: "2026",
     image: dummyImg,
@@ -133,7 +136,7 @@ export const works: Work[] = [
   },
   {
     id: "dummy-asset",
-    category: "vrchat",
+    category: "vr-3d",
     subcategory: "asset",
     year: "2026",
     image: dummyImg,
@@ -141,7 +144,7 @@ export const works: Work[] = [
   },
   {
     id: "dummy-unity-tool",
-    category: "vrchat",
+    category: "vr-3d",
     subcategory: "unity-tool",
     year: "2026",
     image: dummyImg,
@@ -149,6 +152,6 @@ export const works: Work[] = [
   },
 ];
 
-/** Link to a category's section on the top page, e.g. "/#web". */
+/** Link to a category's section on the top page, e.g. "/#apps". */
 export const categoryHref = (category: Category): `/#${Category}` =>
   `/#${category}`;

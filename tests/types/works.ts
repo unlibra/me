@@ -8,62 +8,62 @@ import type { Work } from "@/config/works";
 declare const image: ImageMetadata;
 
 export const valid: Work[] = [
-  { id: "botsu", category: "keyboard", year: "2024", image },
-  { id: "tkinter-unblur", category: "software", year: "2020", image },
-  { id: "svg-optimizer", category: "web", year: "2025", image },
+  { id: "botsu", category: "keyboards", year: "2024", image },
+  { id: "tkinter-unblur", category: "libraries", year: "2020", image },
+  { id: "svg-optimizer", category: "apps", year: "2025", image },
   {
     id: "dummy-avatar",
-    category: "vrchat",
+    category: "vr-3d",
     subcategory: "avatar",
     year: "2026",
     image,
   },
   {
     id: "tkinter-unblur",
-    category: "software",
+    category: "libraries",
     year: "2020",
     image,
     docs: "https://docs.unlibra.com/tkinter-unblur/",
   },
 ];
 
-export const withSubcategoryOutsideVrchat: Work[] = [
+export const withSubcategoryOutsideVr3d: Work[] = [
   {
     id: "botsu",
-    category: "keyboard",
-    // @ts-expect-error Works outside VRChat have no subcategory.
+    category: "keyboards",
+    // @ts-expect-error Works outside VR & 3D have no subcategory.
     subcategory: "avatar",
     year: "2024",
     image,
   },
   {
     id: "tkinter-unblur",
-    category: "software",
-    // @ts-expect-error Works outside VRChat have no subcategory.
+    category: "libraries",
+    // @ts-expect-error Works outside VR & 3D have no subcategory.
     subcategory: "asset",
     year: "2020",
     image,
   },
   {
     id: "svg-optimizer",
-    category: "web",
-    // @ts-expect-error Works outside VRChat have no subcategory.
+    category: "apps",
+    // @ts-expect-error Works outside VR & 3D have no subcategory.
     subcategory: "unity-tool",
     year: "2025",
     image,
   },
 ];
 
-export const vrchatWithoutSubcategory: Work[] = [
-  // @ts-expect-error A VRChat work must have a subcategory.
-  { id: "dummy-avatar", category: "vrchat", year: "2026", image },
+export const vr3dWithoutSubcategory: Work[] = [
+  // @ts-expect-error A VR & 3D work must have a subcategory.
+  { id: "dummy-avatar", category: "vr-3d", year: "2026", image },
 ];
 
 export const unknownSubcategory: Work[] = [
   {
     id: "dummy-avatar",
-    category: "vrchat",
-    // @ts-expect-error The subcategory is one of the three VRChat kinds.
+    category: "vr-3d",
+    // @ts-expect-error The subcategory is one of the three VR & 3D kinds.
     subcategory: "shader",
     year: "2026",
     image,
@@ -73,7 +73,7 @@ export const unknownSubcategory: Work[] = [
 export const oldDocsHost: Work[] = [
   {
     id: "tkinter-unblur",
-    category: "software",
+    category: "libraries",
     year: "2020",
     image,
     // @ts-expect-error Documentation links point to docs.unlibra.com.

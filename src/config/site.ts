@@ -1,7 +1,8 @@
 import type { Locale } from "@/config/locales";
 
 export const site = {
-  title: "unlibra.com",
+  /** The site name (the domain is `url`). */
+  title: "unlibra",
   url: "https://unlibra.com",
   ogImage: "/ogp.png",
   links: {

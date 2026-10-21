@@ -1,0 +1,36 @@
+---
+// The former tool site's card (an icon on a circle, the name and the
+// summary), for Apps and Libraries.
+import MoreLabel from "@/components/works/MoreLabel.astro";
+import OpenDetails from "@/components/works/OpenDetails.astro";
+import WorkIcon from "@/components/works/WorkIcon.astro";
+import { liftOnHover } from "@/components/works/card-classes";
+import type { Work } from "@/config/works";
+import messages from "@/messages/ja";
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+---
+
+<article
+  class:list={[
+    "group relative flex flex-col gap-2 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-atom-one-dark-light",
+    liftOnHover,
+  ]}
+  data-work={work.id}
+  data-card="tool"
+>
+  <div class="flex items-center gap-3">
+    <WorkIcon work={work} size="size-10" />
+    <h3 class="font-semibold">
+      <OpenDetails work={work} />
+    </h3>
+  </div>
+  <p class="text-sm text-gray-600 dark:text-gray-400" data-work-summary>
+    {messages.works[work.id].summary}
+  </p>
+  <MoreLabel class="mt-auto" />
+</article>

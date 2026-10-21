@@ -308,13 +308,13 @@ const sectionOf = (html, tag) => {
 const hrefs = (html) =>
   [...html.matchAll(/<a\s[^>]*>/g)].map((m) => attr(m[0], "href"));
 
-const TOOLS = [
-  "tw-palette-generator",
-  "favicon-generator",
-  "svg-optimizer",
-  "password-generator",
+/** Category IDs (the section anchors) and names, the same in both languages. */
+const CATEGORIES = [
+  ["keyboards", "DIY Keyboards"],
+  ["libraries", "Libraries"],
+  ["apps", "Apps"],
+  ["vr-3d", "VR &amp; 3D"],
 ];
-const CATEGORIES = ["keyboard", "software", "web", "vrchat"];
 
 /** Links (href and text) in a piece of HTML, in order. */
 const anchors = (html) =>
@@ -326,51 +326,22 @@ const anchors = (html) =>
       .trim(),
   }));
 
-test("ui-revise 4: the header links to the category sections of the top page", async () => {
+test("ui-revise2 1, 6: the header links to the category sections, without menus", async () => {
   const { layoutMessages } = await import("../src/messages/layout.ts");
-  const toolMessages = {
-    ja: (await import("../src/tools/messages/ja.ts")).default,
-    en: (await import("../src/tools/messages/en.ts")).default,
-  };
+  const expected = CATEGORIES.map(([id, name]) => ({
+    href: `/#${id}`,
+    text: name,
+  }));
   for (const file of htmlPages()) {
-    const lang = langOf(file);
-    const t = layoutMessages[lang].header;
+    const t = layoutMessages[langOf(file)].header;
     const header = sectionOf(readDist(file), "header");
 
-    // Desktop: the categories in order; WEB tools is a menu.
+    // Desktop: the four categories as plain links, in both languages.
     const nav = header.match(/<ul[^>]*data-category-nav[\s\S]*?<\/ul>/);
     assert.ok(nav, `${file}: no category navigation`);
-    const button = nav[0].match(
-      /<button[^>]*aria-controls="category-web-menu"[^>]*>([\s\S]*?)<\/button>/,
-    );
-    assert.ok(button, `${file}: no web tools menu button`);
-    assert.match(button[0], /aria-expanded="false"/);
-    assert.match(button[1], new RegExp(`^\\s*${t.categories.web}\\s*<svg`));
-    const panel = nav[0].match(
-      /<div[^>]*id="category-web-menu"[^>]*hidden[^>]*>[\s\S]*?<\/div>\s*<\/li>/,
-    );
-    assert.ok(panel, `${file}: no hidden web tools menu`);
-    const tools = toolMessages[lang].tools;
-    const prefix = lang === "en" ? "/en" : "";
-    assert.deepEqual(
-      anchors(panel[0]),
-      [
-        { href: "/#web", text: t.allWebTools },
-        ...TOOLS.map((tool) => ({
-          href: `${prefix}/lab/${tool}`,
-          text: `${tools[tool].name} ${tools[tool].shortDescription}`,
-        })),
-      ],
-      file,
-    );
-    assert.deepEqual(
-      anchors(nav[0].replace(panel[0], "")),
-      CATEGORIES.filter((c) => c !== "web").map((c) => ({
-        href: `/#${c}`,
-        text: t.categories[c],
-      })),
-      file,
-    );
+    assert.deepEqual(anchors(nav[0]), expected, file);
+    assert.doesNotMatch(nav[0], /<button[\s>]|data-popover/, file);
+    assert.doesNotMatch(header, /category-web-menu|data-category-menu/, file);
 
     // Mobile: the same links in a dialog opened by a menu button.
     assert.match(
@@ -391,15 +362,19 @@ test("ui-revise 4: the header links to the category sections of the top page", a
     );
     assert.match(dialog[0], new RegExp(`aria-label="${t.closeMenu}"`));
     assert.deepEqual(
-      anchors(dialog[0]).map((a) => a.href),
-      [
-        "/",
-        "/#keyboard",
-        "/#software",
-        "/#web",
-        ...TOOLS.map((tool) => `${prefix}/lab/${tool}`),
-        "/#vrchat",
-      ],
+      anchors(dialog[0]).slice(1),
+      expected,
+      `${file}: mobile menu links after the home link`,
+    );
+    assert.equal(anchors(dialog[0])[0].href, "/", file);
+    // No tool pages in the header (the former web tools menu), except the
+    // language switcher's link to this page in the other language.
+    const withoutSwitcher = header.replace(
+      /<div[^>]*data-language-switcher[\s\S]*?<\/div>\s*<\/div>/,
+      "",
+    );
+    assert.ok(
+      !hrefs(withoutSwitcher).some((href) => /\/lab\//.test(href)),
       file,
     );
   }
@@ -419,7 +394,7 @@ test("C4: every page has the common header", () => {
     const links = hrefs(header);
     assert.ok(links.includes("/"), `${file}: home link`);
     const lang = langOf(file);
-    assert.match(header, />unlibra\.com</, `${file}: site name`);
+    assert.match(header, /data-site-name>unlibra</, `${file}: site name`);
     assert.match(header, /<svg[^>]*viewBox="0 0 512 512"/, `${file}: logo`);
 
     // Theme toggle: a button controlling a hidden panel of three choices.
@@ -507,6 +482,99 @@ test("ui-revise 7: the copyright notice runs from 2025 to the build year", async
   assert.equal(copyrightNotice(2031), "© 2025–2031 unlibra");
   for (const year of [2024, 2025.5, Number.NaN]) {
     assert.throws(() => copyrightNotice(year), /2025 or later/, String(year));
+  }
+});
+
+test("ui-revise2 2: the footer's Links group sits in the right half of the center column", () => {
+  for (const file of htmlPages()) {
+    const footer = sectionOf(readDist(file), "footer");
+    const tag = footer.match(/<div[^>]*data-footer-links[^>]*>/)[0];
+    assert.match(attr(tag, "class") ?? "", /(^|\s)md:col-start-2(\s|$)/, file);
+  }
+});
+
+test("ui-revise2 7, 8: the footer's description and link labels", () => {
+  const expected = {
+    ja: "unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR &amp; 3D の作品を掲載しています。",
+    en: "A collection of works by unlibra: DIY keyboards, libraries, apps, and VR &amp; 3D works.",
+  };
+  for (const file of htmlPages()) {
+    const footer = sectionOf(readDist(file), "footer");
+    assert.ok(footer.includes(`>${expected[langOf(file)]}</p>`), file);
+    const group = footer.match(/<div[^>]*data-footer-links[\s\S]*?<\/ul>/)[0];
+    assert.deepEqual(
+      anchors(group).map((a) => a.text),
+      ["GitHub", "Docs", "BOOTH"],
+      file,
+    );
+  }
+});
+
+test("ui-revise2 4: the site name is unlibra; the domain stays unlibra.com", () => {
+  for (const file of htmlPages()) {
+    const html = readDist(file);
+    const meta = (key, name) =>
+      attr(
+        html.match(new RegExp(`<meta[^>]*${key}="${name}"[^>]*>`))[0],
+        "content",
+      );
+    const title = html.match(/<title>([^<]*)<\/title>/)[1];
+    if (file === "index.html") {
+      assert.equal(title, "unlibra");
+    } else {
+      assert.match(title, /^.+ - unlibra$/, file);
+    }
+    assert.equal(meta("property", "og:title"), title, file);
+    assert.equal(meta("name", "twitter:title"), title, file);
+    assert.equal(meta("property", "og:site_name"), "unlibra", file);
+
+    // The header (in LINE Seed JP), the mobile menu and the footer.
+    const header = sectionOf(html, "header");
+    assert.match(
+      header,
+      /<span class="font-brand [^"]*" data-site-name>unlibra<\/span>/,
+      file,
+    );
+    assert.match(header, /<\/svg>unlibra<\/a>/, `${file}: mobile menu`);
+    assert.match(
+      sectionOf(html, "footer"),
+      /<span[^>]*>unlibra<\/span>/,
+      `${file}: footer`,
+    );
+    // The domain as text is gone; URLs keep it.
+    assert.doesNotMatch(
+      html.replace(/<script[\s\S]*?<\/script>/g, ""),
+      />[^<]*\bunlibra\.com\b[^<]*</,
+      file,
+    );
+    if (file !== "404.html") {
+      const canonical = html.match(/<link[^>]*rel="canonical"[^>]*>/)[0];
+      assert.match(attr(canonical, "href"), /^https:\/\/unlibra\.com(\/|$)/);
+    }
+  }
+  // The OGP image is generated with the site name (scripts/generate-icons.mjs).
+  const script = readFileSync(join(root, "scripts/generate-icons.mjs"), "utf8");
+  assert.match(script, />unlibra<\/span>`/);
+  assert.doesNotMatch(script, />unlibra\.com</);
+});
+
+test("ui-revise2 4: LINE Seed JP is loaded in bold for the font-brand class only", () => {
+  const css = globSync("_astro/*.css", { cwd: dist })
+    .map((p) => readDist(p))
+    .join("\n");
+  const faces = [...css.matchAll(/@font-face\{[^}]*\}/g)]
+    .map((m) => m[0])
+    .filter((face) => /LINE Seed JP/.test(face));
+  assert.ok(faces.length > 0, "no LINE Seed JP font faces");
+  for (const face of faces) {
+    assert.match(face, /font-weight:700/, face.slice(0, 80));
+  }
+  assert.match(css, /\.font-brand\{font-family:var\(--font-brand\)\}/);
+  assert.match(css, /--font-brand:"LINE Seed JP",/);
+  // Used by the header's site name and the hero's name only.
+  for (const file of htmlPages()) {
+    const uses = readDist(file).match(/class="[^"]*\bfont-brand\b/g) ?? [];
+    assert.equal(uses.length, file === "index.html" ? 2 : 1, file);
   }
 });
 

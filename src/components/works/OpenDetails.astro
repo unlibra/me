@@ -1,0 +1,28 @@
+---
+// A work's title as the button that opens its details. The button's ::after
+// covers the card (which needs `relative`), so a click anywhere on the card
+// opens the details, and the focus ring goes around the card.
+import type { Work } from "@/config/works";
+import messages from "@/messages/ja";
+import { dialogId } from "@/components/works/ids";
+
+interface Props {
+  work: Work;
+  class?: string;
+}
+
+const { work, class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  aria-haspopup="dialog"
+  aria-controls={dialogId(work)}
+  data-work-open={work.id}
+  class:list={[
+    "cursor-pointer text-left outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-sky-500",
+    className,
+  ]}
+>
+  {messages.works[work.id].title}
+</button>

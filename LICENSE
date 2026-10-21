@@ -29,7 +29,7 @@ MIT License, Copyright (c) Tailwind Labs, Inc.
 The full text is in LICENSES/Heroicons-MIT.txt.
 
   - src/components/icons/Bars3Icon.astro
-  - src/components/icons/ChevronDownIcon.astro
+  - src/components/icons/ChevronRightIcon.astro
   - src/components/icons/GlobeIcon.astro
   - src/components/icons/MoonIcon.astro
   - src/components/icons/SunIcon.astro

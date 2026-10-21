@@ -6,17 +6,16 @@ import type { SameStructure } from "@/messages/types";
 const ja = {
   header: {
     /**
-     * Work categories, linking to their sections on the top page. The
-     * Japanese names are also the section headings of the top page.
+     * Work categories, linking to their sections on the top page. The names
+     * are in English (Title Case) in both languages, and the Japanese ones
+     * are also the section headings of the top page.
      */
     categories: {
-      keyboard: "自作キーボード",
-      software: "ソフトウェア",
-      web: "WEBツール",
-      vrchat: "VRChat",
+      keyboards: "DIY Keyboards",
+      libraries: "Libraries",
+      apps: "Apps",
+      "vr-3d": "VR & 3D",
     } satisfies Record<Category, string>,
-    /** First item of the web tools menu: the web tools section. */
-    allWebTools: "WEBツールの一覧",
     menu: "メニュー",
     openMenu: "メニューを開く",
     closeMenu: "メニューを閉じる",
@@ -37,11 +36,11 @@ const ja = {
   },
   footer: {
     description:
-      "unlibra の制作物をまとめたサイトです。自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを掲載しています。",
+      "unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR & 3D の作品を掲載しています。",
     github: "GitHub",
     links: "Links",
-    docs: "ドキュメント",
-    shop: "BOOTH ショップ",
+    docs: "Docs",
+    shop: "BOOTH",
     support: "Support",
     donate: "寄付・支援",
     privacyPolicy: "プライバシーポリシー",
@@ -53,12 +52,11 @@ export type LayoutMessages = SameStructure<typeof ja>;
 const en: LayoutMessages = {
   header: {
     categories: {
-      keyboard: "Keyboards",
-      software: "Software",
-      web: "Web Tools",
-      vrchat: "VRChat",
+      keyboards: "DIY Keyboards",
+      libraries: "Libraries",
+      apps: "Apps",
+      "vr-3d": "VR & 3D",
     } satisfies Record<Category, string>,
-    allWebTools: "All web tools",
     menu: "Menu",
     openMenu: "Open menu",
     closeMenu: "Close menu",
@@ -79,11 +77,11 @@ const en: LayoutMessages = {
   },
   footer: {
     description:
-      "A collection of works by unlibra: custom keyboards, software, web tools, and VRChat items.",
+      "A collection of works by unlibra: DIY keyboards, libraries, apps, and VR & 3D works.",
     github: "GitHub",
     links: "Links",
-    docs: "Documentation",
-    shop: "BOOTH Shop",
+    docs: "Docs",
+    shop: "BOOTH",
     support: "Support",
     donate: "Donate & Support",
     privacyPolicy: "Privacy Policy (Japanese)",

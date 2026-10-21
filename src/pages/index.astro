@@ -1,7 +1,7 @@
 ---
 import BrandSymbol from "@/components/BrandSymbol.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import WorkCard from "@/components/WorkCard.astro";
+import WorkList from "@/components/works/WorkList.astro";
 import messages from "@/messages/ja";
 import { site } from "@/config/site";
 import { profile } from "@/config/profile";
@@ -48,7 +48,7 @@ const link =
         <div class="mb-4 flex justify-center">
           <BrandSymbol class="size-16" />
         </div>
-        <h1 class="mb-6 text-4xl font-semibold">{profile.name}</h1>
+        <h1 class="mb-6 font-brand text-4xl font-bold">{profile.name}</h1>
         <p class="font-medium whitespace-pre-line">{messages.profile.bio}</p>
       </div>
     </div>
@@ -65,7 +65,7 @@ const link =
             <h2 id={`${category}-heading`} class="text-2xl font-semibold">
               {label}
             </h2>
-            {category === "vrchat" && (
+            {category === "vr-3d" && (
               <a
                 href={site.links.booth}
                 target="_blank"
@@ -76,11 +76,7 @@ const link =
               </a>
             )}
           </div>
-          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {works.map((work) => (
-              <WorkCard work={work} />
-            ))}
-          </div>
+          <WorkList category={category} works={works} />
         </section>
       ))}
     </div>

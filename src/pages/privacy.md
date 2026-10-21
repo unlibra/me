@@ -54,6 +54,6 @@ description: unlibra.com のプライバシーポリシーです。収集する�
 
 ## 8. お問い合わせ
 
-ご質問がある場合：<https://github.com/unlibra>
+ご質問がある場合：<https://github.com/unlibra/community>
 
 **最終更新日：** 2025年12月6日
