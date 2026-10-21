@@ -206,3 +206,17 @@
 - 未検証：GitHub 上での実行（親が push して確かめる）。とくに、Linux のランナーで `wrangler dev`（`workerd`）が起動すること、`npm ci` の時点で `workerd`・`esbuild` の install スクリプトが動くこと（ローカルの npm は「allowScripts で許可されていない install スクリプトがある」と警告を出すが、ローカルでは `wrangler dev` は動いている）
 - 他の選択肢：ジョブを単体テストと E2E に分ける（ビルドが2回になるか、成果物で `dist/` を受け渡すことになる）。Playwright の公式の Docker イメージを使う（`actions/*` だけという条件の外になる）
 - 戻すときの作業：`.github/workflows/test.yml` と `tests/workflow.test.js` を消す
+
+## TS-8 本番確認スクリプト（ブロック3）
+
+- 決めたこと：
+  - `scripts/check-prod.mjs`、`npm run check:prod -- <base URL>`。検査の結果を1行ずつ `OK`・`FAIL`・`WARN` で出し、`FAIL` が1つでもあれば終了コード 1
+  - ページの一覧は、検査先の `/sitemap-index.xml` から辿ったサイトマップの URL。サイトマップの URL がサイトの URL（`src/config/site.ts` の `site.url`）の下にあることも見る（`workers.dev` に対しても、パスだけを取り出して検査先で開く）
+  - 転送とヘッダーの期待値は、リポジトリの `public/_redirects`・`public/_headers` を読む（検査先の `_redirects` は外から読めないため）。`:tool`・`*` を含む行は、実在するツール名で試す。転送は 301 と `location` の行き先に加え、行き先が 200 であることも見る。`/_astro/*` のヘッダーは `/` の HTML に出てくる `/_astro/` のファイルで見る
+  - `robots.txt` は、ビルドが出す内容（`site.url` から作る）と一致すること
+  - `x-vercel-id` は、検査で受け取ったすべてのレスポンスに付いていないこと
+  - 計測タグ（`static.cloudflareinsights.com/beacon.min.js`）は `/` の HTML にあれば `OK`、なければ `WARN`（失敗にしない。P1-1）
+- テスト：`tests/check-prod.test.js`（壊れた応答を返すローカルのサーバーに対して、各項目が `FAIL` になり、計測タグがないときは `WARN` だけになること）と、`tests/e2e/check-prod.spec.js`（I4：E2E の `wrangler dev` に対してスクリプトを動かし、`FAIL` がなく、`WARN` が計測タグの1件だけであること）。手でも `wrangler dev`（ポート 8789）に対して実行し、38件のレスポンスで `0 failed, 1 warnings` になることを見た
+- 他の選択肢：検査先の HTML から全ページを辿る。期待値を `dist/` から読む（ビルドが要る）
+- 戻すときの作業：スクリプトと2つのテスト、`package.json` の `check:prod` を消す
+- 既存のテスト A4 との関係（親の判断：案1、除外は最小）：A4（`tests/build.test.js`）は `docs/`・`tests/` 以外のソースに `vercel` の文字列がないことを確かめる。このスクリプトは計画の検査項目として `x-vercel-id` のヘッダー名を書くので、A4 で `scripts/check-prod.mjs` の1ファイルだけ、`x-vercel-id` を取り除いてから `vercel` を探すようにした。同じファイルでもヘッダー名以外の `vercel`（コメントや変数名を含む）が書かれたら A4 は落ちる（`// Vercel` を足して落ちることを確かめた）。スクリプトのコメントと変数名は「the former host」に書き換えた。A4 は、このファイルが検査の対象に入っていることも確かめる。他の選択肢：ヘッダー名を文字列の連結で書く（A4 の意図をすり抜ける）、検査を Cloudflare からの配信の確認に変える（判定に使うヘッダーが要確認で、計画の項目から外れる）

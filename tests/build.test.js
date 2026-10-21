@@ -121,7 +121,21 @@ test("A3: build output has no locale-prefixed pages", () => {
 test("A4: no Vercel references in build output and source", () => {
   const pattern = /vercel/i;
   assert.deepEqual(findOccurrences(dist, distTextFiles(), pattern), []);
-  assert.deepEqual(findOccurrences(root, sourceTextFiles(), pattern), []);
+  // The production check (scripts/check-prod.mjs) makes sure responses do
+  // not come from Vercel by the absence of its x-vercel-id header, so that
+  // file may name the header, and only the header
+  // (docs/decisions/tests/tests.md, TS-8).
+  const allowed = { "scripts/check-prod.mjs": /x-vercel-id/g };
+  const sources = sourceTextFiles();
+  assert.ok(sources.includes("scripts/check-prod.mjs"));
+  assert.deepEqual(
+    sources.filter((p) =>
+      pattern.test(
+        readFileSync(join(root, p), "utf8").replace(allowed[p] ?? /^$/, ""),
+      ),
+    ),
+    [],
+  );
 
   const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
   for (const field of ["dependencies", "devDependencies"]) {
