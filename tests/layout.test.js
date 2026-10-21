@@ -487,6 +487,13 @@ test("ui-revise 6: the footer has the GitHub, docs and BOOTH links in place of t
       assert.match(tag, /target="_blank"/, file);
       assert.match(tag, /rel="noopener noreferrer"/, file);
     }
+    // GitHub only in this group (not under the logo as well).
+    assert.equal(
+      hrefs(footer).filter((href) => href === "https://github.com/unlibra")
+        .length,
+      1,
+      `${file}: GitHub links in the footer`,
+    );
     // The former TOOLS column is gone.
     assert.ok(!hrefs(footer).some((href) => /\/lab\b/.test(href)), file);
     assert.doesNotMatch(footer, />Tools</, file);

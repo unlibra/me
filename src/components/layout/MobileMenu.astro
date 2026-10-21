@@ -1,7 +1,7 @@
 ---
 // Mobile menu: the slide-in panel of the former tool site, as a
 // native <dialog> (focus stays inside, Escape closes it).
-import SymbolIcon from "@/assets/brand/symbol.svg";
+import BrandSymbol from "@/components/BrandSymbol.astro";
 import Bars3Icon from "@/components/icons/Bars3Icon.astro";
 import XMarkIcon from "@/components/icons/XMarkIcon.astro";
 import type { Locale } from "@/config/locales";
@@ -45,7 +45,7 @@ const item =
     <div class="min-h-full px-4 py-4">
       <div class="flex items-center justify-between">
         <a href="/" class="flex items-center gap-2 text-xl font-semibold">
-          <SymbolIcon class="size-6" aria-hidden="true" />
+          <BrandSymbol class="size-6" />
           {site.title}
         </a>
         <button

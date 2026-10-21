@@ -5,7 +5,7 @@ import { expect, test } from "@playwright/test";
 import { layoutMessages } from "../../src/messages/layout.ts";
 import en from "../../src/tools/messages/en.ts";
 import ja from "../../src/tools/messages/ja.ts";
-import { hasHorizontalScroll, open } from "./helpers.js";
+import { chooseTheme, hasHorizontalScroll, open } from "./helpers.js";
 
 const t = layoutMessages.ja.header;
 
@@ -135,4 +135,40 @@ test.describe("mobile", () => {
     await page.mouse.click(360, 400);
     await expect(menu).toBeHidden();
   });
+});
+
+test.describe("brand symbol", () => {
+  const DARK = "rgb(39, 39, 42)"; // #27272a
+  const LIGHT = "rgb(245, 245, 244)"; // #f5f5f4
+
+  /** [circle fill, mark fill] of every brand symbol on the page. */
+  const fills = (page) =>
+    page
+      .locator("[data-brand-symbol]")
+      .evaluateAll((symbols) =>
+        symbols.map((svg) => [
+          getComputedStyle(svg.querySelector("circle")).fill,
+          getComputedStyle(svg.querySelector("path")).fill,
+        ]),
+      );
+
+  for (const path of ["/", "/en/lab/svg-optimizer"]) {
+    test(`${path}: the circle and the mark swap colors in dark mode`, async ({
+      page,
+    }) => {
+      const lang = path.startsWith("/en/") ? "en" : "ja";
+      await page.emulateMedia({ colorScheme: "light" });
+      await open(page, path);
+      // Header, mobile menu and footer (and the hero on the top page).
+      const count = path === "/" ? 4 : 3;
+      await chooseTheme(page, lang, "light");
+      await expect
+        .poll(() => fills(page))
+        .toEqual(Array(count).fill([DARK, LIGHT]));
+      await chooseTheme(page, lang, "dark");
+      await expect
+        .poll(() => fills(page))
+        .toEqual(Array(count).fill([LIGHT, DARK]));
+    });
+  }
 });

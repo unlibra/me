@@ -1,5 +1,5 @@
 ---
-import SymbolIcon from "@/assets/brand/symbol.svg";
+import BrandSymbol from "@/components/BrandSymbol.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import WorkCard from "@/components/WorkCard.astro";
 import messages from "@/messages/ja";
@@ -46,7 +46,7 @@ const link =
       <!-- Hero content -->
       <div class="relative mx-auto max-w-screen-sm pt-12 pb-20 text-center">
         <div class="mb-4 flex justify-center">
-          <SymbolIcon class="size-16" aria-hidden="true" />
+          <BrandSymbol class="size-16" />
         </div>
         <h1 class="mb-6 text-4xl font-semibold">{profile.name}</h1>
         <p class="font-medium whitespace-pre-line">{messages.profile.bio}</p>

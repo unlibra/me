@@ -1,7 +1,6 @@
 ---
 // Footer: the layout of the former tool site's footer.
-import SymbolIcon from "@/assets/brand/symbol.svg";
-import GitHubIcon from "@/components/icons/GitHubIcon.astro";
+import BrandSymbol from "@/components/BrandSymbol.astro";
 import type { Locale } from "@/config/locales";
 import { copyrightNotice, paths, site } from "@/config/site";
 import { layoutMessages } from "@/messages/layout";
@@ -35,21 +34,12 @@ const externalLinks = [
           href="/"
           class="inline-flex items-center gap-2 transition-all hover:underline"
         >
-          <SymbolIcon class="size-6" aria-hidden="true" />
+          <BrandSymbol class="size-6" />
           <span class="text-xl font-semibold">{site.title}</span>
         </a>
         <p class="mt-3 text-sm whitespace-pre-line text-gray-600 dark:text-gray-400">
           {t.description}
         </p>
-        <a
-          href={site.links.github}
-          target="_blank"
-          rel="noopener noreferrer"
-          class={`mt-4 inline-flex items-center gap-2 ${link}`}
-        >
-          <GitHubIcon class="size-5" />
-          {t.github}
-        </a>
       </div>
 
       <!-- Center: links (where the former site listed the tools) -->

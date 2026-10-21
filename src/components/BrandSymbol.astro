@@ -1,0 +1,20 @@
+---
+// The brand symbol (src/assets/brand/symbol.svg, inlined). The file keeps
+// its colors; in dark mode the circle and the mark swap colors here.
+import SymbolIcon from "@/assets/brand/symbol.svg";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<SymbolIcon
+  class:list={[
+    className,
+    "dark:[&_circle]:fill-[#f5f5f4] dark:[&_path]:fill-[#27272a]",
+  ]}
+  aria-hidden="true"
+  data-brand-symbol
+/>
