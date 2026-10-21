@@ -4,7 +4,7 @@ import { layoutMessages } from "@/messages/layout";
 export default {
   site: {
     description:
-      "unlibra のポートフォリオです。自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを掲載しています。",
+      "unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR & 3D の作品を掲載しています。",
   },
   profile: {
     /** The subtitle of the hero (provisional). */

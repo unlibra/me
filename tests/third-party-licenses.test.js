@@ -15,9 +15,11 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { inflateSync } from "node:zlib";
 
 import {
   LICENSE_FALLBACKS,
+  LICENSE_NOTES,
   LICENSES_FILE,
   OUTSIDE_MODULE_GRAPH,
   PREBUNDLED,
@@ -373,4 +375,84 @@ test("H4: rolldown's entry also has its THIRD-PARTY-LICENSE (Rollup's MIT)", () 
     assert.ok(section.includes(text), file);
   }
   assert.match(section, /github\.com\/rollup\/rollup\/graphs\/contributors/);
+});
+
+/** The copyright notice (name ID 0, Windows platform) in a WOFF file. */
+const woffCopyright = (file) => {
+  const buffer = readFileSync(file);
+  assert.equal(buffer.toString("latin1", 0, 4), "wOFF", file);
+  for (let i = 0; i < buffer.readUInt16BE(12); i++) {
+    const entry = 44 + i * 20;
+    if (buffer.toString("latin1", entry, entry + 4) !== "name") continue;
+    const offset = buffer.readUInt32BE(entry + 4);
+    const compressed = buffer.readUInt32BE(entry + 8);
+    const length = buffer.readUInt32BE(entry + 12);
+    let table = buffer.subarray(offset, offset + compressed);
+    if (compressed < length) table = inflateSync(table);
+    const strings = table.readUInt16BE(4);
+    for (let j = 0; j < table.readUInt16BE(2); j++) {
+      const record = 6 + j * 12;
+      if (table.readUInt16BE(record) !== 3) continue;
+      if (table.readUInt16BE(record + 6) !== 0) continue;
+      const start = strings + table.readUInt16BE(record + 10);
+      const bytes = table.subarray(
+        start,
+        start + table.readUInt16BE(record + 8),
+      );
+      return bytes.swap16().toString("utf16le");
+    }
+  }
+  throw new Error(`${file}: no copyright notice`);
+};
+
+test("ui-revise2 L5: LINE Seed JP's section notes the font's own copyright holder", () => {
+  const dir = join(root, "node_modules/@fontsource/line-seed-jp");
+  const { version } = JSON.parse(
+    readFileSync(join(dir, "package.json"), "utf8"),
+  );
+  // The note is for the installed version (an upgrade is checked again).
+  assert.ok(LICENSE_NOTES[`@fontsource/line-seed-jp@${version}`], version);
+  // The copyright in the shipped font files.
+  const fonts = globSync("_astro/line-seed-jp-*.woff", { cwd: dist });
+  assert.ok(fonts.length > 0, "no LINE Seed JP files in dist/");
+  const holders = new Set(fonts.map((f) => woffCopyright(join(dist, f))));
+  assert.deepEqual([...holders], ["© LY Corporation"]);
+
+  const section = sectionOf("@fontsource/line-seed-jp");
+  assert.match(
+    section,
+    /^Note: The copyright notice in the font files is "© LY Corporation"\./m,
+  );
+  // The package's own license file is kept as it is.
+  assert.ok(
+    normalize(section).includes(
+      normalize(readFileSync(join(dir, "LICENSE"), "utf8")),
+    ),
+  );
+});
+
+test("readLicense adds a LICENSE_NOTES note to the license's own note", () => {
+  const dir = mkdtempSync(join(tmpdir(), "licenses-"));
+  try {
+    writeFileSync(
+      join(dir, "package.json"),
+      JSON.stringify({ name: "noted", version: "1.0.0", license: "MIT" }),
+    );
+    writeFileSync(join(dir, "LICENSE"), "The license text\n");
+    const notes = { "noted@1.0.0": { note: "Extra." } };
+    assert.deepEqual(readLicense(dir, {}, {}, notes), {
+      texts: ["The license text"],
+      note: "Extra.",
+    });
+    // Another version gets no note.
+    assert.deepEqual(
+      readLicense(dir, {}, {}, { "noted@0.9.0": notes["noted@1.0.0"] }),
+      {
+        texts: ["The license text"],
+        note: "",
+      },
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

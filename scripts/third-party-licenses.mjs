@@ -132,6 +132,21 @@ export const LICENSE_CUTS = {
   },
 };
 
+/**
+ * Notes added to a package's section, for what its license files do not say.
+ * Keyed by name@version so that an upgrade is checked again (the tests fail
+ * when the installed version has no entry).
+ */
+export const LICENSE_NOTES = {
+  // The package's LICENSE file is Fontsource's template ("Google Inc."); the
+  // font files themselves name the copyright holder (name table, ID 0).
+  "@fontsource/line-seed-jp@5.3.2": {
+    note:
+      'The copyright notice in the font files is "© LY Corporation". The ' +
+      "license file below is the one in the npm package.",
+  },
+};
+
 // Also THIRD-PARTY-LICENSE(S): rolldown's LICENSE points to it for the code
 // derived from Rollup.
 const LICENSE_FILE_PATTERN =
@@ -251,8 +266,14 @@ export function readLicense(
   dir,
   fallbacks = LICENSE_FALLBACKS,
   cuts = LICENSE_CUTS,
+  notes = LICENSE_NOTES,
 ) {
   const pkg = readPackageJson(dir);
+  const extra = notes[`${pkg.name}@${pkg.version}`]?.note ?? "";
+  const withNote = ({ texts, note }) => ({
+    texts,
+    note: [note, extra].filter(Boolean).join(" "),
+  });
   const files = readdirSync(dir)
     .filter((file) => LICENSE_FILE_PATTERN.test(file))
     .filter((file) => statSync(join(dir, file)).isFile())
@@ -262,7 +283,7 @@ export function readLicense(
       readFileSync(join(dir, file), "utf8").trim(),
     );
     const cut = cuts[pkg.name];
-    if (!cut) return { texts, note: "" };
+    if (!cut) return withNote({ texts, note: "" });
     const index = texts.findIndex((text) => text.includes(cut.before));
     if (index === -1) {
       throw new Error(
@@ -270,10 +291,15 @@ export function readLicense(
       );
     }
     texts[index] = texts[index].slice(0, texts[index].indexOf(cut.before));
-    return { texts: texts.map((text) => text.trim()), note: cut.note };
+    return withNote({
+      texts: texts.map((text) => text.trim()),
+      note: cut.note,
+    });
   }
   const fallback = fallbacks[`${pkg.name}@${pkg.version}`];
-  if (fallback) return { texts: [fallback.text.trim()], note: fallback.note };
+  if (fallback) {
+    return withNote({ texts: [fallback.text.trim()], note: fallback.note });
+  }
   throw new Error(
     `${LICENSES_FILE}: ${pkg.name}@${pkg.version} (${dir}) has no license file. ` +
       "Add its license text to LICENSE_FALLBACKS in scripts/third-party-licenses.mjs.",

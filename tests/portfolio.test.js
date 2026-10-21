@@ -464,3 +464,34 @@ test("ui-revise2 9: the privacy policy's contact is the community repository", (
   assert.deepEqual(hrefs(contact[1]), ["https://github.com/unlibra/community"]);
   assert.ok(!hrefs(main).includes("https://github.com/unlibra"));
 });
+
+/** The content of a <meta name="..."> or <meta property="..."> tag. */
+const metaOf = (html, key, name) =>
+  attr(
+    html.match(new RegExp(`<meta[^>]*${key}="${name}"[^>]*>`))[0],
+    "content",
+  );
+
+test("ui-revise2 (parent): the privacy policy names the site and its update date", () => {
+  const privacy = readDist("privacy/index.html");
+  const description = metaOf(privacy, "name", "description");
+  assert.match(description, /^unlibra のプライバシーポリシーです。/);
+  assert.equal(metaOf(privacy, "property", "og:description"), description);
+  assert.match(privacy, /<strong>最終更新日：<\/strong> 2026年10月22日<\/p>/);
+});
+
+test("ui-revise2 (parent): the top page's description is the footer's description", () => {
+  const footer = top.match(/<footer[\s>][\s\S]*?<\/footer>/)[0];
+  const text = footer.match(/<p class="mt-3[^"]*">([^<]*)<\/p>/)[1];
+  assert.equal(
+    text,
+    "unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR &amp; 3D の作品を掲載しています。",
+  );
+  for (const [key, name] of [
+    ["name", "description"],
+    ["property", "og:description"],
+    ["name", "twitter:description"],
+  ]) {
+    assert.equal(metaOf(top, key, name), text, name);
+  }
+});

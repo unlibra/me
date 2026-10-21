@@ -1,7 +1,7 @@
 ---
 layout: "@/layouts/MarkdownLayout.astro"
 title: プライバシーポリシー
-description: unlibra.com のプライバシーポリシーです。収集する情報とその利用目的、取り扱いについて説明します。
+description: unlibra のプライバシーポリシーです。収集する情報とその利用目的、取り扱いについて説明します。
 ---
 
 ## プライバシーポリシー
@@ -56,4 +56,4 @@ description: unlibra.com のプライバシーポリシーです。収集する�
 
 ご質問がある場合：<https://github.com/unlibra/community>
 
-**最終更新日：** 2025年12月6日
+**最終更新日：** 2026年10月22日

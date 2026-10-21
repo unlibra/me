@@ -35,14 +35,14 @@
 - 決めたこと：`@fontsource/line-seed-jp/700.css` を `BaseLayout.astro` で読み込み、`--font-brand`（`"LINE Seed JP", "Noto Sans JP Variable", sans-serif`）と `font-brand` のクラスを作った。使うのはヘッダーのサイト名とヒーローの名前の2か所だけ。2か所の太さを `font-semibold`（600）から `font-bold`（700）にした
 - 根拠：LINE Seed JP には 100・400・700・800 しかない（600 を指定すると 700 が選ばれるか合成される）。文字の範囲は、名前が日本語になっても効くように、日本語を含むすべての範囲（`700.css`）にした。ブラウザは `unicode-range` で、使う文字の範囲のファイルだけを取りに行く（今は latin の1ファイル）
 - 影響：`dist/_astro/` に LINE Seed JP のファイルが 237 個（約 5.0 MB）増える。配信されるのは使う範囲だけ
-- 未決（親に返す）：モバイルメニューのパネルの上とフッターのロゴの横にもサイト名がある。計画の「2か所」に従い、この2つは本文のフォント（Noto Sans JP）のまま
+- 未決：モバイルメニューのパネルの上とフッターのロゴの横にもサイト名がある。計画の「2か所」に従い、この2つは本文のフォント（Noto Sans JP）のまま（親がユーザーに確認中。今は変えない）
 - 他の選択肢：latin の範囲だけ読み込む（`latin-700.css`。ファイルは減るが、日本語の名前にすると Noto Sans JP に落ちる）
 - 戻すときの作業：`BaseLayout.astro` の import、`global.css` の `--font-brand`、2か所の `font-brand font-bold` を消し、`package.json` から外す
 
 ## UR2-6 サイト名を「unlibra」に統一（ユーザーの判断、2026-10-22）
 
 - 決めたこと：`site.title` を `"unlibra"` にした。ヘッダー、モバイルメニュー、フッターのロゴの横、`<title>`（トップは「unlibra」、ほかは「{ページ名} - unlibra」）、`og:title`・`og:site_name`・`twitter:title` がこれを使う。OGP 画像は `scripts/generate-icons.mjs` の文字を「unlibra」にして作り直した（フォントは前と同じ Noto Sans JP。`favicon.ico`・`apple-touch-icon.png`・`icon.svg` は変わらないことを `git status` で確かめた）。ドメイン（`site.url`、canonical、hreflang、リンク、`_redirects`、check-prod、`LICENSE`）は `unlibra.com` のまま
-- 未決（親に返す）：プライバシーポリシーの meta description「unlibra.com のプライバシーポリシーです。…」は、ドメインとしての表記ともサイト名とも読めるので変えていない。README の見出し（`# unlibra.com`）はリポジトリの説明なので変えていない
+- プライバシーポリシーの meta description は、親の判断で「unlibra のプライバシーポリシーです。…」（サイト名）にした。README の見出し（`# unlibra.com`）はリポジトリの説明なので変えていない
 - 戻すときの作業：`site.title` と `generate-icons.mjs` の文字を戻し、`npm run generate:icons` を実行する
 
 ## UR2-7 カードの形：Apps と Libraries は旧ツールサイトのカード、DIY Keyboards と VR & 3D は 4:3 の枠
@@ -85,16 +85,18 @@
 - 他の選択肢：モックアップどおり `<template>` から複製する。カードに直接のリンクも残す
 - 戻すときの作業：`WorkDialog.astro`・`work-links.ts` を差し替える
 
-## UR2-11 変えていないもの（親に返す）
+## UR2-11 計画の外の文言（親の判断で対応したもの、変えていないもの）
 
-- `messages.site.description`（トップの meta description）：「自作キーボード、ソフトウェア、WEBツール、VRChat のアイテムを掲載しています。」のまま。カテゴリ名を出す場所とも読めるが、文面は計画にないため
-- プライバシーポリシーの「最終更新日：2025年12月6日」：お問い合わせ先を変えたが、日付は変えていない
+- `messages.site.description`（トップの meta description、og:description、twitter:description）：親の判断で、フッターの新しい説明文と同じ「unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR & 3D の作品を掲載しています。」にした（仮の文面）
+- プライバシーポリシーの「最終更新日」：親の判断で 2026年10月22日 にした（お問い合わせ先の変更に合わせて）
 - 作品カードの外の「BOOTH ショップ」（VR & 3D の見出しの横）と、詳細の「ドキュメント」：計画の8はフッターの Links だけなので、そのまま
 
 ## UR2-12 LINE Seed JP のライセンス（L5）
 
 - 確かめたこと：`@fontsource/line-seed-jp` 5.3.2 は npm のパッケージで、`license` は `OFL-1.1`。ビルドの出力（`dist/_astro/` のフォント）から `scripts/third-party-licenses.mjs` が拾い、`/third-party-licenses.txt` に「@fontsource/line-seed-jp 5.3.2 (OFL-1.1)」と全文が載る。`LICENSE` の第4節（ビルドの出力に入る npm のパッケージ、フォントを含む）の範囲に入る。`tests/third-party-licenses.test.js` の H4/H5 の一覧に足した
-- 気づいたこと（親に返す）：パッケージの `LICENSE` ファイルの著作権者の行は「Google Inc.」（Fontsource の Google Fonts 用のひな形）だが、フォントの中の著作権表示（name テーブルの ID 0）は「© LY Corporation」。一覧にはパッケージの `LICENSE` がそのまま載るので、著作権者は「Google Inc.」と表示される。OFL の条件（著作権表示とライセンスを添える）は、フォントのファイル自体に表示が入っているので満たしていると考えるが、一覧の表示を直すか（注記を足すなど）は判断してほしい
+- 気づいたこと：パッケージの `LICENSE` ファイルの著作権者の行は「Google Inc.」（Fontsource の Google Fonts 用のひな形）だが、フォントの中の著作権表示（name テーブルの ID 0）は「© LY Corporation」
+- 対応（親の判断）：`scripts/third-party-licenses.mjs` に `LICENSE_NOTES`（`name@version` ごとの注記）を足し、一覧の @fontsource/line-seed-jp の項に「Note: The copyright notice in the font files is "© LY Corporation". ...」を出す。パッケージの `LICENSE` はそのまま載せる。注記は版ごとなので、版を上げると `third-party-licenses.test.js` が落ち、見直しを求める。テストは、`dist/` の LINE Seed JP の WOFF の name テーブルから著作権表示を読み、すべて「© LY Corporation」であることと、一覧に注記が出ることを確かめる
+- 戻すときの作業：`LICENSE_NOTES` の項（または仕組みごと）と、そのテストを消す
 
 ## 直した既存のテストと理由（L1）
 
@@ -126,6 +128,7 @@
 | 詳細のリンク（Apps）                      | ツールを開く                                                                  |
 | 詳細のリンク（npm・PyPI・BOOTH）          | npm で見る / PyPI で見る / BOOTH で見る                                       |
 | 詳細のドキュメントのリンク                | ドキュメント（既存の `messages.links.docs`）                                  |
+| トップの meta description（親の判断）     | フッターの説明文と同じ（日本語）                                              |
 | ヒーローのサブタイトル                    | 昼はカフェ、夜はバー。（ユーザーの判断、暫定）                                |
 | カードの一行の要約（`works[id].summary`） | モックアップの `data.ts` の文面をそのまま使った（14件。`src/messages/ja.ts`） |
 
