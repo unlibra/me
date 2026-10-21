@@ -38,23 +38,22 @@
 | ---------------------------------- | ---------------- |
 | ポートフォリオ（日本語のみ）       | `/`              |
 | プライバシーポリシー（日本語のみ） | `/privacy`       |
-| ツール一覧（日本語・既定）         | `/lab`           |
 | ツール（日本語・既定）             | `/lab/{tool}`    |
-| ツール一覧（英語）                 | `/en/lab`        |
 | ツール（英語）                     | `/en/lab/{tool}` |
 
-`{tool}` は `tw-palette-generator`、`favicon-generator`、`svg-optimizer`、`password-generator` の4つ。
+`{tool}` は `tw-palette-generator`、`favicon-generator`、`svg-optimizer`、`password-generator` の4つ。ツール一覧ページ（`/lab`、`/en/lab`）は、ユーザーの最終UIチェックの指示で廃止した（2026-10-21、`docs/decisions/ui-revise/`）。ツールへの入口はトップの WEBツールのセクション（`/#web`）とヘッダー。
 
 旧URLからの301リダイレクト：
 
-| 旧URL       | 新URL            |
-| ----------- | ---------------- |
-| `/ja`       | `/`              |
-| `/en`       | `/`              |
-| `/lab/ja`   | `/lab`           |
-| `/lab/ja/*` | `/lab/:splat`    |
-| `/lab/en`   | `/en/lab`        |
-| `/lab/en/*` | `/en/lab/:splat` |
+| 旧URL                                                        | 新URL            |
+| ------------------------------------------------------------ | ---------------- |
+| `/ja`                                                        | `/`              |
+| `/en`                                                        | `/`              |
+| `/lab/ja`                                                    | `/#web`          |
+| `/lab/ja/*`                                                  | `/lab/:splat`    |
+| `/lab/en`                                                    | `/#web`          |
+| `/lab/en/*`                                                  | `/en/lab/:splat` |
+| `/lab`、`/en/lab`（Phase 4 で作った一覧。2026-10-21 に廃止） | `/#web`          |
 
 廃止したイロマイド（`/lab/{ja,en}/iromide`）は個別に扱わない。上の一括ルールで転送され、転送先が存在しないので404になる。
 
