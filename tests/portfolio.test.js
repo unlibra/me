@@ -151,6 +151,26 @@ test("D3: the web tools section links to the four tools under /lab", () => {
   for (const card of cards) assert.doesNotMatch(card, /target="_blank"/);
 });
 
+test("D3: each web tool card shows the tool's icon, and the file is in dist/", () => {
+  // The tool list pages checked the icons until ui-revise removed them.
+  const cards = cardsOf(sectionOf("web"));
+  assert.deepEqual(
+    cards.map((card) => attr(card, "data-work")),
+    TOOLS,
+  );
+  for (const [i, card] of cards.entries()) {
+    const imgs = card.match(/<img\s[^>]*>/g) ?? [];
+    assert.equal(imgs.length, 1, `${TOOLS[i]}: icon count`);
+    const src = attr(imgs[0], "src");
+    assert.match(
+      src,
+      new RegExp(`^/_astro/${TOOLS[i]}\\.[\\w-]+\\.svg$`),
+      `${TOOLS[i]}: icon`,
+    );
+    assert.ok(existsSync(join(dist, src.slice(1))), `${TOOLS[i]}: ${src}`);
+  }
+});
+
 test("D4: the VRChat section has one dummy work per subcategory and the shop link", () => {
   const section = sectionOf("vrchat");
   const cards = cardsOf(section);

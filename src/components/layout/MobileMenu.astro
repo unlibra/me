@@ -61,7 +61,7 @@ const item =
         {categories.map((category) =>
           category === "web" ? (
             <li class="space-y-1">
-              <div class="px-3 py-2 text-xs font-semibold tracking-wider text-gray-600 dark:text-gray-400">
+              <div class="px-3 py-2 text-xs font-semibold tracking-wider text-gray-600 uppercase dark:text-gray-400">
                 {t.categories[category]}
               </div>
               <a href={categoryHref(category)} class={item}>
