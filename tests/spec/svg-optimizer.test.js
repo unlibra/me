@@ -345,7 +345,11 @@ test("I1 svg: the recommended preset keeps title, desc, size, viewBox and images
   assert.match(out, /r="1.123"/);
 });
 
-test("I1 svg: the SVGO default preset removes title, desc and viewBox and keeps size and images", async () => {
+// The "svgo-default" preset (shown as "Standard Compression") is not the same
+// as SVGO 4's preset-default (which keeps <title> and viewBox and sorts
+// attributes); this checks the preset as the tool defines it. Reported to the
+// parent (tests.md TS-4).
+test("I1 svg: the standard preset removes title, desc and viewBox and keeps size and images", async () => {
   const out = await optimizeSvg(PRESET_INPUT, PRESET_SVGO_DEFAULT);
   assert.doesNotMatch(out, /<title|<desc|viewBox/);
   assert.match(out, / width="100"/);

@@ -2,7 +2,8 @@
  * State helpers of the palette generator that do not need React, so that
  * they can be unit tested.
  */
-import type { ColorPalette } from "./palette.ts";
+import { hexToOklch } from "./color.ts";
+import { generatePalette, type ColorPalette } from "./palette.ts";
 
 /** A palette saved in the history (`localStorage`). */
 export type PaletteHistoryItem = {
@@ -16,6 +17,43 @@ export type PaletteHistoryItem = {
 export function normalizeInputColor(inputColor: string): string {
   return inputColor.startsWith("#") ? inputColor : `#${inputColor}`;
 }
+
+/** The input color's values: where the sliders start and reset to. */
+export type BaseState = {
+  hue: number;
+  lightness: number;
+  saturation: number;
+  palette: ColorPalette;
+  /** The input color with the `#` prefix. */
+  baseColor: string;
+};
+
+/**
+ * The input field's color as the sliders' starting point: its OKLCh values
+ * rounded to the slider steps, and the palette generated from it. `null`
+ * when the input is not a color.
+ */
+export function getBaseState(inputColor: string): BaseState | null {
+  const baseColor = normalizeInputColor(inputColor);
+  const palette = generatePalette(baseColor);
+  const oklch = hexToOklch(baseColor);
+  if (!palette || !oklch) return null;
+  return {
+    hue: Math.round(oklch.h),
+    lightness: Math.round(oklch.l),
+    saturation: Math.round(oklch.c),
+    palette,
+    baseColor,
+  };
+}
+
+/**
+ * What the component keeps of the last input color that was a color.
+ * `palette` is `null` until the first palette is generated.
+ */
+export type SliderBase = Pick<BaseState, "hue" | "lightness" | "saturation"> & {
+  palette: ColorPalette | null;
+};
 
 /** What "Reset adjustments" goes back to. */
 export type ResetState = {
@@ -34,12 +72,7 @@ export type ResetState = {
  */
 export function getResetState(
   inputColor: string,
-  base: {
-    hue: number;
-    lightness: number;
-    saturation: number;
-    palette: ColorPalette | null;
-  },
+  base: SliderBase,
 ): ResetState {
   return {
     targetHue: base.hue,

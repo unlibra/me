@@ -8,15 +8,19 @@
 - 他の選択肢：既存のファイルに追記する
 - 戻すときの作業：`tests/spec/` を消す
 
-## TS-2 コンポーネントの中にある挙動は、単体テストでなく E2E で確かめる（ソースは変えていない）
+## TS-2 コンポーネントの中にある挙動の扱い：リセットは関数に出し、ほかは E2E で確かめる
 
-- 決めたこと：次の挙動は React のコンポーネントの中にあり、`node:test` からは呼べない。ブロック1ではソースを組み替えず、ブロック2の E2E で確かめる
-  - Favicon Generator：生成したファイルが1つならそのファイル、2つ以上なら `favicons.zip` にすること。サイズを小さい順に並べること。出力形式を選ばないとダウンロードできないこと
-  - TW Palette Generator：スライダーの値から「入力の色との差」を出して `adjustColor`・`adjustPalette` に渡すこと、履歴の保存（30件まで）・削除・全削除・`localStorage` からの読み込み
-  - SVG Optimizer：スイッチを手で変えるとプリセットの選択が外れること
-- 根拠：FX-3 のように純粋な関数に出すと単体テストで書けるが、既存の挙動を変えずに手を入れるには、先にその挙動を守るテストが要る（子の規則）。その守るテストが E2E になるので、E2E で直接確かめるほうが手数が少ない
-- 他の選択肢：`adjustments.ts` のように、履歴の操作やスライダーの差の計算を関数に出して単体テストを書く
-- 戻すときの作業：—（ソースは変えていない）
+- 決めたこと：
+  - TW Palette Generator の、入力の色からスライダーの起点（色相・明度・彩度を丸めた値）とパレットと BASE を計算する処理を、`adjustments.ts` の `getBaseState` に出した。コンポーネントは、色の入力の後（100ms の遅延の後）にこれを呼んで結果を入れるだけにした。あわせて、コンポーネントの起点の値（`baseHue`・`baseLightness`・`baseSaturation`・`basePalette` の4つの state）を1つの state（`base`、型 `SliderBase`）にまとめ、「調整をリセット」は `getResetState(inputColor, base)` を呼ぶだけにした。スライダーの処理は `base.hue` などを読むように書き換えただけで、計算は変えていない（レビューの必須の指摘と親の判断による）
+  - 単体テストの期待値は実装から作らない：起点の値は liblab の画面に出た値（`#3ba0be` で 221・66・13。phase-4/tools.md の E7）と、liblab の初期値（`#0ea5e9` で 237・68・19）、パレットは liblab の出力（`tests/fixtures/tw-palette-generator/expected.json`）
+  - 次の挙動はコンポーネントの中にあり、`node:test` からは呼べないので、ブロック2の E2E で確かめる
+    - Favicon Generator：選んだ出力形式の分だけファイルが出ること（単体テストの `generate()` は、コンポーネントの「選んだ形式ごとに `generateOutputSet` を呼んでつなぐ」処理をテストの側で書き直したもので、コンポーネントのその処理自体は確かめていない）、生成したファイルが1つならそのファイル、2つ以上なら `favicons.zip` にすること、サイズを小さい順に並べること、出力形式を選ばないとダウンロードできないこと
+    - TW Palette Generator：スライダーの値から「起点との差」を出して `adjustColor`・`adjustPalette` に渡すこと、リセットの結果がスライダー・パレット・BASE に入ること（`setTargetHue` などの呼び忘れは単体テストでは見つけられない）、履歴の保存（30件まで）・削除・全削除・`localStorage` からの読み込み
+    - SVG Optimizer：スイッチを手で変えるとプリセットの選択が外れること
+- 根拠：リセットは、テストの側でコンポーネントの計算を写すと、コンポーネントを壊しても通るテストになっていた（レビューの必須の指摘）。履歴やスライダーの差の計算も関数に出せるが、既存の挙動を変えずに手を入れる前に守るテストが要り、それが E2E になるので、E2E で直接確かめる
+- 手で確かめたこと（変更の前に守る E2E がまだないため）：`astro preview` をブラウザペインで開き、JS で操作して確かめた。開いた直後のスライダーは 237・68・19。入力欄に `3ba0be` を入れると 221・66・13 になる。色相を 120 にすると BASE とパレットが変わり、「調整をリセット」で 221・66・13、BASE `#3BA0BE` に戻る。`ef4444` を入れると 25・64・27 になり、パレットは Tailwind の red と同じになる。明度を 30 にしたあとのリセットで、スライダー・BASE・パレットの11段がすべて元に戻る
+- 他の選択肢：4つの state を残し、`getBaseState` の結果をそれぞれに入れる（`handleReset` で値を取り違える書き方が残る）。履歴の操作やスライダーの差の計算も関数に出す
+- 戻すときの作業：`getBaseState`・`SliderBase` を消し、コンポーネントの state と効果の処理を前の形に戻し、テスト（`the input color sets where the sliders start` と reset のテスト）を直す
 
 ## TS-3 確認待ちの挙動はテストしていない
 
@@ -25,13 +29,14 @@
 
 ## TS-4 ブロック1で見つけた、仕様として決まっていない挙動（直していない。親に判断してほしい）
 
-テストを書く中で見つけた。どれも liblab からの既存の挙動で、今の挙動を固定するテストは書いていない。
+テストを書く中で見つけた。どれも liblab からの既存の挙動で、6 を除き、今の挙動を固定するテストは書いていない。
 
 1. SVG Optimizer の「小数点以下の桁数」（`floatPrecision`）は、`cleanupNumericValues` が丸める数値（`r`、`width` など）にしか効かない。パスデータ（`convertPathData`）と値のリスト（`cleanupListOfValues`。`x`・`y`・`points`・`viewBox` など）は、svgo の既定の3桁のままになる。たとえば「最大圧縮」（1桁）でもパスの座標は3桁、0 にしても3桁、5 にしても3桁に丸められる。画面の文言は「小数点以下の桁数」なので、利用者はパスにも効くと受け取りうる。直すなら svgo の設定の `floatPrecision`（全プラグインに効く）を渡すか、該当プラグインに個別に渡す（出力が変わるので `expected.json` を作り直す）
 2. SVG Optimizer の `removeRasterImages` は、`xlink:href` で埋め込んだ画像しか消さない（svgo のプラグインの仕様）。SVG 2 の `href` で書いた `<image>` は「最大圧縮」でも残る
 3. SVG Optimizer の「transform属性の精度」（`transformPrecision`）は、`translate` などの桁数には効くが、`rotate` の角度は svgo が3桁までに抑える（`degPrecision`）
 4. TW Palette Generator の入力欄は、16進数の後ろに別の文字が続く入力（`12345g`、`0x1234`）を色として受け付け、パレットを作る（`hexToRgb` の `parseInt` が先頭の読める部分だけを読むため。`12345g` は `#012345` になる）。6文字や3文字の長さの確認はしている
 5. TW Palette Generator の明度スライダーを一番下まで下げても、真っ黒（`#000000`）にはならず、色味がわずかに残る（`#3ba0be` で `#000005`）。一番上では `#FFFFFF` になる
+6. SVG Optimizer のプリセット「標準圧縮」（ID は `svgo-default`、コメントは「SVGO's actual default preset」）の中身は、svgo 4.1.0 の実際の `preset-default` と違う。`removeTitle`・`removeViewBox` がオン（svgo 4 の `preset-default` には入っていない）、`sortAttrs` がオフ（svgo 4 の `preset-default` には入っている）。画面の名前は「標準圧縮 / Standard Compression」なので不具合とは言い切れない。テストは今の中身を「標準圧縮」として確かめ、テスト名で「SVGO default」とは呼んでいない
 
 ## I1 オプションと仕様のテストの対応
 
@@ -47,21 +52,21 @@
 | `floatPrecision`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `floatPrecision sets the decimal places of numeric attributes`（0・1・3・5・10。範囲は TS-4 の1）                                        |
 | `transformPrecision`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `transformPrecision sets the decimal places of translations`（0・1・3・5）                                                               |
 | プリセット「おすすめ」（既定）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | `the recommended preset keeps title, desc, size, viewBox and images`                                                                     |
-| プリセット「SVGO 既定」                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `the SVGO default preset removes title, desc and viewBox and keeps size and images`                                                      |
+| プリセット「標準圧縮」（`svgo-default`。TS-4 の6）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `the standard preset removes title, desc and viewBox and keeps size and images`                                                          |
 | プリセット「最大圧縮」                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `the maximum preset removes everything it can and rounds to one digit`                                                                   |
 | プリセットの危険な設定                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | `the presets keep scripts and style elements out`                                                                                        |
 | スイッチを変えるとプリセットの選択が外れる                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | E2E（TS-2）                                                                                                                              |
 
 ### Favicon Generator（`tests/spec/favicon-generator.test.js`）
 
-| オプション                       | テスト                                                                                                                                      |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| 出力形式（3つの全組み合わせ）    | `each combination of output formats gives the files of those formats`、`the PNG files have their fixed sizes`                               |
-| サイズ（7つの全組み合わせ）      | `favicon.ico holds one image for each selected size`、`favicon.ico defaults to 16 and 32 pixels`、`the sizes only change favicon.ico`       |
-| 角丸（0・1・25・50・99・100%）   | `the corner radius rounds every image but apple-touch-icon`                                                                                 |
-| 背景色（なし・あり × 角丸）      | `the background color fills every image; apple-touch-icon is white without one`、`a rounded image's background is inside the rounded shape` |
-| 入力画像の縦横比                 | `a non-square image is cropped to its center square`                                                                                        |
-| 1ファイルか ZIP か、サイズの並び | E2E（TS-2）                                                                                                                                 |
+| オプション                                                                        | テスト                                                                                                                                      |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| 出力形式（3つの全組み合わせ。形式ごとの出力をつなぐ処理はテストの側で書いたもの） | `each combination of output formats gives the files of those formats`、`the PNG files have their fixed sizes`                               |
+| サイズ（7つの全組み合わせ）                                                       | `favicon.ico holds one image for each selected size`、`favicon.ico defaults to 16 and 32 pixels`、`the sizes only change favicon.ico`       |
+| 角丸（0・1・25・50・99・100%）                                                    | `the corner radius rounds every image but apple-touch-icon`                                                                                 |
+| 背景色（なし・あり × 角丸）                                                       | `the background color fills every image; apple-touch-icon is white without one`、`a rounded image's background is inside the rounded shape` |
+| 入力画像の縦横比                                                                  | `a non-square image is cropped to its center square`                                                                                        |
+| 選んだ形式だけが出力されること、1ファイルか ZIP か、サイズの並び                  | E2E（TS-2）                                                                                                                                 |
 
 ### Password Generator（`tests/spec/password-generator.test.js`）
 
@@ -73,11 +78,11 @@
 
 ### TW Palette Generator（`tests/spec/tw-palette-generator.test.js`）
 
-| オプション                                       | テスト                                                                                                                                                                                             |
-| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 入力の形式（`#` の有無、大文字小文字、3桁）      | `the input works with or without #, in either case`、`a three-digit input is the six-digit color with each digit doubled`、`input that is not a color gives no palette`（TS-4 の4を除く）          |
-| 生成されるパレット                               | `a palette has the eleven shades, each a hex color`、`a Tailwind color gives back its own hue`                                                                                                     |
-| 色相・明度・彩度のスライダー                     | `with every slider at the input's values, colors are unchanged`、`the hue slider ...`、`the lightness slider ...`、`the saturation slider ...`、`the sliders apply the same change to every shade` |
-| リセット                                         | `reset puts the sliders back to the input's values and restores its palette`                                                                                                                       |
-| 履歴の1件の形                                    | `a history entry keeps the BASE color, the palette and the time`                                                                                                                                   |
-| スライダーの差の計算、履歴の保存・削除・読み込み | E2E（TS-2）                                                                                                                                                                                        |
+| オプション                                                                     | テスト                                                                                                                                                                                             |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 入力の形式（`#` の有無、大文字小文字、3桁）                                    | `the input works with or without #, in either case`、`a three-digit input is the six-digit color with each digit doubled`、`input that is not a color gives no palette`（TS-4 の4を除く）          |
+| 生成されるパレット                                                             | `a palette has the eleven shades, each a hex color`、`a Tailwind color gives back its own hue`                                                                                                     |
+| 色相・明度・彩度のスライダー                                                   | `with every slider at the input's values, colors are unchanged`、`the hue slider ...`、`the lightness slider ...`、`the saturation slider ...`、`the sliders apply the same change to every shade` |
+| スライダーの起点、リセット                                                     | `the input color sets where the sliders start`、`reset puts the sliders back to the input's values and restores its palette`                                                                       |
+| 履歴の1件の形                                                                  | `a history entry keeps the BASE color, the palette and the time`                                                                                                                                   |
+| スライダーの差の計算、リセットの結果の画面への反映、履歴の保存・削除・読み込み | E2E（TS-2）                                                                                                                                                                                        |

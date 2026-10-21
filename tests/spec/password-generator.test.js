@@ -48,6 +48,9 @@ const label = ({ selected, options }) =>
 test("I1 password: each combination uses only its characters, at the requested length", () => {
   for (const combination of combinations()) {
     const chars = new Set(allowed(combination));
+    // 1 to 4 are below the slider's range (8 to 64): the function is also
+    // used with lengths shorter than the number of types, which must still
+    // give exactly that many characters.
     for (const length of [1, 2, 3, 4, 8, 9, 16, 32, 63, 64]) {
       for (let run = 0; run < 20; run++) {
         const password = generatePassword({ ...combination.options, length });

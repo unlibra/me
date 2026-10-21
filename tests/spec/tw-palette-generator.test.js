@@ -1,13 +1,17 @@
 // Spec tests of the Tailwind palette generator's options (I1): the forms of
 // the input color, the three sliders, the reset and the history entries.
+// The sliders' starting values and the reset state are computed in
+// adjustments.ts; the component only applies them.
 // tests/tw-palette-generator.test.js checks the port against the former
 // tool's output. Saving, loading and deleting the history in localStorage
 // happen in the component and are checked by the E2E tests.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 import {
   createHistoryItem,
+  getBaseState,
   getResetState,
   normalizeInputColor,
 } from "../../src/tools/tw-palette-generator/adjustments.ts";
@@ -19,6 +23,13 @@ import {
   getShadeLabels,
 } from "../../src/tools/tw-palette-generator/palette.ts";
 import { tailwindColors } from "../../src/tools/tw-palette-generator/tailwind-colors.ts";
+
+const formerOutput = JSON.parse(
+  readFileSync(
+    new URL("../fixtures/tw-palette-generator/expected.json", import.meta.url),
+    "utf8",
+  ),
+);
 
 /** What the tool does with the input field's text. */
 const paletteOf = (input) => generatePalette(normalizeInputColor(input));
@@ -172,27 +183,59 @@ test("I1 palette: the sliders apply the same change to every shade", () => {
   );
 });
 
+// Expected values from outside the code under test: the slider values the
+// former tool showed for #3ba0be (phase-4/tools.md, E7) and for its default
+// color #0ea5e9 (its initial state), and the former tool's palettes
+// (tests/fixtures/tw-palette-generator/expected.json).
+const formerPalette = (hex) => formerOutput[hex].palette;
+
+test("I1 palette: the input color sets where the sliders start", () => {
+  for (const input of ["3ba0be", "#3ba0be", "#3BA0BE"]) {
+    assert.deepEqual(getBaseState(input), {
+      hue: 221,
+      lightness: 66,
+      saturation: 13,
+      palette: formerPalette("#3ba0be"),
+      baseColor: normalizeInputColor(input),
+    });
+  }
+  assert.deepEqual(getBaseState("#0ea5e9"), {
+    hue: 237,
+    lightness: 68,
+    saturation: 19,
+    palette: formerPalette("#0ea5e9"),
+    baseColor: "#0ea5e9",
+  });
+  for (const input of ["", "xyz", "#12345"]) {
+    assert.equal(getBaseState(input), null, JSON.stringify(input));
+  }
+});
+
 test("I1 palette: reset puts the sliders back to the input's values and restores its palette", () => {
-  const palette = paletteOf("3ba0be");
-  const values = {
-    hue: Math.round(base.h),
-    lightness: Math.round(base.l),
-    saturation: Math.round(base.c),
-    palette,
-  };
   for (const input of ["3ba0be", "#3ba0be"]) {
-    assert.deepEqual(getResetState(input, values), {
+    assert.deepEqual(getResetState(input, getBaseState(input)), {
       targetHue: 221,
       targetLightness: 66,
       targetSaturation: 13,
-      palette,
+      palette: formerPalette("#3ba0be"),
       baseColor: "#3ba0be",
     });
   }
-  // Before any palette is generated there is none to restore.
-  assert.equal(
-    getResetState("#3ba0be", { ...values, palette: null }).palette,
-    null,
+  // Each slider goes back to its own value.
+  assert.deepEqual(
+    getResetState("#3ba0be", {
+      hue: 1,
+      lightness: 2,
+      saturation: 3,
+      palette: null,
+    }),
+    {
+      targetHue: 1,
+      targetLightness: 2,
+      targetSaturation: 3,
+      palette: null, // none generated yet: the current one is kept
+      baseColor: "#3ba0be",
+    },
   );
 });
 

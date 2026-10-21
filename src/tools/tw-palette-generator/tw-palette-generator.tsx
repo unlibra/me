@@ -14,15 +14,15 @@ import { ToolRoot } from "@/tools/tool-root";
 
 import {
   createHistoryItem,
+  getBaseState,
   getResetState,
   normalizeInputColor,
+  type SliderBase,
   type PaletteHistoryItem,
 } from "./adjustments";
-import { hexToOklch } from "./color";
 import {
   adjustColor,
   adjustPalette,
-  generatePalette,
   getShadeLabels,
   type ColorPalette,
 } from "./palette";
@@ -76,13 +76,16 @@ function TailwindPaletteGenerator() {
     900: "#0c4a6e",
     950: "#082f49",
   });
-  const [baseHue, setBaseHue] = useState(237); // Input color's H value
+  // The input color's values (H, L, C) and palette: where the sliders reset to
+  const [base, setBase] = useState<SliderBase>({
+    hue: 237,
+    lightness: 68,
+    saturation: 19,
+    palette: null,
+  });
   const [targetHue, setTargetHue] = useState(237); // Current slider value
-  const [baseLightness, setBaseLightness] = useState(68); // Input color's L value
   const [targetLightness, setTargetLightness] = useState(68); // Current slider value
-  const [baseSaturation, setBaseSaturation] = useState(19); // Input color's C value
   const [targetSaturation, setTargetSaturation] = useState(19); // Current slider value
-  const [basePalette, setBasePalette] = useState<ColorPalette | null>(null);
   const [paletteHistory, setPaletteHistory] = useState<PaletteHistoryItem[]>(
     [],
   );
@@ -115,19 +118,15 @@ function TailwindPaletteGenerator() {
   // Auto-generate palette with debounce when inputColor changes
   useEffect(() => {
     const timer = setTimeout(() => {
-      const generated = generatePalette(normalizedInputColor);
-      const oklch = hexToOklch(normalizedInputColor);
-      if (generated && oklch) {
-        setBaseColor(normalizedInputColor);
-        setBasePalette(generated);
-        setPalette(generated);
-        // Set base and target to input color's actual values
-        setBaseHue(Math.round(oklch.h));
-        setTargetHue(Math.round(oklch.h));
-        setBaseLightness(Math.round(oklch.l));
-        setTargetLightness(Math.round(oklch.l));
-        setBaseSaturation(Math.round(oklch.c));
-        setTargetSaturation(Math.round(oklch.c));
+      const inputBase = getBaseState(normalizedInputColor);
+      if (inputBase) {
+        setBaseColor(inputBase.baseColor);
+        setBase(inputBase);
+        setPalette(inputBase.palette);
+        // Set target to input color's actual values
+        setTargetHue(inputBase.hue);
+        setTargetLightness(inputBase.lightness);
+        setTargetSaturation(inputBase.saturation);
       }
     }, 100); // 100ms debounce (optimized for responsive UX)
 
@@ -152,10 +151,10 @@ function TailwindPaletteGenerator() {
   const handleHueChange = useCallback(
     (sliderValue: number) => {
       setTargetHue(sliderValue);
-      if (basePalette) {
-        const hueShift = sliderValue - baseHue;
-        const lightnessShift = targetLightness - baseLightness;
-        const saturationShift = targetSaturation - baseSaturation;
+      if (base.palette) {
+        const hueShift = sliderValue - base.hue;
+        const lightnessShift = targetLightness - base.lightness;
+        const saturationShift = targetSaturation - base.saturation;
         const adjustedColor = adjustColor(
           inputColor,
           hueShift,
@@ -164,7 +163,7 @@ function TailwindPaletteGenerator() {
         );
         setBaseColor(adjustedColor || inputColor);
         const adjustedPalette = adjustPalette(
-          basePalette,
+          base.palette,
           hueShift,
           lightnessShift,
           saturationShift,
@@ -172,25 +171,17 @@ function TailwindPaletteGenerator() {
         setPalette(adjustedPalette);
       }
     },
-    [
-      inputColor,
-      basePalette,
-      baseHue,
-      targetLightness,
-      baseLightness,
-      targetSaturation,
-      baseSaturation,
-    ],
+    [inputColor, base, targetLightness, targetSaturation],
   );
 
   // Adjust lightness
   const handleLightnessChange = useCallback(
     (sliderValue: number) => {
       setTargetLightness(sliderValue);
-      if (basePalette) {
-        const hueShift = targetHue - baseHue;
-        const lightnessShift = sliderValue - baseLightness;
-        const saturationShift = targetSaturation - baseSaturation;
+      if (base.palette) {
+        const hueShift = targetHue - base.hue;
+        const lightnessShift = sliderValue - base.lightness;
+        const saturationShift = targetSaturation - base.saturation;
         const adjustedColor = adjustColor(
           inputColor,
           hueShift,
@@ -199,7 +190,7 @@ function TailwindPaletteGenerator() {
         );
         setBaseColor(adjustedColor || inputColor);
         const adjustedPalette = adjustPalette(
-          basePalette,
+          base.palette,
           hueShift,
           lightnessShift,
           saturationShift,
@@ -207,25 +198,17 @@ function TailwindPaletteGenerator() {
         setPalette(adjustedPalette);
       }
     },
-    [
-      inputColor,
-      basePalette,
-      baseLightness,
-      targetHue,
-      baseHue,
-      targetSaturation,
-      baseSaturation,
-    ],
+    [inputColor, base, targetHue, targetSaturation],
   );
 
   // Adjust saturation
   const handleSaturationChange = useCallback(
     (sliderValue: number) => {
       setTargetSaturation(sliderValue);
-      if (basePalette) {
-        const hueShift = targetHue - baseHue;
-        const lightnessShift = targetLightness - baseLightness;
-        const saturationShift = sliderValue - baseSaturation;
+      if (base.palette) {
+        const hueShift = targetHue - base.hue;
+        const lightnessShift = targetLightness - base.lightness;
+        const saturationShift = sliderValue - base.saturation;
         const adjustedColor = adjustColor(
           inputColor,
           hueShift,
@@ -234,7 +217,7 @@ function TailwindPaletteGenerator() {
         );
         setBaseColor(adjustedColor || inputColor);
         const adjustedPalette = adjustPalette(
-          basePalette,
+          base.palette,
           hueShift,
           lightnessShift,
           saturationShift,
@@ -242,25 +225,12 @@ function TailwindPaletteGenerator() {
         setPalette(adjustedPalette);
       }
     },
-    [
-      inputColor,
-      basePalette,
-      targetLightness,
-      baseLightness,
-      baseSaturation,
-      targetHue,
-      baseHue,
-    ],
+    [inputColor, base, targetLightness, targetHue],
   );
 
   // Reset adjustments to base values
   const handleReset = useCallback(() => {
-    const reset = getResetState(inputColor, {
-      hue: baseHue,
-      lightness: baseLightness,
-      saturation: baseSaturation,
-      palette: basePalette,
-    });
+    const reset = getResetState(inputColor, base);
     setTargetHue(reset.targetHue);
     setTargetLightness(reset.targetLightness);
     setTargetSaturation(reset.targetSaturation);
@@ -268,7 +238,7 @@ function TailwindPaletteGenerator() {
       setPalette(reset.palette);
     }
     setBaseColor(reset.baseColor);
-  }, [baseHue, baseLightness, baseSaturation, basePalette, inputColor]);
+  }, [base, inputColor]);
 
   // Copy color to clipboard
   const handleCopyColor = useCallback(
