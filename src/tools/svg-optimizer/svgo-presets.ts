@@ -54,19 +54,21 @@ export const PRESET_SVGO_DEFAULT: SvgoOptions = {
   floatPrecision: 3,
   transformPrecision: 5,
 
-  // SVGO's actual default preset
+  // "Standard Compression" (id "svgo-default", kept from the former tool).
+  // Not the same as SVGO 4's preset-default: that keeps <title>, viewBox and
+  // descriptions other than empty and editor ones, and sorts attributes.
   removeDoctype: true,
   removeComments: true,
   removeMetadata: true,
-  removeTitle: true, // SVGO removes by default
-  removeDesc: true, // SVGO removes by default
+  removeTitle: true,
+  removeDesc: true,
   removeUselessDefs: true,
   removeEditorsNSData: true,
   removeEmptyAttrs: true,
   removeHiddenElems: true,
   removeEmptyText: true,
   removeEmptyContainers: true,
-  removeViewBox: true, // SVGO removes by default
+  removeViewBox: true,
   cleanupEnableBackground: true,
   minifyStyles: true,
   convertStyleToAttrs: true,

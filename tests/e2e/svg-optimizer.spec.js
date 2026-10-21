@@ -124,7 +124,7 @@ for (const locale of LOCALES) {
         page,
         svgFile(
           "numbers.svg",
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="1.123456"/><text transform="translate(1.123456 2)">a</text></svg>',
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="1.123456"/><text transform="translate(1.123456 2)">a</text><text transform="rotate(10.123456)">b</text><path d="M0 0L1.123456 2.123456L3 0z"/></svg>',
         ),
       );
       await setRange(page.getByRole("slider", { name: m.floatPrecision }), 1);
@@ -137,6 +137,11 @@ for (const locale of LOCALES) {
       ).buffer.toString();
       expect(file).toContain('r="1.1"');
       expect(file).toContain("translate(1.12 2)");
+      // Angles and path data too (fixes2.md).
+      expect(file).toContain("rotate(10.12)");
+      const d = file.match(/ d="([^"]*)"/)[1];
+      expect(d).toContain("1.1");
+      expect(d).not.toMatch(/\.\d\d/);
     });
 
     test("a file that is not an SVG is refused with a message", async ({

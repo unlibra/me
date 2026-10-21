@@ -1,4 +1,4 @@
-import type { Config } from "svgo/browser";
+import type { Config, CustomPlugin } from "svgo/browser";
 
 /**
  * SVGO plugin options
@@ -49,6 +49,31 @@ export type SvgoOptions = {
 };
 
 /**
+ * SVGO's removeRasterImages for SVG 2's `href`: removes an `<image>` whose
+ * `href` refers to a JPEG, PNG or GIF, with the same test SVGO's plugin makes
+ * on `xlink:href`.
+ */
+const removeRasterImagesHref: CustomPlugin = {
+  name: "removeRasterImagesHref",
+  fn: () => ({
+    element: {
+      enter: (node, parentNode) => {
+        const href = node.attributes.href;
+        if (
+          node.name === "image" &&
+          href != null &&
+          /(\.|image\/)(jpe?g|png|gif)/.test(href)
+        ) {
+          parentNode.children = parentNode.children.filter(
+            (child) => child !== node,
+          );
+        }
+      },
+    },
+  }),
+};
+
+/**
  * Convert our custom options format to SVGO config
  */
 export function buildSvgoConfig(options: SvgoOptions): Config {
@@ -63,8 +88,20 @@ export function buildSvgoConfig(options: SvgoOptions): Config {
           cleanupNumericValues: options.cleanupNumericValues && {
             floatPrecision: options.floatPrecision,
           },
+          // Path data follows the same slider as the other numbers.
+          convertPathData: options.convertPathData && {
+            floatPrecision: options.floatPrecision,
+          },
+          mergePaths: options.mergePaths && {
+            floatPrecision: options.floatPrecision,
+          },
+          convertShapeToPath: options.convertShapeToPath && {
+            floatPrecision: options.floatPrecision,
+          },
+          // Angles too: SVGO would otherwise round them to at most 3 places.
           convertTransform: options.convertTransform && {
             floatPrecision: options.transformPrecision,
+            degPrecision: options.transformPrecision,
           },
           // Boolean plugin overrides (false = disable, true = use default params)
           removeDoctype: options.removeDoctype,
@@ -79,7 +116,6 @@ export function buildSvgoConfig(options: SvgoOptions): Config {
           cleanupEnableBackground: options.cleanupEnableBackground,
           minifyStyles: options.minifyStyles,
           convertColors: options.convertColors,
-          convertPathData: options.convertPathData,
           removeUnknownsAndDefaults: options.removeUnknownsAndDefaults,
           removeNonInheritableGroupAttrs:
             options.removeNonInheritableGroupAttrs,
@@ -89,11 +125,10 @@ export function buildSvgoConfig(options: SvgoOptions): Config {
           moveElemsAttrsToGroup: options.moveElemsAttrsToGroup,
           moveGroupAttrsToElems: options.moveGroupAttrsToElems,
           collapseGroups: options.collapseGroups,
-          mergePaths: options.mergePaths,
-          convertShapeToPath: options.convertShapeToPath,
           sortAttrs: options.sortAttrs,
           // Also in preset-default, where it removes only empty and editor
-          // descriptions; switched off, it must not run there either.
+          // descriptions; switched off, it must not run there either. The
+          // standalone removeDesc below removes the others.
           removeDesc: options.removeDesc,
         },
       },
@@ -102,21 +137,32 @@ export function buildSvgoConfig(options: SvgoOptions): Config {
 
   // Standalone plugins (not part of preset-default). A plugin that is switched
   // off is left out: SVGO 4 ignores `active: false` and would still run it.
-  const standalonePlugins: Array<[name: string, enabled: boolean]> = [
-    ["removeViewBox", options.removeViewBox],
-    ["convertStyleToAttrs", options.convertStyleToAttrs],
-    ["cleanupListOfValues", options.cleanupListOfValues],
-    ["removeTitle", options.removeTitle],
-    ["removeDesc", options.removeDesc],
-    ["removeDimensions", options.removeDimensions],
-    ["removeRasterImages", options.removeRasterImages],
+  const standalonePlugins: Array<
+    [plugin: Record<string, unknown>, enabled: boolean]
+  > = [
+    [{ name: "removeViewBox" }, options.removeViewBox],
+    [{ name: "convertStyleToAttrs" }, options.convertStyleToAttrs],
+    [
+      {
+        name: "cleanupListOfValues",
+        params: { floatPrecision: options.floatPrecision },
+      },
+      options.cleanupListOfValues,
+    ],
+    [{ name: "removeTitle" }, options.removeTitle],
+    // Every <desc>, not only empty ones and those an editor wrote.
+    [{ name: "removeDesc", params: { removeAny: true } }, options.removeDesc],
+    [{ name: "removeDimensions" }, options.removeDimensions],
+    // SVGO's plugin looks at xlink:href only; the second one at SVG 2's href.
+    [{ name: "removeRasterImages" }, options.removeRasterImages],
+    [removeRasterImagesHref, options.removeRasterImages],
     // Security plugins (inverted logic: keepScripts=false means remove)
-    ["removeScripts", !options.keepScripts],
-    ["removeStyleElement", !options.keepStyleElement],
+    [{ name: "removeScripts" }, !options.keepScripts],
+    [{ name: "removeStyleElement" }, !options.keepStyleElement],
   ];
 
-  for (const [name, enabled] of standalonePlugins) {
-    if (enabled) plugins.push({ name });
+  for (const [plugin, enabled] of standalonePlugins) {
+    if (enabled) plugins.push(plugin);
   }
 
   return {

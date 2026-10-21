@@ -5,7 +5,9 @@
 // optimizer (its own source with svgo 4.0.0, the version in its lock file),
 // then remade with this code (svgo 4.1.0) after fixing the switches that did
 // not turn their plugins off (see docs/decisions/fixes/fixes.md, FX-1). The
-// outputs that did not involve those switches are unchanged.
+// outputs that did not involve those switches are unchanged. Remade again
+// when removeDesc started to remove every <desc> and the precision sliders
+// started to reach path data and angles (docs/decisions/fixes2/fixes2.md).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -96,9 +98,30 @@ test("E6: the SVGO config passes precision to preset-default and multipass is on
   assert.deepEqual(preset.params.overrides.cleanupNumericValues, {
     floatPrecision: 2,
   });
+  for (const plugin of [
+    "convertPathData",
+    "mergePaths",
+    "convertShapeToPath",
+  ]) {
+    assert.deepEqual(
+      preset.params.overrides[plugin],
+      { floatPrecision: 2 },
+      plugin,
+    );
+  }
   assert.deepEqual(preset.params.overrides.convertTransform, {
     floatPrecision: 4,
+    degPrecision: 4,
   });
+  const listOfValues = config.plugins.find(
+    (p) => p.name === "cleanupListOfValues",
+  );
+  assert.deepEqual(listOfValues.params, { floatPrecision: 2 });
+  const removeDesc = buildSvgoConfig({
+    ...PRESET_SAFE,
+    removeDesc: true,
+  }).plugins.find((p) => p.name === "removeDesc");
+  assert.deepEqual(removeDesc?.params, { removeAny: true });
 });
 
 /** The toggles for plugins outside SVGO's preset-default. */
@@ -124,6 +147,17 @@ test("H1: a switched-off plugin is left out of the SVGO config", () => {
     const names = pluginNames({ ...PRESET_MAXIMUM, [plugin]: false });
     assert.ok(!names.includes(plugin), `${plugin} off`);
   }
+  // The second raster image plugin (SVG 2's href) follows the same switch.
+  assert.ok(
+    pluginNames(PRESET_MAXIMUM).includes("removeRasterImagesHref"),
+    "removeRasterImagesHref on",
+  );
+  assert.ok(
+    !pluginNames({ ...PRESET_MAXIMUM, removeRasterImages: false }).includes(
+      "removeRasterImagesHref",
+    ),
+    "removeRasterImagesHref off",
+  );
   // Inverted: keeping the element means the removal plugin is off.
   for (const [option, plugin] of [
     ["keepScripts", "removeScripts"],

@@ -54,9 +54,8 @@ const SWITCH_CASES = {
     changed: (out) => !out.includes("<title"),
   },
   removeDesc: {
-    // Only a description an editor wrote: whether removeDesc should remove
-    // other descriptions is still being decided (fixes.md FX-1).
-    input: svg('<desc>Created with an editor</desc><path d="M0 0h10v10z"/>'),
+    // Any description, not only one an editor wrote (fixes2.md).
+    input: svg('<desc>A blue square</desc><path d="M0 0h10v10z"/>'),
     changed: (out) => !out.includes("<desc"),
   },
   removeUselessDefs: {
@@ -181,8 +180,8 @@ const SWITCH_CASES = {
     changed: (out) => !out.includes("<g"),
   },
   removeRasterImages: {
-    // SVGO's plugin looks at xlink:href only.
-    input: svg(`<image width="2" height="2" xlink:href="${PNG}"/>`, XLINK),
+    // SVG 2's href (SVGO's own plugin looks at xlink:href only).
+    input: svg(`<image width="2" height="2" href="${PNG}"/>`),
     changed: (out) => !out.includes("<image"),
   },
   mergePaths: {
@@ -267,9 +266,6 @@ for (const [option, { input, kept }] of Object.entries(KEEP_CASES)) {
   });
 }
 
-// Only the numbers cleanupNumericValues rounds: path data and lists of
-// values keep SVGO's own precision whatever the slider says. Whether they
-// should follow the slider is not decided (reported to the parent).
 test("I1 svg: floatPrecision sets the decimal places of numeric attributes", async () => {
   const input = svg('<circle cx="5" cy="5" r="1.123456"/>');
   for (const [precision, r] of [
@@ -287,7 +283,64 @@ test("I1 svg: floatPrecision sets the decimal places of numeric attributes", asy
   }
 });
 
-// Translations: SVGO rounds rotation angles to at most 3 places on its own.
+/** The most decimal places of the numbers in an attribute value. */
+const decimals = (value) =>
+  Math.max(0, ...[...value.matchAll(/\.(\d+)/g)].map((m) => m[1].length));
+const attr = (out, name) => out.match(new RegExp(` ${name}="([^"]*)"`))?.[1];
+
+// Also path data and lists of values (x, y, points, viewBox), not only the
+// numbers cleanupNumericValues rounds (fixes2.md).
+test("I1 svg: floatPrecision sets the decimal places of lists of values", async () => {
+  const input = svg(
+    '<text x="1.123456" y="2.123456">a</text><polygon points="1.123456 2.123456 3 4 5 6"/>',
+    'viewBox="0 0 100.123456 50.123456"',
+  );
+  for (const precision of [0, 1, 3, 5, 10]) {
+    const out = await optimizeSvg(input, {
+      ...PRESET_MAXIMUM,
+      convertShapeToPath: false, // keeps the polygon's points
+      floatPrecision: precision,
+    });
+    const round = (n) => String(Number(n.toFixed(precision)));
+    assert.equal(attr(out, "x"), round(1.123456), `${precision}: ${out}`);
+    assert.equal(attr(out, "y"), round(2.123456), `${precision}: ${out}`);
+    assert.equal(
+      attr(out, "viewBox"),
+      `0 0 ${round(100.123456)} ${round(50.123456)}`,
+      `${precision}: ${out}`,
+    );
+    assert.deepEqual(
+      attr(out, "points").split(/[ ,]/).map(Number).slice(0, 2),
+      [Number(round(1.123456)), Number(round(2.123456))],
+      `${precision}: ${out}`,
+    );
+  }
+});
+
+test("I1 svg: floatPrecision sets the decimal places of path data", async () => {
+  const inputs = {
+    path: svg('<path d="M0 0L1.123456 2.123456L3.123456 0.5z"/>'),
+    // Merged by mergePaths, which writes the path data again.
+    merged: svg(
+      '<path d="M0 0L1.123456 2.123456L3.123456 0.5z"/><path d="M50 50L51.123456 52.123456L53.123456 50.5z"/>',
+    ),
+    // Turned into a path by convertShapeToPath.
+    shape: svg('<polygon points="1.123456 2.123456 3.123456 4 5 6"/>'),
+  };
+  for (const [name, input] of Object.entries(inputs)) {
+    for (const precision of [0, 1, 5]) {
+      const out = await optimizeSvg(input, {
+        ...PRESET_MAXIMUM,
+        floatPrecision: precision,
+      });
+      const d = attr(out, "d");
+      assert.ok(d, `${name} ${precision}: ${out}`);
+      assert.equal(decimals(d), precision, `${name} ${precision}: ${out}`);
+    }
+  }
+});
+
+// Translations: the decimal places of translate().
 test("I1 svg: transformPrecision sets the decimal places of translations", async () => {
   const input = svg('<text transform="translate(10.123456 20)">a</text>');
   for (const [precision, x] of [
@@ -301,6 +354,77 @@ test("I1 svg: transformPrecision sets the decimal places of translations", async
       transformPrecision: precision,
     });
     assert.ok(out.includes(`translate(${x} 20)`), `${precision}: ${out}`);
+  }
+});
+
+// Angles too: SVGO limits them to 3 places unless told otherwise (fixes2.md).
+test("I1 svg: transformPrecision sets the decimal places of angles", async () => {
+  const input = svg(
+    '<text transform="rotate(45.123456)">a</text><text transform="skewX(10.123456)">b</text>',
+  );
+  for (const [precision, rotate, skew] of [
+    [0, "45", "10"],
+    [1, "45.1", "10.1"],
+    [3, "45.123", "10.123"],
+    [5, "45.12346", "10.12346"],
+  ]) {
+    const out = await optimizeSvg(input, {
+      ...PRESET_MAXIMUM,
+      transformPrecision: precision,
+    });
+    assert.ok(out.includes(`rotate(${rotate})`), `${precision}: ${out}`);
+    assert.ok(out.includes(`skewX(${skew})`), `${precision}: ${out}`);
+  }
+});
+
+test("I1 svg: removeDesc removes every description", async () => {
+  const input = svg(
+    "<desc>A blue square</desc><desc>Created with an editor</desc><desc/>" +
+      '<g><desc>Inside a group</desc><path d="M0 0h10v10z"/><path d="M50 50h10v10z" fill="red"/></g>',
+  );
+  for (const preset of [PRESET_SVGO_DEFAULT, PRESET_MAXIMUM]) {
+    const out = await optimizeSvg(input, preset);
+    assert.doesNotMatch(out, /<desc/, out);
+  }
+  const kept = await optimizeSvg(input, PRESET_SAFE);
+  assert.equal(kept.match(/<desc>/g).length, 3, kept);
+});
+
+test("I1 svg: removeRasterImages removes PNG, JPEG and GIF images by href or xlink:href", async () => {
+  const sources = [
+    PNG,
+    "data:image/jpeg;base64,AAAA",
+    "data:image/gif;base64,AAAA",
+    "photo.jpg",
+    "photo.jpeg",
+    "photo.png",
+    "anim.gif",
+  ];
+  for (const source of sources) {
+    for (const [name, attrs] of [
+      ["href", undefined],
+      ["xlink:href", XLINK],
+    ]) {
+      const input = svg(
+        `<image width="2" height="2" ${name}="${source}"/><path d="M0 0h10v10z"/>`,
+        attrs,
+      );
+      const removed = await optimizeSvg(input, PRESET_MAXIMUM);
+      assert.doesNotMatch(removed, /<image/, `${name} ${source}`);
+      const kept = await optimizeSvg(input, {
+        ...PRESET_MAXIMUM,
+        removeRasterImages: false,
+      });
+      assert.match(kept, /<image/, `${name} ${source} off`);
+    }
+  }
+  // Not a raster image: kept.
+  for (const source of ["picture.svg", "data:image/svg+xml;base64,AAAA"]) {
+    const out = await optimizeSvg(
+      svg(`<image width="2" height="2" href="${source}"/>`),
+      PRESET_MAXIMUM,
+    );
+    assert.match(out, /<image/, source);
   }
 });
 
@@ -347,8 +471,8 @@ test("I1 svg: the recommended preset keeps title, desc, size, viewBox and images
 
 // The "svgo-default" preset (shown as "Standard Compression") is not the same
 // as SVGO 4's preset-default (which keeps <title> and viewBox and sorts
-// attributes); this checks the preset as the tool defines it. Reported to the
-// parent (tests.md TS-4).
+// attributes); this checks the preset as the tool defines it, which is kept
+// as it is (fixes2.md).
 test("I1 svg: the standard preset removes title, desc and viewBox and keeps size and images", async () => {
   const out = await optimizeSvg(PRESET_INPUT, PRESET_SVGO_DEFAULT);
   assert.doesNotMatch(out, /<title|<desc|viewBox/);
