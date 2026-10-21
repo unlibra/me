@@ -132,7 +132,10 @@ export const LICENSE_CUTS = {
   },
 };
 
-const LICENSE_FILE_PATTERN = /^(licen[cs]e|copying|notice)([.-].*)?$/i;
+// Also THIRD-PARTY-LICENSE(S): rolldown's LICENSE points to it for the code
+// derived from Rollup.
+const LICENSE_FILE_PATTERN =
+  /^((third[-_]party[-_])?licen[cs]es?|copying|notice)([.-].*)?$/i;
 
 /**
  * The package a module or asset path belongs to: the directory right after

@@ -92,7 +92,7 @@
 - 推奨の指摘（親の判断：載せすぎても害がないので載せる）：クライアントの JS には、Vite の `vite/preload-helper.js` と Rolldown の `rolldown/runtime.js` が仮想モジュール（`�` で始まる ID）として入っている
   - 直したこと：`VIRTUAL_MODULES` に、ID とそのパッケージを書いて一覧に載せる。表にない仮想モジュールや、`node_modules` にもプロジェクトの中にもないモジュールが出てきたらビルドを止める（`packageOfModule`）。テストの H5（ビルド用ツールがないこと）から vite と rolldown を外した。devDependencies、`@tailwindcss/vite`、`@vitejs/plugin-react` などは引き続き確かめる
   - vite の `LICENSE.md` は、Vite のライセンスの後に、Vite の Node.js 用のコードに同梱した依存（`@vercel/detect-agent` など）のライセンスが続く。そのまま載せると、既存のテスト A4（配布物に Vercel の文字列がないこと）に当たった。配るのは Vite 自身のコード（preload-helper）だけなので、`LICENSE_CUTS` で「# Licenses of bundled dependencies」より前（Vite のライセンス）だけを載せ、その旨を注記に出す。区切りの見出しが見つからなければビルドを止める。A4 は変えていない
-  - rolldown は `LICENSE`（MIT）だけを載せる。`THIRD-PARTY-LICENSE` はファイル名の形に当たらないので読まない。`runtime.js` は Rolldown 自身のコードと考えた（確かめていない）
+  - rolldown は `LICENSE`（MIT）と `THIRD-PARTY-LICENSE`（Rollup の MIT。`LICENSE` の末尾が、一部の元になった外部ライブラリのライセンスとしてこのファイルを指している）の両方を載せる。再レビューの推奨により、ライセンスファイルとして読むファイル名の形に `THIRD-PARTY-LICENSE(S)` を足した（ほかの載せているパッケージで、この形のファイルを持つものはない。一覧の差分は rolldown の項目だけだった）。`runtime.js` は Rolldown 自身のコードと考えた（確かめていない）
 - 任意の指摘：SPDX の式がすでに括弧で囲まれているとき（jszip、pako）、先頭の一覧で括弧が二重になっていた。式の全体が1組の括弧で囲まれているときはそのまま出すようにした
 - 他の選択肢：vite の `LICENSE.md` を全文載せ、A4 の検査から一覧ファイルを外す（既存のテストを弱めることになる）
 - 戻すときの作業：`VIRTUAL_MODULES`・`LICENSE_CUTS` を消し、`packageOfModule` を `packageOfPath` に戻し、テストの期待値を直す

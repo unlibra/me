@@ -363,3 +363,13 @@ test("a license cut whose marker is missing stops the build", () => {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test("H4: rolldown's entry also has its THIRD-PARTY-LICENSE (Rollup's MIT)", () => {
+  const dir = join(root, "node_modules", "rolldown");
+  const section = normalize(sectionOf("rolldown"));
+  for (const file of ["LICENSE", "THIRD-PARTY-LICENSE"]) {
+    const text = normalize(readFileSync(join(dir, file), "utf8"));
+    assert.ok(section.includes(text), file);
+  }
+  assert.match(section, /github\.com\/rollup\/rollup\/graphs\/contributors/);
+});
