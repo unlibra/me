@@ -87,3 +87,12 @@
 
 1. すべての `<desc>` を消す　2. 直す　3. 直す　4. 直す（可能と確認）　5. 直す（可能と確認）　6. 弾く　7. 直す（副作用は明度 0 のときだけ）　8. 中身は維持し、コメントを直す　9. 直す
    対応は `fixes2/plan.md`。
+
+## 8. プレビューの公開と残作業（2026-10-22）
+
+- `wrangler deploy` で、コミット `0543d22` のビルドを Worker `unlibra-com` として出した（ユーザー承認済み）。URL は `https://unlibra-com.not-inbox.workers.dev`。`unlibra.com` のドメインは付け替えていない
+- `check:prod` を workers.dev に流した結果：2件失敗、1件警告
+  - 失敗：末尾スラッシュ付きの旧ツールURL（`/lab/ja/favicon-generator/`、`/lab/en/favicon-generator/`）が、1回の 301 で新URLに届かず、末尾スラッシュ付きの `/lab/favicon-generator/` に転送される（その先は 200）。`wrangler dev` では1回で届いていたので、本番の Workers と `wrangler dev` で `_redirects` の評価が違う。要調査・修正
+  - 警告：Web Analytics の計測タグがない（workers.dev は Cloudflare のプロキシを通らないので想定どおり）
+- wrangler のトークンに Access の権限がないため、親は Cloudflare Access を設定できなかった。夜の間公開したままにしないよう、`workers_dev: false`・`preview_urls: false` でデプロイし直して workers.dev を閉じた（公開していたのは数分。閉じた後は 404 を確認）。この設定変更はプレビュー用の作業コピーだけで、リポジトリの `wrangler.jsonc` は変えていない
+- ユーザーの操作が要ること：ダッシュボードで workers.dev を有効にし、「Enable Cloudflare Access」で自分のメールアドレスだけを許可する（手順は報告に記載）
