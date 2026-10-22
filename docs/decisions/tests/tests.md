@@ -232,6 +232,15 @@
 | （レビュー）ダウンロードの URL をすぐに破棄しない（liblab から引き継いだ不具合）                       | `download-blob.test.js`                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | （ユーザーの判断）ロゴタイプ「unlibra」はすべて LINE Seed JP、フォントは7文字に絞った1ファイル         | `layout.test.js` の `ui-revise2 4: the logotype is in LINE Seed JP everywhere it is shown, and only there`・`ui-revise2 4: LINE Seed JP is one font file with the letters of unlibra only`、`third-party-licenses.test.js` の `ui-revise2 4: the brand font made from LINE Seed JP is listed through DERIVED_ASSETS`、`license.test.js` の `ui-revise2 4: LICENSE names each file made from a package, which exists`、`works.spec.js` の `the logotype in LINE Seed JP › ...` |
 
+### UI の見直し（6回目、ui-revise6。`docs/decisions/ui-revise6/plan.md` の指示1〜4）
+
+| 指示                                                      | テスト                                                                                                                                                                                                  |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 フッターの説明文（日英）とトップの meta description     | `layout.test.js` の `ui-revise2 8, ui-revise6 1: the footer's description and link labels`、`portfolio.test.js` の `ui-revise3 2, ui-revise6 1: the top page's description is the footer's description` |
+| 2 Libraries と Apps の説明文を2行程度に                   | `works.spec.js` の `ui-revise6 2: the summaries of Libraries and Apps › 1280px: each summary takes two or three lines`、`portfolio.test.js` の `ui-revise4 2, ui-revise6 2: the Apps cards have ...`    |
+| 3 フッターの INFORMATION とクレジットへのリンク           | `layout.test.js` の `ui-revise6 3: the footer's Information group links to donate, the privacy policy and the credits`・`C4`、`works.spec.js` の `ui-revise4 3: the footer's grid › ...`                |
+| 4 クレジットのページ（LICENSE 第2節との突き合わせを含む） | `credits.test.js`（全件）、`build.test.js` の A2・A6、`layout.test.js` の C2・C7 ほか全ページのテスト、`site.spec.js` の `page width › ...`・`the Japanese-only pages have no language switch`          |
+
 ## I3 テストの後にプロセスが残らないこと
 
 - `npm run test:e2e` と `npx playwright test` の後に、`wrangler`・`workerd`・Playwright の Chromium のプロセスがないこと、ポート 8788 で待ち受けているものがないことを、PowerShell（`Get-CimInstance Win32_Process`、`Get-NetTCPConnection`）で確かめた（Windows）。サーバーは Playwright の `webServer` が起動して止めるので、テストの側で止める処理は持たない

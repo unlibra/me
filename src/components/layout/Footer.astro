@@ -65,9 +65,9 @@ const externalLinks = [
         </ul>
       </div>
 
-      <!-- Right: support -->
-      <div data-footer-support>
-        <h2 class={heading}>{t.support}</h2>
+      <!-- Right: information (support, the privacy policy and the credits) -->
+      <div data-footer-information>
+        <h2 class={heading}>{t.information}</h2>
         <ul class="space-y-2">
           <li>
             <a
@@ -82,6 +82,11 @@ const externalLinks = [
           <li>
             <a href={paths.privacy} class={link}>
               {t.privacyPolicy}
+            </a>
+          </li>
+          <li>
+            <a href={paths.credits} class={link}>
+              {t.credits}
             </a>
           </li>
         </ul>

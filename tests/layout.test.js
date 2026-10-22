@@ -62,6 +62,7 @@ test("the build has the pages this test suite expects", () => {
     htmlPages(),
     [
       "404.html",
+      "credits/index.html",
       ...tools.map((tool) => `en/lab/${tool}/index.html`),
       "index.html",
       ...tools.map((tool) => `lab/${tool}/index.html`),
@@ -89,7 +90,12 @@ test("not-found: the 404 page has no header, no footer and no logotype", () => {
 const langOf = (file) => (file.startsWith("en/") ? "en" : "ja");
 
 /** Pages that exist in one language only. */
-const singleLanguagePages = ["404.html", "index.html", "privacy/index.html"];
+const singleLanguagePages = [
+  "404.html",
+  "credits/index.html",
+  "index.html",
+  "privacy/index.html",
+];
 
 test("C2: pages other than 404 have exactly one canonical and a matching og:url", () => {
   for (const file of htmlPages().filter((f) => f !== "404.html")) {
@@ -307,10 +313,14 @@ const pageJavaScript = (html) => {
   return sources;
 };
 
-test("C7: the top page and privacy do not load the React runtime", () => {
+test("C7: the top page, privacy and credits do not load the React runtime", () => {
   // Symbols every React runtime build defines.
   const reactMarker = /react\.(transitional\.)?element/;
-  for (const file of ["index.html", "privacy/index.html"]) {
+  for (const file of [
+    "index.html",
+    "privacy/index.html",
+    "credits/index.html",
+  ]) {
     const html = readDist(file);
     assert.doesNotMatch(html, /<astro-island/, file);
     for (const code of pageJavaScript(html)) {
@@ -461,6 +471,7 @@ test("C4: every page has the common footer with the required links", () => {
       "https://github.com/unlibra",
       "https://ofuse.me/unlibra",
       "/privacy",
+      "/credits",
     ]) {
       assert.ok(links.includes(href), `${file}: footer link to ${href}`);
     }
@@ -501,6 +512,46 @@ test("ui-revise 6: the footer has the GitHub, docs and BOOTH links in place of t
   }
 });
 
+test("ui-revise6 3: the footer's Information group links to donate, the privacy policy and the credits", async () => {
+  const { layoutMessages } = await import("../src/messages/layout.ts");
+  // The pages linked here are in Japanese only; the English labels say so.
+  assert.equal(layoutMessages.en.footer.credits, "Credits (Japanese)");
+  assert.equal(
+    layoutMessages.en.footer.privacyPolicy,
+    "Privacy Policy (Japanese)",
+  );
+  for (const file of chromePages()) {
+    const t = layoutMessages[langOf(file)].footer;
+    const footer = sectionOf(readDist(file), "footer");
+    const group = footer.match(
+      /<div[^>]*data-footer-information[\s\S]*?<\/ul>/,
+    );
+    assert.ok(group, `${file}: no information group`);
+    // "INFORMATION" on screen (uppercase), in place of "SUPPORT".
+    assert.match(
+      group[0],
+      /<h2[^>]*\buppercase\b[^>]*>Information<\/h2>/,
+      file,
+    );
+    assert.doesNotMatch(footer, />Support</i, file);
+    assert.deepEqual(
+      anchors(group[0]).map(({ href, text }) => ({
+        href,
+        text: text.replace(/&amp;/g, "&"),
+      })),
+      [
+        { href: "https://ofuse.me/unlibra", text: t.donate },
+        { href: "/privacy", text: t.privacyPolicy },
+        { href: "/credits", text: t.credits },
+      ],
+      file,
+    );
+    // The credits page is on this site: the same tab.
+    const credits = group[0].match(/<a\s[^>]*href="\/credits"[^>]*>/)[0];
+    assert.doesNotMatch(credits, /target=/, file);
+  }
+});
+
 test("ui-revise 7: the copyright notice runs from 2025 to the build year", async () => {
   const { copyrightNotice } = await import("../src/config/site.ts");
   assert.equal(copyrightNotice(2025), "© 2025 unlibra");
@@ -538,7 +589,7 @@ test("ui-revise4 3: the footer is a grid of four columns, 2:1:1, with the cells 
       ["md:col-span-2"],
       file,
     );
-    for (const marker of ["data-footer-links", "data-footer-support"]) {
+    for (const marker of ["data-footer-links", "data-footer-information"]) {
       const cls = classesOf(marker);
       assert.ok(
         !cls.some((n) => /col-span|justify-self|text-(right|center)/.test(n)),
@@ -548,10 +599,10 @@ test("ui-revise4 3: the footer is a grid of four columns, 2:1:1, with the cells 
   }
 });
 
-test("ui-revise2 8, ui-revise3 2: the footer's description and link labels", () => {
+test("ui-revise2 8, ui-revise6 1: the footer's description and link labels", () => {
   const expected = {
-    ja: "個人開発のプロダクトを掲載しているサイトです。昼は本業のビルダー、夜は自作キーボード、ライブラリ、アプリ、VR &amp; 3Dなどの個人開発をしています。",
-    en: "A site that collects my personal products. By day a builder at my job; by night I make DIY keyboards, libraries, apps, VR &amp; 3D and more.",
+    ja: "個人で制作したプロダクトを紹介するサイトです。昼はビルダー。夜は個人開発。自作キーボード、ライブラリ、アプリ、VRアバターや3Dアセットなど、ジャンルにとらわれず自由にものづくりしています。",
+    en: "A personal site showcasing my projects. A builder by day. An indie maker by night. From DIY keyboards and software libraries to apps, VR avatars, and 3D assets, I create whatever sparks my curiosity.",
   };
   for (const file of chromePages()) {
     const footer = sectionOf(readDist(file), "footer");

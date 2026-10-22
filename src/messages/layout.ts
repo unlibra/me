@@ -36,14 +36,15 @@ const ja = {
   },
   footer: {
     description:
-      "個人開発のプロダクトを掲載しているサイトです。昼は本業のビルダー、夜は自作キーボード、ライブラリ、アプリ、VR & 3Dなどの個人開発をしています。",
+      "個人で制作したプロダクトを紹介するサイトです。昼はビルダー。夜は個人開発。自作キーボード、ライブラリ、アプリ、VRアバターや3Dアセットなど、ジャンルにとらわれず自由にものづくりしています。",
     github: "GitHub",
     links: "Links",
     docs: "Docs",
     shop: "BOOTH",
-    support: "Support",
+    information: "Information",
     donate: "寄付・支援",
     privacyPolicy: "プライバシーポリシー",
+    credits: "クレジット",
   },
 } as const;
 
@@ -76,16 +77,17 @@ const en: LayoutMessages = {
     label: "Language",
   },
   footer: {
-    // Provisional wording.
     description:
-      "A site that collects my personal products. By day a builder at my job; by night I make DIY keyboards, libraries, apps, VR & 3D and more.",
+      "A personal site showcasing my projects. A builder by day. An indie maker by night. From DIY keyboards and software libraries to apps, VR avatars, and 3D assets, I create whatever sparks my curiosity.",
     github: "GitHub",
     links: "Links",
     docs: "Docs",
     shop: "BOOTH",
-    support: "Support",
+    information: "Information",
     donate: "Donate & Support",
     privacyPolicy: "Privacy Policy (Japanese)",
+    // The credits page is in Japanese only, like the privacy policy.
+    credits: "Credits (Japanese)",
   },
 };
 

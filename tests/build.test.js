@@ -97,6 +97,7 @@ test("A2: build output has the expected pages and files", () => {
     "index.html",
     "404.html",
     "privacy/index.html",
+    "credits/index.html",
     "robots.txt",
     "sitemap-index.xml",
     "_headers",
@@ -162,7 +163,7 @@ test("A6: robots.txt allows all and points to sitemap-index.xml", () => {
   ]);
 });
 
-test("A6: sitemap lists the top page, privacy, and the tool pages only", () => {
+test("A6: sitemap lists the top page, privacy, credits, and the tool pages only", () => {
   assert.match(
     readDist("sitemap-index.xml"),
     new RegExp(`<loc>${SITE}/sitemap-0\\.xml</loc>`),
@@ -180,6 +181,7 @@ test("A6: sitemap lists the top page, privacy, and the tool pages only", () => {
   ];
   assert.deepEqual(locs, [
     `${SITE}/`,
+    `${SITE}/credits`,
     ...tools.map((tool) => `${SITE}/en/lab/${tool}`),
     ...tools.map((tool) => `${SITE}/lab/${tool}`),
     `${SITE}/privacy`,

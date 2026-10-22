@@ -34,10 +34,12 @@ export type SitePath = `/${string}`;
 
 export const paths = {
   privacy: "/privacy",
+  credits: "/credits",
   /** Where the tool pages live in each language (there is no page here). */
   tools: { ja: "/lab", en: "/en/lab" },
 } as const satisfies {
   privacy: SitePath;
+  credits: SitePath;
   tools: Record<Locale, SitePath>;
 };
 

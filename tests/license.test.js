@@ -56,6 +56,17 @@ const WITHOUT_COMMENT = [
 ];
 
 /**
+ * Files that name licenses and copyright holders without containing material
+ * by other authors: this file (the attribution patterns themselves), and the
+ * credits page's list of section 2 and its test (ui-revise6 4).
+ */
+const NAMES_LICENSES = [
+  "tests/license.test.js",
+  "src/config/credits.ts",
+  "tests/credits.test.js",
+];
+
+/**
  * Tracked and untracked (not ignored) files under src/ and tests/, where
  * material by other authors can be. This file is left out because it
  * contains the attribution patterns themselves.
@@ -76,7 +87,7 @@ const sourceFiles = () =>
   )
     .split("\0")
     .filter(Boolean)
-    .filter((p) => p !== "tests/license.test.js")
+    .filter((p) => !NAMES_LICENSES.includes(p))
     .filter((p) => existsSync(join(root, p)))
     .filter((p) => !/\.(png|webp|jpe?g|gif|ico|woff2?)$/i.test(p));
 

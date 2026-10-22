@@ -30,16 +30,16 @@ export default {
     spotlight: "SPOTLIGHT",
   },
   /**
-   * Each work's title and the one-line summary for its card (provisional,
-   * except the Apps', which are the former tool site's cards' texts). The
-   * works whose cards open their details (DIY Keyboards) have the
-   * description shown there.
+   * Each work's title and the summary for its card (provisional). The
+   * summaries of Libraries and Apps are about two lines on a 1280px wide
+   * page (ui-revise6 2). The works whose cards open their details (DIY
+   * Keyboards) have the description shown there.
    */
   works: {
     "tkinter-unblur": {
       title: "tkinter-unblur",
       summary:
-        "高 DPI の Windows で Tkinter がぼやける問題を import 一行で解決",
+        "高 DPI の Windows で Tkinter のアプリがぼやけて表示される問題を、import を一行足すだけで解決する Python ライブラリです。",
     },
     "mira-zero": {
       title: "mira zero",
@@ -69,33 +69,35 @@ export default {
     },
     "i18n-tiny-next": {
       title: "@i18n-tiny/next",
-      summary: "依存ゼロ・型安全・最小構成の Next.js 向け i18n",
+      summary:
+        "依存ゼロ・型安全・最小構成で、Next.js のアプリを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。",
     },
     "i18n-tiny-astro": {
       title: "@i18n-tiny/astro",
-      summary: "依存ゼロ・型安全・最小構成の Astro 向け i18n",
+      summary:
+        "依存ゼロ・型安全・最小構成で、Astro のサイトを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。",
     },
-    // The Apps: the former tool site's card texts (the tool's name, and its
-    // description without the line breaks, as its card showed it).
+    // The Apps: the former tool site's names; the summaries are shortened
+    // from its cards' texts (ui-revise6 2).
     "tw-palette-generator": {
       title: "TWパレットジェネレーター",
       summary:
-        "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。コーポレートカラーやブランドカラーをベースに、50〜950まで統一感のある配色を無料で作成できます。",
+        "指定した色から、TailwindCSSに最適化された50〜950のカラーパレットを自動生成。統一感のある配色を作れます。",
     },
     "favicon-generator": {
       title: "Faviconジェネレーター",
       summary:
-        "無料のFavicon一括生成ツール。PNG、JPEG、SVGなどの画像をアップロードするだけで、Webサイトに必要な全サイズのFaviconとApple Touch Iconを自動生成。角丸加工や背景色の設定もブラウザ上で簡単に完了します。",
+        "画像から、Webサイトに必要な全サイズのFaviconとApple Touch Iconを一括生成。角丸や背景色も設定できます。",
     },
     "svg-optimizer": {
       title: "SVG最適化",
       summary:
-        "無料のSVG最適化・圧縮ツール。品質を保ったままファイルサイズを削減し、Webサイトの読み込み速度を改善。ブラウザ上で完結するため、セキュアで高速に最適化できます。",
+        "品質を保ったままSVGのファイルサイズを削減し、Webサイトの読み込みを速くします。ブラウザ上で完結するので安全です。",
     },
     "password-generator": {
       title: "パスワードジェネレーター",
       summary:
-        "無料の強力なパスワード生成ツール。文字数、大文字・小文字・数字・記号を自由に組み合わせて、セキュアなパスワードを作成。紛らわしい文字の除外にも対応し、ブラウザ完結で安全です。",
+        "文字数や文字の種類を選んで、強力なパスワードを生成。紛らわしい文字の除外にも対応し、ブラウザ上で安全に作成できます。",
     },
     "mururu-blink-lipsync": {
       title: "【ムルル対応】まばたき＆リップシンク追加ツール",

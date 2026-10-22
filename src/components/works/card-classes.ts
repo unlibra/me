@@ -9,7 +9,7 @@ export const cardRadius = "rounded-card";
 /** Titles: the same weight and color on every card (the size may differ). */
 export const cardTitle = "font-semibold text-gray-900 dark:text-white";
 
-/** One-line summaries: the same size, line height and color on every card. */
+/** Summaries: the same size, line height and color on every card. */
 export const cardSummary = "text-base text-gray-600 dark:text-gray-400";
 
 /**

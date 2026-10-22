@@ -139,7 +139,7 @@ test.describe("detail dialog", () => {
 
 test.describe("ui-revise4 3: the footer's grid", () => {
   /**
-   * The footer's grid tracks and, for each cell (brand, Links, support),
+   * The footer's grid tracks and, for each cell (brand, Links, information),
    * its box and the left edges and text alignment of what it contains.
    */
   const layoutOf = (page) =>
@@ -150,7 +150,7 @@ test.describe("ui-revise4 3: the footer's grid", () => {
       const cells = [
         brand,
         grid.querySelector("[data-footer-links]"),
-        grid.querySelector("[data-footer-support]"),
+        grid.querySelector("[data-footer-information]"),
       ].map((cell) => {
         const b = cell.getBoundingClientRect();
         return {
@@ -170,7 +170,7 @@ test.describe("ui-revise4 3: the footer's grid", () => {
       };
     });
 
-  test("1280px: four equal columns; the brand takes two, Links and support one each; left-aligned", async ({
+  test("1280px: four equal columns; the brand takes two, Links and information one each; left-aligned", async ({
     page,
   }) => {
     await open(page, "/");
@@ -179,14 +179,14 @@ test.describe("ui-revise4 3: the footer's grid", () => {
     for (const track of tracks)
       expect(Math.abs(track - tracks[0])).toBeLessThan(1);
     const start = (i) => left + i * (tracks[0] + gap);
-    const [brand, links, support] = cells;
+    const [brand, links, information] = cells;
     // 2:1:1: the brand spans two tracks (and the gap between them).
     expect(Math.abs(brand.x - start(0))).toBeLessThan(1);
     expect(Math.abs(brand.width - (2 * tracks[0] + gap))).toBeLessThan(1);
     expect(Math.abs(links.x - start(2))).toBeLessThan(1);
     expect(Math.abs(links.width - tracks[0])).toBeLessThan(1);
-    expect(Math.abs(support.x - start(3))).toBeLessThan(1);
-    expect(Math.abs(support.width - tracks[0])).toBeLessThan(1);
+    expect(Math.abs(information.x - start(3))).toBeLessThan(1);
+    expect(Math.abs(information.width - tracks[0])).toBeLessThan(1);
     expect(new Set(cells.map((cell) => Math.round(cell.y))).size).toBe(1);
     // Left-aligned in each cell.
     for (const cell of cells) {
@@ -202,9 +202,9 @@ test.describe("ui-revise4 3: the footer's grid", () => {
     await open(page, "/");
     const { left, tracks, cells } = await layoutOf(page);
     expect(tracks.length).toBe(1);
-    const [brand, links, support] = cells;
+    const [brand, links, information] = cells;
     expect(links.y).toBeGreaterThan(brand.y);
-    expect(support.y).toBeGreaterThan(links.y);
+    expect(information.y).toBeGreaterThan(links.y);
     for (const cell of cells) {
       expect(Math.abs(cell.x - left)).toBeLessThan(1);
       for (const x of cell.lefts) expect(Math.abs(x - cell.x)).toBeLessThan(1);
@@ -1086,4 +1086,31 @@ test("ui-revise5 (review): in forced colors, the links are underlined with text-
       await expect.poll(() => decoration(first), id).toBe("underline");
     }
   }
+});
+
+test.describe("ui-revise6 2: the summaries of Libraries and Apps", () => {
+  test("1280px: each summary takes two or three lines", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await open(page, "/");
+    await page.evaluate(() => document.fonts.ready);
+    const summaries = await page
+      .locator(":is(#libraries, #apps) article[data-work] [data-work-summary]")
+      .evaluateAll((elements) =>
+        elements.map((element) => {
+          const { lineHeight } = getComputedStyle(element);
+          return {
+            id: element.closest("[data-work]").dataset.work,
+            lines: Math.round(
+              element.getBoundingClientRect().height / parseFloat(lineHeight),
+            ),
+          };
+        }),
+      );
+    // 3 Libraries and 4 Apps.
+    expect(summaries.length).toBe(7);
+    for (const { id, lines } of summaries) {
+      expect(lines, id).toBeGreaterThanOrEqual(2);
+      expect(lines, id).toBeLessThanOrEqual(3);
+    }
+  });
 });

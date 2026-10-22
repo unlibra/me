@@ -275,10 +275,11 @@ test("D3: each app card shows the tool's icon, and the file is in dist/", () => 
   }
 });
 
-test("ui-revise4 2: the Apps cards have the former tool site's card texts", () => {
+test("ui-revise4 2, ui-revise6 2: the Apps cards have the former tool site's names, and summaries shortened from its card texts", () => {
   // liblab frontend/src/messages/ja/tools.ts: the tool's name, and its
-  // description without the line breaks (tool-card.tsx replaces /\r?\n/g
-  // with ''), as the former tool cards showed them.
+  // description, which the former tool cards showed without the line breaks
+  // (tool-card.tsx replaces /\r?\n/g with ''). Since ui-revise6 2 the
+  // summaries are shorter (about two lines; the E2E counts the lines).
   const liblab = {
     "tw-palette-generator": [
       "TWパレットジェネレーター",
@@ -303,7 +304,11 @@ test("ui-revise4 2: the Apps cards have the former tool site's card texts", () =
     const title = card.match(/<span id="work-[^"]+-name">([^<]*)<\/span>/)[1];
     assert.equal(title, name, work);
     const summary = card.match(/<p[^>]*data-work-summary[^>]*>([^<]*)<\/p>/)[1];
-    assert.equal(summary, description.replace(/\r?\n/g, ""), work);
+    assert.notEqual(summary.trim(), "", work);
+    assert.ok(
+      summary.length < description.replace(/\r?\n/g, "").length,
+      `${work}: not shortened`,
+    );
   }
 });
 
@@ -314,9 +319,15 @@ test("ui-revise4 2: VR & 3D has the real product only, without subcategories or 
     cards.map((card) => attr(card, "data-work")),
     ["mururu-blink-lipsync"],
   );
-  // No subcategory label or attribute anywhere on the page.
+  // No subcategory label or attribute anywhere on the page. The footer's
+  // description (the owner's words, ui-revise6 1) names VR avatars and 3D
+  // assets, which are not labels: it is left out.
   assert.doesNotMatch(top, /data-subcategory/);
-  const body = text(top.match(/<body[\s\S]*<\/body>/)[0]);
+  const body = text(
+    top
+      .match(/<body[\s\S]*<\/body>/)[0]
+      .replace(/<footer[\s>][\s\S]*?<\/footer>/, ""),
+  );
   for (const label of ["アバター", "アセット", "Unityツール", "ダミー"]) {
     assert.ok(!body.includes(label), label);
   }
@@ -999,12 +1010,12 @@ test("ui-revise2 (parent): the privacy policy names the site and its update date
   assert.match(privacy, /<strong>最終更新日：<\/strong> 2026年10月22日<\/p>/);
 });
 
-test("ui-revise3 2: the top page's description is the footer's description", () => {
+test("ui-revise3 2, ui-revise6 1: the top page's description is the footer's description", () => {
   const footer = top.match(/<footer[\s>][\s\S]*?<\/footer>/)[0];
   const text = footer.match(/<p class="mt-3[^"]*">([^<]*)<\/p>/)[1];
   assert.equal(
     text,
-    "個人開発のプロダクトを掲載しているサイトです。昼は本業のビルダー、夜は自作キーボード、ライブラリ、アプリ、VR &amp; 3Dなどの個人開発をしています。",
+    "個人で制作したプロダクトを紹介するサイトです。昼はビルダー。夜は個人開発。自作キーボード、ライブラリ、アプリ、VRアバターや3Dアセットなど、ジャンルにとらわれず自由にものづくりしています。",
   );
   for (const [key, name] of [
     ["name", "description"],
