@@ -70,7 +70,7 @@ test.describe("detail dialog", () => {
 
     // The link in the details opens the tool.
     await button.click();
-    await details.getByRole("link", { name: "ツールを開く" }).click();
+    await details.getByRole("link", { name: "ツールを使う" }).click();
     await expect(page).toHaveURL("/lab/svg-optimizer");
   });
 

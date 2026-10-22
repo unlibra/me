@@ -31,23 +31,18 @@ const kindOf = (work: Work, href: string): LinkKind => {
   throw new Error(`${work.id}: no label for the link ${href}`);
 };
 
-/** The main link's label in the details. */
-const detailLabels = {
-  tool: t.openTool,
-  npm: t.viewOnNpm,
-  pypi: t.viewOnPypi,
-  booth: t.viewOnBooth,
-} as const satisfies Record<LinkKind, string>;
-
-/** The main link's label among the card's actions. */
-const actionLabels = {
+/**
+ * The main link's label: the same on the card and in the details, so that
+ * the same link has the same name (ui-revise3, the parent's decision).
+ */
+const labels = {
   tool: t.useTool,
   npm: t.npm,
   pypi: t.pypi,
   booth: t.viewOnBooth,
 } as const satisfies Record<LinkKind, string>;
 
-const mainLink = (work: Work, labels: Record<LinkKind, string>): WorkLink[] =>
+const mainLink = (work: Work): WorkLink[] =>
   work.link
     ? [
         {
@@ -65,7 +60,7 @@ const docsLink = (work: Work): WorkLink[] =>
 
 /** The links in a work's details: the main link, then the documentation. */
 export const linksOf = (work: Work): WorkLink[] => [
-  ...mainLink(work, detailLabels),
+  ...mainLink(work),
   ...docsLink(work),
 ];
 
@@ -76,5 +71,5 @@ export const linksOf = (work: Work): WorkLink[] => [
  */
 export const cardActionsOf = (work: Work): WorkLink[] => [
   ...docsLink(work),
-  ...mainLink(work, actionLabels),
+  ...mainLink(work),
 ];

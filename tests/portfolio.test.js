@@ -444,17 +444,28 @@ test("ui-revise2 3: every card shows its one-line summary and opens its details"
   }
 });
 
+test("ui-revise3 (parent): a link has the same label on the card and in the details", () => {
+  const linksIn = (html) =>
+    [...html.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)]
+      .map((m) => [attr(m[0], "href"), text(m[1])])
+      .sort();
+  for (const card of cardsOf(top)) {
+    const work = attr(card, "data-work");
+    assert.deepEqual(linksIn(card), linksIn(dialogOf(work)), work);
+  }
+});
+
 test("ui-revise2 3: the details link to where each work is published", () => {
   const expected = {
     "i18n-tiny-astro": [
-      ["npm で見る", "https://www.npmjs.com/package/@i18n-tiny/astro"],
+      ["npm", "https://www.npmjs.com/package/@i18n-tiny/astro"],
       ["ドキュメント", "https://docs.unlibra.com/i18n-tiny/astro/introduction"],
     ],
     "tkinter-unblur": [
-      ["PyPI で見る", "https://pypi.org/project/tkinter-unblur"],
+      ["PyPI", "https://pypi.org/project/tkinter-unblur"],
       ["ドキュメント", "https://docs.unlibra.com/tkinter-unblur/"],
     ],
-    "svg-optimizer": [["ツールを開く", "/lab/svg-optimizer"]],
+    "svg-optimizer": [["ツールを使う", "/lab/svg-optimizer"]],
     "dummy-asset": [["BOOTH で見る", SHOP]],
     "fosty-natural": [],
   };

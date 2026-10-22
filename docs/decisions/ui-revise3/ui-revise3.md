@@ -52,8 +52,8 @@
   - カードの最後の行に、操作のリンクを並べ、その後ろに「詳しく見る」を置いた（`CardLinks.astro`）。Libraries は「ドキュメント」「npm」（または「PyPI」）の順（計画の書き順）。リンクは `relative z-10` でタイトルのボタンの覆い（`::after`）より手前にあり、クリックするとその場所へ直接飛ぶ（詳細は開かない）。外部のリンクは新しいタブ
   - 操作のリンクの名前は、ボタンの名前と同じ考えで見える文字（「npm」など）のまま。どの作品のリンクかは、タイトルの文字（ボタンの中の `span`）を `aria-describedby` で結んで伝える（`ui-revise3 3: an action goes to its place directly ...` で「ドキュメント」の説明が「tkinter-unblur」であることを確かめる）。ボタン自身を指すと、ボタンの名前（タイトルと「詳しく見る」）が説明になってしまうため、タイトルの `span` に `id`（`work-{id}-name`）を付けた
   - リンクの名前は `work-links.ts` で、リンクの種類（ツール、npm、PyPI、BOOTH）をURLから1つの関数で決め、詳細とカードで別の名前の表を引くようにした。今までどおり、決まっていない組み合わせはビルドを止める
-  - 詳細のダイアログのリンクの文言（「ツールを開く」「npm で見る」「PyPI で見る」）は変えていない。カードは「ツールを使う」「npm」「PyPI」（計画の文言）なので、Apps は詳細とカードで言い方が違う。揃えるかは親に判断してほしい
-- 他の選択肢：操作のリンクを「詳しく見る」の後ろに置く。カードとダイアログの文言を揃える
+  - 詳細のダイアログのリンクの文言は、親の判断（2026-10-22）でカードに揃えた。同じリンクは同じ文言（Apps「ツールを使う」、npm「npm」、PyPI「PyPI」、BOOTH「BOOTH で見る」、ドキュメント「ドキュメント」）。前の「ツールを開く」「npm で見る」「PyPI で見る」は消した。`work-links.ts` の名前の表は1つだけになった。作品のカードと詳細はトップ（日本語だけ）にしかないので、英語の文言はない。`portfolio.test.js` の `ui-revise3 (parent): a link has the same label on the card and in the details` で、すべての作品のカードと詳細のリンクの組（URL と文言）が一致することを確かめる（揃える前のビルドで落ちることを確認済み）
+- 他の選択肢：操作のリンクを「詳しく見る」の後ろに置く
 - 戻すときの作業：各カードから `CardLinks` を外して `MoreLabel` に戻し、`work-links.ts` の `cardActionsOf` を消す
 
 ## UR3-6 VR & 3D の見出しの横の BOOTH ショップのリンクを消した
@@ -100,6 +100,8 @@
 | `portfolio.test.js` の `D5: the three documentation links point to docs.unlibra.com`                                 | ドキュメントのリンクがカード（操作）と詳細に1つずつあることを見るようにした（指示3の操作）                                                      |
 | `portfolio.test.js` の `ui-revise2 (parent): the top page's description is the footer's description`                 | 新しい説明文にした（指示2の1）                                                                                                                  |
 | `redirects.test.js` の `resolve`（`G2` の各テストが使う）                                                            | 動的なルールを3通りの順で評価し、結果が一致することも見るようにした（強める変更。指示4、UR3-8）                                                 |
+| `portfolio.test.js` の `ui-revise2 3: the details link to where each work is published`                              | 詳細のリンクの文言を「npm」「PyPI」「ツールを使う」にした（親の判断。UR3-5）                                                                    |
+| `works.spec.js` の `Enter on the focused title opens the details; ...`                                               | 詳細のリンクの名前を「ツールを使う」にした（親の判断。UR3-5）                                                                                   |
 | `tools.test.js` の `E8: the tools are linked from the top page in Japanese, not from the header`                     | トップから日本語のツールのページへのリンクを1つから2つ（カードの「ツールを使う」と詳細）にした（指示3の操作）                                   |
 | `layout.test.js` の `ui-revise2 2: the footer's Links group sits in the right half of the center column`             | `ui-revise3 2: ... at the right end of the center column`（`md:justify-self-end`）にした（指示2の2）                                            |
 | `layout.test.js` の `ui-revise2 7, 8: the footer's description and link labels`                                      | 日英の説明文を新しい文面にした（指示2の1）                                                                                                      |
@@ -114,9 +116,9 @@
 | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | ヒーローのボタン                               | GitHub / BOOTH                                                                                                                           |
 | フッターの説明文（英語のページ）               | A site that collects my personal products. By day a builder at my job; by night I make DIY keyboards, libraries, apps, VR & 3D and more. |
-| カードの操作（Apps）                           | ツールを使う                                                                                                                             |
-| カードの操作（Libraries）                      | ドキュメント / npm / PyPI                                                                                                                |
-| カードの操作（VR & 3D）                        | BOOTH で見る                                                                                                                             |
+| カードと詳細のリンク（Apps）                   | ツールを使う                                                                                                                             |
+| カードと詳細のリンク（Libraries）              | ドキュメント / npm / PyPI                                                                                                                |
+| カードと詳細のリンク（VR & 3D）                | BOOTH で見る                                                                                                                             |
 | 実際の商品のカードの一行の要約（親の仮の文面） | ムルルにまばたきとリップシンクを追加する Unity ツール                                                                                    |
 | 実際の商品の年（親の仮。ユーザーに確認中）     | 2026                                                                                                                                     |
 

@@ -27,12 +27,9 @@ export default {
     /** On every card: a click opens the details. */
     more: "詳しく見る",
     close: "閉じる",
-    openTool: "ツールを開く",
-    viewOnNpm: "npm で見る",
-    viewOnPypi: "PyPI で見る",
-    viewOnBooth: "BOOTH で見る",
-    /** The actions on the cards (BOOTH and the docs use the ones above). */
+    /** The links of a work, on its card and in its details. */
     useTool: "ツールを使う",
+    viewOnBooth: "BOOTH で見る",
     npm: "npm",
     pypi: "PyPI",
   },
