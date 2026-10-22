@@ -45,10 +45,12 @@ The full text is in LICENSES/tailwindcss-MIT.txt.
   - src/tools/tw-palette-generator/palette-anchors.ts
   - tests/fixtures/tw-palette-generator/tailwind-v3-colors.json
 
-DiceBear "Shapes" (https://www.dicebear.com)
+DiceBear "Shapes" and "Planets" (https://www.dicebear.com)
 CC0 1.0 Universal.
 The full text is in LICENSES/CC0-1.0.txt.
 
+  - src/assets/not-found/planet.svg
+  - src/assets/not-found/stars.svg
   - src/assets/tools/favicon-generator.svg
   - src/assets/tools/password-generator.svg
   - src/assets/tools/svg-optimizer.svg

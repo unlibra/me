@@ -163,6 +163,11 @@ test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the do
   assert.ok(pages.length >= 11, "self-check of the page list");
   for (const page of pages) {
     const html = readDist(page);
+    if (page === "404.html") {
+      // No footer since not-found, and no sponsor or share button either.
+      assert.doesNotMatch(html, /<footer[\s>]|ofuse\.me|navigator\.share/);
+      continue;
+    }
     const footer = html.match(/<footer[\s>][\s\S]*?<\/footer>/)[0];
     const rest = html.replace(footer, "");
     for (const href of hrefs(rest)) {

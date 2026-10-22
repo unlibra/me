@@ -22,9 +22,15 @@ interface Props {
   canonical: boolean;
   /** Path of the same page in the other language, if it exists. */
   alternatePath?: SitePath;
+  /**
+   * The page fills the screen by itself, without the header and the footer
+   * (the 404 page).
+   */
+  bare?: true;
 }
 
-const { lang, title, description, canonical, alternatePath } = Astro.props;
+const { lang, title, description, canonical, alternatePath, bare } =
+  Astro.props;
 
 const currentPath = (Astro.url.pathname.replace(/\/+$/, "") || "/") as SitePath;
 const pageUrl = absoluteUrl(currentPath);
@@ -101,12 +107,16 @@ const languagePaths: Record<Locale, SitePath> | undefined = alternatePath
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body class="bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300">
-    <div class="flex min-h-screen flex-col overflow-x-hidden">
-      <Header lang={lang} languagePaths={languagePaths} />
-      <div class="flex-1">
-        <slot />
+    {bare ? (
+      <slot />
+    ) : (
+      <div class="flex min-h-screen flex-col overflow-x-hidden">
+        <Header lang={lang} languagePaths={languagePaths} />
+        <div class="flex-1">
+          <slot />
+        </div>
+        <Footer lang={lang} />
       </div>
-      <Footer lang={lang} />
-    </div>
+    )}
   </body>
 </html>

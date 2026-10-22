@@ -1,25 +1,55 @@
 ---
+// The 404 page: the planet of DiceBear "Planets" (CC0 1.0) in the middle of
+// a screen of its stars, without the header and the footer. Dark in either
+// theme. The planet keeps its animation (the surface and the moons turn),
+// which stops under prefers-reduced-motion: reduce (the SVG's own CSS).
+import planet from "@/assets/not-found/planet.svg?raw";
+import stars from "@/assets/not-found/stars.svg";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import { site } from "@/config/site";
 
-const heading = "ページが見つかりません / Page not found";
+const heading = "ページが見つかりません";
+// The <title> and description as before (Japanese and English).
+const title = "ページが見つかりません / Page not found";
 ---
 
 <BaseLayout
   lang="ja"
-  title={`${heading} - ${site.title}`}
-  description={heading}
+  title={`${title} - ${site.title}`}
+  description={title}
   canonical={false}
+  bare
 >
-  <main class="mx-auto max-w-3xl px-4 py-16 text-center">
-    <h1 class="text-2xl font-bold">ページが見つかりません</h1>
-    <p class="mt-2 text-neutral-500" lang="en">
-      Page not found
-    </p>
-    <p class="mt-8">
-      <a href="/" class="underline">
-        トップへ戻る / Back to top
-      </a>
-    </p>
+  <!-- The stars: the original's background and stars as a tile the size of
+       the planet's box, centered on it (both are in the middle of the
+       screen), so that the stars around the planet are the original's,
+       repeated over the screen. -->
+  <main
+    class="relative grid min-h-dvh place-items-center bg-atom-one-dark bg-center text-white"
+    style={`background-image: url(${stars.src}); background-size: var(--planet) var(--planet);`}
+    data-not-found
+  >
+    <!-- The planet's box (the original SVG's 100×100): in the middle. -->
+    <div class="relative size-(--planet)" data-planet>
+      <div class="size-full [&>svg]:size-full" set:html={planet} />
+      <div class="absolute top-full left-1/2 flex w-max -translate-x-1/2 flex-col items-center gap-6 pt-6">
+        <h1 class="text-2xl font-semibold">{heading}</h1>
+        <a
+          href="/"
+          class="inline-flex items-center rounded-full bg-white px-6 py-2 text-sm font-semibold text-atom-one-dark hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+          data-back
+        >
+          トップに戻る
+        </a>
+      </div>
+    </div>
   </main>
 </BaseLayout>
+
+<style>
+  [data-not-found] {
+    /* About half the screen's short side; smaller on short screens, so that
+       the heading and the button below it stay on the screen. */
+    --planet: min(50vmin, 100dvh - 20rem);
+  }
+</style>

@@ -259,9 +259,68 @@ test("index.html footer keeps the space between the year and the name", () => {
   );
 });
 
-test("404 page links back to the top page in Japanese and English", () => {
+test("not-found: the 404 page says the page is not found and has the capsule button to the top, in Japanese only", () => {
   const html = readDist("404.html");
-  assert.match(html, /ページが見つかりません/);
-  assert.match(html, /Page not found/);
-  assert.match(html, /<a[^>]*href="\/"/);
+  const body = html.match(/<body[^>]*>([\s\S]*)<\/body>/)[1];
+  const visible = body
+    .replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, "")
+    .replace(/<metadata[\s\S]*?<\/metadata>/g, "")
+    .replace(/<!--[\s\S]*?-->/g, "");
+  const h1 = [...visible.matchAll(/<h1[^>]*>([^<]*)<\/h1>/g)].map((m) =>
+    m[1].trim(),
+  );
+  assert.deepEqual(h1, ["ページが見つかりません"]);
+  const links = [...visible.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)];
+  assert.equal(links.length, 1);
+  assert.equal(links[0][1].replace(/<[^>]*>/g, "").trim(), "トップに戻る");
+  assert.match(links[0][0], /\shref="\/"/);
+  assert.match(links[0][0], /class="[^"]*\brounded-full\b/);
+  // No English on the page (the <title> and the description keep both).
+  const text = visible.replace(/<[^>]*>/g, " ");
+  assert.doesNotMatch(text, /[A-Za-z]{3,}/);
+  assert.match(
+    html,
+    /<title>ページが見つかりません \/ Page not found - unlibra<\/title>/,
+  );
+});
+
+test("not-found: the planet and the stars are the DiceBear Planets SVG, split in two", () => {
+  const read = (name) =>
+    readFileSync(join(root, "src/assets/not-found", name), "utf8");
+  const planet = read("planet.svg");
+  const stars = read("stars.svg");
+  for (const svg of [planet, stars]) {
+    // The metadata (DiceBear, CC0) is kept.
+    assert.match(svg, /<dc:title>Planets<\/dc:title>/);
+    assert.match(svg, /<dc:creator>DiceBear<\/dc:creator>/);
+    assert.match(svg, /publicdomain\/zero\/1\.0/);
+    assert.match(svg, /^<svg [^>]*viewBox="0 0 100 100"/);
+  }
+  // The planet: the disc, the surface, the shade, the ring, the moons and
+  // the animation with its prefers-reduced-motion handling; no background
+  // and no stars.
+  for (const id of [
+    "planet-disc",
+    "surface-marbled",
+    "shade-soft",
+    "ring-bold",
+    "moons-two",
+    "animation-medium",
+  ]) {
+    assert.match(planet, new RegExp(`href="#${id}-3377a579"`), id);
+  }
+  assert.match(planet, /@media \(prefers-reduced-motion: no-preference\)/);
+  assert.doesNotMatch(planet, /#282c34|star-(small|faint)/);
+  // The stars: the background and the twelve stars, no planet.
+  assert.match(stars, /<rect width="100" height="100" fill="#282c34"\/>/);
+  assert.equal(stars.match(/href="#star-(small|faint)-3377a579"/g).length, 12);
+  assert.doesNotMatch(stars, /planet-disc|moons|ring-bold|dbpa/);
+  // The page shows the planet inline (for its CSS animation) and the stars
+  // as the background tile.
+  const html = readDist("404.html");
+  assert.match(
+    html,
+    /<svg [^>]*viewBox="0 0 100 100"[\s\S]*href="#planet-disc-3377a579"/,
+  );
+  assert.match(html, /background-image: ?url\(\/_astro\/stars\.[\w-]+\.svg\)/);
 });

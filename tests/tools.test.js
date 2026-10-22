@@ -196,7 +196,7 @@ test("E8: the tools are linked from the top page in Japanese, not from the heade
   const files = [
     "index.html",
     "privacy/index.html",
-    "404.html",
+    // Not 404.html: it has no header since not-found.
     ...pages.map((p) => fileOf(p.path)),
   ];
   for (const file of files) {

@@ -70,6 +70,21 @@ test("the build has the pages this test suite expects", () => {
   );
 });
 
+/**
+ * The pages with the header and the footer: all but the 404 page, which
+ * fills the screen by itself (not-found).
+ */
+const BARE_PAGES = ["404.html"];
+const chromePages = () =>
+  htmlPages().filter((file) => !BARE_PAGES.includes(file));
+
+test("not-found: the 404 page has no header, no footer and no logotype", () => {
+  const html = readDist("404.html");
+  assert.doesNotMatch(html, /<header[\s>]|<footer[\s>]|id="mobile-menu"/);
+  assert.doesNotMatch(html, /data-logotype|font-brand|data-theme-option/);
+  assert.equal(chromePages().length, htmlPages().length - 1, "self-check");
+});
+
 /** Language of a page: English under /en (the tool pages), otherwise ja. */
 const langOf = (file) => (file.startsWith("en/") ? "en" : "ja");
 
@@ -339,7 +354,7 @@ test("ui-revise2 1, 6: the header links to the category sections, without menus"
     href: `/#${id}`,
     text: name,
   }));
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const t = layoutMessages[langOf(file)].header;
     const header = sectionOf(readDist(file), "header");
 
@@ -388,7 +403,7 @@ test("ui-revise2 1, 6: the header links to the category sections, without menus"
 });
 
 test("ui-revise 1: the header has no GitHub button and no link to a tool list", () => {
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const links = hrefs(sectionOf(readDist(file), "header"));
     assert.ok(!links.includes("https://github.com/unlibra"), file);
     assert.ok(!links.includes("/lab") && !links.includes("/en/lab"), file);
@@ -396,7 +411,7 @@ test("ui-revise 1: the header has no GitHub button and no link to a tool list", 
 });
 
 test("C4: every page has the common header", () => {
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const header = sectionOf(readDist(file), "header");
     const links = hrefs(header);
     assert.ok(links.includes("/"), `${file}: home link`);
@@ -434,7 +449,7 @@ test("pages without another language version have no language switcher", () => {
 });
 
 test("C4: every page has the common footer with the required links", () => {
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const footer = sectionOf(readDist(file), "footer");
     // The build year ends the notice (ui-revise 7).
     const year = new Date().getFullYear();
@@ -454,7 +469,7 @@ test("C4: every page has the common footer with the required links", () => {
 
 test("ui-revise 6: the footer has the GitHub, docs and BOOTH links in place of the tools", async () => {
   const { layoutMessages } = await import("../src/messages/layout.ts");
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const t = layoutMessages[langOf(file)].footer;
     const footer = sectionOf(readDist(file), "footer");
     const group = footer.match(/<div[^>]*data-footer-links[\s\S]*?<\/ul>/);
@@ -497,7 +512,7 @@ test("ui-revise 7: the copyright notice runs from 2025 to the build year", async
 });
 
 test("ui-revise4 3: the footer is a grid of four columns, 2:1:1, with the cells left-aligned", () => {
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const footer = sectionOf(readDist(file), "footer");
     const classesOf = (marker) =>
       (
@@ -538,7 +553,7 @@ test("ui-revise2 8, ui-revise3 2: the footer's description and link labels", () 
     ja: "個人開発のプロダクトを掲載しているサイトです。昼は本業のビルダー、夜は自作キーボード、ライブラリ、アプリ、VR &amp; 3Dなどの個人開発をしています。",
     en: "A site that collects my personal products. By day a builder at my job; by night I make DIY keyboards, libraries, apps, VR &amp; 3D and more.",
   };
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const footer = sectionOf(readDist(file), "footer");
     assert.ok(footer.includes(`>${expected[langOf(file)]}</p>`), file);
     const group = footer.match(/<div[^>]*data-footer-links[\s\S]*?<\/ul>/)[0];
@@ -597,7 +612,7 @@ const LOGOTYPES = {
     /<footer[\s\S]*?<span class="font-brand [^"]*" data-logotype>unlibra<\/span>/,
 };
 test("ui-revise2 4, ui-revise3 1: the logotype is in LINE Seed JP in the header, the mobile menu and the footer, and only there", () => {
-  for (const file of htmlPages()) {
+  for (const file of chromePages()) {
     const html = readDist(file);
     for (const [place, pattern] of Object.entries(LOGOTYPES)) {
       assert.match(html, pattern, `${file}: ${place}`);
