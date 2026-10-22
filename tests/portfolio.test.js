@@ -821,7 +821,7 @@ test("ui-revise5 (design 4): the large card is a light gray surface with the pho
     "bg-gray-50",
     "hover:bg-gray-100",
     "dark:bg-atom-one-dark-light",
-    "dark:hover:bg-[#2e323b]",
+    "dark:hover:bg-featured-hover-dark",
     "transition-colors",
   ]) {
     assert.ok(featuredSurface.split(/\s+/).includes(name), name);

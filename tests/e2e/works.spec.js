@@ -1044,3 +1044,46 @@ test.describe("ui-revise5 (parent): text contrast on the cards", () => {
     });
   }
 });
+
+test("ui-revise5 (review): in forced colors, the links are underlined with text-decoration on hover", async ({
+  page,
+}) => {
+  await page.emulateMedia({ forcedColors: "active" });
+  await open(page, "/");
+  const decoration = (locator) =>
+    locator
+      .locator("[data-link-text]")
+      .evaluate((e) => getComputedStyle(e).textDecorationLine);
+  for (const id of ["i18n-tiny-astro", "fosty-dark"]) {
+    const item = card(page, id);
+    await item.scrollIntoViewIfNeeded();
+    await page.mouse.move(0, 0);
+    const actions = item.locator("[data-work-action]");
+    const first =
+      (await actions.count()) > 0
+        ? actions.first()
+        : item.locator("[data-work-more]");
+    // The background line is not drawn in forced colors.
+    expect(
+      await first
+        .locator("[data-link-text]")
+        .evaluate((e) => getComputedStyle(e).backgroundImage),
+    ).toBe("none");
+    expect(await decoration(first), id).toBe("none");
+    // The card's hover underlines the first link.
+    await hoverOver(page, item.locator("[data-work-summary]"));
+    await expect.poll(() => decoration(first), id).toBe("underline");
+    // A link's own hover underlines it, and not the first.
+    for (const other of await item
+      .locator('[data-work-action="secondary"]')
+      .all()) {
+      await other.hover();
+      await expect.poll(() => decoration(other), id).toBe("underline");
+      await expect.poll(() => decoration(first), id).toBe("none");
+    }
+    if ((await actions.count()) > 0) {
+      await first.hover();
+      await expect.poll(() => decoration(first), id).toBe("underline");
+    }
+  }
+});

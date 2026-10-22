@@ -34,6 +34,15 @@
   --color-logo-dark: #1a7ba0;
   --color-logo-accent: #f88c49;
 
+  /*
+   * The links on the work cards in light mode: logo-dark, 3% darker, for
+   * 4.5:1 on the cards' hover (gray-100). The large card's hover in dark
+   * mode: halfway between atom-one-dark-light and atom-one-dark, for 4.5:1
+   * with gray-400 text (ui-revise5, UR5-10).
+   */
+  --color-card-link: #19779b;
+  --color-featured-hover-dark: #2e323b;
+
   /* The corner radius of the work cards and their icons (rounded-card). */
   --radius-card: 0.5rem;
 }

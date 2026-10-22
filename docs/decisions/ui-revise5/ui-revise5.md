@@ -92,6 +92,12 @@
 - 確かめたこと：E2E の `ui-revise5 (parent): text contrast on the cards › {light,dark}` で、12 枚の全カードの通常時とホバー時に、タイトル・要約・「SPOTLIGHT」・リンクの文字が、計算後の色で 4.5:1 以上であることを見る。修正の前のビルドで、ライトとダークの両方が落ちること（ライト 4.39、ダーク 3.94）を確かめた
 - 戻すときの作業：`card-classes.ts` の `cardLink` の色と `featuredSurface` のダークのホバー、`FeaturedCard.astro` の「SPOTLIGHT」の色を戻す
 
+## UR5-11 強制カラーでの下線と、色のトークン（レビューの推奨・任意）
+
+- 強制カラー（Windows のハイコントラストなど）：下線を背景の線で描いているため、強制カラーでは背景の画像が描かれず、ホバーしても下線が出なかった。`forced-colors:` のときだけ、同じ条件（リンク自身のホバー、カードのホバーで1番目、2番目以降にポインターがあるときは1番目に付けない）で `text-decoration` の下線を付けるようにした（`actionText`・`primaryText`）。ふつうの画面の見た目は変わらない。E2E の `ui-revise5 (review): in forced colors, the links are underlined with text-decoration on hover`（`forcedColors: "active"`、Libraries と DIY Keyboards のカード）で確かめ、修正の前のビルドで落ちることを確かめた
+- 色のトークン：`card-classes.ts` の任意の値を、`global.css` の `@theme` の色にした。`--color-card-link`（#19779b、ライトのカードのリンク）と `--color-featured-hover-dark`（#2e323b、ダークの大サイズのカードのホバー）。値は UR5-10 と同じで、見た目は変わらない（コントラストと色の E2E がそのまま通る）
+- 戻すときの作業：`actionText`・`primaryText` から `forced-colors:` のクラスを外す。トークンは `@theme` の2行を消し、クラスを任意の値に戻す
+
 ## 直した既存のテストと理由（P1）
 
 | テスト                                                                                                                                                                   | 直した内容と理由                                                                                                                                                                                                                                                                               |
