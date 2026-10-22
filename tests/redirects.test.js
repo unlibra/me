@@ -76,13 +76,30 @@ const sourcePattern = (source) => {
 };
 
 /**
- * Applies the rules the way Workers does: static rules first, then dynamic
- * rules in file order; the first match wins. Returns the destination or null.
+ * Orders in which Workers may try the dynamic rules. `wrangler dev` keeps the
+ * file order, but production does not: wrangler uploads the dynamic rules as
+ * an object keyed by the source, without line numbers (static rules carry
+ * theirs), and on workers.dev a placeholder rule lost to a splat rule written
+ * after it (ui-revise3 4). The file must give the same result in any order.
  */
-const resolve = (path) => {
+const DYNAMIC_ORDERS = {
+  file: (dynamic) => dynamic,
+  reversed: (dynamic) => [...dynamic].reverse(),
+  "sorted by source": (dynamic) =>
+    [...dynamic].sort((a, b) =>
+      a.source < b.source ? -1 : a.source > b.source ? 1 : 0,
+    ),
+};
+
+/**
+ * Applies the rules the way Workers does: static rules first, then dynamic
+ * rules (in the given order); the first match wins. Returns the destination
+ * or null.
+ */
+const resolveIn = (path, order) => {
   const ordered = [
     ...rules.filter((r) => !isDynamic(r.source)),
-    ...rules.filter((r) => isDynamic(r.source)),
+    ...order(rules.filter((r) => isDynamic(r.source))),
   ];
   for (const { source, destination } of ordered) {
     const { regexp, names } = sourcePattern(source);
@@ -94,6 +111,21 @@ const resolve = (path) => {
     );
   }
   return null;
+};
+
+/**
+ * Where a path is redirected (or null), the same in every order of the
+ * dynamic rules (see DYNAMIC_ORDERS); fails if the orders disagree.
+ */
+const resolve = (path) => {
+  const results = Object.entries(DYNAMIC_ORDERS).map(([name, order]) => [
+    name,
+    resolveIn(path, order),
+  ]);
+  for (const [name, result] of results) {
+    assert.equal(result, results[0][1], `${path}: ${name} order`);
+  }
+  return results[0][1];
 };
 
 /** URL paths of everything served from dist/ (pages without the slash). */
@@ -174,6 +206,60 @@ test("G2: former URLs reach the new URL in one hop, with or without a trailing s
     assert.equal(resolve(`${from}/`), to, `${from}/`);
   }
   assert.equal(resolve("/sitemap.xml"), "/sitemap-index.xml");
+});
+
+test("ui-revise3 4: the result does not depend on the order of the dynamic rules, as in production", () => {
+  // The tools of this test are the tool pages in dist/ (the static rules
+  // for the trailing slash are listed per tool).
+  const toolPages = servedPaths()
+    .filter((path) => /^\/lab\/[^/]+$/.test(path))
+    .map((path) => path.slice("/lab/".length))
+    .sort();
+  assert.deepEqual(toolPages, [...TOOLS].sort());
+  // Paths a dynamic rule may see: the former tool URLs with and without the
+  // slash, an unknown tool, and a deeper path.
+  const paths = [...TOOLS, "iromide", "no-such-tool", "a/b"].flatMap((tool) =>
+    ["ja", "en"].flatMap((lang) => [
+      `/lab/${lang}/${tool}`,
+      `/lab/${lang}/${tool}/`,
+    ]),
+  );
+  for (const path of paths) resolve(path); // fails if the orders disagree
+  // The dynamic rules that are left do not overlap.
+  const dynamic = rules.filter((r) => isDynamic(r.source));
+  for (const path of paths) {
+    const matching = dynamic.filter((r) =>
+      sourcePattern(r.source).regexp.test(path),
+    );
+    assert.ok(matching.length <= 1, `${path}: ${matching.map((r) => r.line)}`);
+  }
+  // Self-check: the former placeholder rule did depend on the order.
+  const former = [
+    { source: "/lab/ja/:tool/", destination: "/lab/:tool" },
+    { source: "/lab/ja/*", destination: "/lab/:splat" },
+  ];
+  const first = (list, path) => {
+    for (const { source, destination } of list) {
+      const { regexp, names } = sourcePattern(source);
+      const match = regexp.exec(path);
+      if (match) {
+        return names.reduce(
+          (dest, name, i) => dest.replace(`:${name}`, match[i + 1]),
+          destination,
+        );
+      }
+    }
+    return null;
+  };
+  const path = "/lab/ja/favicon-generator/";
+  assert.equal(
+    first(DYNAMIC_ORDERS.file(former), path),
+    "/lab/favicon-generator",
+  );
+  assert.equal(
+    first(DYNAMIC_ORDERS["sorted by source"](former), path),
+    "/lab/favicon-generator/",
+  );
 });
 
 test("G2: redirect destinations exist in the build output", () => {

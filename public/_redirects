@@ -21,9 +21,18 @@
 /en/lab /#apps 301
 /en/lab/ /#apps 301
 
-# Tool pages with a trailing slash: drop it here so they arrive in one hop
-/lab/ja/:tool/ /lab/:tool 301
-/lab/en/:tool/ /en/lab/:tool 301
+# Tool pages with a trailing slash: drop it here so they arrive in one hop.
+# One static rule per tool: Workers checks static rules before dynamic ones,
+# but does not keep the file order among dynamic rules in production (a
+# placeholder rule here lost to the splat rules below; ui-revise3 4).
+/lab/ja/tw-palette-generator/ /lab/tw-palette-generator 301
+/lab/ja/favicon-generator/ /lab/favicon-generator 301
+/lab/ja/svg-optimizer/ /lab/svg-optimizer 301
+/lab/ja/password-generator/ /lab/password-generator 301
+/lab/en/tw-palette-generator/ /en/lab/tw-palette-generator 301
+/lab/en/favicon-generator/ /en/lab/favicon-generator 301
+/lab/en/svg-optimizer/ /en/lab/svg-optimizer 301
+/lab/en/password-generator/ /en/lab/password-generator 301
 
 # Tool pages (the removed Iromide is forwarded too and ends in 404)
 /lab/ja/* /lab/:splat 301

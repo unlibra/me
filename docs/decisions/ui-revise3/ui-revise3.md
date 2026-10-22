@@ -73,6 +73,20 @@
 - テスト：`portfolio.test.js` の `ui-revise3 (user): the BOOTH product: its card, details, link and image`、`D4: the VR & 3D section has the real product first, ...`、`license.test.js` の `ui-revise3 (user): the BOOTH image with other creators' material is in the third-party directory that section 3 excludes`
 - 戻すときの作業：`works.ts` の項目と import、`ja.ts` の文言、画像を消す。`imagePosition` を消すなら `cards.ts` の `photoPosition` と3つの部品の呼び出しも消す
 
+## UR3-8 `_redirects`：末尾スラッシュ付きの旧ツールURLを、ツールごとの静的なルールにした
+
+- 原因：
+  - 公式ドキュメント（`https://developers.cloudflare.com/workers/static-assets/redirects/`）には「同じ source のルールが複数あれば上のものが使われる」「順番は意味がある」「静的なルールは動的なルールより前に書く」とあるだけで、動的なルール（プレースホルダーとスプラット）どうしの評価順は書かれていない
+  - wrangler 4.151.3 の `constructRedirects`（`node_modules/wrangler/wrangler-dist/cli.js`）は、`_redirects` を静的なルール（`staticRules`、source → `{ status, to, lineNumber }`）と動的なルール（`rules`、source → `{ status, to }`）の2つのオブジェクトにしてアップロードする。動的なルールには行番号がなく、順番はオブジェクトのキーの順だけで運ばれる。`wrangler dev`（miniflare の asset worker）は、そのオブジェクトを `Object.entries` の順（＝ファイルの順）に試すので、`/lab/ja/:tool/` が `/lab/ja/*` より先に当たる
+  - 本番（workers.dev）では `/lab/ja/favicon-generator/` が `/lab/ja/*` に当たって `/lab/favicon-generator/` に転送された。つまり本番はファイルの順を保っていない。結果は、動的なルールを source の文字コード順（`*` は `:` より前）に並べたときと一致する。本番の内部の並べ方は公開されていないので、これは推定。静的なルールが動的なルールより先に試されることは、ドキュメント・wrangler・miniflare の実装で一致している
+- 決めたこと：`/lab/ja/:tool/`・`/lab/en/:tool/` の2つの動的なルールをやめ、ツールごとの静的なルール（`/lab/ja/favicon-generator/ /lab/favicon-generator 301` など、4ツール × 2言語の8行）にした。残る動的なルールは `/lab/ja/*`・`/lab/en/*` の2つで、互いに重ならないので、評価順に関係なく結果が決まる。消したイロメイドの末尾スラッシュ付きURLは、スプラットで `/lab/iromide/` に転送され、その先で 404 になる（前と同じく 404 で終わる。回数は気にしない）
+- E2E が見逃した理由：E2E（`site.spec.js`）は `wrangler dev` に対して流しており、`wrangler dev` は動的なルールをファイルの順に試す。本番と評価順が違うことは、ローカルの実行では再現しない。単体テスト（`redirects.test.js`）の `resolve` も「動的なルールはファイルの順」という前提で書いていた
+- テスト：`redirects.test.js` の `resolve` を、動的なルールをファイルの順・逆順・source の文字コード順の3通りで評価し、結果が1つでも違えば落ちるようにした（既存のすべての確認がこの3通りで行われる）。`ui-revise3 4: the result does not depend on the order of the dynamic rules, as in production` で、残った動的なルールが重ならないこと、テストのツールの一覧が `dist/` のツールのページと同じであること（静的なルールの書き漏れを防ぐ）を確かめる。前の `_redirects`（`:tool` のルールあり）の `dist/` に対して、このテストと `G2: former URLs reach the new URL in one hop ...` が落ちることを確かめた
+- 他の選択肢：スプラットのルールを `/lab/ja/:tool` のプレースホルダーにして、末尾スラッシュあり・なしの2つのプレースホルダーのルールにする（重ならないが、設計書 3.2 の `/lab/ja/*` の形が変わり、2階層以上のURLが転送されなくなる）
+- 戻すときの作業：`public/_redirects` の8行を前の2行に戻し、`redirects.test.js` の `DYNAMIC_ORDERS` を外す
+- ツールを足すときは、`_redirects` にその2行を足す必要がある（足し忘れると上のテストが落ちる）
+- `site.spec.js` の `sample` にある `:tool` の分岐は使われなくなったが、害はないので残した
+
 ## 直した既存のテストと理由（M1）
 
 | テスト                                                                                                               | 直した内容と理由                                                                                                                                |
@@ -84,6 +98,7 @@
 | `portfolio.test.js` の `ui-revise2 3: every card shows its one-line summary and opens its details`                   | 浮き上がりと影の確認を写真のカードだけにし、リスト型にはないことを見る（指示3の2、liblab のホバー）。作品の数を 14 から 15 にした（UR3-7）      |
 | `portfolio.test.js` の `D5: the three documentation links point to docs.unlibra.com`                                 | ドキュメントのリンクがカード（操作）と詳細に1つずつあることを見るようにした（指示3の操作）                                                      |
 | `portfolio.test.js` の `ui-revise2 (parent): the top page's description is the footer's description`                 | 新しい説明文にした（指示2の1）                                                                                                                  |
+| `redirects.test.js` の `resolve`（`G2` の各テストが使う）                                                            | 動的なルールを3通りの順で評価し、結果が一致することも見るようにした（強める変更。指示4、UR3-8）                                                 |
 | `tools.test.js` の `E8: the tools are linked from the top page in Japanese, not from the header`                     | トップから日本語のツールのページへのリンクを1つから2つ（カードの「ツールを使う」と詳細）にした（指示3の操作）                                   |
 | `layout.test.js` の `ui-revise2 2: the footer's Links group sits in the right half of the center column`             | `ui-revise3 2: ... at the right end of the center column`（`md:justify-self-end`）にした（指示2の2）                                            |
 | `layout.test.js` の `ui-revise2 7, 8: the footer's description and link labels`                                      | 日英の説明文を新しい文面にした（指示2の1）                                                                                                      |
