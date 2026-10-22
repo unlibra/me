@@ -6,13 +6,27 @@ import { expect, test } from "@playwright/test";
 import { hasHorizontalScroll } from "./helpers.js";
 
 const MISSING = "/no-such-page";
+/** The stars' tile: one size on every screen (16rem). */
+const TILE = 256;
+
+/** Whether two boxes overlap. */
+const overlap = (a, b) =>
+  a.x < b.x + b.width &&
+  b.x < a.x + a.width &&
+  a.y < b.y + b.height &&
+  b.y < a.y + a.height;
 
 for (const [width, height] of [
   [375, 667],
   [1280, 800],
+  // Low landscape screens (phones turned sideways).
+  [667, 375],
+  [844, 390],
+  [568, 320],
 ]) {
-  for (const scheme of ["light", "dark"]) {
-    test(`${width}px, ${scheme}: a missing path returns 404 with the full-screen page`, async ({
+  const schemes = width === 844 ? ["light"] : ["light", "dark"];
+  for (const scheme of schemes) {
+    test(`${width}×${height}, ${scheme}: a missing path returns 404 with the full-screen page`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height });
@@ -35,17 +49,23 @@ for (const [width, height] of [
       // No header and no footer.
       await expect(page.locator("header, footer")).toHaveCount(0);
 
-      // The background: #282c34 over the whole screen, in either theme, with
-      // the stars over all of it.
+      // The background: #282c34 over the whole screen, in either theme (the
+      // root and the body too, for overscrolling), with the stars over all
+      // of it.
       const main = page.locator("[data-not-found]");
       await expect(main).toHaveCSS("background-color", "rgb(40, 44, 52)");
+      for (const selector of ["html", "body"]) {
+        await expect(page.locator(selector)).toHaveCSS(
+          "background-color",
+          "rgb(40, 44, 52)",
+        );
+      }
       const box = await main.boundingBox();
       expect(box.x).toBe(0);
       expect(box.y).toBe(0);
       expect(Math.round(box.width)).toBe(width);
       expect(Math.round(box.height)).toBe(height);
-      // The stars: the tile repeated over the background, one tile the size
-      // of the planet's box (the original SVG's 100×100), centered.
+      // The stars: one tile size on every screen, repeated, centered.
       const tile = await main.evaluate((e) => {
         const s = getComputedStyle(e);
         return [
@@ -55,37 +75,47 @@ for (const [width, height] of [
           s.backgroundPosition,
         ];
       });
-      const planetSize = await page
-        .locator("[data-planet]")
-        .evaluate((e) => e.getBoundingClientRect().width);
       expect(tile[0]).toMatch(/stars\.[\w-]+\.svg/);
       expect(tile[1]).toBe("repeat");
-      const [tw, th] = tile[2].split(" ").map(parseFloat);
-      expect(Math.abs(tw - planetSize)).toBeLessThan(1);
-      expect(Math.abs(th - planetSize)).toBeLessThan(1);
+      expect(tile[2]).toBe(`${TILE}px ${TILE}px`);
       expect(tile[3]).toBe("50% 50%");
 
-      // The planet: in the middle, about half of the short side, on the
-      // screen; the heading and the button below it, also on the screen.
+      // The planet: visible (at least a quarter of the short side, at most
+      // half), on the screen, not overlapping the heading and the button.
       const planet = await page.locator("[data-planet]").boundingBox();
       const short = Math.min(width, height);
-      expect(planet.width).toBeGreaterThanOrEqual(short * 0.4);
-      expect(planet.width).toBeLessThanOrEqual(short * 0.5 + 1);
-      expect(
-        Math.abs(planet.x + planet.width / 2 - width / 2),
-      ).toBeLessThanOrEqual(1);
-      expect(
-        Math.abs(planet.y + planet.height / 2 - height / 2),
-      ).toBeLessThanOrEqual(1);
+      expect(planet.width).toBeGreaterThanOrEqual(short * 0.25);
+      expect(planet.width).toBeLessThanOrEqual(short * 0.6 + 1);
       const h1 = await heading.boundingBox();
       const button = await back.boundingBox();
-      expect(h1.y).toBeGreaterThanOrEqual(planet.y + planet.height);
-      expect(button.y).toBeGreaterThanOrEqual(h1.y + h1.height);
       for (const b of [planet, h1, button]) {
         expect(b.x).toBeGreaterThanOrEqual(0);
         expect(b.y).toBeGreaterThanOrEqual(0);
         expect(b.x + b.width).toBeLessThanOrEqual(width);
         expect(b.y + b.height).toBeLessThanOrEqual(height);
+      }
+      expect(overlap(planet, h1)).toBe(false);
+      expect(overlap(planet, button)).toBe(false);
+      expect(button.y).toBeGreaterThanOrEqual(h1.y + h1.height);
+      if (height >= 480) {
+        // Tall enough: the planet in the middle, 40-50% of the short side,
+        // the heading and the button below it.
+        expect(planet.width).toBeGreaterThanOrEqual(short * 0.4);
+        expect(planet.width).toBeLessThanOrEqual(short * 0.5 + 1);
+        expect(
+          Math.abs(planet.x + planet.width / 2 - width / 2),
+        ).toBeLessThanOrEqual(1);
+        expect(
+          Math.abs(planet.y + planet.height / 2 - height / 2),
+        ).toBeLessThanOrEqual(1);
+        expect(h1.y).toBeGreaterThanOrEqual(planet.y + planet.height);
+      } else {
+        // Low landscape: the planet beside the text, both centered
+        // vertically.
+        expect(h1.x).toBeGreaterThanOrEqual(planet.x + planet.width);
+        expect(
+          Math.abs(planet.y + planet.height / 2 - height / 2),
+        ).toBeLessThanOrEqual(1);
       }
       // One screen: no scroll either way.
       expect(await hasHorizontalScroll(page)).toBe(false);

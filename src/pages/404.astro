@@ -20,19 +20,17 @@ const title = "ページが見つかりません / Page not found";
   canonical={false}
   bare
 >
-  <!-- The stars: the original's background and stars as a tile the size of
-       the planet's box, centered on it (both are in the middle of the
-       screen), so that the stars around the planet are the original's,
-       repeated over the screen. -->
+  <!-- The stars: the original's background and stars as a tile of one size
+       on every screen, repeated over the screen from its middle. -->
   <main
-    class="relative grid min-h-dvh place-items-center bg-atom-one-dark bg-center text-white"
-    style={`background-image: url(${stars.src}); background-size: var(--planet) var(--planet);`}
+    class="grid min-h-dvh place-items-center bg-atom-one-dark bg-center text-white"
+    style={`background-image: url(${stars.src}); background-size: 16rem 16rem;`}
     data-not-found
   >
-    <!-- The planet's box (the original SVG's 100×100): in the middle. -->
-    <div class="relative size-(--planet)" data-planet>
-      <div class="size-full [&>svg]:size-full" set:html={planet} />
-      <div class="absolute top-full left-1/2 flex w-max -translate-x-1/2 flex-col items-center gap-6 pt-6">
+    <div class="scene">
+      <!-- The planet's box (the original SVG's 100×100). -->
+      <div class="planet [&>svg]:size-full" set:html={planet} data-planet />
+      <div class="caption">
         <h1 class="text-2xl font-semibold">{heading}</h1>
         <a
           href="/"
@@ -47,9 +45,68 @@ const title = "ページが見つかりません / Page not found";
 </BaseLayout>
 
 <style>
+  /*
+   * The caption (the heading, the gap and the button: 32 + 24 + 36px) and
+   * the space above it (24px) take 116px. On screens tall enough, the planet
+   * is in the middle and the caption below it, so half the screen below the
+   * planet must hold 116px and a 16px margin: the planet is at most
+   * 100dvh - 2 × 132px, and about half the short side; never less than a
+   * quarter of the short side.
+   */
   [data-not-found] {
-    /* About half the screen's short side; smaller on short screens, so that
-       the heading and the button below it stay on the screen. */
-    --planet: min(50vmin, 100dvh - 20rem);
+    --planet: max(25vmin, min(50vmin, 100dvh - 16.5rem));
+  }
+
+  .scene {
+    position: relative;
+  }
+
+  .planet {
+    width: var(--planet);
+    height: var(--planet);
+  }
+
+  .caption {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    translate: -50% 0;
+    display: flex;
+    width: max-content;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding-top: 1.5rem;
+  }
+
+  /*
+   * Low landscape screens (phones turned sideways): there is no room below
+   * the planet, so the caption is beside it, and the planet takes most of
+   * the height.
+   */
+  @media (orientation: landscape) and (max-height: 479px) {
+    [data-not-found] {
+      --planet: min(60dvh, 40vw);
+    }
+
+    .scene {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .caption {
+      position: static;
+      translate: none;
+      padding-top: 0;
+    }
+  }
+</style>
+
+<style is:global>
+  /* Dark behind the page too (the overscroll on phones), in either theme. */
+  html:has(main[data-not-found]),
+  body:has(main[data-not-found]) {
+    background-color: var(--color-atom-one-dark);
   }
 </style>
