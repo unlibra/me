@@ -28,11 +28,17 @@ export const cardKind = (
 ): CardStyle | "featured" =>
   work.featured ? "featured" : cardStyles[work.category];
 
-/**
- * How a work's photo is cropped to its frame (`imagePosition`), and where
- * it grows from on hover.
- */
+/** How a work's photo is cropped to its frame (`imagePosition`). */
 export const photoPosition = (
   work: Pick<Work, "imagePosition">,
-): "object-top origin-top" | "object-center" =>
-  work.imagePosition === "top" ? "object-top origin-top" : "object-center";
+): "object-top" | "object-center" =>
+  work.imagePosition === "top" ? "object-top" : "object-center";
+
+/**
+ * The photo's zoom on hover: none for images with other creators' material
+ * (`thirdPartyImage`), which are shown as they are.
+ */
+export const photoHover = (
+  work: Pick<Work, "thirdPartyImage">,
+): "group-hover:scale-[1.03]" | null =>
+  work.thirdPartyImage ? null : "group-hover:scale-[1.03]";

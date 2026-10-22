@@ -595,3 +595,27 @@ test.describe("ui-revise3 1: the hero", () => {
     });
   }
 });
+
+test("ui-revise3 (parent): an image with other creators' material is not zoomed on hover; the other photos are", async ({
+  page,
+}) => {
+  await open(page, "/");
+  /** The image's computed scale and transform while its card is hovered. */
+  const hoveredImage = async (id) => {
+    const item = card(page, id);
+    await page.mouse.move(0, 0);
+    await hoverOver(page, item.locator("[data-work-summary]"));
+    await expect(item).toHaveCSS("box-shadow", /rgba/); // the card is hovered
+    const image = item.locator("img");
+    // Past the 300ms transition.
+    await page.waitForTimeout(400);
+    return image.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return [style.scale, style.transform];
+    });
+  };
+  expect(await hoveredImage("mururu-blink-lipsync")).toEqual(["none", "none"]);
+  // The control: another photo grows.
+  const [scale] = await hoveredImage("dummy-asset");
+  expect(scale).toBe("1.03");
+});

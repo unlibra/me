@@ -40,6 +40,12 @@ interface WorkBase {
    * a credit there). Without it, the photo is cropped around its center.
    */
   imagePosition?: "top";
+  /**
+   * The image shows material by other creators: it is kept in
+   * src/assets/works/third-party/ (LICENSE, section 3) and shown as it is,
+   * without the zoom on hover (which would push its credit out of view).
+   */
+  thirdPartyImage?: true;
 }
 
 /** Only VR & 3D works have a subcategory, and they always have one. */
@@ -139,6 +145,7 @@ export const works: Work[] = [
     // Provisional (being confirmed with the owner).
     year: "2026",
     image: mururuBlinkLipsyncImg,
+    thirdPartyImage: true,
     // The image's credit is in its top right corner: keep the top in view.
     imagePosition: "top",
     link: "https://unlibra-twin.booth.pm/items/9009879",

@@ -304,6 +304,42 @@ test("ui-revise3 (user): the BOOTH product: its card, details, link and image", 
   assert.ok(attr(other, "class").split(/\s+/).includes("object-center"));
 });
 
+test("ui-revise3 (parent): only the images with other creators' material are not zoomed on hover", () => {
+  // In the data, every work whose image comes from third-party/ is marked
+  // thirdPartyImage, and only those.
+  const source = readFileSync(join(root, "src/config/works.ts"), "utf8");
+  const thirdParty = [
+    ...source.matchAll(
+      /^import (\w+) from "@\/assets\/works\/third-party\/[^"]+";$/gm,
+    ),
+  ].map((m) => m[1]);
+  assert.deepEqual(thirdParty, ["mururuBlinkLipsyncImg"]);
+  const items = [...source.matchAll(/^ {2}\{\n([\s\S]*?)^ {2}\},$/gm)].map(
+    (m) => m[1],
+  );
+  assert.equal(items.length, 15, "self-check of the work items");
+  const marked = [];
+  for (const item of items) {
+    const id = item.match(/id: "([^"]+)"/)[1];
+    const image = item.match(/image: ([^,\n]+),/)[1];
+    const flagged = /^\s+thirdPartyImage: true,$/m.test(item);
+    assert.equal(flagged, thirdParty.includes(image), id);
+    if (flagged) marked.push(id);
+  }
+  assert.deepEqual(marked, ["mururu-blink-lipsync"]);
+  // On the page: no zoom class on those images; the other photos keep it.
+  let zoomed = 0;
+  for (const card of cardsOf(top)) {
+    const work = attr(card, "data-work");
+    if (attr(card, "data-card") === "tool") continue;
+    const img = card.match(/<img\s[^>]*>/)[0];
+    const zoom = attr(img, "class").includes("group-hover:scale-");
+    assert.equal(zoom, !marked.includes(work), work);
+    if (zoom) zoomed++;
+  }
+  assert.ok(zoomed > 0, "self-check");
+});
+
 test("D4: only VR & 3D works have a subcategory", () => {
   const all = cardsOf(top);
   assert.ok(all.length > 0);
@@ -444,11 +480,12 @@ test("ui-revise2 3: every card shows its one-line summary and opens its details"
   }
 });
 
-test("ui-revise3 (parent): a link has the same label on the card and in the details", () => {
+test("ui-revise3 (parent): the card and the details have the same links, labels and order", () => {
   const linksIn = (html) =>
-    [...html.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)]
-      .map((m) => [attr(m[0], "href"), text(m[1])])
-      .sort();
+    [...html.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)].map((m) => [
+      attr(m[0], "href"),
+      text(m[1]),
+    ]);
   for (const card of cardsOf(top)) {
     const work = attr(card, "data-work");
     assert.deepEqual(linksIn(card), linksIn(dialogOf(work)), work);
@@ -457,13 +494,14 @@ test("ui-revise3 (parent): a link has the same label on the card and in the deta
 
 test("ui-revise2 3: the details link to where each work is published", () => {
   const expected = {
+    // The documentation first, as on the card (ui-revise3).
     "i18n-tiny-astro": [
-      ["npm", "https://www.npmjs.com/package/@i18n-tiny/astro"],
       ["ドキュメント", "https://docs.unlibra.com/i18n-tiny/astro/introduction"],
+      ["npm", "https://www.npmjs.com/package/@i18n-tiny/astro"],
     ],
     "tkinter-unblur": [
-      ["PyPI", "https://pypi.org/project/tkinter-unblur"],
       ["ドキュメント", "https://docs.unlibra.com/tkinter-unblur/"],
+      ["PyPI", "https://pypi.org/project/tkinter-unblur"],
     ],
     "svg-optimizer": [["ツールを使う", "/lab/svg-optimizer"]],
     "dummy-asset": [["BOOTH で見る", SHOP]],

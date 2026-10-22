@@ -1,5 +1,6 @@
-// The links of a work: where it is published or sold, and its documentation.
-// The details (dialog) and the card's actions name them differently.
+// The links of a work: its documentation, and where it is published or sold.
+// The card and the details (dialog) show the same links, with the same
+// labels, in the same order.
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -58,18 +59,12 @@ const docsLink = (work: Work): WorkLink[] =>
     ? [{ label: messages.links.docs, href: work.docs, external: true }]
     : [];
 
-/** The links in a work's details: the main link, then the documentation. */
-export const linksOf = (work: Work): WorkLink[] => [
-  ...mainLink(work),
-  ...docsLink(work),
-];
-
 /**
- * The actions on a work's card, which go to the place directly: the
- * documentation, then the main link (ui-revise3 3). Works without links
- * (DIY Keyboards) have none and show "詳しく見る" only.
+ * A work's links, on its card (as actions that go to the place directly,
+ * ui-revise3 3) and in its details: the documentation, then the main link.
+ * Works without links (DIY Keyboards) have none and show "詳しく見る" only.
  */
-export const cardActionsOf = (work: Work): WorkLink[] => [
+export const linksOf = (work: Work): WorkLink[] => [
   ...docsLink(work),
   ...mainLink(work),
 ];

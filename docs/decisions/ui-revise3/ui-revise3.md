@@ -30,6 +30,7 @@
   - 文字：タイトル `text-lg`（liblab は 16px）、要約 `text-base`（liblab は `text-sm`）。タイトルの色は liblab では本文の色（指定なし）だったが、写真のカードと揃えて `gray-900` / `white` にした
   - カードの間隔：`gap-3`（12px）から `gap-4`（16px）。8px を基準にした間隔のため
   - 年を出した（計画の「親の判断」）
+  - キーボードのフォーカスの輪：liblab のツールカードは `outline-none` で、フォーカスは背景の色だけで示していた。共通化のルールの「フォーカス」に合わせ、リスト型にも写真のカードと同じ輪（タイトルのボタンの `::after` に `sky-500` の 2px の `outline`、外側 2px）を足した。背景の色（liblab の形）も残している
 - 写真のカード（DIY Keyboards、VR & 3D）は、ホバーで浮き上がって影が付く今の形を残した。共通化のルールの「ホバーの表現を統一」は「詳細へのリンク」の行にあるので、リンクの表現だけを揃えた
 - 戻すときの作業：`ToolCard.astro`・`WorkIcon.astro`・`WorkList.astro` を前のコミットの形に戻す
 
@@ -51,10 +52,10 @@
 - 決めたこと：
   - カードの最後の行に、操作のリンクを並べ、その後ろに「詳しく見る」を置いた（`CardLinks.astro`）。Libraries は「ドキュメント」「npm」（または「PyPI」）の順（計画の書き順）。リンクは `relative z-10` でタイトルのボタンの覆い（`::after`）より手前にあり、クリックするとその場所へ直接飛ぶ（詳細は開かない）。外部のリンクは新しいタブ
   - 操作のリンクの名前は、ボタンの名前と同じ考えで見える文字（「npm」など）のまま。どの作品のリンクかは、タイトルの文字（ボタンの中の `span`）を `aria-describedby` で結んで伝える（`ui-revise3 3: an action goes to its place directly ...` で「ドキュメント」の説明が「tkinter-unblur」であることを確かめる）。ボタン自身を指すと、ボタンの名前（タイトルと「詳しく見る」）が説明になってしまうため、タイトルの `span` に `id`（`work-{id}-name`）を付けた
-  - リンクの名前は `work-links.ts` で、リンクの種類（ツール、npm、PyPI、BOOTH）をURLから1つの関数で決め、詳細とカードで別の名前の表を引くようにした。今までどおり、決まっていない組み合わせはビルドを止める
-  - 詳細のダイアログのリンクの文言は、親の判断（2026-10-22）でカードに揃えた。同じリンクは同じ文言（Apps「ツールを使う」、npm「npm」、PyPI「PyPI」、BOOTH「BOOTH で見る」、ドキュメント「ドキュメント」）。前の「ツールを開く」「npm で見る」「PyPI で見る」は消した。`work-links.ts` の名前の表は1つだけになった。作品のカードと詳細はトップ（日本語だけ）にしかないので、英語の文言はない。`portfolio.test.js` の `ui-revise3 (parent): a link has the same label on the card and in the details` で、すべての作品のカードと詳細のリンクの組（URL と文言）が一致することを確かめる（揃える前のビルドで落ちることを確認済み）
+  - リンクの名前は `work-links.ts` で、リンクの種類（ツール、npm、PyPI、BOOTH）をURLから1つの関数で決め、1つの名前の表を引く。カードと詳細は同じ関数 `linksOf` を使うので、リンク・文言・並びが同じになる。今までどおり、決まっていない組み合わせはビルドを止める
+  - 詳細のダイアログのリンクの文言は、親の判断（2026-10-22）でカードに揃えた。同じリンクは同じ文言（Apps「ツールを使う」、npm「npm」、PyPI「PyPI」、BOOTH「BOOTH で見る」、ドキュメント「ドキュメント」）。前の「ツールを開く」「npm で見る」「PyPI で見る」は消した。並びもレビューの任意の指摘を受けてカードに揃え、詳細でも「ドキュメント」を先にした（前は詳細だけ npm・PyPI が先）。作品のカードと詳細はトップ（日本語だけ）にしかないので、英語の文言はない。`portfolio.test.js` の `ui-revise3 (parent): the card and the details have the same links, labels and order` で、すべての作品のカードと詳細のリンク（URL と文言）が、並びまで一致することを確かめる（揃える前のビルドで落ちることを確認済み）
 - 他の選択肢：操作のリンクを「詳しく見る」の後ろに置く
-- 戻すときの作業：各カードから `CardLinks` を外して `MoreLabel` に戻し、`work-links.ts` の `cardActionsOf` を消す
+- 戻すときの作業：各カードから `CardLinks` を外して `MoreLabel` に戻す
 
 ## UR3-6 VR & 3D の見出しの横の BOOTH ショップのリンクを消した
 
@@ -66,12 +67,13 @@
 - 決めたこと：
   - 作品 ID は `mururu-blink-lipsync`。VR & 3D の先頭（ダミーの3件の前）に置いた。サブ分類は Unityツール、リンクは `https://unlibra-twin.booth.pm/items/9009879`（カードの操作と詳細はどちらも「BOOTH で見る」）
   - 画像は受け取ったファイル（1200×1200 の WebP）をそのまま `src/assets/works/third-party/mururu-blink-lipsync.webp` に置いた（中身が同じことを `cmp` で確かめた）。表示はほかの作品と同じく `astro:assets` の `<Image>` を通すので、出力のファイルは Astro が同じ大きさの WebP に変換したものになる（ほかの写真と同じ扱い。中身は加工していない）
-  - 画像の切り抜き：カードの枠は 4:3、詳細は `sm` 以上で 16:9 なので、正方形の画像は上下が切れる。中央で切ると右上の「©Lethal Cats」が見えなくなるため、`Work` に `imagePosition?: "top"` を足し、この作品だけ上を基準に切り抜く（`object-top`、ホバーの拡大も上を基準に `origin-top`）。ほかの写真は今までどおり中央（`object-center`）
+  - 画像の切り抜き：カードの枠は 4:3、詳細は `sm` 以上で 16:9 なので、正方形の画像は上下が切れる。中央で切ると右上の「©Lethal Cats」が見えなくなるため、`Work` に `imagePosition?: "top"` を足し、この作品だけ上を基準に切り抜く（`object-top`）。ほかの写真は今までどおり中央（`object-center`）
+  - ホバーの拡大（親の判断、レビューの推奨の指摘）：写真のカードはホバーで画像を 1.03 倍にするが、上を基準に拡大しても右上の「©Lethal Cats」の右端が枠の外に出て切れた（右の余白は約 0.7%）。`src/assets/works/third-party/` の画像（他の作者の素材）はホバーで拡大しないことにし、`Work` に `thirdPartyImage?: true` を足して、この作品に付けた。`cards.ts` の `photoHover` が、付いた作品では拡大のクラスを出さない。カードの浮き上がりと影はほかの写真のカードと同じ。前に入れていた `origin-top` は不要になったので外した
 - 根拠：作者の表示を隠さないため。画像を4:3に作り直すのは「加工しない」に反する
 - 他の選択肢：この作品だけ `object-contain` で余白を付けて全体を出す。カードを正方形にする
-- 確かめたこと：幅 375px と 1280px で、カードの右上に「©Lethal Cats」が見えることを撮って目で確かめた
-- テスト：`portfolio.test.js` の `ui-revise3 (user): the BOOTH product: its card, details, link and image`、`D4: the VR & 3D section has the real product first, ...`、`license.test.js` の `ui-revise3 (user): the BOOTH image with other creators' material is in the third-party directory that section 3 excludes`
-- 戻すときの作業：`works.ts` の項目と import、`ja.ts` の文言、画像を消す。`imagePosition` を消すなら `cards.ts` の `photoPosition` と3つの部品の呼び出しも消す
+- 確かめたこと：幅 375px と 1280px で、ホバーしていないカードの右上に「©Lethal Cats」が見えることを撮って目で確かめた。ホバー中に拡大しないことは、下の E2E で確かめる
+- テスト：`portfolio.test.js` の `ui-revise3 (user): the BOOTH product: its card, details, link and image`、`D4: the VR & 3D section has the real product first, ...`、`license.test.js` の `ui-revise3 (user): the BOOTH image with other creators' material is in the third-party directory that section 3 excludes`。拡大しないことは、`portfolio.test.js` の `ui-revise3 (parent): only the images with other creators' material are not zoomed on hover`（`works.ts` で third-party/ の画像を使う作品と `thirdPartyImage` の付いた作品が一致すること、ページでその作品の画像だけに拡大のクラスがないこと）と、`works.spec.js` の `ui-revise3 (parent): an image with other creators' material is not zoomed on hover; ...`（ホバー中の計算後の `scale` と `transform` が `none`。比べる対象としてダミーの写真は 1.03 になる）
+- 戻すときの作業：`works.ts` の項目と import、`ja.ts` の文言、画像を消す。`imagePosition` を消すなら `cards.ts` の `photoPosition` と3つの部品の呼び出しも消す。拡大を戻すなら `thirdPartyImage` と `photoHover` を消す
 
 ## UR3-8 `_redirects`：末尾スラッシュ付きの旧ツールURLを、ツールごとの静的なルールにした
 
@@ -100,7 +102,7 @@
 | `portfolio.test.js` の `D5: the three documentation links point to docs.unlibra.com`                                 | ドキュメントのリンクがカード（操作）と詳細に1つずつあることを見るようにした（指示3の操作）                                                      |
 | `portfolio.test.js` の `ui-revise2 (parent): the top page's description is the footer's description`                 | 新しい説明文にした（指示2の1）                                                                                                                  |
 | `redirects.test.js` の `resolve`（`G2` の各テストが使う）                                                            | 動的なルールを3通りの順で評価し、結果が一致することも見るようにした（強める変更。指示4、UR3-8）                                                 |
-| `portfolio.test.js` の `ui-revise2 3: the details link to where each work is published`                              | 詳細のリンクの文言を「npm」「PyPI」「ツールを使う」にした（親の判断。UR3-5）                                                                    |
+| `portfolio.test.js` の `ui-revise2 3: the details link to where each work is published`                              | 詳細のリンクの文言を「npm」「PyPI」「ツールを使う」にし、Libraries の並びを「ドキュメント」が先にした（親の判断とレビューの任意の指摘。UR3-5）  |
 | `works.spec.js` の `Enter on the focused title opens the details; ...`                                               | 詳細のリンクの名前を「ツールを使う」にした（親の判断。UR3-5）                                                                                   |
 | `tools.test.js` の `E8: the tools are linked from the top page in Japanese, not from the header`                     | トップから日本語のツールのページへのリンクを1つから2つ（カードの「ツールを使う」と詳細）にした（指示3の操作）                                   |
 | `layout.test.js` の `ui-revise2 2: the footer's Links group sits in the right half of the center column`             | `ui-revise3 2: ... at the right end of the center column`（`md:justify-self-end`）にした（指示2の2）                                            |

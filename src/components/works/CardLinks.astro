@@ -10,7 +10,7 @@ import {
   focusRing,
 } from "@/components/works/card-classes";
 import { cardTitleId } from "@/components/works/ids";
-import { cardActionsOf } from "@/components/works/work-links";
+import { linksOf } from "@/components/works/work-links";
 import type { Work } from "@/config/works";
 
 interface Props {
@@ -19,7 +19,7 @@ interface Props {
 }
 
 const { work, class: className } = Astro.props;
-const actions = cardActionsOf(work);
+const actions = linksOf(work);
 ---
 
 <div

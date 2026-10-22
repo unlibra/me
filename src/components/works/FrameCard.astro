@@ -12,7 +12,7 @@ import {
   liftOnHover,
   subcategoryChip,
 } from "@/components/works/card-classes";
-import { photoPosition } from "@/config/cards";
+import { photoHover, photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -40,7 +40,8 @@ const { summary } = messages.works[work.id];
       src={work.image}
       alt=""
       class:list={[
-        "size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none",
+        "size-full object-cover transition-transform duration-300 motion-reduce:transition-none",
+        photoHover(work),
         photoPosition(work),
       ]}
     />
