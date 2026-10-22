@@ -43,14 +43,24 @@ for (const locale of LOCALES) {
       page.getByRole("button", { name: t.common.download, exact: true });
     const preset = (page, id) =>
       page.getByRole("button", { name: `Select preset: ${m[id]}` });
+    const preview = (page) => page.getByAltText("最適化後プレビュー");
+    /**
+     * Selects an SVG and waits for its first preview. SVGO is a lazy chunk,
+     * and when the preview and the sizes appear they push the Download button
+     * down (126px): a click pressed before that releases off the button and
+     * is lost (tests.md TS-10).
+     */
+    const chooseSvg = async (page, file) => {
+      await chooseFile(page, file);
+      await expect(preview(page)).toBeVisible();
+    };
 
     test("a selected file is previewed with its sizes and downloaded optimized", async ({
       page,
     }) => {
       await expect(downloadButton(page)).toBeDisabled();
       await expect(page.getByText(m.previewPlaceholder.line1)).toBeVisible();
-      await chooseFile(page, EDITOR);
-      await expect(page.getByAltText("最適化後プレビュー")).toBeVisible();
+      await chooseSvg(page, EDITOR);
       const optimized = Buffer.byteLength(expected["editor.svg"].safe);
       await expect(
         page.getByText(`${(EDITOR.buffer.length / 1024).toFixed(2)} KB`),
@@ -75,7 +85,7 @@ for (const locale of LOCALES) {
     });
 
     test("each preset sets the output", async ({ page }) => {
-      await chooseFile(page, ICON);
+      await chooseSvg(page, ICON);
       for (const id of ["maximum", "svgo-default", "safe"]) {
         await preset(page, id).click();
         await expect(preset(page, id)).toHaveAttribute("aria-pressed", "true");
@@ -87,7 +97,7 @@ for (const locale of LOCALES) {
     test("changing a switch by hand clears the preset and changes the output", async ({
       page,
     }) => {
-      await chooseFile(page, ICON);
+      await chooseSvg(page, ICON);
       const removeTitle = page.getByRole("switch", { name: "removeTitle" });
       await expect(removeTitle).not.toBeChecked();
       await removeTitle.click();
@@ -103,7 +113,7 @@ for (const locale of LOCALES) {
     });
 
     test("the dangerous switches keep scripts", async ({ page }) => {
-      await chooseFile(
+      await chooseSvg(
         page,
         svgFile(
           "script.svg",
@@ -120,7 +130,7 @@ for (const locale of LOCALES) {
     test("the precision sliders set the digits of the output", async ({
       page,
     }) => {
-      await chooseFile(
+      await chooseSvg(
         page,
         svgFile(
           "numbers.svg",
@@ -166,7 +176,7 @@ for (const locale of LOCALES) {
       await expect(downloadButton(page)).toBeDisabled();
 
       await dropFile(page, ICON, t.common.dropToUpload);
-      await expect(page.getByAltText("最適化後プレビュー")).toBeVisible();
+      await expect(preview(page)).toBeVisible();
       const file = await download(page, downloadButton(page));
       expect(file.name).toBe("icon-optimized.svg");
       expect(file.buffer.toString()).toBe(expected["icon.svg"].safe);
@@ -176,7 +186,7 @@ for (const locale of LOCALES) {
       page,
     }) => {
       await page.setViewportSize({ width: 375, height: 800 });
-      await chooseFile(page, ICON);
+      await chooseSvg(page, ICON);
       const removeTitle = page.getByRole("switch", { name: "removeTitle" });
       await expect(removeTitle).toBeHidden();
       await page.getByRole("button", { name: m.options }).click();
