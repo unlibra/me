@@ -84,10 +84,10 @@ export const VIRTUAL_MODULES = {
 export const OUTSIDE_MODULE_GRAPH = {
   astro: "island hydration script, inlined into the HTML of the tool pages",
   tailwindcss: "base styles (preflight) and utilities, generated into the CSS",
-  // A devDependency: one icon is copied into src/components/icons/ (LICENSE,
-  // section 2), and is in the HTML of the top page (ui-revise5 1).
+  // A devDependency: two icons are copied into src/components/icons/
+  // (LICENSE, section 2), and are in the HTML of the top page (ui-revise5).
   "lucide-static":
-    "icon shopping-bag (icons/shopping-bag.svg), copied into the HTML of the top page",
+    "icons box and move-up-right (icons/box.svg, icons/move-up-right.svg), copied into the HTML of the top page",
 };
 
 /**

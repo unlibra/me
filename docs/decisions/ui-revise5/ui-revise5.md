@@ -67,6 +67,21 @@
   - 確かめたこと：worktree でビルドし（ポート 8790 の親のサーバーはそのまま）、`http://localhost:8790/mock/booth-icons`・`/mock/featured-cards` を幅 375px と 1280px、ライトとダークで撮って目で見た（3 の案が 375px で文字が写真からはみ出していたので、幅が狭いときは高さを `min-h-112` にして直した）。lint と format:check は通る。`npm test` は、見本のページが増えたことで、ページの一覧・canonical・サイト名のテスト3つが落ちる（前回の見本と同じ。本番のテストは変えていない）。Lucide のテストは、見本のブランチでアイコンが4つになるよう直した
 - 戻すときの作業：ブランチ `mock/ui-revise5` を消す。ユーザーが `shopping-bag` 以外を選んだら、そのアイコンのファイルを本番に持ってきて、`index.astro`・LICENSE・テストを直す
 
+## UR5-9 ユーザーの判断を受けた追加（レビュー後、2026-10-23）
+
+ユーザーの判断：BOOTH は Lucide の `box`、大サイズのカードは見本の案4を薄いグレーで、2番目のリンクにポインターがあるとき1番目の下線を消す動き（UR5-2）と 404 の位置（UR5-4）はそのまま、リンクの矢印を動かさず下線にアニメーション、矢印を Lucide の `move-up-right`、ヒーローの見出しを 28px。
+
+- アイコン：`ShoppingBagIcon.astro` と、使わなくなった Heroicons の `ArrowUpRightIcon.astro` を消し、Lucide の `box`（`BoxIcon.astro`）と `move-up-right`（`MoveUpRightIcon.astro`）を `lucide-static` 1.52.0 から写した。どちらも Feather 由来の一覧に入っていない（ISC だけ）ので、LICENSE 第2節とアイコンのコメントから Feather（MIT、Cole Bemis）の記述を外した。`LICENSES/Lucide-ISC.txt` はパッケージのファイルの全文のまま（Feather の部分も含む）。Heroicons はほかのアイコン（Bars3、Globe、Moon、Sun、XMark、Breadcrumb）で使っているので、第2節の Heroicons の項は残し、`ArrowUpRightIcon.astro` の行だけ消した。`/third-party-licenses.txt` の `@heroicons/react` は、ツールのページの JS に入っているので変わらない。`OUTSIDE_MODULE_GRAPH` の `lucide-static` の説明を2つのアイコンに直した
+- 下線のアニメーション：カードのリンク（操作のリンクと「詳しく見る」）の文字を `<span data-link-text>` で包み、下線を `text-decoration` ではなく、文字の色の 1px の背景（`bg-linear-to-r from-current to-current`、左下に置き、幅 0% → 100%）にした。幅の変化に 200ms の `ease-out` のトランジションを付け、`prefers-reduced-motion: reduce` ではトランジションをなくした（下線はすぐに出る）。下線を付ける条件は前と同じ（操作のリンクは自分のホバー、1番目はカードのホバーでも、2番目以降にポインターがあるときは1番目に付けない）。矢印の動き（`translate`）はやめた。下線は文字の箱の下端（行の高さ 20px の下）にあり、`text-decoration` の下線よりやや下になる
+  - 対象はカードのリンクだけにした。ヒーローの GitHub・BOOTH のボタン、フッター、ヘッダーのリンクは今までどおり `hover:underline`（指示の「リンクの矢印」「カードのホバーで1番目のリンクに付く下線」をカードのリンクのことと解釈した）
+- 大サイズのカード（案4、薄いグレー）：カードを薄いグレーの面にし（`p-4 sm:p-6`、`gap-6`）、写真をその内側に角丸で置いた（見本の案4の形）。色はライトが `gray-50`、ホバーとタイトルのフォーカスで `gray-100`。ダークがページ（`atom-one-dark`、#282c34）より一段明るい `atom-one-dark-light`（#333842）、ホバーでさらに一段明るい `atom-one-dark-lighter`（#3d4148）。トランジションはほかのカードと同じ `transition-colors`（150ms）
+  - ライトを `gray-100`（ホバー `gray-200`）にしなかった理由：リンクの色（`logo-dark`、#1a7ba0）と「SPOTLIGHT」（`gray-500`）のコントラストが `gray-100` で 4.35・4.39、`gray-200` で 3.87・3.91 になり、ふだんの状態で 4.5:1 を下回るため。`gray-50` では 4.5:1 以上で、ホバーの `gray-100` はほかのカードのホバーと同じ色（同じ 4.35）
+  - ダークの見え方：一段明るい灰色の面がページの暗い背景から浮いて見え、写真の周りの余白が額縁のように見える。案4の見本のダークと同じ色。リンク（`logo-light`）は面の上で 6.69、ホバーで 5.83。「SPOTLIGHT」と要約（`gray-400`）は面の上で 4.52、ホバーの間だけ 3.94 になる（ほかのカードのホバーでも同じ `gray-400` が #333842 の上で 4.52）
+  - 写真の枠は白（ダークは `atom-one-dark`）にした。写真のない作品（アイコン）が大サイズになったとき、アイコンが面の色に溶けないため
+- ヒーローの見出し：`text-[1.75rem]/9`（28px、行の高さ 36px）。Tailwind の既定の大きさに 28px がないため任意の値にした。375px でも1行に収まる
+- 他の選択肢：ライトの面を `gray-100` にする（ふだんのコントラストが 4.5:1 を下回る）。下線を `text-decoration` のまま `text-underline-offset` などで動かす（伸びる動きは作れない）。ヒーローのボタンにも同じ下線のアニメーションを付ける
+- 戻すときの作業：アイコンは `git show ef5b443:<path>` で戻す（LICENSE とテストも）。下線は `card-classes.ts` の `linkText`・`actionText`・`primaryText` を `hover:underline` に戻し、`CardLinks.astro`・`MoreLabel.astro` の `<span>` を外す。大サイズのカードは `FeaturedCard.astro` と `featuredSurface` を戻す。見出しは `text-2xl` に戻す
+
 ## 直した既存のテストと理由（P1）
 
 | テスト                                                                                                                                                                   | 直した内容と理由                                                                                                                                                                                                                                                                               |
@@ -89,6 +104,13 @@
 | `tests/types/works.ts`                                                                                                                                                   | VR & 3D の作品がドキュメントを持てる例を足した（指示5）                                                                                                                                                                                                                                        |
 
 足したテスト：`portfolio.test.js` の `ui-revise5 11: the first link of every card is underlined on the card's hover`、`ui-revise5 6, 7, 12: no card and no icon has a border or ring; ...`、`ui-revise5 13: the large card has SPOTLIGHT ...`、`ui-revise5 3: the works are 24px further below the hero ...`。`license.test.js` の `ui-revise5 1: section 3 names the GitHub mark ...`、`ui-revise5 1: the Lucide icon is from the pinned lucide-static ...`。`works.spec.js` の `ui-revise5 8: the actions' arrow is 14px ...` と、`ui-revise5: the cards and the sections`（375・1280px、ライト・ダークで、枠なし、Apps のアイコンが円、SPOTLIGHT と 36px の見出し、セクションが 24px 下、横スクロールなし）。
+
+UR5-9 で直したテスト（ユーザーの判断による仕様の変更）：
+
+- `portfolio.test.js`：ヒーローの見出しの大きさを `text-2xl` から `text-[1.75rem]/9` に、BOOTH のアイコンを `shopping-bag` から `box`（パッケージのファイルとパスが同じ）にした。矢印の確認を Lucide の `move-up-right`（パッケージのファイルとパスが同じ、Heroicons の矢印がなく `ArrowUpRightIcon.astro` もない）にした。全カードのホバーのテストは、大サイズのカードだけ `featuredSurface` を見るようにした。「詳しく見る」の形を `<span data-link-text>` 入りにした。`ui-revise5 11: the first link of every card is underlined ...` を `ui-revise5 5, 11: the links' text has the growing underline; ...`（下線の背景、`motion-reduce:transition-none`、1番目だけカードのホバーで伸びる、`underline` と `translate` がない）に置き換えた。`ui-revise5 (design 4): the large card is a light gray surface ...` を足した
+- `license.test.js`：Lucide のテストを、`box` と `move-up-right` の2つが固定した版から写したもので、どちらも Feather 由来でなく、LICENSE 第2節とコメントに Feather の記述がないことを見るようにした
+- `third-party-licenses.test.js`：トップの HTML に `box` と `move-up-right` があることを見るようにした
+- `works.spec.js`：全カードのホバーのテストで、大サイズのカードの色をライト `gray-50` → `gray-100`、ダーク #333842 → #3d4148 にした。ホバーの下線のテストを、背景の幅（0% → 100%）で見て、矢印が動かないことを見るようにした。`ui-revise5 5: the underline grows from the left (prefers-reduced-motion: {no-preference,reduce})` を足した（トランジションが `background-size` の 0.2s で、ホバーの直後に動いていること、reduce ではトランジションがないこと）。矢印のテストに `data-icon="move-up-right"` を足した。ヒーローのテストを 28px と `box` にした
 
 ## 新しい文言（すべて仮の文面、P5）
 

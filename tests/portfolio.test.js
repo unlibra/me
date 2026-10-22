@@ -38,8 +38,13 @@ const TOOLS = [
   "password-generator",
 ];
 
-/** Heroicons "arrow-up-right" and "chevron-right" (24 outline). */
-const ARROW = "m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25";
+/**
+ * The former arrow (Heroicons "arrow-up-right", 24 outline), the arrow since
+ * ui-revise5 6 (a path of Lucide "move-up-right") and Heroicons
+ * "chevron-right".
+ */
+const HEROICONS_ARROW = "m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25";
+const ARROW = 'd="M19 5L5 19"';
 const CHEVRON = "m8.25 4.5 7.5 7.5-7.5 7.5";
 
 const top = readDist("index.html");
@@ -125,11 +130,13 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero has the h1 in the body 
   const h1 = hero.match(/<h1([^>]*)>([^<]*)<\/h1>/);
   assert.equal(h1[2].trim(), "昼はカフェ。夜はバー。");
   assert.doesNotMatch(h1[1], /font-brand|data-logotype/);
-  // text-2xl at every width (ui-revise4 1).
+  // 28px (1.75rem) at every width (ui-revise5; text-2xl since ui-revise4 1).
   const sizes = attr(`<h1${h1[1]}>`, "class")
     .split(/\s+/)
-    .filter((name) => /(^|:)text-(xs|sm|base|lg|\dxl)$/.test(name));
-  assert.deepEqual(sizes, ["text-2xl"]);
+    .filter((name) =>
+      /(^|:)text-(xs|sm|base|lg|\dxl|\[[^\]]+\])(\/\S+)?$/.test(name),
+    );
+  assert.deepEqual(sizes, ["text-[1.75rem]/9"]);
   assert.equal(top.match(/<h1[\s>]/g).length, 1);
   // The former logotype and subtitle are gone.
   assert.doesNotMatch(hero, />\s*unlibra\s*</);
@@ -137,16 +144,15 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero has the h1 in the body 
   // The buttons below the text: GitHub and BOOTH (site.links), new tabs.
   const links = hero.slice(hero.indexOf("</h1>"));
   // The GitHub mark as in the former footer (GitHubIcon.astro), and
-  // Lucide's shopping-bag (lucide-static 1.52.0) as it is in the package.
+  // Lucide's box (lucide-static 1.52.0, chosen in ui-revise5) as it is in
+  // the package.
   assert.match(links, /viewBox="0 0 98 96"[^>]*data-icon="github"/);
   const lucide = readFileSync(
-    join(root, "node_modules/lucide-static/icons/shopping-bag.svg"),
+    join(root, "node_modules/lucide-static/icons/box.svg"),
     "utf8",
   );
   const paths = (svg) => [...svg.matchAll(/\sd="([^"]+)"/g)].map((m) => m[1]);
-  const bag = links.match(
-    /<svg[^>]*data-icon="shopping-bag"[\s\S]*?<\/svg>/,
-  )[0];
+  const bag = links.match(/<svg[^>]*data-icon="box"[\s\S]*?<\/svg>/)[0];
   assert.deepEqual(paths(bag), paths(lucide));
   assert.equal(paths(bag).length, 3);
   const anchors = [...links.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)];
@@ -162,11 +168,11 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero has the h1 in the body 
     assert.match(tag, /rel="noopener noreferrer"/);
     // Text buttons (pattern A, ui-revise5 1): the logo, then the text; no
     // up-right arrow, and without the former pill's background and ring.
-    // GitHub has its mark, BOOTH Lucide's shopping-bag (not BOOTH's logo).
+    // GitHub has its mark, BOOTH Lucide's box (not BOOTH's logo).
     const icons = [...inner.matchAll(/<svg[^>]*data-icon="([^"]+)"/g)];
     assert.deepEqual(
       icons.map((m) => m[1]),
-      [["github", "shopping-bag"][i]],
+      [["github", "box"][i]],
       tag,
     );
     assert.ok(inner.trim().startsWith("<svg"), `${tag}: the logo first`);
@@ -379,7 +385,8 @@ test("ui-revise3 (user), ui-revise4 2, ui-revise5 5: the BOOTH product: its card
 });
 
 test("ui-revise4 2: every card has the same hover; no photo zooms and no card lifts", async () => {
-  const { cardHover } = await import("../src/components/works/card-classes.ts");
+  const { cardHover, featuredSurface } =
+    await import("../src/components/works/card-classes.ts");
   // liblab tool-card.tsx: transition-colors hover:bg-gray-100
   // dark:hover:bg-atom-one-dark-light (and the same on keyboard focus).
   for (const name of [
@@ -395,7 +402,11 @@ test("ui-revise4 2: every card has the same hover; no photo zooms and no card li
     const work = attr(card, "data-work");
     kinds.add(attr(card, "data-card"));
     const cls = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
-    for (const name of cardHover.split(/\s+/)) {
+    // The large card has its own light gray surface, one step darker (or
+    // lighter in dark mode) on hover, with the same transition (ui-revise5).
+    const hover =
+      attr(card, "data-card") === "featured" ? featuredSurface : cardHover;
+    for (const name of hover.split(/\s+/)) {
       assert.ok(cls.includes(name), `${work}: ${name}`);
     }
     assert.ok(cls.includes("relative"), work);
@@ -525,10 +536,11 @@ test("ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; th
     );
     assert.equal(attr(button[0], "id"), `work-${work}-open`, work);
     // "詳しく見る" opens the details, not a link: no arrow (ui-revise4 2).
+    // Its text is in the span with the underline (ui-revise5 5).
     assert.match(
       card,
       new RegExp(
-        `<p id="work-${work}-more"[^>]*aria-hidden="true"[^>]*data-work-more[^>]*>\\s*詳しく見る\\s*</p>`,
+        `<p id="work-${work}-more"[^>]*aria-hidden="true"[^>]*data-work-more[^>]*>\\s*<span[^>]*data-link-text[^>]*>\\s*詳しく見る\\s*</span>\\s*</p>`,
       ),
       work,
     );
@@ -630,31 +642,74 @@ test("ui-revise4 2, ui-revise5 9, 10, 11: a card goes to its first link; every l
   assert.ok(!top.includes("ツールを使う"));
 });
 
-test("ui-revise5 11: the first link of every card is underlined on the card's hover", async () => {
-  const { primaryLink } =
+test("ui-revise5 5, 11: the links' text has the growing underline; the first link's also grows on the card's hover", async () => {
+  const { linkText, actionText, primaryText } =
     await import("../src/components/works/card-classes.ts");
-  assert.ok(primaryLink.split(/\s+/).includes("group-hover:underline"));
+  // A 1px line under the text that grows from the left, and does not move
+  // under prefers-reduced-motion: reduce.
+  for (const name of [
+    "bg-size-[0%_1px]",
+    "bg-position-[0_100%]",
+    "transition-[background-size]",
+    "motion-reduce:transition-none",
+  ]) {
+    assert.ok(linkText.split(/\s+/).includes(name), name);
+  }
+  assert.ok(
+    primaryText.split(/\s+/).includes("group-hover:bg-size-[100%_1px]"),
+  );
+  const has = (tag, list, what) => {
+    const cls = attr(tag, "class").split(/\s+/);
+    for (const name of list.split(/\s+/)) {
+      assert.ok(cls.includes(name), `${what}: ${name}`);
+    }
+  };
+  /** The <span data-link-text> in a piece of HTML. */
+  const textOf = (html) => html.match(/<span[^>]*data-link-text[^>]*>/)[0];
   for (const card of cardsOf(top)) {
     const work = attr(card, "data-work");
-    // The action the card goes to, or "詳しく見る" on DIY Keyboards.
-    const first =
-      card.match(/<a\s[^>]*data-work-action="primary"[^>]*>/)?.[0] ??
-      card.match(/<p[^>]*data-work-more[^>]*>/)[0];
-    const cls = attr(first, "class").split(/\s+/);
-    for (const name of primaryLink.split(/\s+/)) {
-      assert.ok(cls.includes(name), `${work}: ${name}`);
+    const actions = [
+      ...card.matchAll(/<a\s[^>]*data-work-action="(\w+)"[\s\S]*?<\/a>/g),
+    ];
+    for (const [html, kind] of actions) {
+      // No text-decoration underline; no arrow that moves.
+      assert.doesNotMatch(attr(html, "class"), /underline/, work);
+      assert.doesNotMatch(html, /translate/, work);
+      const span = textOf(html);
+      has(span, `${linkText} ${actionText}`, `${work} ${kind}`);
+      assert.equal(
+        attr(span, "class").includes("group-hover:bg-size"),
+        kind === "primary",
+        `${work} ${kind}`,
+      );
     }
-    for (const tag of card.match(
-      /<a\s[^>]*data-work-action="secondary"[^>]*>/g,
-    ) ?? []) {
-      assert.ok(!/group-hover:underline/.test(attr(tag, "class")), work);
-    }
+    // The first link: the action the card goes to, or "詳しく見る".
+    const more = card.match(/<p[^>]*data-work-more[\s\S]*?<\/p>/);
+    if (more) has(textOf(more[0]), `${linkText} ${primaryText}`, work);
+    else has(textOf(actions[0][0]), primaryText, work);
   }
 });
 
-test("ui-revise4 2, ui-revise5 2: the actions have the up-right arrow, not the chevron; the titles and 詳しく見る have none", () => {
+test("ui-revise4 2, ui-revise5 2, 6: the actions have Lucide's up-right arrow, not the chevron; the titles and 詳しく見る have none", () => {
   const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
   assert.ok(!main.includes(CHEVRON), "no chevron in main");
+  // Lucide "move-up-right" from lucide-static 1.52.0, in place of
+  // Heroicons "arrow-up-right" (ui-revise5 6).
+  assert.ok(!main.includes(HEROICONS_ARROW), "no Heroicons arrow");
+  assert.ok(
+    !existsSync(join(root, "src/components/icons/ArrowUpRightIcon.astro")),
+  );
+  const lucide = readFileSync(
+    join(root, "node_modules/lucide-static/icons/move-up-right.svg"),
+    "utf8",
+  );
+  const icon = readFileSync(
+    join(root, "src/components/icons/MoveUpRightIcon.astro"),
+    "utf8",
+  );
+  const paths = (svg) => [...svg.matchAll(/\sd="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(paths(icon), paths(lucide));
+  assert.ok(lucide.includes(ARROW));
   assert.ok(
     !existsSync(join(root, "src/components/icons/ChevronRightIcon.astro")),
   );
@@ -754,6 +809,30 @@ test("ui-revise5 6, 7, 12: no card and no icon has a border or ring; the Apps' i
       assert.ok(!frameCls.includes("rounded-card"), `${work}: circle`);
     }
   }
+});
+
+test("ui-revise5 (design 4): the large card is a light gray surface with the photo inset in it", async () => {
+  const { featuredSurface, cardRadius } =
+    await import("../src/components/works/card-classes.ts");
+  // Light gray (gray-50), one step darker (gray-100) on hover; in dark mode one step
+  // lighter than the page (atom-one-dark-light), then lighter again.
+  for (const name of [
+    "bg-gray-50",
+    "hover:bg-gray-100",
+    "dark:bg-atom-one-dark-light",
+    "dark:hover:bg-atom-one-dark-lighter",
+    "transition-colors",
+  ]) {
+    assert.ok(featuredSurface.split(/\s+/).includes(name), name);
+  }
+  const card = cardsOf(top).find((c) => attr(c, "data-card") === "featured");
+  const article = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
+  for (const name of ["p-4", "sm:p-6", "gap-6", "md:grid-cols-2"]) {
+    assert.ok(article.includes(name), name);
+  }
+  // The photo's frame has the card radius, inside the padding.
+  const frame = attr(card.match(/<div[^>]*>(?=<img)/)[0], "class").split(/\s+/);
+  assert.ok(frame.includes(cardRadius));
 });
 
 test("ui-revise5 13: the large card has SPOTLIGHT above its title, in text-4xl", () => {

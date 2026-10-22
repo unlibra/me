@@ -3,13 +3,15 @@
 // "詳しく見る". A card that is a link shows all its links as actions, the
 // one the card goes to first (ui-revise5 9, 11); they are in front of the
 // title link's overlay, so that a click on them goes there.
-import ArrowUpRightIcon from "@/components/icons/ArrowUpRightIcon.astro";
+import MoveUpRightIcon from "@/components/icons/MoveUpRightIcon.astro";
 import MoreLabel from "@/components/works/MoreLabel.astro";
 import {
   actionArrow,
+  actionText,
   cardLink,
   focusRing,
-  primaryLink,
+  linkText,
+  primaryText,
 } from "@/components/works/card-classes";
 import { cardTitleId } from "@/components/works/ids";
 import { cardTarget } from "@/components/works/work-links";
@@ -35,16 +37,16 @@ const actions = target.kind === "link" ? target.actions : [];
       target={action.external ? "_blank" : undefined}
       rel={action.external ? "noopener noreferrer" : undefined}
       aria-describedby={cardTitleId(work)}
-      class:list={[
-        "group/link relative z-10 rounded-sm hover:underline",
-        i === 0 && primaryLink,
-        cardLink,
-        focusRing,
-      ]}
+      class:list={["group/link relative z-10 rounded-sm", cardLink, focusRing]}
       data-work-action={i === 0 ? "primary" : "secondary"}
     >
-      {action.label}
-      <ArrowUpRightIcon class={actionArrow} />
+      <span
+        class:list={[linkText, actionText, i === 0 && primaryText]}
+        data-link-text
+      >
+        {action.label}
+      </span>
+      <MoveUpRightIcon class={actionArrow} />
     </a>
   ))}
   {target.kind === "details" && <MoreLabel work={work} />}

@@ -1,6 +1,6 @@
 ---
 import GitHubIcon from "@/components/icons/GitHubIcon.astro";
-import ShoppingBagIcon from "@/components/icons/ShoppingBagIcon.astro";
+import BoxIcon from "@/components/icons/BoxIcon.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import WorkList from "@/components/works/WorkList.astro";
 import messages from "@/messages/ja";
@@ -15,9 +15,9 @@ const sections = categories.map((category) => ({
 
 const heroLinks = [
   { href: site.links.github, label: messages.hero.github, Icon: GitHubIcon },
-  // A generic icon, not BOOTH's logo (which may not be changed); Lucide's
-  // shopping-bag until the owner chooses one on /mock/booth-icons.
-  { href: site.links.booth, label: messages.hero.booth, Icon: ShoppingBagIcon },
+  // A generic icon, not BOOTH's logo (which may not be changed): Lucide's
+  // box, chosen by the owner on /mock/booth-icons (ui-revise5).
+  { href: site.links.booth, label: messages.hero.booth, Icon: BoxIcon },
 ];
 
 const link =
@@ -52,7 +52,9 @@ const link =
 
       <!-- Hero content -->
       <div class="relative mx-auto max-w-screen-sm pt-12 pb-20 text-center">
-        <h1 class="mb-8 text-2xl font-semibold">{messages.hero.title}</h1>
+        <h1 class="mb-8 text-[1.75rem]/9 font-semibold">
+          {messages.hero.title}
+        </h1>
         <!-- Text buttons: the logo and the text (ui-revise5 1, pattern A of
              ui-revise4 1). -->
         <ul class="flex flex-wrap justify-center gap-2" data-hero-links>

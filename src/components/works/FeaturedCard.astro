@@ -1,17 +1,18 @@
 ---
-// A featured work (`featured: true`): a full-width card with the image and
-// the summary side by side, without a border (ui-revise5 12). "SPOTLIGHT"
-// is above the title, in text-4xl (ui-revise5 13).
+// A featured work (`featured: true`): a full-width card on a light gray
+// surface, with the image inset on it and the summary side by side (design 4
+// of the mock, in light gray; ui-revise5). "SPOTLIGHT" is above the title,
+// in text-4xl (ui-revise5 13).
 import { Image } from "astro:assets";
 
 import CardLinks from "@/components/works/CardLinks.astro";
 import CardTitle from "@/components/works/CardTitle.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
 import {
-  cardHover,
   cardRadius,
   cardSummary,
   cardTitle,
+  featuredSurface,
 } from "@/components/works/card-classes";
 import { isPhoto, photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
@@ -29,14 +30,19 @@ const photo = isPhoto(work.category);
 
 <article
   class:list={[
-    "group relative col-span-full grid overflow-hidden md:grid-cols-2",
+    "group relative col-span-full grid gap-6 overflow-hidden p-4 sm:p-6 md:grid-cols-2",
     cardRadius,
-    cardHover,
+    featuredSurface,
   ]}
   data-work={work.id}
   data-card="featured"
 >
-  <div class="flex aspect-4/3 items-center justify-center overflow-hidden bg-gray-100 dark:bg-atom-one-dark-light">
+  <div
+    class:list={[
+      "flex aspect-4/3 items-center justify-center overflow-hidden bg-white dark:bg-atom-one-dark",
+      cardRadius,
+    ]}
+  >
     {photo ? (
       <Image
         src={work.image}
@@ -47,7 +53,7 @@ const photo = isPhoto(work.category);
       <WorkIcon work={work} size="size-28" />
     )}
   </div>
-  <div class="flex flex-col justify-center gap-4 p-6 sm:p-8">
+  <div class="flex flex-col justify-center gap-4 p-2 sm:p-4">
     <p
       class="text-sm font-semibold tracking-widest text-gray-500 dark:text-gray-400"
       data-work-spotlight

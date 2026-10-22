@@ -257,9 +257,10 @@ test("the reasons for the hand-listed packages still hold", () => {
     "lucide-static",
     "tailwindcss",
   ]);
-  // The icon copied from lucide-static is in the top page (ui-revise5 1).
+  // The icons copied from lucide-static are in the top page (ui-revise5).
   const top = readFileSync(join(dist, "index.html"), "utf8");
-  assert.match(top, /<svg[^>]*data-icon="shopping-bag"/);
+  assert.match(top, /<svg[^>]*data-icon="box"/);
+  assert.match(top, /<svg[^>]*data-icon="move-up-right"/);
   const html = readFileSync(join(dist, "lab/svg-optimizer/index.html"), "utf8");
   assert.match(html, /customElements\.define\(`astro-island`/);
   const css = globSync("_astro/*.css", { cwd: dist })

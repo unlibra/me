@@ -394,16 +394,27 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
       await chooseTheme(page, "ja", scheme);
       // tool-card.tsx: hover:bg-gray-100 (#f3f4f6 in Tailwind 3) and
       // dark:hover:bg-atom-one-dark-light (#333842), transition-colors.
-      const hoverColor =
-        scheme === "light" ? [243, 244, 246, 1] : [0x33, 0x38, 0x42, 1];
+      const cardColors = {
+        rest: [0, 0, 0, 0],
+        hover: scheme === "light" ? [243, 244, 246, 1] : [0x33, 0x38, 0x42, 1],
+      };
+      // The large card (ui-revise5, design 4 in light gray): gray-50
+      // (#f9fafb), and gray-100 (#f3f4f6) on hover; in dark mode #333842,
+      // and #3d4148 on hover.
+      const featuredColors =
+        scheme === "light"
+          ? { rest: [249, 250, 251, 1], hover: [243, 244, 246, 1] }
+          : { rest: [0x33, 0x38, 0x42, 1], hover: [0x3d, 0x41, 0x48, 1] };
       const background = (item) => srgb(item, "backgroundColor");
       const transitions = {};
       for (const [kind, id] of Object.entries(SAMPLES)) {
         const item = card(page, id);
+        const { rest, hover: hoverColor } =
+          kind === "featured" ? featuredColors : cardColors;
         await page.mouse.move(0, 0);
         await item.scrollIntoViewIfNeeded();
         await expect
-          .poll(async () => sameColor(await background(item), [0, 0, 0, 0]))
+          .poll(async () => sameColor(await background(item), rest), kind)
           .toBe(true);
         const style = await item.evaluate((element) => {
           const s = getComputedStyle(element);
@@ -447,7 +458,9 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
         await expect(item).toHaveCSS("border-top-color", border);
         expect(await images(), kind).toEqual(before);
         await page.mouse.move(0, 0);
-        await expect.poll(async () => (await background(item))[3]).toBe(0);
+        await expect
+          .poll(async () => sameColor(await background(item), rest), kind)
+          .toBe(true);
 
         // Keyboard focus on the title shows the same background.
         const control = titleControl(item);
@@ -539,16 +552,28 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     });
   }
 
-  test("ui-revise5 11: the card's hover underlines its first link only; an action's own hover underlines it and moves its arrow", async ({
+  test("ui-revise5 5, 11: the card's hover underlines its first link only; an action's own hover underlines it; the arrows do not move", async ({
     page,
   }) => {
     await open(page, "/");
     const arrow = (locator) =>
       locator
-        .locator('svg[data-icon="arrow-up-right"]')
-        .evaluate((e) => getComputedStyle(e).translate);
+        .locator('svg[data-icon="move-up-right"]')
+        .evaluate((e) => [
+          getComputedStyle(e).translate,
+          getComputedStyle(e).transform,
+        ]);
+    // The underline is the text's background: 0% wide, or the whole text.
     const underline = (locator) =>
-      locator.evaluate((e) => getComputedStyle(e).textDecorationLine);
+      locator
+        .locator("[data-link-text]")
+        .evaluate((e) =>
+          getComputedStyle(e).backgroundSize === "100% 1px"
+            ? "underline"
+            : getComputedStyle(e).backgroundSize === "0% 1px"
+              ? "none"
+              : "growing",
+        );
     for (const id of Object.values(SAMPLES)) {
       const item = card(page, id);
       await item.scrollIntoViewIfNeeded();
@@ -562,9 +587,12 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
           ? actions.first()
           : item.locator("[data-work-more]");
       const others = await item.locator('[data-work-action="secondary"]').all();
+      // No text-decoration underline any more.
+      await expect(first).toHaveCSS("text-decoration-line", "none");
       await expect.poll(() => underline(first), id).toBe("none");
       await hoverOver(page, item.locator("[data-work-summary]"));
       await expect.poll(() => underline(first), id).toBe("underline");
+      await expect(first).toHaveCSS("text-decoration-line", "none");
       for (const other of others) {
         expect(await underline(other), id).toBe("none");
       }
@@ -576,28 +604,82 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
       }
       for (const action of await actions.all()) {
         await page.mouse.move(0, 0);
-        await expect.poll(() => arrow(action)).toBe("none");
         await expect.poll(() => underline(action)).toBe("none");
+        const still = await arrow(action);
+        expect(still, id).toEqual(["none", "none"]);
         await action.hover();
-        await expect.poll(() => arrow(action), id).not.toBe("none");
         await expect.poll(() => underline(action), id).toBe("underline");
+        // The arrow stays where it is (ui-revise5 5).
+        await page.waitForTimeout(250);
+        expect(await arrow(action), id).toEqual(still);
       }
     }
   });
 
-  test("ui-revise5 8: the actions' arrow is 14px, the size of the text, and centered on it", async ({
+  for (const reducedMotion of ["no-preference", "reduce"]) {
+    test(`ui-revise5 5: the underline grows from the left (prefers-reduced-motion: ${reducedMotion})`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ reducedMotion });
+      await open(page, "/");
+      const item = card(page, "i18n-tiny-astro");
+      const action = item.locator('[data-work-action="secondary"]');
+      const text = action.locator("[data-link-text]");
+      await action.scrollIntoViewIfNeeded();
+      await page.mouse.move(0, 0);
+      const style = await text.evaluate((e) => {
+        const s = getComputedStyle(e);
+        return {
+          property: s.transitionProperty,
+          duration: s.transitionDuration,
+          image: s.backgroundImage,
+          position: s.backgroundPosition,
+          repeat: s.backgroundRepeat,
+        };
+      });
+      // A line of the text's color, 1px, at the bottom left.
+      expect(style.image).toMatch(/^linear-gradient\(/);
+      expect(style.position).toBe("0px 100%");
+      expect(style.repeat).toBe("no-repeat");
+      if (reducedMotion === "reduce") {
+        expect(style.property).toBe("none");
+      } else {
+        expect(style.property).toBe("background-size");
+        expect(style.duration).toBe("0.2s");
+      }
+      // Right after the hover: growing (a transition runs), or already
+      // whole without one.
+      await action.hover();
+      const running = await text.evaluate(
+        (e) =>
+          e
+            .getAnimations()
+            .filter((a) => a.transitionProperty === "background-size").length,
+      );
+      expect(running).toBe(reducedMotion === "reduce" ? 0 : 1);
+      await expect
+        .poll(() => text.evaluate((e) => getComputedStyle(e).backgroundSize))
+        .toBe("100% 1px");
+    });
+  }
+
+  test("ui-revise5 6, 8: the actions' arrow is Lucide's move-up-right, 14px, the size of the text, and centered on it", async ({
     page,
   }) => {
     await open(page, "/");
     const actions = page.locator("[data-work-action]");
     await expect(actions).toHaveCount(12);
     for (const action of await actions.all()) {
+      await expect(action.locator("svg")).toHaveAttribute(
+        "data-icon",
+        "move-up-right",
+      );
       const { size, fontSize, offset } = await action.evaluate((element) => {
         const svg = element.querySelector("svg");
         const box = svg.getBoundingClientRect();
         // The line of text: the text node's box.
         const range = document.createRange();
-        range.selectNodeContents(element.firstChild);
+        range.selectNodeContents(element.querySelector("[data-link-text]"));
         const text = range.getBoundingClientRect();
         return {
           size: [box.width, box.height],
@@ -758,7 +840,7 @@ const hoverClick = async (page, item) => {
 
 test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero", () => {
   for (const width of [375, 1280]) {
-    test(`${width}px: the h1 is one line in text-2xl, with the GitHub and BOOTH text buttons side by side below it`, async ({
+    test(`${width}px: the h1 is one line in 28px, with the GitHub and BOOTH text buttons side by side below it`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 800 });
@@ -769,8 +851,8 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero", () => {
         page.locator('[data-hero] svg[data-icon="arrow-up-right"]'),
       ).toHaveCount(0);
       const heading = page.locator("[data-hero] h1");
-      // text-2xl: 24px at every width.
-      await expect(heading).toHaveCSS("font-size", "24px");
+      // 28px at every width (ui-revise5; 24px, text-2xl, since ui-revise4).
+      await expect(heading).toHaveCSS("font-size", "28px");
       const h1 = await heading.boundingBox();
       const lineHeight = await heading.evaluate((e) =>
         parseFloat(getComputedStyle(e).lineHeight),
@@ -784,15 +866,12 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero", () => {
       expect(Math.round(booth.y)).toBe(Math.round(github.y));
       expect(booth.x).toBeGreaterThan(github.x + github.width);
       // Text buttons: no background or ring; the logo (16px, the GitHub
-      // mark and Lucide's shopping-bag), then the text (ui-revise5 1).
+      // mark and Lucide's box), then the text (ui-revise5 1).
       for (const [i, link] of (await links.all()).entries()) {
         await expect(link).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
         await expect(link).toHaveCSS("box-shadow", "none");
         const icon = link.locator("svg");
-        await expect(icon).toHaveAttribute(
-          "data-icon",
-          ["github", "shopping-bag"][i],
-        );
+        await expect(icon).toHaveAttribute("data-icon", ["github", "box"][i]);
         await expect(icon).toBeVisible();
         const box = await icon.boundingBox();
         expect([box.width, box.height]).toEqual([16, 16]);

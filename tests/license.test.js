@@ -297,9 +297,9 @@ test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as mate
   }
 });
 
-test("ui-revise5 1: the Lucide icon is from the pinned lucide-static, whose license is copied verbatim", () => {
+test("ui-revise5 1, 6: the Lucide icons are from the pinned lucide-static, whose license is copied verbatim", () => {
   const pkg = JSON.parse(read("package.json"));
-  // Pinned: the version in LICENSE and in the icon's comment is the one
+  // Pinned: the version in LICENSE and in the icons' comments is the one
   // installed.
   assert.equal(pkg.devDependencies["lucide-static"], "1.52.0");
   const installed = JSON.parse(
@@ -310,25 +310,28 @@ test("ui-revise5 1: the Lucide icon is from the pinned lucide-static, whose lice
     s.heading.startsWith("Lucide "),
   );
   assert.match(lucide.heading, /^Lucide 1\.52\.0 .*lucide-static$/);
-  assert.deepEqual(lucide.files, [
-    "src/components/icons/ShoppingBagIcon.astro",
-  ]);
-  assert.match(
-    headOf("src/components/icons/ShoppingBagIcon.astro"),
-    /lucide-static 1\.52\.0/,
+  // box for BOOTH in the hero, move-up-right for the cards' links.
+  const icons = { BoxIcon: "box", MoveUpRightIcon: "move-up-right" };
+  assert.deepEqual(
+    lucide.files,
+    Object.keys(icons).map((c) => `src/components/icons/${c}.astro`),
   );
-  // The whole license file: the ISC License, and the MIT License of Feather
-  // for the icons derived from it (shopping-bag is one of them).
   const text = read("LICENSES/Lucide-ISC.txt");
+  const feather = text.match(
+    /derived from the Feather project:\n\n([^\n]*)/,
+  )[1];
+  for (const [component, name] of Object.entries(icons)) {
+    const file = `src/components/icons/${component}.astro`;
+    const head = headOf(file);
+    assert.match(head, /lucide-static 1\.52\.0/, file);
+    assert.ok(head.includes(`icons/${name}.svg`), file);
+    // ISC only: not one of the icons derived from Feather (MIT).
+    assert.ok(!feather.split(/,\s*/).includes(name), name);
+    assert.doesNotMatch(head, /Feather|Cole Bemis/, file);
+  }
+  // The whole license file of the package, as it is (ISC, and the MIT
+  // License of the Feather icons, which this site does not use).
   assert.equal(text, read("node_modules/lucide-static/LICENSE"));
   assert.match(text, /^ISC License\n\nCopyright \(c\) 2026 Lucide Icons/);
-  assert.match(
-    text,
-    /derived from the Feather project:\n\n[^\n]*\bshopping-bag\b/,
-  );
-  assert.match(text, /Copyright \(c\) 2013-present Cole Bemis/);
-  // The section in LICENSE names both.
-  const block = section(2).replace(/\s+/g, " ");
-  assert.ok(block.includes("Feather"));
-  assert.ok(block.includes("Cole Bemis"));
+  assert.doesNotMatch(section(2), /Feather|Cole Bemis/);
 });
