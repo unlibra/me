@@ -35,6 +35,19 @@
 - 決めたこと：Heroicons v2.2.0 の `arrow-up-right`（24 outline）を `src/components/icons/ArrowUpRightIcon.astro` に置き、LICENSE 第2節の Heroicons の一覧に足した。使わなくなった `ChevronRightIcon.astro` は消し、一覧からも外した。操作のリンクの矢印は自分のホバーで、タイトルの矢印はカードのホバーで右上に動く（前のシェブロンが右に動いていたのと同じ考え）。「詳しく見る」は詳細を開くボタンの一部なので矢印を付けない。ホバーで下線が付くのは今までどおり
 - 戻すときの作業：アイコンの部品と LICENSE の行を戻す
 
+## UR4-5 ヒーロー：テキストボタンの形（本番は仮に B）
+
+- 決めたこと：ボタンを、背景と枠のない文字だけのボタンにした（`inline-flex`、`px-3 py-2`、`text-sm font-semibold`、文字色は見出しと同じ `gray-900` / `white`、ホバーで下線、フォーカスは今までどおり `sky-500` の輪）。間隔は `gap-4` から `gap-2`（ボタンの内側に余白ができたため）。本番は計画どおり仮に B（文字＋斜め矢印 ↗、カードのリンクと同じ `ArrowUpRightIcon`）。見本ページの A・C も同じ形で、アイコンだけが違う（UR4-7）。シンボルを消したあとの見出しの下の余白（`mb-8`）は変えていない
+- 根拠：「テキストボタン」を、前の丸いピル（白の半透明の背景と枠）をやめて文字とアイコンだけにする、と解釈した
+- 他の選択肢：ピルの形のまま中身だけ A・B・C にする
+- 戻すときの作業：`index.astro` のボタンのクラスを戻す。ユーザーが A か C を選んだら、アイコンを差し替える（A は GitHub のマークを戻すので、LICENSE 第3節も UR4-7 のとおりに直す）
+
+## UR4-6 フッター：4列のグリッド
+
+- 決めたこと：`md` 以上を `md:grid-cols-4` にし、ブランドと説明文の列を `md:col-span-2`、Links と残りのグループ（支援・プライバシーポリシー）を1列ずつにした。Links の右寄せ（`md:justify-self-end`、UR3-2）はやめ、セルの中は左寄せ。`md` 未満は liblab と同じ1列（`grid-cols-1 gap-8`）で、ブランド、Links、支援の順に積む。列の間隔（`lg:gap-12`）は今までどおり
+- 根拠：計画の3。4つの等しい列にブランドが2列分を占めるので、ブランドの幅は2列と間隔1つ分になる（`2fr_1fr_1fr` の3列とは、間隔の分だけ幅が違う）
+- 戻すときの作業：`Footer.astro` のクラスを戻す
+
 ## 直した既存のテストと理由（N1）
 
 | テスト                                                                                                                                                                       | 直した内容と理由                                                                                                                                                                                                                     |
@@ -48,7 +61,7 @@
 | `portfolio.test.js` の `ui-revise2 3: every card shows its one-line summary and opens its details`                                                                           | `ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; the other cards have none` にした。詳細を開くのは DIY Keyboards だけ、作品の数は 15 から 12（指示2の2・2の5）。浮き上がりの確認は上のホバーのテストに移した |
 | `portfolio.test.js` の `ui-revise3 (parent): the card and the details have the same links, labels and order`                                                                 | 消した。詳細にリンクがなくなった（DIY Keyboards の詳細にリンクがないことは上のテストで見る）                                                                                                                                         |
 | `portfolio.test.js` の `ui-revise2 3: the details link to where each work is published` と `ui-revise3 3: every card shows the title, the summary, the year and its actions` | `ui-revise4 2: a card goes to its place directly; actions only where there are two places` と `ui-revise4 3: no card and no details show a year` にした（指示2の2・2の3）                                                            |
-| `portfolio.test.js` の `ui-revise3 3: the photo cards and the list items share ...`                                                                                          | 「詳しく見る」の確認を、それがあるカードだけにした（指示2の2）                                                                                                                                                                            |
+| `portfolio.test.js` の `ui-revise3 3: the photo cards and the list items share ...`                                                                                          | 「詳しく見る」の確認を、それがあるカードだけにした（指示2の2）                                                                                                                                                                       |
 | `portfolio.test.js` の `ui-revise3 3: the list items take the former tool site's card hover, without the lift`                                                               | ホバーの確認を全カードのテストに移し、余白とアイコンの色だけを見るようにした（指示2の1）                                                                                                                                             |
 | `portfolio.test.js` の `D5: the three documentation links point to docs.unlibra.com`                                                                                         | ドキュメントのリンクがカードに2つ（タイトルと操作）、詳細に0になった（指示2の2）                                                                                                                                                     |
 | `tools.test.js` の `E8: the tools are linked from the top page in Japanese, not from the header`                                                                             | トップから日本語のツールのページへのリンクを2つから1つ（カードのタイトル）にした（指示2の2）                                                                                                                                         |
@@ -61,6 +74,11 @@
 | `works.spec.js` の `the links move their chevron on hover: ...`                                                                                                              | 斜め矢印（`data-icon="arrow-up-right"`）が動くことを見るようにした（指示2の6）                                                                                                                                                       |
 | `works.spec.js` の `an action goes to its place directly; elsewhere the card opens the details`                                                                              | `ui-revise4 2: a click on a card goes to its place; an action goes to its own` にした。操作のリンクは 14 から 6、カードのクリックでドキュメント・BOOTH（新しいタブ）とツールのページ（同じタブ）に飛ぶ（指示2の2）                   |
 | `works.spec.js` の `ui-revise3 (parent): an image with other creators' material is not zoomed on hover; ...`                                                                 | 消した。どの写真も拡大しないことは上のホバーのテストで見る（指示2の1）                                                                                                                                                               |
+| `portfolio.test.js` の `ui-revise3 1: the hero has the symbol, the h1 in the body font and the GitHub and BOOTH buttons`                                                     | `ui-revise3 1, ui-revise4 1: ... without the symbol` にした。シンボルがないこと、`h1` の大きさが `text-2xl` だけであること、ボタンが斜め矢印付きで背景と枠がないことを見る（指示1）                                                  |
+| `layout.test.js` の `ui-revise3 2: the footer's Links group is at the right end of the center column`                                                                        | `ui-revise4 3: the footer is a grid of four columns, 2:1:1, with the cells left-aligned` に置き換えた（指示3）                                                                                                                       |
+| `works.spec.js` の `ui-revise3 2: the footer's Links group is at the right end of the center column`                                                                         | `ui-revise4 3: the footer's grid` の2つ（1280px で4つの等しい列にブランドが2列・Links と支援が1列ずつで左寄せ、375px で1列に積む）に置き換えた（指示3）                                                                              |
+| `works.spec.js` の `ui-revise3 1: the hero › {375,1280}px: ...`                                                                                                              | シンボルがないこと、`h1` が 24px であること、ボタンに背景・影がなく矢印があることを足した（指示1）                                                                                                                                   |
+| `header.spec.js` の `brand symbol › /: the circle and the mark swap colors in dark mode`                                                                                     | トップのシンボルの数を4から3にした（ヒーローのシンボルを消した。指示1の1）                                                                                                                                                           |
 
 ## 新しい文言（すべて仮の文面、N5）
 

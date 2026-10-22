@@ -38,6 +38,10 @@ const TOOLS = [
   "password-generator",
 ];
 
+/** Heroicons "arrow-up-right" and "chevron-right" (24 outline). */
+const ARROW = "m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25";
+const CHEVRON = "m8.25 4.5 7.5 7.5-7.5 7.5";
+
 const top = readDist("index.html");
 const { cardKind, cardStyles } = await import("../src/config/cards.ts");
 
@@ -111,16 +115,21 @@ test("ui-revise 4: the category buttons are gone from the top page", () => {
   assert.doesNotMatch(main, /<nav[\s>]/);
 });
 
-test("ui-revise3 1: the hero has the symbol, the h1 in the body font and the GitHub and BOOTH buttons", () => {
+test("ui-revise3 1, ui-revise4 1: the hero has the h1 in the body font and the GitHub and BOOTH text buttons, without the symbol", () => {
   const hero = top.match(/<div[^>]*data-hero[\s\S]*?<\/ul>/)[0];
-  // The wave and the brand symbol.
+  // The wave; the brand symbol is gone (ui-revise4 1).
   assert.match(hero, /viewBox="0 0 1440 320"/);
-  assert.match(hero, /<svg[^>]*viewBox="0 0 512 512"/);
+  assert.doesNotMatch(hero, /viewBox="0 0 512 512"/);
   // The main text is the page's only h1, in the body font (no font-brand,
   // not a logotype).
   const h1 = hero.match(/<h1([^>]*)>([^<]*)<\/h1>/);
   assert.equal(h1[2].trim(), "昼はカフェ。夜はバー。");
   assert.doesNotMatch(h1[1], /font-brand|data-logotype/);
+  // text-2xl at every width (ui-revise4 1).
+  const sizes = attr(`<h1${h1[1]}>`, "class")
+    .split(/\s+/)
+    .filter((name) => /(^|:)text-(xs|sm|base|lg|\dxl)$/.test(name));
+  assert.deepEqual(sizes, ["text-2xl"]);
   assert.equal(top.match(/<h1[\s>]/g).length, 1);
   // The former logotype and subtitle are gone.
   assert.doesNotMatch(hero, />\s*unlibra\s*</);
@@ -138,6 +147,14 @@ test("ui-revise3 1: the hero has the symbol, the h1 in the body font and the Git
   for (const [tag] of anchors) {
     assert.match(tag, /target="_blank"/);
     assert.match(tag, /rel="noopener noreferrer"/);
+    // Text buttons (pattern B, ui-revise4 1): the text and the up-right
+    // arrow, without the former pill's background and ring.
+    assert.equal(tag.split(ARROW).length - 1, 1, tag);
+    const cls = attr(tag, "class").split(/\s+/);
+    assert.ok(
+      !cls.some((name) => /^(dark:)?(bg-|ring-|rounded-full)/.test(name)),
+      tag,
+    );
   }
 });
 
@@ -195,10 +212,6 @@ const actionsOf = (card) =>
   linksIn(card.replace(/<h3[\s\S]*?<\/h3>/, "")).filter(({ tag }) =>
     /data-work-action/.test(tag),
   );
-
-/** Heroicons "arrow-up-right" and "chevron-right" (24 outline). */
-const ARROW = "m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25";
-const CHEVRON = "m8.25 4.5 7.5 7.5-7.5 7.5";
 
 test("D3, ui-revise4 2: each app card links to its tool, in the same tab", () => {
   const cards = cardsOf(sectionOf("apps"));

@@ -496,15 +496,40 @@ test("ui-revise 7: the copyright notice runs from 2025 to the build year", async
   }
 });
 
-test("ui-revise3 2: the footer's Links group is at the right end of the center column", () => {
+test("ui-revise4 3: the footer is a grid of four columns, 2:1:1, with the cells left-aligned", () => {
   for (const file of htmlPages()) {
     const footer = sectionOf(readDist(file), "footer");
-    const tag = footer.match(/<div[^>]*data-footer-links[^>]*>/)[0];
-    assert.match(
-      attr(tag, "class") ?? "",
-      /(^|\s)md:justify-self-end(\s|$)/,
+    const classesOf = (marker) =>
+      (
+        attr(
+          footer.match(new RegExp(`<div[^>]*${marker}[^>]*>`))[0],
+          "class",
+        ) ?? ""
+      )
+        .split(/\s+/)
+        .filter(Boolean);
+    const brand = footer.match(/<div[^>]*data-footer-brand[^>]*>/)[0];
+    // The grid is the brand's parent: the <div> just before it.
+    const before = footer.slice(0, footer.indexOf(brand));
+    const grid = attr(before.match(/<div[^>]*>(?![\s\S]*<div)/)[0], "class");
+    const gridClasses = grid.split(/\s+/);
+    // One column when narrow (as on the former tool site), four from md.
+    assert.ok(gridClasses.includes("grid-cols-1"), file);
+    assert.ok(gridClasses.includes("md:grid-cols-4"), file);
+    assert.ok(!gridClasses.some((name) => /grid-cols-\[/.test(name)), file);
+    // The brand and the description take two columns, the others one.
+    assert.deepEqual(
+      classesOf("data-footer-brand").filter((n) => /col-span/.test(n)),
+      ["md:col-span-2"],
       file,
     );
+    for (const marker of ["data-footer-links", "data-footer-support"]) {
+      const cls = classesOf(marker);
+      assert.ok(
+        !cls.some((n) => /col-span|justify-self|text-(right|center)/.test(n)),
+        `${file}: ${marker}`,
+      );
+    }
   }
 });
 

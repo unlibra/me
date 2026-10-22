@@ -137,27 +137,79 @@ test.describe("detail dialog", () => {
   });
 });
 
-test("ui-revise3 2: the footer's Links group is at the right end of the center column", async ({
-  page,
-}) => {
-  await open(page, "/");
-  const links = page.locator("footer [data-footer-links]");
-  // The center column's right end: the grid's second track.
-  const end = await links.evaluate((element) => {
-    const grid = element.parentElement;
-    const style = getComputedStyle(grid);
-    const tracks = style.gridTemplateColumns.split(" ").map(parseFloat);
-    const gap = parseFloat(style.columnGap);
-    const box = grid.getBoundingClientRect();
-    return box.x + parseFloat(style.paddingLeft) + tracks[0] + gap + tracks[1];
+test.describe("ui-revise4 3: the footer's grid", () => {
+  /**
+   * The footer's grid tracks and, for each cell (brand, Links, support),
+   * its box and the left edges and text alignment of what it contains.
+   */
+  const layoutOf = (page) =>
+    page.locator("footer [data-footer-brand]").evaluate((brand) => {
+      const grid = brand.parentElement;
+      const style = getComputedStyle(grid);
+      const box = grid.getBoundingClientRect();
+      const cells = [
+        brand,
+        grid.querySelector("[data-footer-links]"),
+        grid.querySelector("[data-footer-support]"),
+      ].map((cell) => {
+        const b = cell.getBoundingClientRect();
+        return {
+          x: b.x,
+          y: b.y,
+          width: b.width,
+          textAlign: getComputedStyle(cell).textAlign,
+          // The left edges of the cell's children (logo, heading, list).
+          lefts: [...cell.children].map((c) => c.getBoundingClientRect().x),
+        };
+      });
+      return {
+        left: box.x + parseFloat(style.paddingLeft),
+        tracks: style.gridTemplateColumns.split(" ").map(parseFloat),
+        gap: parseFloat(style.columnGap),
+        cells,
+      };
+    });
+
+  test("1280px: four equal columns; the brand takes two, Links and support one each; left-aligned", async ({
+    page,
+  }) => {
+    await open(page, "/");
+    const { left, tracks, gap, cells } = await layoutOf(page);
+    expect(tracks.length).toBe(4);
+    for (const track of tracks)
+      expect(Math.abs(track - tracks[0])).toBeLessThan(1);
+    const start = (i) => left + i * (tracks[0] + gap);
+    const [brand, links, support] = cells;
+    // 2:1:1: the brand spans two tracks (and the gap between them).
+    expect(Math.abs(brand.x - start(0))).toBeLessThan(1);
+    expect(Math.abs(brand.width - (2 * tracks[0] + gap))).toBeLessThan(1);
+    expect(Math.abs(links.x - start(2))).toBeLessThan(1);
+    expect(Math.abs(links.width - tracks[0])).toBeLessThan(1);
+    expect(Math.abs(support.x - start(3))).toBeLessThan(1);
+    expect(Math.abs(support.width - tracks[0])).toBeLessThan(1);
+    expect(new Set(cells.map((cell) => Math.round(cell.y))).size).toBe(1);
+    // Left-aligned in each cell.
+    for (const cell of cells) {
+      expect(["left", "start"]).toContain(cell.textAlign);
+      for (const x of cell.lefts) expect(Math.abs(x - cell.x)).toBeLessThan(1);
+    }
   });
-  const box = await links.boundingBox();
-  expect(Math.abs(box.x + box.width - end)).toBeLessThan(1);
-  // Next to Support, with only the column gap between them.
-  const support = await links
-    .locator("xpath=following-sibling::div[1]")
-    .boundingBox();
-  expect(support.x).toBeGreaterThan(box.x + box.width);
+
+  test("375px: one column, stacked as on the former tool site, left-aligned", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await open(page, "/");
+    const { left, tracks, cells } = await layoutOf(page);
+    expect(tracks.length).toBe(1);
+    const [brand, links, support] = cells;
+    expect(links.y).toBeGreaterThan(brand.y);
+    expect(support.y).toBeGreaterThan(links.y);
+    for (const cell of cells) {
+      expect(Math.abs(cell.x - left)).toBeLessThan(1);
+      for (const x of cell.lefts) expect(Math.abs(x - cell.x)).toBeLessThan(1);
+    }
+  });
 });
 
 test.describe("the logotype in LINE Seed JP", () => {
@@ -636,14 +688,21 @@ const hoverClick = async (page, item) => {
   await page.mouse.click(box.x + 5, box.y + box.height / 2);
 };
 
-test.describe("ui-revise3 1: the hero", () => {
+test.describe("ui-revise3 1, ui-revise4 1: the hero", () => {
   for (const width of [375, 1280]) {
-    test(`${width}px: the h1 is one line, with the GitHub and BOOTH buttons side by side below it`, async ({
+    test(`${width}px: the h1 is one line in text-2xl, with the GitHub and BOOTH text buttons side by side below it`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 800 });
       await open(page, "/");
+      // No brand symbol (ui-revise4 1).
+      await expect(page.locator("[data-hero] svg")).toHaveCount(3);
+      await expect(
+        page.locator('[data-hero] svg[data-icon="arrow-up-right"]'),
+      ).toHaveCount(2);
       const heading = page.locator("[data-hero] h1");
+      // text-2xl: 24px at every width.
+      await expect(heading).toHaveCSS("font-size", "24px");
       const h1 = await heading.boundingBox();
       const lineHeight = await heading.evaluate((e) =>
         parseFloat(getComputedStyle(e).lineHeight),
@@ -656,6 +715,12 @@ test.describe("ui-revise3 1: the hero", () => {
       expect(github.y).toBeGreaterThan(h1.y + h1.height);
       expect(Math.round(booth.y)).toBe(Math.round(github.y));
       expect(booth.x).toBeGreaterThan(github.x + github.width);
+      // Text buttons: no background or ring; the text and the arrow.
+      for (const link of await links.all()) {
+        await expect(link).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+        await expect(link).toHaveCSS("box-shadow", "none");
+        await expect(link.locator("svg")).toBeVisible();
+      }
     });
   }
 });

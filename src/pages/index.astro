@@ -1,5 +1,5 @@
 ---
-import BrandSymbol from "@/components/BrandSymbol.astro";
+import ArrowUpRightIcon from "@/components/icons/ArrowUpRightIcon.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import WorkList from "@/components/works/WorkList.astro";
 import messages from "@/messages/ja";
@@ -49,22 +49,20 @@ const link =
 
       <!-- Hero content -->
       <div class="relative mx-auto max-w-screen-sm pt-12 pb-20 text-center">
-        <div class="mb-4 flex justify-center">
-          <BrandSymbol class="size-16" />
-        </div>
-        <h1 class="mb-8 text-3xl font-semibold sm:text-4xl">
-          {messages.hero.title}
-        </h1>
-        <ul class="flex flex-wrap justify-center gap-4" data-hero-links>
+        <h1 class="mb-8 text-2xl font-semibold">{messages.hero.title}</h1>
+        <!-- Text buttons: the text and the up-right arrow (ui-revise4 1, pattern
+             B until the owner chooses one of the patterns on /mock/hero-buttons). -->
+        <ul class="flex flex-wrap justify-center gap-2" data-hero-links>
           {heroLinks.map(({ href, label }) => (
             <li>
               <a
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                class={`inline-flex items-center rounded-full bg-white/80 px-6 py-2 text-sm font-semibold text-gray-900 ring-1 ring-gray-300 transition-colors hover:bg-white dark:bg-atom-one-dark-light dark:text-white dark:ring-atom-one-dark-lighter dark:hover:bg-atom-one-dark-lighter ${link}`}
+                class={`inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-gray-900 hover:underline dark:text-white ${link}`}
               >
                 {label}
+                <ArrowUpRightIcon class="size-4" />
               </a>
             </li>
           ))}

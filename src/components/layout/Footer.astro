@@ -27,9 +27,11 @@ const externalLinks = [
 
 <footer class="bg-gray-100 py-12 dark:bg-atom-one-dark-light">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 gap-8 md:grid-cols-[1fr_2fr_1fr] lg:gap-12">
-      <!-- Left: logo and site name -->
-      <div>
+    <!-- Four columns, 2:1:1 (ui-revise4 3); one column when narrow, as on
+         the former tool site. -->
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-4 lg:gap-12">
+      <!-- Left (two columns): logo, site name and description -->
+      <div class="md:col-span-2" data-footer-brand>
         <a
           href="/"
           class="inline-flex items-center gap-2 transition-all hover:underline"
@@ -44,9 +46,8 @@ const externalLinks = [
         </p>
       </div>
 
-      <!-- Center: links (where the former site listed the tools), at the
-           right end of the column, next to Support -->
-      <div class="md:justify-self-end" data-footer-links>
+      <!-- Links (where the former site listed the tools) -->
+      <div data-footer-links>
         <h2 class={heading}>{t.links}</h2>
         <ul class="space-y-2">
           {externalLinks.map(({ href, label }) => (
@@ -65,7 +66,7 @@ const externalLinks = [
       </div>
 
       <!-- Right: support -->
-      <div>
+      <div data-footer-support>
         <h2 class={heading}>{t.support}</h2>
         <ul class="space-y-2">
           <li>

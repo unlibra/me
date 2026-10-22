@@ -128,8 +128,9 @@ test.describe("brand symbol", () => {
       const lang = path.startsWith("/en/") ? "en" : "ja";
       await page.emulateMedia({ colorScheme: "light" });
       await open(page, path);
-      // Header, mobile menu and footer (and the hero on the top page).
-      const count = path === "/" ? 4 : 3;
+      // Header, mobile menu and footer (the hero's was removed in
+      // ui-revise4 1).
+      const count = 3;
       await chooseTheme(page, lang, "light");
       await expect
         .poll(() => fills(page))
