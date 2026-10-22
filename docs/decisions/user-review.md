@@ -96,3 +96,4 @@
   - 警告：Web Analytics の計測タグがない（workers.dev は Cloudflare のプロキシを通らないので想定どおり）
 - wrangler のトークンに Access の権限がないため、親は Cloudflare Access を設定できなかった。夜の間公開したままにしないよう、`workers_dev: false`・`preview_urls: false` でデプロイし直して workers.dev を閉じた（公開していたのは数分。閉じた後は 404 を確認）。この設定変更はプレビュー用の作業コピーだけで、リポジトリの `wrangler.jsonc` は変えていない
 - ユーザーの操作が要ること：ダッシュボードで workers.dev を有効にし、「Enable Cloudflare Access」で自分のメールアドレスだけを許可する（手順は報告に記載）
+- 追記（2026-10-22）：ユーザーの指示「認証なしで公開して」により、workers.dev を有効に戻して公開した（`https://unlibra-com.not-inbox.workers.dev`、200 を確認）。Cloudflare Access は付けていない
