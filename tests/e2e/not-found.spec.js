@@ -16,13 +16,16 @@ const overlap = (a, b) =>
   a.y < b.y + b.height &&
   b.y < a.y + a.height;
 
-for (const [width, height] of [
-  [375, 667],
-  [1280, 800],
-  // Low landscape screens (phones turned sideways).
-  [667, 375],
-  [844, 390],
-  [568, 320],
+for (const [width, height, layout] of [
+  [375, 667, "stacked"],
+  [1280, 800, "stacked"],
+  // Low and wide landscape screens (phones turned sideways): side by side.
+  [667, 375, "side"],
+  [844, 390, "side"],
+  [568, 320, "side"],
+  // Low but not wide enough for side by side: stacked.
+  [480, 400, "stacked"],
+  [360, 340, "stacked"],
 ]) {
   const schemes = width === 844 ? ["light"] : ["light", "dark"];
   for (const scheme of schemes) {
@@ -97,11 +100,13 @@ for (const [width, height] of [
       expect(overlap(planet, h1)).toBe(false);
       expect(overlap(planet, button)).toBe(false);
       expect(button.y).toBeGreaterThanOrEqual(h1.y + h1.height);
-      if (height >= 480) {
-        // Tall enough: the planet in the middle, 40-50% of the short side,
-        // the heading and the button below it.
-        expect(planet.width).toBeGreaterThanOrEqual(short * 0.4);
-        expect(planet.width).toBeLessThanOrEqual(short * 0.5 + 1);
+      if (layout === "stacked") {
+        // The planet in the middle, the heading and the button below it;
+        // 40-50% of the short side when the screen is tall enough.
+        if (height >= 480) {
+          expect(planet.width).toBeGreaterThanOrEqual(short * 0.4);
+          expect(planet.width).toBeLessThanOrEqual(short * 0.5 + 1);
+        }
         expect(
           Math.abs(planet.x + planet.width / 2 - width / 2),
         ).toBeLessThanOrEqual(1);

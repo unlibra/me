@@ -73,20 +73,27 @@ const title = "ページが見つかりません / Page not found";
     translate: -50% 0;
     display: flex;
     width: max-content;
+    /* On very narrow screens, the heading wraps instead of sticking out. */
+    max-width: calc(100vw - 2rem);
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
     padding-top: 1.5rem;
+    text-align: center;
   }
 
   /*
-   * Low landscape screens (phones turned sideways): there is no room below
+   * Low and wide screens (phones turned sideways): there is no room below
    * the planet, so the caption is beside it, and the planet takes most of
-   * the height.
+   * the height. Only when the screen is at least 3:2, so that the planet, the
+   * gap (2rem) and the caption (about 17rem wide) fit side by side; the
+   * planet is also at most the width left by them and a 1.5rem margin on
+   * each side (100vw - 22rem). From 30rem wide, that is at least a quarter
+   * of the height. Lower screens that are not that wide stay stacked.
    */
-  @media (orientation: landscape) and (max-height: 479px) {
+  @media (max-height: 479px) and (min-aspect-ratio: 3/2) and (min-width: 30rem) {
     [data-not-found] {
-      --planet: min(60dvh, 40vw);
+      --planet: min(60dvh, 40vw, 100vw - 22rem);
     }
 
     .scene {
