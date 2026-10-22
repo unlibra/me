@@ -48,6 +48,16 @@
 - 根拠：計画の3。4つの等しい列にブランドが2列分を占めるので、ブランドの幅は2列と間隔1つ分になる（`2fr_1fr_1fr` の3列とは、間隔の分だけ幅が違う）
 - 戻すときの作業：`Footer.astro` のクラスを戻す
 
+## UR4-7 見本ページ `/mock/hero-buttons`（ブランチ `mock/hero-buttons` だけ）
+
+- 決めたこと：
+  - プレビュー用の worktree（`%TEMP%\claude\me-preview`）で、`577cef0` からローカルブランチ `mock/hero-buttons` を作り、コミット `9dea31a`・`7dc9338` に置いた（push していない）。本番のブランチには入れていない
+  - ページは、トップのヒーロー（波の背景、見出し、ボタン）を枠に入れて A・B・C の順に縦に3つ並べたもの。ボタンの形は本番（UR4-5）と同じで、アイコンだけが違う。A は GitHub が公式のマーク（`17d3061` で消した `GitHubIcon.astro` を戻した）、BOOTH は Heroicons の `building-storefront`。B は `arrow-up-right`、C は `link`。アイコンはどれも `size-4`。見出しは `h1` ではなく `p` にした（1ページに見出しの `h1` が3つになるため）
+  - `noindex`：`BaseLayout` に `noindex` を足し、このページだけ `<meta name="robots" content="noindex">` を出す。`canonical` はなし。`astro.config.mjs` の sitemap で `/mock/` を除いた
+  - ライセンス：`GitHubIcon.astro` を LICENSE 第3節（他のサービスのロゴ）に名前で書き、ファイルの先頭にも GitHub, Inc. の商標であることを書いた。`LinkIcon.astro`・`BuildingStorefrontIcon.astro` は第2節の Heroicons の一覧に足した。`license.test.js` に、第3節に GitHub のマークの名前があり、他の節にないことを見るテストを足した
+  - 確かめたこと：worktree でビルドし（ポート 8790 の親のサーバーはそのまま）、`http://localhost:8790/mock/hero-buttons` を幅 375px と 1280px、ライトとダークで撮って、3つの案が並び、横のスクロールがないことを目で確かめた。`npm test` は、見本ページが増えたことで、ページの一覧（`the build has the pages this test suite expects`）と、全ページの canonical・サイト名のテスト（`C2`、`ui-revise2 4: the site name ...`）の3つが落ちる。見本のブランチにしかないページのため、本番のテストは変えていない。lint と format:check は通る
+- 戻すときの作業：ブランチ `mock/hero-buttons` を消す。ユーザーが A を選んだ場合は、このブランチの `GitHubIcon.astro`・`BuildingStorefrontIcon.astro` と LICENSE・テストの変更を本番に持ってくる
+
 ## 直した既存のテストと理由（N1）
 
 | テスト                                                                                                                                                                       | 直した内容と理由                                                                                                                                                                                                                     |
@@ -82,6 +92,12 @@
 
 ## 新しい文言（すべて仮の文面、N5）
 
-| 場所                | 文言                                                                                                             |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Apps のカードの要約 | liblab のツールカードの説明文（`tools.{id}.description` の改行を除いたもの）をそのまま使った。新しい文面ではない |
+| 場所                                           | 文言                                                                                                             |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Apps のカードの要約                            | liblab のツールカードの説明文（`tools.{id}.description` の改行を除いたもの）をそのまま使った。新しい文面ではない |
+| 見本ページの title（`mock/hero-buttons` だけ） | ヒーローのボタンの比較 - unlibra                                                                                 |
+| 見本ページの description                       | ヒーローの GitHub と BOOTH のボタンの3つの案を並べた見本です。                                                   |
+| 見本ページの各案の見出し                       | A：ロゴ＋テキスト / B：テキスト＋斜め矢印（↗） / C：テキスト＋リンクのアイコン                                   |
+| 見本ページの注記                               | A の BOOTH は公式ロゴではなく、Heroicons の「building-storefront」（お店）です。                                 |
+
+カードとヒーローのボタンの文言（「詳しく見る」「ドキュメント」「npm」「PyPI」「GitHub」「BOOTH」）は既存のもの。「ツールを使う」「BOOTH で見る」はカードと詳細から出なくなった（文言の定義は `work-links.ts` の名前の表に残っている）。
