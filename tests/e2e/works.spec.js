@@ -400,11 +400,11 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
       };
       // The large card (ui-revise5, design 4 in light gray): gray-50
       // (#f9fafb), and gray-100 (#f3f4f6) on hover; in dark mode #333842,
-      // and #3d4148 on hover.
+      // and #2e323b on hover (halfway back to the page, for 4.5:1).
       const featuredColors =
         scheme === "light"
           ? { rest: [249, 250, 251, 1], hover: [243, 244, 246, 1] }
-          : { rest: [0x33, 0x38, 0x42, 1], hover: [0x3d, 0x41, 0x48, 1] };
+          : { rest: [0x33, 0x38, 0x42, 1], hover: [0x2e, 0x32, 0x3b, 1] };
       const background = (item) => srgb(item, "backgroundColor");
       const transitions = {};
       for (const [kind, id] of Object.entries(SAMPLES)) {
@@ -960,5 +960,87 @@ test.describe("ui-revise5: the cards and the sections", () => {
         expect(await hasHorizontalScroll(page)).toBe(false);
       });
     }
+  }
+});
+
+test.describe("ui-revise5 (parent): text contrast on the cards", () => {
+  for (const scheme of ["light", "dark"]) {
+    test(`${scheme}: every card's text is at least 4.5:1, at rest and on hover`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      await open(page, "/");
+      await chooseTheme(page, "ja", scheme);
+      /**
+       * For each text of a card (the title, the summary, SPOTLIGHT and the
+       * links), its color and the color behind it, as computed (sRGB), and
+       * the ratio (WCAG 2).
+       */
+      const ratios = (item) =>
+        item.evaluate((article) => {
+          const canvas = document.createElement("canvas");
+          canvas.width = canvas.height = 1;
+          const context = canvas.getContext("2d", { willReadFrequently: true });
+          const rgba = (value) => {
+            context.clearRect(0, 0, 1, 1);
+            context.fillStyle = value;
+            context.fillRect(0, 0, 1, 1);
+            const [r, g, b, a] = context.getImageData(0, 0, 1, 1).data;
+            return [r, g, b, a / 255];
+          };
+          const luminance = ([r, g, b]) => {
+            const [R, G, B] = [r, g, b].map((v) => {
+              const c = v / 255;
+              return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+            });
+            return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+          };
+          /** The first opaque background behind an element. */
+          const behind = (element) => {
+            for (let e = element; e; e = e.parentElement) {
+              const color = rgba(getComputedStyle(e).backgroundColor);
+              if (color[3] === 0) continue;
+              if (color[3] < 1) return null;
+              return color;
+            }
+            return [255, 255, 255, 1];
+          };
+          return [
+            ...article.querySelectorAll(
+              "[data-work-title], [data-work-summary], [data-work-spotlight], [data-link-text]",
+            ),
+          ].map((element) => {
+            const text = rgba(getComputedStyle(element).color);
+            const back = behind(element);
+            const [a, b] = [luminance(text), luminance(back)].sort(
+              (x, y) => y - x,
+            );
+            return {
+              what: `${article.dataset.work} ${element.textContent.trim().slice(0, 12)}`,
+              opaque: text[3] === 1 && back !== null,
+              ratio: (a + 0.05) / (b + 0.05),
+            };
+          });
+        });
+      const cards = await page.locator("article[data-work]").all();
+      expect(cards.length).toBe(12);
+      for (const item of cards) {
+        await page.mouse.move(0, 0);
+        await item.scrollIntoViewIfNeeded();
+        const states = { rest: await ratios(item) };
+        await hoverOver(page, item.locator("[data-work-summary]"));
+        // No transition under reduced motion for the links; the card's own
+        // background fades in 150ms.
+        await page.waitForTimeout(300);
+        states.hover = await ratios(item);
+        for (const [state, list] of Object.entries(states)) {
+          expect(list.length).toBeGreaterThanOrEqual(3);
+          for (const { what, opaque, ratio } of list) {
+            expect(opaque, `${state}: ${what}`).toBe(true);
+            expect(ratio, `${state}: ${what}`).toBeGreaterThanOrEqual(4.5);
+          }
+        }
+      }
+    });
   }
 });

@@ -814,13 +814,14 @@ test("ui-revise5 6, 7, 12: no card and no icon has a border or ring; the Apps' i
 test("ui-revise5 (design 4): the large card is a light gray surface with the photo inset in it", async () => {
   const { featuredSurface, cardRadius } =
     await import("../src/components/works/card-classes.ts");
-  // Light gray (gray-50), one step darker (gray-100) on hover; in dark mode one step
-  // lighter than the page (atom-one-dark-light), then lighter again.
+  // Light gray (gray-50), one step darker (gray-100) on hover; in dark mode
+  // one step lighter than the page (atom-one-dark-light), and halfway back
+  // to the page on hover (for 4.5:1, ui-revise5).
   for (const name of [
     "bg-gray-50",
     "hover:bg-gray-100",
     "dark:bg-atom-one-dark-light",
-    "dark:hover:bg-atom-one-dark-lighter",
+    "dark:hover:bg-[#2e323b]",
     "transition-colors",
   ]) {
     assert.ok(featuredSurface.split(/\s+/).includes(name), name);

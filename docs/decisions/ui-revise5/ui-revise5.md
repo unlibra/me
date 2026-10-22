@@ -82,6 +82,16 @@
 - 他の選択肢：ライトの面を `gray-100` にする（ふだんのコントラストが 4.5:1 を下回る）。下線を `text-decoration` のまま `text-underline-offset` などで動かす（伸びる動きは作れない）。ヒーローのボタンにも同じ下線のアニメーションを付ける
 - 戻すときの作業：アイコンは `git show ef5b443:<path>` で戻す（LICENSE とテストも）。下線は `card-classes.ts` の `linkText`・`actionText`・`primaryText` を `hover:underline` に戻し、`CardLinks.astro`・`MoreLabel.astro` の `<span>` を外す。大サイズのカードは `FeaturedCard.astro` と `featuredSurface` を戻す。見出しは `text-2xl` に戻す
 
+## UR5-10 カードの文字のコントラスト（親の指摘、ホバー中も 4.5:1 以上）
+
+- 見つけたこと（計算後の色で測った）：ダークで、大サイズのカードのホバー（#3d4148）の上の「SPOTLIGHT」と要約（`gray-400`）が 3.94:1。ライトでも、全カードのホバー（`gray-100`）の上のリンク（`logo-dark`、#1a7ba0）が 4.35:1、大サイズのカードの「SPOTLIGHT」（`gray-500`）が 4.39:1 で、4.5:1 を下回っていた。ほかのカードのダークのホバー（#333842）は `gray-400` で 4.52:1 で、基準を満たしていた
+- 決めたこと（見た目の変化が小さいほう）：
+  - ダーク：大サイズのカードのホバーの背景を、#3d4148（面より明るく）から #2e323b（面とページの中間、面より少し暗く）にした。文字の色は変えていない。`gray-400` は 4.93:1、リンク（`logo-light`）は 6.40:1。文字の色を明るくする（`gray-300`）案は全カードの文字が常に変わるので選ばなかった。ホバーで面が少し沈んで見えるようになる
+  - ライト：カードのリンクの色を `logo-dark` より 3% 暗い #19779b にした（`gray-100` の上で 4.59:1、白の上で 5.06:1）。ホバーの背景を薄くする案は、liblab に合わせた全カードのホバー（`gray-100`）を変えることになるので選ばなかった。ブランドの色のトークン `logo-dark` は、カード以外で使っているので変えていない（カードのリンクのクラスだけ）
+  - ライト：「SPOTLIGHT」を `gray-500` から `gray-600`（要約と同じ色）にした（`gray-100` の上で 6.87:1）
+- 確かめたこと：E2E の `ui-revise5 (parent): text contrast on the cards › {light,dark}` で、12 枚の全カードの通常時とホバー時に、タイトル・要約・「SPOTLIGHT」・リンクの文字が、計算後の色で 4.5:1 以上であることを見る。修正の前のビルドで、ライトとダークの両方が落ちること（ライト 4.39、ダーク 3.94）を確かめた
+- 戻すときの作業：`card-classes.ts` の `cardLink` の色と `featuredSurface` のダークのホバー、`FeaturedCard.astro` の「SPOTLIGHT」の色を戻す
+
 ## 直した既存のテストと理由（P1）
 
 | テスト                                                                                                                                                                   | 直した内容と理由                                                                                                                                                                                                                                                                               |
@@ -110,7 +120,7 @@ UR5-9 で直したテスト（ユーザーの判断による仕様の変更）�
 - `portfolio.test.js`：ヒーローの見出しの大きさを `text-2xl` から `text-[1.75rem]/9` に、BOOTH のアイコンを `shopping-bag` から `box`（パッケージのファイルとパスが同じ）にした。矢印の確認を Lucide の `move-up-right`（パッケージのファイルとパスが同じ、Heroicons の矢印がなく `ArrowUpRightIcon.astro` もない）にした。全カードのホバーのテストは、大サイズのカードだけ `featuredSurface` を見るようにした。「詳しく見る」の形を `<span data-link-text>` 入りにした。`ui-revise5 11: the first link of every card is underlined ...` を `ui-revise5 5, 11: the links' text has the growing underline; ...`（下線の背景、`motion-reduce:transition-none`、1番目だけカードのホバーで伸びる、`underline` と `translate` がない）に置き換えた。`ui-revise5 (design 4): the large card is a light gray surface ...` を足した
 - `license.test.js`：Lucide のテストを、`box` と `move-up-right` の2つが固定した版から写したもので、どちらも Feather 由来でなく、LICENSE 第2節とコメントに Feather の記述がないことを見るようにした
 - `third-party-licenses.test.js`：トップの HTML に `box` と `move-up-right` があることを見るようにした
-- `works.spec.js`：全カードのホバーのテストで、大サイズのカードの色をライト `gray-50` → `gray-100`、ダーク #333842 → #3d4148 にした。ホバーの下線のテストを、背景の幅（0% → 100%）で見て、矢印が動かないことを見るようにした。`ui-revise5 5: the underline grows from the left (prefers-reduced-motion: {no-preference,reduce})` を足した（トランジションが `background-size` の 0.2s で、ホバーの直後に動いていること、reduce ではトランジションがないこと）。矢印のテストに `data-icon="move-up-right"` を足した。ヒーローのテストを 28px と `box` にした
+- `works.spec.js`：全カードのホバーのテストで、大サイズのカードの色をライト `gray-50` → `gray-100`、ダーク #333842 → #2e323b（UR5-10）にした。ホバーの下線のテストを、背景の幅（0% → 100%）で見て、矢印が動かないことを見るようにした。`ui-revise5 5: the underline grows from the left (prefers-reduced-motion: {no-preference,reduce})` を足した（トランジションが `background-size` の 0.2s で、ホバーの直後に動いていること、reduce ではトランジションがないこと）。矢印のテストに `data-icon="move-up-right"` を足した。ヒーローのテストを 28px と `box` にした
 
 ## 新しい文言（すべて仮の文面、P5）
 

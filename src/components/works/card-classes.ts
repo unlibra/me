@@ -16,10 +16,12 @@ export const cardSummary = "text-base text-gray-600 dark:text-gray-400";
  * Links on the cards (the work's actions and "詳しく見る"): the same color
  * and size. The actions end with the up-right arrow (Lucide "move-up-right"),
  * the size of the text (14px) and centered on the line (ui-revise5 6, 8);
- * "詳しく見る" opens the details and has none (ui-revise4 2).
+ * "詳しく見る" opens the details and has none (ui-revise4 2). In light mode
+ * the color is a little darker than logo-dark (#1a7ba0, 4.35:1 on the cards'
+ * hover, gray-100), for 4.5:1 there (ui-revise5).
  */
 export const cardLink =
-  "inline-flex items-center gap-0.5 text-sm font-medium text-logo-dark dark:text-logo-light";
+  "inline-flex items-center gap-0.5 text-sm font-medium text-[#19779b] dark:text-logo-light";
 /** The arrow of an action. It does not move (ui-revise5 5). */
 export const actionArrow = "size-3.5 shrink-0";
 
@@ -55,11 +57,11 @@ export const cardHover =
 
 /**
  * The large card's surface and hover (ui-revise5, design 4 of the mock in
- * light gray): a light gray surface (gray-50, so that the links and
- * SPOTLIGHT keep a 4.5:1 contrast) that is one step darker on hover and on
- * keyboard focus on the title (gray-100, the other cards' hover); in dark
- * mode one step lighter than the page, and lighter again on hover. The same
- * transition as the other cards.
+ * light gray): a light gray surface (gray-50) that is one step darker on
+ * hover and on keyboard focus on the title (gray-100, the other cards'
+ * hover); in dark mode one step lighter than the page (atom-one-dark-light),
+ * and halfway back to the page on hover (#2e323b), so that the gray-400
+ * text keeps 4.5:1 (ui-revise5). The same transition as the other cards.
  */
 export const featuredSurface =
-  "bg-gray-50 transition-colors hover:bg-gray-100 has-[h3_:focus-visible]:bg-gray-100 dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:has-[h3_:focus-visible]:bg-atom-one-dark-lighter";
+  "bg-gray-50 transition-colors hover:bg-gray-100 has-[h3_:focus-visible]:bg-gray-100 dark:bg-atom-one-dark-light dark:hover:bg-[#2e323b] dark:has-[h3_:focus-visible]:bg-[#2e323b]";
