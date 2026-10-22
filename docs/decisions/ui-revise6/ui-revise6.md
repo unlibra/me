@@ -31,7 +31,8 @@
   - ビルドしたページで、見出し、説明、キャラクター、素材とフォントの各項目、一覧へのリンク、`lang="ja"`、canonical、サイトマップ、meta description を見る
 - 既存のテスト `license.test.js` の F2（帰属表示のあるファイルは LICENSE に載っていること）は、ライセンス名や Copyright を含むファイルを素材として数える。`src/config/credits.ts` と `tests/credits.test.js` は素材を含まずライセンスを名指しするだけなので、`license.test.js` 自身と同じく対象から外した（`NAMES_LICENSES`）
 - 他の選択肢：F2 に引っかからないよう文字列を分けて書く（検査をすり抜ける書き方になる）
-- 戻すときの作業：`tests/credits.test.js` を消し、`license.test.js` の `NAMES_LICENSES` を元の1ファイルの除外に戻す
+- レビューの任意の指摘で足したこと：第2節の出どころは「The full text is in LICENSES/」の文で見つけているので、この文のない出どころ（ライセンスファイルのないパブリックドメインの素材など）を足すと、クレジットの突き合わせと F2 の両方が見逃していた。`credits.test.js` は、第2節の題と最初の段落の後のブロックすべてにこの文を求め、ないブロックで落ちる。`license.test.js` にも同じ検査（`F2: every source in section 2 points to its license file`）を足した。どちらも、文のないブロックを足した文字列で落ちることを確かめるテストを持つ
+- 戻すときの作業：`tests/credits.test.js` を消し、`license.test.js` の `NAMES_LICENSES` を元の1ファイルの除外に戻し、`sourceBlocks`・`withoutLicenseFile` と上の F2 のテストを消す
 
 ## UR6-4 カードの説明文の長さ
 
@@ -42,21 +43,21 @@
 
 ## 直した既存のテストと理由（Q1）
 
-| テスト                                                                                        | 直した内容と理由                                                                                                                                     |
-| --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `layout.test.js` の `the build has the pages this test suite expects`                         | `credits/index.html` を足した（指示4）                                                                                                               |
-| `layout.test.js` の `singleLanguagePages`                                                     | クレジットを足した（日本語だけのページ）                                                                                                             |
-| `layout.test.js` の `C7: ... do not load the React runtime`                                   | クレジットも対象にした                                                                                                                               |
-| `layout.test.js` の `C4: every page has the common footer with the required links`            | `/credits` を足した（指示3）                                                                                                                         |
-| `layout.test.js` の `ui-revise4 3: the footer is a grid ...`                                  | 目印を `data-footer-information` にした（UR6-1）                                                                                                     |
-| `layout.test.js` の `ui-revise2 8, ui-revise3 2: the footer's description and link labels`    | 日英の説明文を新しい文面にした（指示1）。名前を `ui-revise2 8, ui-revise6 1` にした                                                                  |
-| `build.test.js` の A2、A6（サイトマップ）                                                     | `credits/index.html` と `/credits` を足した（指示4）                                                                                                 |
-| `portfolio.test.js` の `ui-revise3 2: the top page's description is the footer's description` | 新しい説明文にした（指示1）                                                                                                                          |
-| `portfolio.test.js` の `ui-revise4 2: the Apps cards have the former tool site's card texts`  | 名前は旧ツールサイトのまま、説明文は旧文面より短いことを見るようにした（指示2。行数は E2E）                                                          |
-| `portfolio.test.js` の `ui-revise4 2: VR & 3D has the real product only ...`                  | ページ全体に「アバター」がないことを見ていたが、新しいフッターの説明文（ユーザーの文面）に「VRアバター」が入ったので、フッターを除いて見るようにした |
-| `license.test.js` の F2                                                                       | UR6-3                                                                                                                                                |
-| `works.spec.js` の `ui-revise4 3: the footer's grid`（2件）                                   | 目印を `data-footer-information` にした（UR6-1）                                                                                                     |
-| `site.spec.js` の `PAGES` と `the Japanese-only pages have no language switch`                | `/credits` を足した                                                                                                                                  |
+| テスト                                                                                        | 直した内容と理由                                                                                                                                                                                                                     |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `layout.test.js` の `the build has the pages this test suite expects`                         | `credits/index.html` を足した（指示4）                                                                                                                                                                                               |
+| `layout.test.js` の `singleLanguagePages`                                                     | クレジットを足した（日本語だけのページ）                                                                                                                                                                                             |
+| `layout.test.js` の `C7: ... do not load the React runtime`                                   | クレジットも対象にした                                                                                                                                                                                                               |
+| `layout.test.js` の `C4: every page has the common footer with the required links`            | `/credits` を足した（指示3）                                                                                                                                                                                                         |
+| `layout.test.js` の `ui-revise4 3: the footer is a grid ...`                                  | 目印を `data-footer-information` にした（UR6-1）                                                                                                                                                                                     |
+| `layout.test.js` の `ui-revise2 8, ui-revise3 2: the footer's description and link labels`    | 日英の説明文を新しい文面にした（指示1）。名前を `ui-revise2 8, ui-revise6 1` にした                                                                                                                                                  |
+| `build.test.js` の A2、A6（サイトマップ）                                                     | `credits/index.html` と `/credits` を足した（指示4）                                                                                                                                                                                 |
+| `portfolio.test.js` の `ui-revise3 2: the top page's description is the footer's description` | 新しい説明文にした（指示1）                                                                                                                                                                                                          |
+| `portfolio.test.js` の `ui-revise4 2: the Apps cards have the former tool site's card texts`  | 名前は旧ツールサイトのまま、説明文は旧文面より短いことを見るようにした（指示2。行数は E2E）                                                                                                                                          |
+| `portfolio.test.js` の `ui-revise4 2: VR & 3D has the real product only ...`                  | ページ全体に「アバター」がないことを見ていたが、新しいフッターの説明文（ユーザーの文面）に「VRアバター」が入ったので、フッターの説明文の段落だけを除いて見るようにした（レビューの任意の指摘。フッターの残りは今までどおり検査する） |
+| `license.test.js` の F2                                                                       | UR6-3                                                                                                                                                                                                                                |
+| `works.spec.js` の `ui-revise4 3: the footer's grid`（2件）                                   | 目印を `data-footer-information` にした（UR6-1）                                                                                                                                                                                     |
+| `site.spec.js` の `PAGES` と `the Japanese-only pages have no language switch`                | `/credits` を足した                                                                                                                                                                                                                  |
 
 ## 新しい文言（すべて仮の文面、Q4）
 

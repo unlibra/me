@@ -36,27 +36,34 @@ const licenseSources = (text) => {
   const rest = text.slice(start + 1);
   const end = rest.search(/^\d+\. /m);
   const section = end === -1 ? rest : rest.slice(0, end);
-  return section
-    .split(/\n\n(?=\S)/)
-    .filter((block) => /The full text is in LICENSES\//.test(block))
-    .map((block) => {
-      const lines = block.split("\n");
-      const fullText = lines.findIndex((l) =>
-        l.startsWith("The full text is in"),
-      );
-      // The holder may end with the sentence's period ("Contributors.") or
-      // with its own ("Inc."): it is kept, and compared with and without.
-      const [license, holder] = lines[fullText - 1].split(
-        /, Copyright \(c\) (?:\d{4} )?/,
-      );
-      return {
-        name: lines[0].split(" (")[0],
-        url: lines[0].match(/\((?:[^()]*, )?(https:\/\/[^,)\s]+)\)/)[1],
-        license: holder ? license : license.replace(/\.$/, ""),
-        holder,
-        files: [...block.matchAll(/^ {2}- (\S+)$/gm)].map((m) => m[1]),
-      };
-    });
+  // The section's title and its first paragraph, then one block per source.
+  const [, intro, ...blocks] = section.split(/\n\n(?=\S)/);
+  assert.match(intro, /^The following files contain material by other/);
+  return blocks.map((block) => {
+    // Every source points to its license file: a block without the
+    // sentence is not skipped, but stops here (ui-revise6 review).
+    assert.match(
+      block,
+      /^The full text is in LICENSES\/\S+$/m,
+      `LICENSE section 2: no license file for "${block.split("\n")[0]}"`,
+    );
+    const lines = block.split("\n");
+    const fullText = lines.findIndex((l) =>
+      l.startsWith("The full text is in"),
+    );
+    // The holder may end with the sentence's period ("Contributors.") or
+    // with its own ("Inc."): it is kept, and compared with and without.
+    const [license, holder] = lines[fullText - 1].split(
+      /, Copyright \(c\) (?:\d{4} )?/,
+    );
+    return {
+      name: lines[0].split(" (")[0],
+      url: lines[0].match(/\((?:[^()]*, )?(https:\/\/[^,)\s]+)\)/)[1],
+      license: holder ? license : license.replace(/\.$/, ""),
+      holder,
+      files: [...block.matchAll(/^ {2}- (\S+)$/gm)].map((m) => m[1]),
+    };
+  });
 };
 
 /** The page's data for a source of LICENSE, without its author. */
@@ -113,6 +120,23 @@ The full text is in LICENSES/Example-MIT.txt.
     files: ["src/components/icons/ExampleIcon.astro"],
   });
   assert.notDeepEqual(materials.map(shown), sources.map(shown));
+});
+
+test("ui-revise6 4: a source added to LICENSE without a license file is found too", () => {
+  const license = read("LICENSE");
+  const added = license.replace(
+    /\n\n3\. /,
+    `
+Example Photo (https://example.com/photo)
+Public domain.
+
+  - src/assets/example.webp
+
+
+3. `,
+  );
+  assert.notEqual(added, license, "self-check: the source was added");
+  assert.throws(() => licenseSources(added), /no license file for "Example/);
 });
 
 test("ui-revise6 4: the credited fonts are the font packages, with their license, page and copyright holder", () => {

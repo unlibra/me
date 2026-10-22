@@ -321,12 +321,15 @@ test("ui-revise4 2: VR & 3D has the real product only, without subcategories or 
   );
   // No subcategory label or attribute anywhere on the page. The footer's
   // description (the owner's words, ui-revise6 1) names VR avatars and 3D
-  // assets, which are not labels: it is left out.
+  // assets, which are not labels: that paragraph only is left out.
   assert.doesNotMatch(top, /data-subcategory/);
+  const footer = top.match(/<footer[\s>][\s\S]*?<\/footer>/)[0];
+  const description = footer.match(/<p class="mt-3[^"]*">[^<]*<\/p>/);
+  assert.ok(description?.[0].includes("VRアバター"), "self-check");
   const body = text(
     top
       .match(/<body[\s\S]*<\/body>/)[0]
-      .replace(/<footer[\s>][\s\S]*?<\/footer>/, ""),
+      .replace(footer, footer.replace(description[0], "")),
   );
   for (const label of ["アバター", "アセット", "Unityツール", "ダミー"]) {
     assert.ok(!body.includes(label), label);

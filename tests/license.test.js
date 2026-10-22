@@ -29,12 +29,27 @@ const section = (number) => {
 const listed = (text) => [...text.matchAll(/^ {2}- (\S+)$/gm)].map((m) => m[1]);
 
 /**
+ * The blocks of section 2 after its title and its first paragraph: one per
+ * source (heading, license, files).
+ */
+const sourceBlocks = (text) => {
+  const [, intro, ...blocks] = text.split(/\n\n(?=\S)/);
+  assert.match(intro, /^The following files contain material by other/);
+  return blocks;
+};
+
+/** Headings of the source blocks that do not point to a license file. */
+const withoutLicenseFile = (text) =>
+  sourceBlocks(text)
+    .filter((block) => !/^The full text is in LICENSES\/\S+$/m.test(block))
+    .map((block) => block.split("\n")[0]);
+
+/**
  * Third-party sources in section 2 of LICENSE. Each source is a paragraph
  * (name, license, "The full text is in LICENSES/...") followed by its files.
  */
 const thirdPartySources = () =>
-  section(2)
-    .split(/\n\n(?=\S)/)
+  sourceBlocks(section(2))
     .filter((block) => /The full text is in LICENSES\//.test(block))
     .map((block) => ({
       heading: block.split("\n")[0],
@@ -174,6 +189,23 @@ test("F2: listed third-party files exist and start with their attribution", () =
       assert.match(head, name, `${file}: attribution does not name ${name}`);
     }
   }
+});
+
+test("F2: every source in section 2 points to its license file (ui-revise6 review)", () => {
+  // thirdPartySources() finds the sources by this sentence; a source
+  // without it would be skipped by the checks above and below.
+  assert.deepEqual(withoutLicenseFile(section(2)), []);
+  // A source without the sentence is found.
+  const added = `${section(2).trimEnd()}
+
+Example Photo (https://example.com/photo)
+Public domain.
+
+  - src/assets/example.webp
+`;
+  assert.deepEqual(withoutLicenseFile(added), [
+    "Example Photo (https://example.com/photo)",
+  ]);
 });
 
 test("F2: every file with material by other authors is listed in LICENSE", () => {
