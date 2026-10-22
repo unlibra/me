@@ -1,11 +1,18 @@
 ---
 // One frame for the photo categories (DIY Keyboards, VR & 3D): a 4:3 photo,
-// the title, the year and the summary.
+// the title, the year, the summary and the links.
 import { Image } from "astro:assets";
 
-import MoreLabel from "@/components/works/MoreLabel.astro";
+import CardLinks from "@/components/works/CardLinks.astro";
 import OpenDetails from "@/components/works/OpenDetails.astro";
-import { liftOnHover, subcategoryChip } from "@/components/works/card-classes";
+import {
+  cardRadius,
+  cardSummary,
+  cardTitle,
+  liftOnHover,
+  subcategoryChip,
+} from "@/components/works/card-classes";
+import { photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -20,7 +27,8 @@ const { summary } = messages.works[work.id];
 
 <article
   class:list={[
-    "group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 hover:border-gray-300 dark:border-atom-one-dark-lighter dark:hover:border-gray-600",
+    "group relative flex flex-col overflow-hidden border border-gray-200 hover:border-gray-300 dark:border-atom-one-dark-lighter dark:hover:border-gray-600",
+    cardRadius,
     liftOnHover,
   ]}
   data-work={work.id}
@@ -31,12 +39,15 @@ const { summary } = messages.works[work.id];
     <Image
       src={work.image}
       alt=""
-      class="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
+      class:list={[
+        "size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none",
+        photoPosition(work),
+      ]}
     />
   </div>
-  <div class="flex flex-1 flex-col gap-1.5 p-4">
-    <div class="flex items-baseline justify-between gap-3">
-      <h3 class="font-semibold text-gray-900 dark:text-white">
+  <div class="flex flex-1 flex-col gap-2 p-4">
+    <div class="flex items-baseline justify-between gap-4">
+      <h3 class:list={["text-lg", cardTitle]} data-work-title>
         <OpenDetails work={work} />
       </h3>
       <time
@@ -51,9 +62,9 @@ const { summary } = messages.works[work.id];
         {messages.vr3dSubcategories[work.subcategory]}
       </p>
     )}
-    <p class="text-sm text-gray-600 dark:text-gray-400" data-work-summary>
+    <p class={cardSummary} data-work-summary>
       {summary}
     </p>
-    <MoreLabel work={work} class="mt-auto pt-1" />
+    <CardLinks work={work} class="mt-auto" />
   </div>
 </article>

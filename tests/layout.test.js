@@ -496,18 +496,22 @@ test("ui-revise 7: the copyright notice runs from 2025 to the build year", async
   }
 });
 
-test("ui-revise2 2: the footer's Links group sits in the right half of the center column", () => {
+test("ui-revise3 2: the footer's Links group is at the right end of the center column", () => {
   for (const file of htmlPages()) {
     const footer = sectionOf(readDist(file), "footer");
     const tag = footer.match(/<div[^>]*data-footer-links[^>]*>/)[0];
-    assert.match(attr(tag, "class") ?? "", /(^|\s)md:col-start-2(\s|$)/, file);
+    assert.match(
+      attr(tag, "class") ?? "",
+      /(^|\s)md:justify-self-end(\s|$)/,
+      file,
+    );
   }
 });
 
-test("ui-revise2 7, 8: the footer's description and link labels", () => {
+test("ui-revise2 8, ui-revise3 2: the footer's description and link labels", () => {
   const expected = {
-    ja: "unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR &amp; 3D の作品を掲載しています。",
-    en: "A collection of works by unlibra: DIY keyboards, libraries, apps, and VR &amp; 3D works.",
+    ja: "個人開発のプロダクトを掲載しているサイトです。昼は本業のビルダー、夜は自作キーボード、ライブラリ、アプリ、VR &amp; 3Dなどの個人開発をしています。",
+    en: "A site that collects my personal products. By day a builder at my job; by night I make DIY keyboards, libraries, apps, VR &amp; 3D and more.",
   };
   for (const file of htmlPages()) {
     const footer = sectionOf(readDist(file), "footer");
@@ -567,19 +571,16 @@ const LOGOTYPES = {
   footer:
     /<footer[\s\S]*?<span class="font-brand [^"]*" data-logotype>unlibra<\/span>/,
 };
-const HERO_LOGOTYPE =
-  /<h1 class="[^"]*\bfont-brand\b[^"]*" data-logotype>unlibra<\/h1>/;
-
-test("ui-revise2 4: the logotype is in LINE Seed JP everywhere it is shown, and only there", () => {
+test("ui-revise2 4, ui-revise3 1: the logotype is in LINE Seed JP in the header, the mobile menu and the footer, and only there", () => {
   for (const file of htmlPages()) {
     const html = readDist(file);
     for (const [place, pattern] of Object.entries(LOGOTYPES)) {
       assert.match(html, pattern, `${file}: ${place}`);
     }
-    const hero = file === "index.html";
-    if (hero) assert.match(html, HERO_LOGOTYPE, `${file}: hero`);
+    // The hero's h1 is no longer a logotype (ui-revise3 1).
+    assert.doesNotMatch(html, /<h1[^>]*(font-brand|data-logotype)/, file);
     // The font-brand class is on the logotypes only.
-    const count = Object.keys(LOGOTYPES).length + (hero ? 1 : 0);
+    const count = Object.keys(LOGOTYPES).length;
     assert.equal(
       (html.match(/class="[^"]*\bfont-brand\b/g) ?? []).length,
       count,

@@ -3,11 +3,17 @@
 // the summary side by side.
 import { Image } from "astro:assets";
 
-import MoreLabel from "@/components/works/MoreLabel.astro";
+import CardLinks from "@/components/works/CardLinks.astro";
 import OpenDetails from "@/components/works/OpenDetails.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
-import { liftOnHover, subcategoryChip } from "@/components/works/card-classes";
-import { isPhoto } from "@/config/cards";
+import {
+  cardRadius,
+  cardSummary,
+  cardTitle,
+  liftOnHover,
+  subcategoryChip,
+} from "@/components/works/card-classes";
+import { isPhoto, photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -23,7 +29,8 @@ const photo = isPhoto(work.category);
 
 <article
   class:list={[
-    "group relative col-span-full grid overflow-hidden rounded-xl border border-gray-200 hover:border-gray-300 md:grid-cols-2 dark:border-atom-one-dark-lighter dark:hover:border-gray-600",
+    "group relative col-span-full grid overflow-hidden border border-gray-200 hover:border-gray-300 md:grid-cols-2 dark:border-atom-one-dark-lighter dark:hover:border-gray-600",
+    cardRadius,
     liftOnHover,
   ]}
   data-work={work.id}
@@ -35,13 +42,16 @@ const photo = isPhoto(work.category);
       <Image
         src={work.image}
         alt=""
-        class="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none"
+        class:list={[
+          "size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none",
+          photoPosition(work),
+        ]}
       />
     ) : (
       <WorkIcon work={work} size="size-28" />
     )}
   </div>
-  <div class="flex flex-col justify-center gap-3 p-5 sm:p-8">
+  <div class="flex flex-col justify-center gap-4 p-6 sm:p-8">
     <p class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
       <time datetime={work.year}>{work.year}</time>
       {work.subcategory && (
@@ -50,12 +60,12 @@ const photo = isPhoto(work.category);
         </span>
       )}
     </p>
-    <h3 class="text-2xl font-semibold text-gray-900 sm:text-3xl dark:text-white">
+    <h3 class:list={["text-2xl sm:text-3xl", cardTitle]} data-work-title>
       <OpenDetails work={work} />
     </h3>
-    <p class="text-gray-600 dark:text-gray-400" data-work-summary>
+    <p class={cardSummary} data-work-summary>
       {summary}
     </p>
-    <MoreLabel work={work} />
+    <CardLinks work={work} />
   </div>
 </article>

@@ -8,7 +8,7 @@ import WorkIcon from "@/components/works/WorkIcon.astro";
 import { subcategoryChip } from "@/components/works/card-classes";
 import { dialogId, dialogTitleId } from "@/components/works/ids";
 import { linksOf } from "@/components/works/work-links";
-import { isPhoto } from "@/config/cards";
+import { isPhoto, photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -42,7 +42,11 @@ const focusRing =
   <div class="relative max-h-[calc(100dvh-2rem)] overflow-y-auto">
     {photo ? (
       <div class="aspect-4/3 overflow-hidden bg-gray-100 sm:aspect-video dark:bg-atom-one-dark-light">
-        <Image src={work.image} alt={title} class="size-full object-cover" />
+        <Image
+          src={work.image}
+          alt={title}
+          class:list={["size-full object-cover", photoPosition(work)]}
+        />
       </div>
     ) : (
       <div class="flex justify-center bg-gray-100 py-10 dark:bg-atom-one-dark-light">

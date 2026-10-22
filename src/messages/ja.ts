@@ -3,12 +3,15 @@ import { layoutMessages } from "@/messages/layout";
 
 export default {
   site: {
-    description:
-      "unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR & 3D の作品を掲載しています。",
+    /** The top page's meta description: the footer's description. */
+    description: layoutMessages.ja.footer.description,
   },
-  profile: {
-    /** The subtitle of the hero (provisional). */
-    bio: "昼はカフェ、夜はバー。",
+  hero: {
+    /** The top page's h1. */
+    title: "昼はカフェ。夜はバー。",
+    /** The link buttons below the title (provisional wording). */
+    github: "GitHub",
+    booth: "BOOTH",
   },
   categories: layoutMessages.ja.header.categories,
   vr3dSubcategories: {
@@ -18,7 +21,6 @@ export default {
   } satisfies Record<Vr3dSubcategory, string>,
   links: {
     docs: "ドキュメント",
-    shop: "BOOTH ショップ",
   },
   /** The cards and their detail dialogs (provisional wording). */
   workDetails: {
@@ -29,6 +31,10 @@ export default {
     viewOnNpm: "npm で見る",
     viewOnPypi: "PyPI で見る",
     viewOnBooth: "BOOTH で見る",
+    /** The actions on the cards (BOOTH and the docs use the ones above). */
+    useTool: "ツールを使う",
+    npm: "npm",
+    pypi: "PyPI",
   },
   /**
    * Each work's title, a one-line summary for its card (provisional), and
@@ -108,6 +114,12 @@ middleware.create()でルーティング設定も完結し、プレフィック�
       summary: "文字の種類と長さを選んで強いパスワードを生成",
       description:
         "無料の強力なパスワード生成ツール。文字数、大文字・小文字・数字・記号を自由に組み合わせて、セキュアなパスワードを作成。\n紛らわしい文字の除外にも対応し、ブラウザ完結で安全です。",
+    },
+    "mururu-blink-lipsync": {
+      title: "【ムルル対応】まばたき＆リップシンク追加ツール",
+      summary: "ムルルにまばたきとリップシンクを追加する Unity ツール",
+      description:
+        "ムルルに、まばたき機能と声に合わせて口が動くリップシンク機能を追加するUnityツールです。",
     },
     "dummy-avatar": {
       title: "ダミーのアバター",

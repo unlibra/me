@@ -1,10 +1,17 @@
 ---
-// The former tool site's card (an icon on a circle, the name and the
-// summary), for Apps and Libraries.
-import MoreLabel from "@/components/works/MoreLabel.astro";
+// A list item for Apps and Libraries: the former tool site's card (its hover,
+// padding and icon background), with the icon beside the text so that the
+// row reads as one work, and the title, the summary, the year and the links
+// of every card (ui-revise3 3).
+import CardLinks from "@/components/works/CardLinks.astro";
 import OpenDetails from "@/components/works/OpenDetails.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
-import { liftOnHover } from "@/components/works/card-classes";
+import {
+  cardRadius,
+  cardSummary,
+  cardTitle,
+  listHover,
+} from "@/components/works/card-classes";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -16,21 +23,26 @@ const { work } = Astro.props;
 ---
 
 <article
-  class:list={[
-    "group relative flex flex-col gap-2 rounded-lg p-4 hover:bg-gray-100 dark:hover:bg-atom-one-dark-light",
-    liftOnHover,
-  ]}
+  class:list={["group relative flex gap-4 p-4", cardRadius, listHover]}
   data-work={work.id}
   data-card="tool"
 >
-  <div class="flex items-center gap-3">
-    <WorkIcon work={work} size="size-10" />
-    <h3 class="font-semibold">
-      <OpenDetails work={work} />
-    </h3>
+  <WorkIcon work={work} size="size-12" />
+  <div class="flex min-w-0 flex-1 flex-col gap-2">
+    <div class="flex items-baseline justify-between gap-4">
+      <h3 class:list={["text-lg", cardTitle]} data-work-title>
+        <OpenDetails work={work} />
+      </h3>
+      <time
+        datetime={work.year}
+        class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
+      >
+        {work.year}
+      </time>
+    </div>
+    <p class={cardSummary} data-work-summary>
+      {messages.works[work.id].summary}
+    </p>
+    <CardLinks work={work} class="mt-auto" />
   </div>
-  <p class="text-sm text-gray-600 dark:text-gray-400" data-work-summary>
-    {messages.works[work.id].summary}
-  </p>
-  <MoreLabel work={work} class="mt-auto" />
 </article>

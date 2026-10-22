@@ -44,26 +44,24 @@ const externalLinks = [
         </p>
       </div>
 
-      <!-- Center: links (where the former site listed the tools), in the
-           right half, next to Support -->
-      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
-        <div class="md:col-start-2" data-footer-links>
-          <h2 class={heading}>{t.links}</h2>
-          <ul class="space-y-2">
-            {externalLinks.map(({ href, label }) => (
-              <li>
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class={link}
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <!-- Center: links (where the former site listed the tools), at the
+           right end of the column, next to Support -->
+      <div class="md:justify-self-end" data-footer-links>
+        <h2 class={heading}>{t.links}</h2>
+        <ul class="space-y-2">
+          {externalLinks.map(({ href, label }) => (
+            <li>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class={link}
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <!-- Right: support -->

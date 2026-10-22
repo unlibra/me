@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -179,6 +179,27 @@ test("F2: LICENSE excludes BOOTH images by other creators and covers dependencie
   assert.match(section(3), /BOOTH product images/);
   assert.match(section(3), /src\/assets\/works\/third-party\//);
   assert.match(section(4), /npm packages/);
+});
+
+test("ui-revise3 (user): the BOOTH image with other creators' material is in the third-party directory that section 3 excludes", () => {
+  const dir = "src/assets/works/third-party";
+  const files = readdirSync(join(root, dir)).sort();
+  assert.deepEqual(files, ["mururu-blink-lipsync.webp"]);
+  // Section 3 names the directory; no other section claims its files.
+  assert.match(section(3), new RegExp(`${dir}/`));
+  for (const n of [1, 2, 4]) {
+    assert.doesNotMatch(section(n), /works\/third-party/, `section ${n}`);
+  }
+  // The work uses the file from there (not a copy elsewhere).
+  const works = read("src/config/works.ts");
+  assert.match(
+    works,
+    /from "@\/assets\/works\/third-party\/mururu-blink-lipsync\.webp"/,
+  );
+  assert.ok(
+    !readdirSync(join(root, "src/assets/works")).includes(files[0]),
+    "not outside third-party/",
+  );
 });
 
 test("F3: LICENSES/MIT.txt is the MIT License for unlibra", () => {

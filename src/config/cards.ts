@@ -27,3 +27,12 @@ export const cardKind = (
   work: Pick<Work, "category" | "featured">,
 ): CardStyle | "featured" =>
   work.featured ? "featured" : cardStyles[work.category];
+
+/**
+ * How a work's photo is cropped to its frame (`imagePosition`), and where
+ * it grows from on hover.
+ */
+export const photoPosition = (
+  work: Pick<Work, "imagePosition">,
+): "object-top origin-top" | "object-center" =>
+  work.imagePosition === "top" ? "object-top origin-top" : "object-center";

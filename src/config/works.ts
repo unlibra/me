@@ -4,6 +4,8 @@ import botsuImg from "@/assets/works/botsu.webp";
 import fostyNaturalImg from "@/assets/works/fosty-natural.webp";
 import fostyDarkImg from "@/assets/works/fosty-dark.webp";
 import dummyImg from "@/assets/works/dummy.svg";
+// Images that show material by other creators (LICENSE, section 3).
+import mururuBlinkLipsyncImg from "@/assets/works/third-party/mururu-blink-lipsync.webp";
 import npmImg from "@/assets/npm.svg";
 import pypiImg from "@/assets/pypi.svg";
 import { site, type SitePath } from "@/config/site";
@@ -33,6 +35,11 @@ interface WorkBase {
   docs?: DocsUrl;
   /** Shown as a large, full-width card in its category. */
   featured?: true;
+  /**
+   * Where a photo is cropped to the frame: "top" keeps its top in view (for
+   * a credit there). Without it, the photo is cropped around its center.
+   */
+  imagePosition?: "top";
 }
 
 /** Only VR & 3D works have a subcategory, and they always have one. */
@@ -124,6 +131,17 @@ export const works: Work[] = [
     year: "2025",
     image: toolIcons["password-generator"],
     link: toolPath("password-generator", "ja"),
+  },
+  {
+    id: "mururu-blink-lipsync",
+    category: "vr-3d",
+    subcategory: "unity-tool",
+    // Provisional (being confirmed with the owner).
+    year: "2026",
+    image: mururuBlinkLipsyncImg,
+    // The image's credit is in its top right corner: keep the top in view.
+    imagePosition: "top",
+    link: "https://unlibra-twin.booth.pm/items/9009879",
   },
   // Dummy items until the real BOOTH items are ready (design doc 3.6).
   {

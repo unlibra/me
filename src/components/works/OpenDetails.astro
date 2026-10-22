@@ -5,7 +5,12 @@
 // the title and the card's "詳しく見る" (MoreLabel).
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
-import { dialogId, moreLabelId, openButtonId } from "@/components/works/ids";
+import {
+  cardTitleId,
+  dialogId,
+  moreLabelId,
+  openButtonId,
+} from "@/components/works/ids";
 
 interface Props {
   work: Work;
@@ -27,5 +32,5 @@ const { work, class: className } = Astro.props;
     className,
   ]}
 >
-  {messages.works[work.id].title}
+  <span id={cardTitleId(work)}>{messages.works[work.id].title}</span>
 </button>

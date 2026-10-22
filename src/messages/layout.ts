@@ -36,7 +36,7 @@ const ja = {
   },
   footer: {
     description:
-      "unlibra の制作物をまとめたサイトです。自作キーボード、ライブラリ、アプリ、VR & 3D の作品を掲載しています。",
+      "個人開発のプロダクトを掲載しているサイトです。昼は本業のビルダー、夜は自作キーボード、ライブラリ、アプリ、VR & 3Dなどの個人開発をしています。",
     github: "GitHub",
     links: "Links",
     docs: "Docs",
@@ -76,8 +76,9 @@ const en: LayoutMessages = {
     label: "Language",
   },
   footer: {
+    // Provisional wording.
     description:
-      "A collection of works by unlibra: DIY keyboards, libraries, apps, and VR & 3D works.",
+      "A site that collects my personal products. By day a builder at my job; by night I make DIY keyboards, libraries, apps, VR & 3D and more.",
     github: "GitHub",
     links: "Links",
     docs: "Docs",
