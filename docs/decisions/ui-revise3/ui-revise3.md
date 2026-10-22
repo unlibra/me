@@ -86,6 +86,7 @@
 - 戻すときの作業：`public/_redirects` の8行を前の2行に戻し、`redirects.test.js` の `DYNAMIC_ORDERS` を外す
 - ツールを足すときは、`_redirects` にその2行を足す必要がある（足し忘れると上のテストが落ちる）
 - `site.spec.js` の `sample` にある `:tool` の分岐は使われなくなったが、害はないので残した
+- 確かめたこと（M4）：コミット `d66a2a8` のビルドを `npx wrangler deploy` で Worker `unlibra-com`（`https://unlibra-com.not-inbox.workers.dev`）に出し直した（`wrangler.jsonc` は変えていない）。`npm run check:prod -- https://unlibra-com.not-inbox.workers.dev` は失敗 0 件、警告 1 件（Web Analytics の計測タグ。想定どおり）。末尾スラッシュ付きの旧ツールURL（4ツール × 2言語）はすべて1回の 301 で新URLに届く。`/lab/ja/iromide/` は `/lab/iromide/` に転送される（その先は 404）
 
 ## 直した既存のテストと理由（M1）
 
