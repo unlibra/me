@@ -48,29 +48,34 @@ const title = "ページが見つかりません / Page not found";
   /*
    * The caption (the heading, the gap and the button: 32 + 24 + 36px) and
    * the space above it (24px) take 116px. On screens tall enough, the planet
-   * is in the middle and the caption below it, so half the screen below the
-   * planet must hold 116px and a 16px margin: the planet is at most
-   * 100dvh - 2 × 132px, and about half the short side; never less than a
-   * quarter of the short side.
+   * is about half the short side, and at most 100dvh - 2 × 132px (the size
+   * that kept the caption on the screen when the planet was in the middle,
+   * before ui-revise5 4); never less than a quarter of the short side.
+   *
+   * The planet and the caption below it are one group, in the middle of the
+   * screen, and lifted a little above it (ui-revise5 4): the space below
+   * the group is larger by up to 8dvh, as long as the group and a 1rem
+   * margin above and below it fit on the screen.
    */
   [data-not-found] {
     --planet: max(25vmin, min(50vmin, 100dvh - 16.5rem));
+    --lift: min(8dvh, max(0px, 100dvh - var(--planet) - 9.25rem));
+    padding-bottom: var(--lift);
   }
 
   .scene {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .planet {
+    flex-shrink: 0;
     width: var(--planet);
     height: var(--planet);
   }
 
   .caption {
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    translate: -50% 0;
     display: flex;
     width: max-content;
     /* On very narrow screens, the heading wraps instead of sticking out. */
@@ -94,17 +99,15 @@ const title = "ページが見つかりません / Page not found";
   @media (max-height: 479px) and (min-aspect-ratio: 3/2) and (min-width: 30rem) {
     [data-not-found] {
       --planet: min(60dvh, 40vw, 100vw - 22rem);
+      --lift: 0px;
     }
 
     .scene {
-      display: flex;
-      align-items: center;
+      flex-direction: row;
       gap: 2rem;
     }
 
     .caption {
-      position: static;
-      translate: none;
       padding-top: 0;
     }
   }

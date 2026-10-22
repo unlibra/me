@@ -107,6 +107,7 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
       "immediate",
       "jszip",
       "lie",
+      "lucide-static",
       "mdn-data",
       "mdn-data",
       "nth-check",
@@ -158,14 +159,18 @@ test("H4: license expressions are not wrapped in a second pair of parentheses", 
 test("H5: no build-only package is in the list", () => {
   const names = new Set(listedPackages().map((p) => p.name));
   // Packages that a shipped file is made from (DERIVED_ASSETS) are
-  // devDependencies, and are listed.
+  // devDependencies, and are listed. So is lucide-static, whose icon is
+  // copied into the HTML (OUTSIDE_MODULE_GRAPH, ui-revise5 1).
   const derived = new Set(
     Object.values(DERIVED_ASSETS).map((asset) => asset.name),
   );
   for (const name of [
     // vite and rolldown are listed for their runtime helpers (FX-8); their
     // plugins and other build tools must not be.
-    ...Object.keys(pkg.devDependencies).filter((name) => !derived.has(name)),
+    ...Object.keys(pkg.devDependencies).filter(
+      (name) =>
+        !derived.has(name) && !Object.hasOwn(OUTSIDE_MODULE_GRAPH, name),
+    ),
     "@tailwindcss/vite",
     "@vitejs/plugin-react",
     "@astrojs/sitemap",
@@ -249,8 +254,12 @@ test("the reasons for the hand-listed packages still hold", () => {
   // OUTSIDE_MODULE_GRAPH
   assert.deepEqual(Object.keys(OUTSIDE_MODULE_GRAPH).sort(), [
     "astro",
+    "lucide-static",
     "tailwindcss",
   ]);
+  // The icon copied from lucide-static is in the top page (ui-revise5 1).
+  const top = readFileSync(join(dist, "index.html"), "utf8");
+  assert.match(top, /<svg[^>]*data-icon="shopping-bag"/);
   const html = readFileSync(join(dist, "lab/svg-optimizer/index.html"), "utf8");
   assert.match(html, /customElements\.define\(`astro-island`/);
   const css = globSync("_astro/*.css", { cwd: dist })

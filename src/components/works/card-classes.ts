@@ -19,12 +19,20 @@ export const cardSummary = "text-base text-gray-600 dark:text-gray-400";
  */
 export const cardLink =
   "inline-flex items-center gap-0.5 text-sm font-medium text-logo-dark dark:text-logo-light";
-const arrow =
-  "size-4 shrink-0 transition-transform motion-reduce:transition-none";
-/** The arrow of an action: moves on the action's own hover. */
-export const actionArrow = `${arrow} group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5`;
-/** The arrow after the title of a card that is a link: moves with the card. */
-export const titleArrow = `${arrow} text-gray-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 dark:text-gray-400`;
+/**
+ * The arrow of an action: the size of the text (14px), centered on the line
+ * by `cardLink` (ui-revise5 8); moves on the action's own hover.
+ */
+export const actionArrow =
+  "size-3.5 shrink-0 transition-transform motion-reduce:transition-none group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5";
+
+/**
+ * The card's first link (where a click on the card goes; "詳しく見る" on
+ * the cards that open their details): underlined on the card's hover, but
+ * not while the pointer is on another of the card's links (ui-revise5 11).
+ */
+export const primaryLink =
+  "group-hover:underline group-has-[[data-work-action=secondary]:hover]:no-underline";
 
 /** The keyboard focus ring of the cards and their links. */
 export const focusRing =

@@ -1,6 +1,7 @@
 ---
 // A featured work (`featured: true`): a full-width card with the image and
-// the summary side by side.
+// the summary side by side, without a border (ui-revise5 12). "SPOTLIGHT"
+// is above the title, in text-4xl (ui-revise5 13).
 import { Image } from "astro:assets";
 
 import CardLinks from "@/components/works/CardLinks.astro";
@@ -28,7 +29,7 @@ const photo = isPhoto(work.category);
 
 <article
   class:list={[
-    "group relative col-span-full grid overflow-hidden border border-gray-200 md:grid-cols-2 dark:border-atom-one-dark-lighter",
+    "group relative col-span-full grid overflow-hidden md:grid-cols-2",
     cardRadius,
     cardHover,
   ]}
@@ -47,7 +48,13 @@ const photo = isPhoto(work.category);
     )}
   </div>
   <div class="flex flex-col justify-center gap-4 p-6 sm:p-8">
-    <h3 class:list={["text-2xl sm:text-3xl", cardTitle]} data-work-title>
+    <p
+      class="text-sm font-semibold tracking-widest text-gray-500 dark:text-gray-400"
+      data-work-spotlight
+    >
+      {messages.workDetails.spotlight}
+    </p>
+    <h3 class:list={["text-4xl", cardTitle]} data-work-title>
       <CardTitle work={work} />
     </h3>
     <p class={cardSummary} data-work-summary>

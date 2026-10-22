@@ -1,5 +1,6 @@
 ---
-import ArrowUpRightIcon from "@/components/icons/ArrowUpRightIcon.astro";
+import GitHubIcon from "@/components/icons/GitHubIcon.astro";
+import ShoppingBagIcon from "@/components/icons/ShoppingBagIcon.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import WorkList from "@/components/works/WorkList.astro";
 import messages from "@/messages/ja";
@@ -13,8 +14,10 @@ const sections = categories.map((category) => ({
 }));
 
 const heroLinks = [
-  { href: site.links.github, label: messages.hero.github },
-  { href: site.links.booth, label: messages.hero.booth },
+  { href: site.links.github, label: messages.hero.github, Icon: GitHubIcon },
+  // A generic icon, not BOOTH's logo (which may not be changed); Lucide's
+  // shopping-bag until the owner chooses one on /mock/booth-icons.
+  { href: site.links.booth, label: messages.hero.booth, Icon: ShoppingBagIcon },
 ];
 
 const link =
@@ -50,10 +53,10 @@ const link =
       <!-- Hero content -->
       <div class="relative mx-auto max-w-screen-sm pt-12 pb-20 text-center">
         <h1 class="mb-8 text-2xl font-semibold">{messages.hero.title}</h1>
-        <!-- Text buttons: the text and the up-right arrow (ui-revise4 1, pattern
-             B until the owner chooses one of the patterns on /mock/hero-buttons). -->
+        <!-- Text buttons: the logo and the text (ui-revise5 1, pattern A of
+             ui-revise4 1). -->
         <ul class="flex flex-wrap justify-center gap-2" data-hero-links>
-          {heroLinks.map(({ href, label }) => (
+          {heroLinks.map(({ href, label, Icon }) => (
             <li>
               <a
                 href={href}
@@ -61,8 +64,8 @@ const link =
                 rel="noopener noreferrer"
                 class={`inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-semibold text-gray-900 hover:underline dark:text-white ${link}`}
               >
+                <Icon class="size-4" />
                 {label}
-                <ArrowUpRightIcon class="size-4" />
               </a>
             </li>
           ))}
@@ -70,8 +73,8 @@ const link =
       </div>
     </div>
 
-    <!-- Works by category -->
-    <div class="mb-12 space-y-12">
+    <!-- Works by category: 24px further from the hero's wave (ui-revise5 3) -->
+    <div class="mb-12 space-y-12 pt-6" data-works>
       {sections.map(({ category, label, works }) => (
         <section
           id={category}

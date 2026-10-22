@@ -1,6 +1,6 @@
 ---
 // One frame for the photo categories (DIY Keyboards, VR & 3D): a 4:3 photo,
-// the title, the summary and the links.
+// the title, the summary and the links, without a border (ui-revise5 12).
 import { Image } from "astro:assets";
 
 import CardLinks from "@/components/works/CardLinks.astro";
@@ -26,7 +26,7 @@ const { summary } = messages.works[work.id];
 
 <article
   class:list={[
-    "group relative flex flex-col overflow-hidden border border-gray-200 dark:border-atom-one-dark-lighter",
+    "group relative flex flex-col overflow-hidden",
     cardRadius,
     cardHover,
   ]}

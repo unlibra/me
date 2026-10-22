@@ -36,7 +36,7 @@ interface WorkBase {
 /**
  * DIY Keyboards have no links: their cards open the details (ui-revise4 2).
  * The works of the other categories have a link, and their cards go there
- * directly; Libraries have their documentation too.
+ * directly; Libraries and VR & 3D have their documentation too (ui-revise5 5).
  */
 export type Work =
   | (WorkBase & { category: "keyboards"; link?: never; docs?: never })
@@ -56,7 +56,7 @@ export type Work =
       category: "vr-3d";
       /** The item on BOOTH. */
       link: `https://${string}`;
-      docs?: never;
+      docs?: DocsUrl;
     });
 
 /** Works in display order within each category. */
@@ -134,6 +134,7 @@ export const works: Work[] = [
     // The image's credit is in its top right corner: keep the top in view.
     imagePosition: "top",
     link: "https://unlibra-twin.booth.pm/items/9009879",
+    docs: "https://docs.unlibra.com/mururu-blink-lipsync/",
   },
 ];
 

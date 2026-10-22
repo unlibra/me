@@ -43,6 +43,7 @@
     "@typescript-eslint/parser": "^8.72.0",
     "eslint": "^10.13.0",
     "eslint-plugin-astro": "^3.2.1",
+    "lucide-static": "1.52.0",
     "prettier": "^3.7.3",
     "prettier-plugin-astro": "^1.1.1",
     "prettier-plugin-tailwindcss": "^0.7.1",

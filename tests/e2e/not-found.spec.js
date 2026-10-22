@@ -101,8 +101,8 @@ for (const [width, height, layout] of [
       expect(overlap(planet, button)).toBe(false);
       expect(button.y).toBeGreaterThanOrEqual(h1.y + h1.height);
       if (layout === "stacked") {
-        // The planet in the middle, the heading and the button below it;
-        // 40-50% of the short side when the screen is tall enough.
+        // The planet, the heading and the button below it; 40-50% of the
+        // short side when the screen is tall enough.
         if (height >= 480) {
           expect(planet.width).toBeGreaterThanOrEqual(short * 0.4);
           expect(planet.width).toBeLessThanOrEqual(short * 0.5 + 1);
@@ -110,10 +110,23 @@ for (const [width, height, layout] of [
         expect(
           Math.abs(planet.x + planet.width / 2 - width / 2),
         ).toBeLessThanOrEqual(1);
-        expect(
-          Math.abs(planet.y + planet.height / 2 - height / 2),
-        ).toBeLessThanOrEqual(1);
         expect(h1.y).toBeGreaterThanOrEqual(planet.y + planet.height);
+        // ui-revise5 4: the group of the planet, the heading and the button
+        // is in the middle or a little above it, not below. Until then the
+        // planet alone was in the middle: now it is higher by at least half
+        // of the text below it.
+        const top = planet.y;
+        const bottom = button.y + button.height;
+        const middle = (top + bottom) / 2;
+        expect(middle).toBeLessThanOrEqual(height / 2 + 1);
+        expect(middle).toBeGreaterThanOrEqual(height * 0.4);
+        const caption = bottom - (planet.y + planet.height);
+        expect(planet.y + planet.height / 2).toBeLessThanOrEqual(
+          height / 2 - caption / 2 + 1,
+        );
+        // A margin above and below the group.
+        expect(top).toBeGreaterThanOrEqual(16);
+        expect(bottom).toBeLessThanOrEqual(height - 16);
       } else {
         // Low landscape: the planet beside the text, both centered
         // vertically.

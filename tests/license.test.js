@@ -145,6 +145,7 @@ test("F2: listed third-party files exist and start with their attribution", () =
     sources.map((s) => s.licenseFile),
     [
       "LICENSES/Heroicons-MIT.txt",
+      "LICENSES/Lucide-ISC.txt",
       "LICENSES/tailwindcss-MIT.txt",
       "LICENSES/CC0-1.0.txt",
     ],
@@ -285,4 +286,49 @@ test("ui-revise2 4: LICENSES/OFL-1.1.txt is the OFL with LINE Seed JP's copyrigh
   assert.ok(
     existsSync(join(root, "src/assets/fonts/line-seed-jp-unlibra-700.woff2")),
   );
+});
+
+test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as material under a license", () => {
+  const text = section(3).replace(/\s+/g, " ");
+  assert.ok(text.includes("src/components/icons/GitHubIcon.astro"));
+  assert.ok(existsSync(join(root, "src/components/icons/GitHubIcon.astro")));
+  for (const n of [1, 2, 4]) {
+    assert.doesNotMatch(section(n), /GitHubIcon/, `section ${n}`);
+  }
+});
+
+test("ui-revise5 1: the Lucide icon is from the pinned lucide-static, whose license is copied verbatim", () => {
+  const pkg = JSON.parse(read("package.json"));
+  // Pinned: the version in LICENSE and in the icon's comment is the one
+  // installed.
+  assert.equal(pkg.devDependencies["lucide-static"], "1.52.0");
+  const installed = JSON.parse(
+    read("node_modules/lucide-static/package.json"),
+  ).version;
+  assert.equal(installed, "1.52.0");
+  const lucide = thirdPartySources().find((s) =>
+    s.heading.startsWith("Lucide "),
+  );
+  assert.match(lucide.heading, /^Lucide 1\.52\.0 .*lucide-static$/);
+  assert.deepEqual(lucide.files, [
+    "src/components/icons/ShoppingBagIcon.astro",
+  ]);
+  assert.match(
+    headOf("src/components/icons/ShoppingBagIcon.astro"),
+    /lucide-static 1\.52\.0/,
+  );
+  // The whole license file: the ISC License, and the MIT License of Feather
+  // for the icons derived from it (shopping-bag is one of them).
+  const text = read("LICENSES/Lucide-ISC.txt");
+  assert.equal(text, read("node_modules/lucide-static/LICENSE"));
+  assert.match(text, /^ISC License\n\nCopyright \(c\) 2026 Lucide Icons/);
+  assert.match(
+    text,
+    /derived from the Feather project:\n\n[^\n]*\bshopping-bag\b/,
+  );
+  assert.match(text, /Copyright \(c\) 2013-present Cole Bemis/);
+  // The section in LICENSE names both.
+  const block = section(2).replace(/\s+/g, " ");
+  assert.ok(block.includes("Feather"));
+  assert.ok(block.includes("Cole Bemis"));
 });

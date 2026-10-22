@@ -36,6 +36,13 @@ The full text is in LICENSES/Heroicons-MIT.txt.
   - src/components/icons/XMarkIcon.astro
   - src/components/ui/Breadcrumb.astro
 
+Lucide 1.52.0 (https://lucide.dev), from the npm package lucide-static
+ISC License, Copyright (c) 2026 Lucide Icons and Contributors; icons derived
+from Feather are under the MIT License, Copyright (c) 2013-present Cole Bemis.
+The full text is in LICENSES/Lucide-ISC.txt.
+
+  - src/components/icons/ShoppingBagIcon.astro
+
 Tailwind CSS v3 color palette (tailwindcss 3.4.18, https://tailwindcss.com)
 and values computed from it
 MIT License, Copyright (c) Tailwind Labs, Inc.
@@ -63,9 +70,10 @@ BOOTH product images that show material by other creators are kept in
 src/assets/works/third-party/. They are not licensed under this LICENSE or
 any license in LICENSES/. The rights belong to their respective owners.
 
-Logos of other services, such as the npm and PyPI logos in src/assets/npm.svg
-and src/assets/pypi.svg, are trademarks of their owners and are not licensed
-under this LICENSE.
+Logos of other services, such as the GitHub mark in
+src/components/icons/GitHubIcon.astro and the npm and PyPI logos in
+src/assets/npm.svg and src/assets/pypi.svg, are trademarks of their owners and
+are not licensed under this LICENSE.
 
 
 4. Dependencies

@@ -22,10 +22,12 @@ export default {
     more: "詳しく見る",
     close: "閉じる",
     /** The links of a work, on its card and in its details. */
-    useTool: "ツールを使う",
+    openApp: "アプリを開く",
     viewOnBooth: "BOOTH で見る",
     npm: "npm",
     pypi: "PyPI",
+    /** Above the title of a large card (ui-revise5 13). */
+    spotlight: "SPOTLIGHT",
   },
   /**
    * Each work's title and the one-line summary for its card (provisional,

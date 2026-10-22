@@ -27,6 +27,8 @@ export const valid: Work[] = [
     category: "vr-3d",
     image,
     link: "https://unlibra-twin.booth.pm/items/9009879",
+    // ui-revise5 5: VR & 3D works can have their documentation.
+    docs: "https://docs.unlibra.com/mururu-blink-lipsync/",
   },
 ];
 

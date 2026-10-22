@@ -1,15 +1,15 @@
 ---
 // The links at the end of a card. A card that opens its details ends with
-// "詳しく見る". A card that is a link shows its links as actions only when
-// there are two or more places to go (Libraries: the documentation and npm
-// or PyPI); they are in front of the title link's overlay, so that a click
-// on them goes there (ui-revise4 2).
+// "詳しく見る". A card that is a link shows all its links as actions, the
+// one the card goes to first (ui-revise5 9, 11); they are in front of the
+// title link's overlay, so that a click on them goes there.
 import ArrowUpRightIcon from "@/components/icons/ArrowUpRightIcon.astro";
 import MoreLabel from "@/components/works/MoreLabel.astro";
 import {
   actionArrow,
   cardLink,
   focusRing,
+  primaryLink,
 } from "@/components/works/card-classes";
 import { cardTitleId } from "@/components/works/ids";
 import { cardTarget } from "@/components/works/work-links";
@@ -25,24 +25,27 @@ const target = cardTarget(work);
 const actions = target.kind === "link" ? target.actions : [];
 ---
 
-{(target.kind === "details" || actions.length > 0) && (
-  <div
-    class:list={["flex flex-wrap items-center gap-x-4 gap-y-2", className]}
-    data-work-links
-  >
-    {actions.map((action) => (
-      <a
-        href={action.href}
-        target={action.external ? "_blank" : undefined}
-        rel={action.external ? "noopener noreferrer" : undefined}
-        aria-describedby={cardTitleId(work)}
-        class={`group/link relative z-10 rounded-sm hover:underline ${cardLink} ${focusRing}`}
-        data-work-action
-      >
-        {action.label}
-        <ArrowUpRightIcon class={actionArrow} />
-      </a>
-    ))}
-    {target.kind === "details" && <MoreLabel work={work} />}
-  </div>
-)}
+<div
+  class:list={["flex flex-wrap items-center gap-x-4 gap-y-2", className]}
+  data-work-links
+>
+  {actions.map((action, i) => (
+    <a
+      href={action.href}
+      target={action.external ? "_blank" : undefined}
+      rel={action.external ? "noopener noreferrer" : undefined}
+      aria-describedby={cardTitleId(work)}
+      class:list={[
+        "group/link relative z-10 rounded-sm hover:underline",
+        i === 0 && primaryLink,
+        cardLink,
+        focusRing,
+      ]}
+      data-work-action={i === 0 ? "primary" : "secondary"}
+    >
+      {action.label}
+      <ArrowUpRightIcon class={actionArrow} />
+    </a>
+  ))}
+  {target.kind === "details" && <MoreLabel work={work} />}
+</div>

@@ -494,11 +494,14 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
           ],
           radius: await item.evaluate((element) => {
             const icon = element.querySelector("div:has(> img)");
+            const radius = parseFloat(getComputedStyle(icon).borderRadius);
             return [
               getComputedStyle(element).borderRadius,
-              element.dataset.card === "tool"
-                ? getComputedStyle(icon).borderRadius
-                : "8px",
+              element.dataset.card !== "tool"
+                ? "8px"
+                : radius >= icon.offsetWidth / 2
+                  ? "circle"
+                  : getComputedStyle(icon).borderRadius,
             ];
           }),
           focus: await control.evaluate((e) => {
@@ -521,8 +524,12 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
       for (const [kind, style] of Object.entries(styles)) {
         expect(style.title, `${kind}: title`).toEqual(first.title);
         expect(style.summary, `${kind}: summary`).toEqual(first.summary);
-        // One radius for the photo cards, the list items and the icons.
-        expect(style.radius, `${kind}: radius`).toEqual(["8px", "8px"]);
+        // One radius for the photo cards, the list items and the Libraries'
+        // icons; the Apps' icons are circles (ui-revise5 6).
+        expect(style.radius, `${kind}: radius`).toEqual([
+          "8px",
+          kind === "list (Apps)" ? "circle" : "8px",
+        ]);
         expect(style.focus, `${kind}: focus`).toEqual(first.focus);
         expect(style.focusColor, `${kind}: focus`).toEqual(first.focusColor);
       }
@@ -532,7 +539,7 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     });
   }
 
-  test("ui-revise4 2: the links' up-right arrow moves on hover: an action's on its own hover, the title's on the card's; 詳しく見る underlines", async ({
+  test("ui-revise5 11: the card's hover underlines its first link only; an action's own hover underlines it and moves its arrow", async ({
     page,
   }) => {
     await open(page, "/");
@@ -540,31 +547,68 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
       locator
         .locator('svg[data-icon="arrow-up-right"]')
         .evaluate((e) => getComputedStyle(e).translate);
+    const underline = (locator) =>
+      locator.evaluate((e) => getComputedStyle(e).textDecorationLine);
     for (const id of Object.values(SAMPLES)) {
       const item = card(page, id);
       await item.scrollIntoViewIfNeeded();
       await page.mouse.move(0, 0);
-      const link = item.locator("[data-work-link]");
-      const more = item.locator("[data-work-more]");
-      if ((await link.count()) > 0) {
-        await expect.poll(() => arrow(link)).toBe("none");
-      } else {
-        await expect(more).toHaveCSS("text-decoration-line", "none");
-      }
+      // No arrow after the title (ui-revise5 2).
+      await expect(item.locator("[data-work-title] svg")).toHaveCount(0);
+      // The first link: the first action, or "詳しく見る" (DIY Keyboards).
+      const actions = item.locator("[data-work-action]");
+      const first =
+        (await actions.count()) > 0
+          ? actions.first()
+          : item.locator("[data-work-more]");
+      const others = await item.locator('[data-work-action="secondary"]').all();
+      await expect.poll(() => underline(first), id).toBe("none");
       await hoverOver(page, item.locator("[data-work-summary]"));
-      if ((await link.count()) > 0) {
-        await expect.poll(() => arrow(link), id).not.toBe("none");
-      } else {
-        await expect(more).toHaveCSS("text-decoration-line", "underline");
+      await expect.poll(() => underline(first), id).toBe("underline");
+      for (const other of others) {
+        expect(await underline(other), id).toBe("none");
       }
-      for (const action of await item.locator("[data-work-action]").all()) {
+      // On another action: that one is underlined, the first is not.
+      for (const other of others) {
+        await other.hover();
+        await expect.poll(() => underline(other), id).toBe("underline");
+        await expect.poll(() => underline(first), id).toBe("none");
+      }
+      for (const action of await actions.all()) {
         await page.mouse.move(0, 0);
         await expect.poll(() => arrow(action)).toBe("none");
-        await expect(action).toHaveCSS("text-decoration-line", "none");
+        await expect.poll(() => underline(action)).toBe("none");
         await action.hover();
         await expect.poll(() => arrow(action), id).not.toBe("none");
-        await expect(action).toHaveCSS("text-decoration-line", "underline");
+        await expect.poll(() => underline(action), id).toBe("underline");
       }
+    }
+  });
+
+  test("ui-revise5 8: the actions' arrow is 14px, the size of the text, and centered on it", async ({
+    page,
+  }) => {
+    await open(page, "/");
+    const actions = page.locator("[data-work-action]");
+    await expect(actions).toHaveCount(12);
+    for (const action of await actions.all()) {
+      const { size, fontSize, offset } = await action.evaluate((element) => {
+        const svg = element.querySelector("svg");
+        const box = svg.getBoundingClientRect();
+        // The line of text: the text node's box.
+        const range = document.createRange();
+        range.selectNodeContents(element.firstChild);
+        const text = range.getBoundingClientRect();
+        return {
+          size: [box.width, box.height],
+          fontSize: getComputedStyle(element).fontSize,
+          offset: box.y + box.height / 2 - (text.y + text.height / 2),
+        };
+      });
+      const label = await action.textContent();
+      expect(fontSize, label).toBe("14px");
+      expect(size, label).toEqual([14, 14]);
+      expect(Math.abs(offset), label).toBeLessThanOrEqual(0.5);
     }
   });
 
@@ -603,16 +647,21 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     expect(offGrid).toEqual([]);
   });
 
-  test("ui-revise4 2: a click on a card goes to its place; an action goes to its own", async ({
+  test("ui-revise4 2, ui-revise5 11: a click on a card goes to its first link; an action goes to its own", async ({
     page,
     context,
   }) => {
     await open(page, "/");
     // Every action is in front of the title link's overlay.
     const actions = page.locator("[data-work-action]");
-    await expect(actions).toHaveCount(6);
-    await expect(page.locator("#apps [data-work-action]")).toHaveCount(0);
-    await expect(page.locator("#vr-3d [data-work-action]")).toHaveCount(0);
+    await expect(actions).toHaveCount(12);
+    await expect(page.locator("#apps [data-work-action]")).toHaveText(
+      Array(4).fill("アプリを開く"),
+    );
+    await expect(page.locator("#vr-3d [data-work-action]")).toHaveText([
+      "BOOTH で見る",
+      "ドキュメント",
+    ]);
     for (const action of await actions.all()) {
       await action.scrollIntoViewIfNeeded();
       const onTop = await action.evaluate((element) => {
@@ -626,8 +675,8 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
       expect(onTop, await action.textContent()).toBe(true);
     }
 
-    // External places open in a new tab: the npm action, and the card of
-    // a library (its documentation) and of the BOOTH item.
+    // External places open in a new tab: the documentation action, and the
+    // card of a library (npm) and of the BOOTH item.
     for (const pattern of [
       "https://www.npmjs.com/**",
       "https://docs.unlibra.com/**",
@@ -649,17 +698,32 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     await newTab(
       () =>
         card(page, "i18n-tiny-astro")
-          .getByRole("link", { name: "npm" })
+          .getByRole("link", { name: "ドキュメント" })
           .click(),
-      "https://www.npmjs.com/package/@i18n-tiny/astro",
-    );
-    await newTab(
-      () => hoverClick(page, card(page, "i18n-tiny-astro")),
       "https://docs.unlibra.com/i18n-tiny/astro/introduction",
     );
+    // The card goes where its first action goes.
+    for (const [id, url] of [
+      ["i18n-tiny-astro", "https://www.npmjs.com/package/@i18n-tiny/astro"],
+      ["tkinter-unblur", "https://pypi.org/project/tkinter-unblur"],
+      ["mururu-blink-lipsync", "https://unlibra-twin.booth.pm/items/9009879"],
+    ]) {
+      if (url.startsWith("https://pypi.org/")) {
+        await context.route(url, (route) =>
+          route.fulfill({ contentType: "text/html", body: "ok" }),
+        );
+      }
+      await expect(
+        card(page, id).locator('[data-work-action="primary"]'),
+      ).toHaveAttribute("href", url);
+      await newTab(() => hoverClick(page, card(page, id)), url);
+    }
     await newTab(
-      () => hoverClick(page, card(page, "mururu-blink-lipsync")),
-      "https://unlibra-twin.booth.pm/items/9009879",
+      () =>
+        card(page, "mururu-blink-lipsync")
+          .getByRole("link", { name: "ドキュメント" })
+          .click(),
+      "https://docs.unlibra.com/mururu-blink-lipsync/",
     );
 
     // The action's name is its label, described by the work's title.
@@ -674,7 +738,11 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
       }),
     ).toHaveAttribute("href", "/lab/svg-optimizer");
 
-    // An app's card opens the tool page in the same tab, without details.
+    // An app's card opens the tool page in the same tab, as its
+    // "アプリを開く" does.
+    await expect(
+      card(page, "svg-optimizer").getByRole("link", { name: "アプリを開く" }),
+    ).toHaveAttribute("href", "/lab/svg-optimizer");
     await hoverClick(page, card(page, "svg-optimizer"));
     await expect(page).toHaveURL("/lab/svg-optimizer");
   });
@@ -688,18 +756,18 @@ const hoverClick = async (page, item) => {
   await page.mouse.click(box.x + 5, box.y + box.height / 2);
 };
 
-test.describe("ui-revise3 1, ui-revise4 1: the hero", () => {
+test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero", () => {
   for (const width of [375, 1280]) {
     test(`${width}px: the h1 is one line in text-2xl, with the GitHub and BOOTH text buttons side by side below it`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 800 });
       await open(page, "/");
-      // No brand symbol (ui-revise4 1).
+      // No brand symbol (ui-revise4 1): the wave and the two logos.
       await expect(page.locator("[data-hero] svg")).toHaveCount(3);
       await expect(
         page.locator('[data-hero] svg[data-icon="arrow-up-right"]'),
-      ).toHaveCount(2);
+      ).toHaveCount(0);
       const heading = page.locator("[data-hero] h1");
       // text-2xl: 24px at every width.
       await expect(heading).toHaveCSS("font-size", "24px");
@@ -715,12 +783,103 @@ test.describe("ui-revise3 1, ui-revise4 1: the hero", () => {
       expect(github.y).toBeGreaterThan(h1.y + h1.height);
       expect(Math.round(booth.y)).toBe(Math.round(github.y));
       expect(booth.x).toBeGreaterThan(github.x + github.width);
-      // Text buttons: no background or ring; the text and the arrow.
-      for (const link of await links.all()) {
+      // Text buttons: no background or ring; the logo (16px, the GitHub
+      // mark and Lucide's shopping-bag), then the text (ui-revise5 1).
+      for (const [i, link] of (await links.all()).entries()) {
         await expect(link).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
         await expect(link).toHaveCSS("box-shadow", "none");
-        await expect(link.locator("svg")).toBeVisible();
+        const icon = link.locator("svg");
+        await expect(icon).toHaveAttribute(
+          "data-icon",
+          ["github", "shopping-bag"][i],
+        );
+        await expect(icon).toBeVisible();
+        const box = await icon.boundingBox();
+        expect([box.width, box.height]).toEqual([16, 16]);
+        const range = await link.evaluate((element) => {
+          const r = document.createRange();
+          r.selectNodeContents(element);
+          r.setStartAfter(element.querySelector("svg"));
+          return r.getBoundingClientRect().x;
+        });
+        expect(range).toBeGreaterThanOrEqual(box.x + box.width);
       }
     });
+  }
+});
+
+test.describe("ui-revise5: the cards and the sections", () => {
+  for (const width of [375, 1280]) {
+    for (const scheme of ["light", "dark"]) {
+      test(`${width}px, ${scheme}: no border on the cards and the icons; round app icons; the large card's SPOTLIGHT and 36px title; the works 24px lower`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 800 });
+        await page.emulateMedia({ colorScheme: scheme });
+        await open(page, "/");
+        await chooseTheme(page, "ja", scheme);
+
+        // 12, 7: no border, ring or outline on any card or icon.
+        const lines = await page
+          .locator("article[data-work]")
+          .evaluateAll((articles) =>
+            articles.flatMap((article) =>
+              [article, article.querySelector("div:has(> img)")].map((e) => {
+                const s = getComputedStyle(e);
+                return {
+                  work: article.dataset.work,
+                  border: [
+                    s.borderTopWidth,
+                    s.borderRightWidth,
+                    s.borderBottomWidth,
+                    s.borderLeftWidth,
+                  ],
+                  shadow: s.boxShadow,
+                  outline: s.outlineStyle,
+                };
+              }),
+            ),
+          );
+        expect(lines.length).toBe(24);
+        for (const { work, border, shadow, outline } of lines) {
+          expect(border, work).toEqual(["0px", "0px", "0px", "0px"]);
+          expect(shadow, work).toBe("none");
+          expect(outline, work).toBe("none");
+        }
+
+        // 6: the Apps' icons are circles.
+        for (const icon of await page
+          .locator("#apps article div:has(> img)")
+          .all()) {
+          const round = await icon.evaluate(
+            (e) =>
+              parseFloat(getComputedStyle(e).borderRadius) >= e.offsetWidth / 2,
+          );
+          expect(round).toBe(true);
+        }
+
+        // 13: SPOTLIGHT above the large card's title, which is 36px.
+        const featured = card(page, "fosty-natural");
+        const spotlight = featured.locator("[data-work-spotlight]");
+        await expect(spotlight).toHaveText("SPOTLIGHT");
+        const title = featured.locator("[data-work-title]");
+        await expect(title).toHaveCSS("font-size", "36px");
+        const above = await spotlight.boundingBox();
+        const below = await title.boundingBox();
+        expect(above.y + above.height).toBeLessThanOrEqual(below.y);
+        expect(Math.abs(above.x - below.x)).toBeLessThan(1);
+
+        // 3: the DIY Keyboards section is the hero's margin and 24px below
+        // the hero (48px below 640px wide, 64px from there).
+        const hero = await page.locator("[data-hero]").boundingBox();
+        const section = await page.locator("#keyboards").boundingBox();
+        const margin = width < 640 ? 48 : 64;
+        expect(Math.round(section.y - (hero.y + hero.height))).toBe(
+          margin + 24,
+        );
+
+        expect(await hasHorizontalScroll(page)).toBe(false);
+      });
+    }
   }
 });
