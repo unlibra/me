@@ -1,16 +1,16 @@
 ---
 // A list item for Apps and Libraries: the former tool site's card (its hover,
 // padding and icon background), with the icon beside the text so that the
-// row reads as one work, and the title, the summary, the year and the links
-// of every card (ui-revise3 3).
+// row reads as one work (ui-revise3 3). The whole card links to the work
+// (ui-revise4 2).
 import CardLinks from "@/components/works/CardLinks.astro";
-import OpenDetails from "@/components/works/OpenDetails.astro";
+import CardTitle from "@/components/works/CardTitle.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
 import {
+  cardHover,
   cardRadius,
   cardSummary,
   cardTitle,
-  listHover,
 } from "@/components/works/card-classes";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
@@ -23,23 +23,15 @@ const { work } = Astro.props;
 ---
 
 <article
-  class:list={["group relative flex gap-4 p-4", cardRadius, listHover]}
+  class:list={["group relative flex gap-4 p-4", cardRadius, cardHover]}
   data-work={work.id}
   data-card="tool"
 >
   <WorkIcon work={work} size="size-12" />
   <div class="flex min-w-0 flex-1 flex-col gap-2">
-    <div class="flex items-baseline justify-between gap-4">
-      <h3 class:list={["text-lg", cardTitle]} data-work-title>
-        <OpenDetails work={work} />
-      </h3>
-      <time
-        datetime={work.year}
-        class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
-      >
-        {work.year}
-      </time>
-    </div>
+    <h3 class:list={["text-lg", cardTitle]} data-work-title>
+      <CardTitle work={work} />
+    </h3>
     <p class={cardSummary} data-work-summary>
       {messages.works[work.id].summary}
     </p>

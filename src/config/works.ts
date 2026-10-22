@@ -3,12 +3,11 @@ import miraImg from "@/assets/works/mira.webp";
 import botsuImg from "@/assets/works/botsu.webp";
 import fostyNaturalImg from "@/assets/works/fosty-natural.webp";
 import fostyDarkImg from "@/assets/works/fosty-dark.webp";
-import dummyImg from "@/assets/works/dummy.svg";
 // Images that show material by other creators (LICENSE, section 3).
 import mururuBlinkLipsyncImg from "@/assets/works/third-party/mururu-blink-lipsync.webp";
 import npmImg from "@/assets/npm.svg";
 import pypiImg from "@/assets/pypi.svg";
-import { site, type SitePath } from "@/config/site";
+import type { SitePath } from "@/config/site";
 import { toolIcons, toolPath } from "@/config/tools";
 import type messages from "@/messages/ja";
 
@@ -16,23 +15,15 @@ import type messages from "@/messages/ja";
 export const categories = ["keyboards", "libraries", "apps", "vr-3d"] as const;
 export type Category = (typeof categories)[number];
 
-/** Subcategories of VR & 3D works, in display order. */
-export const vr3dSubcategories = ["avatar", "asset", "unity-tool"] as const;
-export type Vr3dSubcategory = (typeof vr3dSubcategories)[number];
-
 /** Documentation pages live on docs.unlibra.com (design doc 3.6). */
 export type DocsUrl = `https://docs.unlibra.com/${string}`;
 
-/** Every work has a title and description in the messages. */
+/** Every work has a title and summary in the messages. */
 export type WorkId = keyof (typeof messages)["works"];
 
 interface WorkBase {
   id: WorkId;
-  year: string;
   image: ImageMetadata;
-  /** Where the work is published or sold: a site path or an external URL. */
-  link?: SitePath | `https://${string}`;
-  docs?: DocsUrl;
   /** Shown as a large, full-width card in its category. */
   featured?: true;
   /**
@@ -40,23 +31,32 @@ interface WorkBase {
    * a credit there). Without it, the photo is cropped around its center.
    */
   imagePosition?: "top";
-  /**
-   * The image shows material by other creators: it is kept in
-   * src/assets/works/third-party/ (LICENSE, section 3) and shown as it is,
-   * without the zoom on hover (which would push its credit out of view).
-   */
-  thirdPartyImage?: true;
 }
 
-/** Only VR & 3D works have a subcategory, and they always have one. */
+/**
+ * DIY Keyboards have no links: their cards open the details (ui-revise4 2).
+ * The works of the other categories have a link, and their cards go there
+ * directly; Libraries have their documentation too.
+ */
 export type Work =
+  | (WorkBase & { category: "keyboards"; link?: never; docs?: never })
   | (WorkBase & {
-      category: Exclude<Category, "vr-3d">;
-      subcategory?: never;
+      category: "libraries";
+      /** The package on npm or PyPI. */
+      link: `https://${string}`;
+      docs?: DocsUrl;
+    })
+  | (WorkBase & {
+      category: "apps";
+      /** The tool's page. */
+      link: SitePath;
+      docs?: never;
     })
   | (WorkBase & {
       category: "vr-3d";
-      subcategory: Vr3dSubcategory;
+      /** The item on BOOTH. */
+      link: `https://${string}`;
+      docs?: never;
     });
 
 /** Works in display order within each category. */
@@ -64,32 +64,27 @@ export const works: Work[] = [
   {
     id: "fosty-natural",
     category: "keyboards",
-    year: "2025",
     image: fostyNaturalImg,
     featured: true,
   },
   {
     id: "fosty-dark",
     category: "keyboards",
-    year: "2025",
     image: fostyDarkImg,
   },
   {
     id: "botsu",
     category: "keyboards",
-    year: "2024",
     image: botsuImg,
   },
   {
     id: "mira-zero",
     category: "keyboards",
-    year: "2023",
     image: miraImg,
   },
   {
     id: "i18n-tiny-astro",
     category: "libraries",
-    year: "2025",
     image: npmImg,
     link: "https://www.npmjs.com/package/@i18n-tiny/astro",
     docs: "https://docs.unlibra.com/i18n-tiny/astro/introduction",
@@ -97,7 +92,6 @@ export const works: Work[] = [
   {
     id: "i18n-tiny-next",
     category: "libraries",
-    year: "2025",
     image: npmImg,
     link: "https://www.npmjs.com/package/@i18n-tiny/next",
     docs: "https://docs.unlibra.com/i18n-tiny/next/introduction",
@@ -105,7 +99,6 @@ export const works: Work[] = [
   {
     id: "tkinter-unblur",
     category: "libraries",
-    year: "2020",
     image: pypiImg,
     link: "https://pypi.org/project/tkinter-unblur",
     docs: "https://docs.unlibra.com/tkinter-unblur/",
@@ -113,67 +106,34 @@ export const works: Work[] = [
   {
     id: "tw-palette-generator",
     category: "apps",
-    year: "2025",
     image: toolIcons["tw-palette-generator"],
     link: toolPath("tw-palette-generator", "ja"),
   },
   {
     id: "favicon-generator",
     category: "apps",
-    year: "2025",
     image: toolIcons["favicon-generator"],
     link: toolPath("favicon-generator", "ja"),
   },
   {
     id: "svg-optimizer",
     category: "apps",
-    year: "2025",
     image: toolIcons["svg-optimizer"],
     link: toolPath("svg-optimizer", "ja"),
   },
   {
     id: "password-generator",
     category: "apps",
-    year: "2025",
     image: toolIcons["password-generator"],
     link: toolPath("password-generator", "ja"),
   },
   {
     id: "mururu-blink-lipsync",
     category: "vr-3d",
-    subcategory: "unity-tool",
-    // Provisional (being confirmed with the owner).
-    year: "2026",
     image: mururuBlinkLipsyncImg,
-    thirdPartyImage: true,
     // The image's credit is in its top right corner: keep the top in view.
     imagePosition: "top",
     link: "https://unlibra-twin.booth.pm/items/9009879",
-  },
-  // Dummy items until the real BOOTH items are ready (design doc 3.6).
-  {
-    id: "dummy-avatar",
-    category: "vr-3d",
-    subcategory: "avatar",
-    year: "2026",
-    image: dummyImg,
-    link: site.links.booth,
-  },
-  {
-    id: "dummy-asset",
-    category: "vr-3d",
-    subcategory: "asset",
-    year: "2026",
-    image: dummyImg,
-    link: site.links.booth,
-  },
-  {
-    id: "dummy-unity-tool",
-    category: "vr-3d",
-    subcategory: "unity-tool",
-    year: "2026",
-    image: dummyImg,
-    link: site.links.booth,
   },
 ];
 

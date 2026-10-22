@@ -1,13 +1,12 @@
 ---
-// A work's details in a modal <dialog>, opened by its card's button. Esc
-// (native), the close button and a click on the backdrop close it.
+// A work's details in a modal <dialog>, opened by its card's button (the
+// works without links, DIY Keyboards; ui-revise4 2). Esc (native), the close
+// button and a click on the backdrop close it.
 import { Image } from "astro:assets";
 
 import XMarkIcon from "@/components/icons/XMarkIcon.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
-import { subcategoryChip } from "@/components/works/card-classes";
 import { dialogId, dialogTitleId } from "@/components/works/ids";
-import { linksOf } from "@/components/works/work-links";
 import { isPhoto, photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
@@ -17,9 +16,12 @@ interface Props {
 }
 
 const { work } = Astro.props;
-const { title, description } = messages.works[work.id];
+const entry = messages.works[work.id];
+if (!("description" in entry)) {
+  throw new Error(`${work.id}: no description for its details`);
+}
+const { title, description } = entry;
 const photo = isPhoto(work.category);
-const links = linksOf(work);
 const focusRing =
   "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
 ---
@@ -54,47 +56,18 @@ const focusRing =
       </div>
     )}
     <div class="space-y-3 p-5 sm:p-6">
-      <div class="flex items-baseline justify-between gap-3">
-        <h2
-          id={dialogTitleId(work)}
-          class="text-xl font-semibold text-gray-900 dark:text-white"
-        >
-          {title}
-        </h2>
-        <time
-          datetime={work.year}
-          class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
-        >
-          {work.year}
-        </time>
-      </div>
-      {work.subcategory && (
-        <p class={subcategoryChip}>
-          {messages.vr3dSubcategories[work.subcategory]}
-        </p>
-      )}
+      <h2
+        id={dialogTitleId(work)}
+        class="text-xl font-semibold text-gray-900 dark:text-white"
+      >
+        {title}
+      </h2>
       <p
         class="text-sm leading-relaxed whitespace-pre-line text-gray-600 dark:text-gray-400"
         data-work-description
       >
         {description}
       </p>
-      {links.length > 0 && (
-        <ul class="flex flex-wrap gap-2 pt-2">
-          {links.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                target={link.external ? "_blank" : undefined}
-                rel={link.external ? "noopener noreferrer" : undefined}
-                class={`inline-block rounded-md bg-logo-dark px-3 py-1.5 text-sm font-medium text-white hover:bg-logo-medium ${focusRing}`}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   </div>
 </dialog>

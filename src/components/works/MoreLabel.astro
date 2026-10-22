@@ -1,10 +1,10 @@
 ---
-// "詳しく見る" with a chevron, at the end of every card: says that a click
-// opens the details. It is part of the card button's name (aria-labelledby),
-// so that voice control can use the visible words; it is hidden from screen
-// readers here so that it is not read twice.
-import ChevronRightIcon from "@/components/icons/ChevronRightIcon.astro";
-import { cardLink, moreChevron } from "@/components/works/card-classes";
+// "詳しく見る" at the end of the cards that open their details: says that a
+// click opens them. It is not a link, so it has no arrow (ui-revise4 2). It
+// is part of the card button's name (aria-labelledby), so that voice
+// control can use the visible words; it is hidden from screen readers here
+// so that it is not read twice.
+import { cardLink } from "@/components/works/card-classes";
 import { moreLabelId } from "@/components/works/ids";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
@@ -23,5 +23,4 @@ const { work } = Astro.props;
   data-work-more
 >
   {messages.workDetails.more}
-  <ChevronRightIcon class={moreChevron} />
 </p>

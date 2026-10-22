@@ -1,0 +1,21 @@
+---
+// A card's title: the button that opens the details, or the link to where
+// the card goes (ui-revise4 2).
+import OpenDetails from "@/components/works/OpenDetails.astro";
+import OpenLink from "@/components/works/OpenLink.astro";
+import { cardTarget } from "@/components/works/work-links";
+import type { Work } from "@/config/works";
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+const target = cardTarget(work);
+---
+
+{target.kind === "details" ? (
+  <OpenDetails work={work} />
+) : (
+  <OpenLink work={work} link={target.link} />
+)}

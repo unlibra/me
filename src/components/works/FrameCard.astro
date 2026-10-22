@@ -1,18 +1,17 @@
 ---
 // One frame for the photo categories (DIY Keyboards, VR & 3D): a 4:3 photo,
-// the title, the year, the summary and the links.
+// the title, the summary and the links.
 import { Image } from "astro:assets";
 
 import CardLinks from "@/components/works/CardLinks.astro";
-import OpenDetails from "@/components/works/OpenDetails.astro";
+import CardTitle from "@/components/works/CardTitle.astro";
 import {
+  cardHover,
   cardRadius,
   cardSummary,
   cardTitle,
-  liftOnHover,
-  subcategoryChip,
 } from "@/components/works/card-classes";
-import { photoHover, photoPosition } from "@/config/cards";
+import { photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -27,42 +26,24 @@ const { summary } = messages.works[work.id];
 
 <article
   class:list={[
-    "group relative flex flex-col overflow-hidden border border-gray-200 hover:border-gray-300 dark:border-atom-one-dark-lighter dark:hover:border-gray-600",
+    "group relative flex flex-col overflow-hidden border border-gray-200 dark:border-atom-one-dark-lighter",
     cardRadius,
-    liftOnHover,
+    cardHover,
   ]}
   data-work={work.id}
-  data-subcategory={work.subcategory}
   data-card="frame"
 >
   <div class="aspect-4/3 overflow-hidden bg-gray-100 dark:bg-atom-one-dark-light">
     <Image
       src={work.image}
       alt=""
-      class:list={[
-        "size-full object-cover transition-transform duration-300 motion-reduce:transition-none",
-        photoHover(work),
-        photoPosition(work),
-      ]}
+      class:list={["size-full object-cover", photoPosition(work)]}
     />
   </div>
   <div class="flex flex-1 flex-col gap-2 p-4">
-    <div class="flex items-baseline justify-between gap-4">
-      <h3 class:list={["text-lg", cardTitle]} data-work-title>
-        <OpenDetails work={work} />
-      </h3>
-      <time
-        datetime={work.year}
-        class="shrink-0 text-sm text-gray-500 dark:text-gray-400"
-      >
-        {work.year}
-      </time>
-    </div>
-    {work.subcategory && (
-      <p class={subcategoryChip}>
-        {messages.vr3dSubcategories[work.subcategory]}
-      </p>
-    )}
+    <h3 class:list={["text-lg", cardTitle]} data-work-title>
+      <CardTitle work={work} />
+    </h3>
     <p class={cardSummary} data-work-summary>
       {summary}
     </p>

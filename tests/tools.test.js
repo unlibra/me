@@ -210,12 +210,13 @@ test("E8: the tools are linked from the top page in Japanese, not from the heade
       }
     }
   }
-  // Once on the tool's card (ui-revise3 3) and once in its details.
+  // Once: the tool's card links to it (ui-revise4 2; the details and the
+  // card's action are gone).
   const main = readDist("index.html").match(/<main[\s\S]*?<\/main>/)[0];
   for (const tool of TOOLS) {
     assert.equal(
       hrefs(main).filter((href) => href === pathOf("ja", tool)).length,
-      2,
+      1,
       tool,
     );
     assert.ok(!hrefs(main).includes(pathOf("en", tool)), tool);

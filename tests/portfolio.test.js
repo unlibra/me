@@ -178,21 +178,39 @@ test("ui-revise 5, ui-revise3 1: the only GitHub link in main is the hero's butt
   assert.ok(hrefs(hero).includes("https://github.com/unlibra"));
 });
 
-test("D3: the apps section's details link to the four tools under /lab", () => {
+/** The <a> elements in a piece of HTML (`tag`), with their text. */
+const linksIn = (html) =>
+  [...html.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({
+    tag: m[0],
+    label: text(m[1]),
+    href: attr(m[0], "href"),
+  }));
+
+/** A card's title link (the cards that go to a link), or undefined. */
+const titleLinkOf = (card) =>
+  linksIn(card.match(/<h3[^>]*>([\s\S]*?)<\/h3>/)[1])[0];
+
+/** The <a> elements of a card's actions (outside the title). */
+const actionsOf = (card) =>
+  linksIn(card.replace(/<h3[\s\S]*?<\/h3>/, "")).filter(({ tag }) =>
+    /data-work-action/.test(tag),
+  );
+
+/** Heroicons "arrow-up-right" and "chevron-right" (24 outline). */
+const ARROW = "m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25";
+const CHEVRON = "m8.25 4.5 7.5 7.5-7.5 7.5";
+
+test("D3, ui-revise4 2: each app card links to its tool, in the same tab", () => {
   const cards = cardsOf(sectionOf("apps"));
   assert.deepEqual(
     cards.map((card) => attr(card, "data-work")),
     TOOLS,
   );
-  for (const tool of TOOLS) {
-    const links = [...dialogOf(tool).matchAll(/<a\s[^>]*>/g)].map((m) => m[0]);
-    assert.deepEqual(
-      links.map((a) => attr(a, "href")),
-      [`/lab/${tool}`],
-      tool,
-    );
+  for (const [i, card] of cards.entries()) {
+    const link = titleLinkOf(card);
+    assert.equal(link.href, `/lab/${TOOLS[i]}`, TOOLS[i]);
     // Internal links open in the same tab.
-    assert.doesNotMatch(links[0], /target="_blank"/, tool);
+    assert.doesNotMatch(link.tag, /target=/, TOOLS[i]);
   }
 });
 
@@ -212,76 +230,88 @@ test("D3: each app card shows the tool's icon, and the file is in dist/", () => 
   }
 });
 
-test("D4: the VR & 3D section has the real product first, then one dummy work per subcategory, without the shop link (ui-revise3 3)", () => {
+test("ui-revise4 2: the Apps cards have the former tool site's card texts", () => {
+  // liblab frontend/src/messages/ja/tools.ts: the tool's name, and its
+  // description without the line breaks (tool-card.tsx replaces /\r?\n/g
+  // with ''), as the former tool cards showed them.
+  const liblab = {
+    "tw-palette-generator": [
+      "TWパレットジェネレーター",
+      "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。\nコーポレートカラーやブランドカラーをベースに、50〜950まで統一感のある配色を無料で作成できます。",
+    ],
+    "favicon-generator": [
+      "Faviconジェネレーター",
+      "無料のFavicon一括生成ツール。PNG、JPEG、SVGなどの画像をアップロードするだけで、Webサイトに必要な全サイズのFaviconとApple Touch Iconを自動生成。\n角丸加工や背景色の設定もブラウザ上で簡単に完了します。",
+    ],
+    "svg-optimizer": [
+      "SVG最適化",
+      "無料のSVG最適化・圧縮ツール。品質を保ったままファイルサイズを削減し、Webサイトの読み込み速度を改善。\nブラウザ上で完結するため、セキュアで高速に最適化できます。",
+    ],
+    "password-generator": [
+      "パスワードジェネレーター",
+      "無料の強力なパスワード生成ツール。文字数、大文字・小文字・数字・記号を自由に組み合わせて、セキュアなパスワードを作成。\n紛らわしい文字の除外にも対応し、ブラウザ完結で安全です。",
+    ],
+  };
+  for (const card of cardsOf(sectionOf("apps"))) {
+    const work = attr(card, "data-work");
+    const [name, description] = liblab[work];
+    const title = card.match(/<span id="work-[^"]+-name">([^<]*)<\/span>/)[1];
+    assert.equal(title, name, work);
+    const summary = card.match(/<p[^>]*data-work-summary[^>]*>([^<]*)<\/p>/)[1];
+    assert.equal(summary, description.replace(/\r?\n/g, ""), work);
+  }
+});
+
+test("ui-revise4 2: VR & 3D has the real product only, without subcategories or dummies", () => {
   const section = sectionOf("vr-3d");
   const cards = cardsOf(section);
   assert.deepEqual(
-    cards.map((card) => [
-      attr(card, "data-work"),
-      attr(card, "data-subcategory"),
-    ]),
-    [
-      ["mururu-blink-lipsync", "unity-tool"],
-      ["dummy-avatar", "avatar"],
-      ["dummy-asset", "asset"],
-      ["dummy-unity-tool", "unity-tool"],
-    ],
+    cards.map((card) => attr(card, "data-work")),
+    ["mururu-blink-lipsync"],
   );
-  const labels = {
-    avatar: "アバター",
-    asset: "アセット",
-    "unity-tool": "Unityツール",
-  };
-  for (const card of cards) {
-    const work = attr(card, "data-work");
-    const subcategory = attr(card, "data-subcategory");
-    assert.ok(text(card).includes(labels[subcategory]), `${work}: label`);
-    const dialog = dialogOf(work);
-    assert.ok(text(dialog).includes(labels[subcategory]), work);
-    if (!work.startsWith("dummy-")) continue;
-    const title = text(card.match(/<h3[^>]*>([\s\S]*?)<\/h3>/)[1]);
-    assert.match(title, /ダミー/, `${work}: title`);
-    assert.deepEqual(hrefs(dialog), [SHOP], `${work}: link`);
+  // No subcategory label or attribute anywhere on the page.
+  assert.doesNotMatch(top, /data-subcategory/);
+  const body = text(top.match(/<body[\s\S]*<\/body>/)[0]);
+  for (const label of ["アバター", "アセット", "Unityツール", "ダミー"]) {
+    assert.ok(!body.includes(label), label);
   }
-  // No shop link outside the cards and the dialogs (it was beside the
-  // heading until ui-revise3).
-  const outside = section.replace(/<(article|dialog)[\s\S]*?<\/\1>/g, "");
+  assert.ok(!existsSync(join(root, "src/assets/works/dummy.svg")));
+  assert.equal(globSync("_astro/dummy*", { cwd: dist }).length, 0);
+  // No subcategory in the data or the messages.
+  const works = readFileSync(join(root, "src/config/works.ts"), "utf8");
+  const ja = readFileSync(join(root, "src/messages/ja.ts"), "utf8");
+  for (const source of [works, ja]) {
+    assert.doesNotMatch(source, /subcategor|dummy/i);
+  }
+  // No shop link outside the cards (it was beside the heading until
+  // ui-revise3).
+  const outside = section.replace(/<article[\s\S]*?<\/article>/g, "");
   assert.ok(outside.includes('id="vr-3d-heading"'), "self-check");
   assert.deepEqual(hrefs(outside), [], "links outside the cards");
   assert.ok(!top.includes("BOOTH ショップ"));
 });
 
-test("ui-revise3 (user): the BOOTH product: its card, details, link and image", () => {
+test("ui-revise3 (user), ui-revise4 2: the BOOTH product: its card, link and image", () => {
   const work = "mururu-blink-lipsync";
   const card = cardsOf(sectionOf("vr-3d"))[0];
   assert.equal(attr(card, "data-work"), work);
   assert.equal(attr(card, "data-card"), "frame");
   const title = "【ムルル対応】まばたき＆リップシンク追加ツール";
-  assert.equal(text(card.match(/<button[^>]*>([\s\S]*?)<\/button>/)[1]), title);
+  assert.match(
+    card,
+    new RegExp(`<span id="work-${work}-name">${title}</span>`),
+  );
   assert.match(
     card,
     /<p[^>]*data-work-summary[^>]*>ムルルにまばたきとリップシンクを追加する Unity ツール<\/p>/,
   );
-  assert.match(card, /<time datetime="2026"[^>]*>\s*2026\s*<\/time>/);
-  assert.ok(text(card).includes("Unityツール"));
-
-  // The card's action and the details link to the item on BOOTH.
-  assert.deepEqual(
-    actionsOf(card).map(({ label, href }) => [label, href]),
-    [["BOOTH で見る", MURURU_ITEM]],
-  );
-  const dialog = dialogOf(work);
-  assert.deepEqual(
-    [...dialog.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)].map((m) => [
-      text(m[1]),
-      attr(m[0], "href"),
-    ]),
-    [["BOOTH で見る", MURURU_ITEM]],
-  );
-  assert.equal(
-    text(dialog.match(/<p[^>]*data-work-description[^>]*>([^<]*)<\/p>/)[1]),
-    "ムルルに、まばたき機能と声に合わせて口が動くリップシンク機能を追加するUnityツールです。",
-  );
+  // The card goes to the item on BOOTH, in a new tab, with no other action.
+  const link = titleLinkOf(card);
+  assert.equal(link.href, MURURU_ITEM);
+  assert.match(link.tag, /target="_blank"/);
+  assert.match(link.tag, /rel="noopener noreferrer"/);
+  assert.deepEqual(actionsOf(card), []);
+  assert.doesNotMatch(top, new RegExp(`data-work-dialog="${work}"`));
 
   // The image: the file from the third-party directory (LICENSE section 3),
   // kept in view at the top, where its credit is.
@@ -290,68 +320,56 @@ test("ui-revise3 (user): the BOOTH product: its card, details, link and image", 
     "src/assets/works/third-party/mururu-blink-lipsync.webp",
   );
   assert.ok(existsSync(source));
-  for (const html of [card, dialog]) {
-    const img = html.match(/<img\s[^>]*>/)[0];
-    const src = attr(img, "src");
-    assert.match(src, /^\/_astro\/mururu-blink-lipsync\.[\w-]+\.webp$/);
-    assert.ok(existsSync(join(dist, src.slice(1))), src);
-    assert.equal(attr(img, "width"), "1200");
-    assert.equal(attr(img, "height"), "1200");
-    assert.ok(attr(img, "class").split(/\s+/).includes("object-top"), img);
-  }
+  const img = card.match(/<img\s[^>]*>/)[0];
+  const src = attr(img, "src");
+  assert.match(src, /^\/_astro\/mururu-blink-lipsync\.[\w-]+\.webp$/);
+  assert.ok(existsSync(join(dist, src.slice(1))), src);
+  assert.equal(attr(img, "width"), "1200");
+  assert.equal(attr(img, "height"), "1200");
+  assert.ok(attr(img, "class").split(/\s+/).includes("object-top"), img);
   // The other photos are cropped around the center as before.
   const other = cardsOf(sectionOf("keyboards"))[1].match(/<img\s[^>]*>/)[0];
   assert.ok(attr(other, "class").split(/\s+/).includes("object-center"));
 });
 
-test("ui-revise3 (parent): only the images with other creators' material are not zoomed on hover", () => {
-  // In the data, every work whose image comes from third-party/ is marked
-  // thirdPartyImage, and only those.
-  const source = readFileSync(join(root, "src/config/works.ts"), "utf8");
-  const thirdParty = [
-    ...source.matchAll(
-      /^import (\w+) from "@\/assets\/works\/third-party\/[^"]+";$/gm,
-    ),
-  ].map((m) => m[1]);
-  assert.deepEqual(thirdParty, ["mururuBlinkLipsyncImg"]);
-  const items = [...source.matchAll(/^ {2}\{\n([\s\S]*?)^ {2}\},$/gm)].map(
-    (m) => m[1],
-  );
-  assert.equal(items.length, 15, "self-check of the work items");
-  const marked = [];
-  for (const item of items) {
-    const id = item.match(/id: "([^"]+)"/)[1];
-    const image = item.match(/image: ([^,\n]+),/)[1];
-    const flagged = /^\s+thirdPartyImage: true,$/m.test(item);
-    assert.equal(flagged, thirdParty.includes(image), id);
-    if (flagged) marked.push(id);
+test("ui-revise4 2: every card has the same hover; no photo zooms and no card lifts", async () => {
+  const { cardHover } = await import("../src/components/works/card-classes.ts");
+  // liblab tool-card.tsx: transition-colors hover:bg-gray-100
+  // dark:hover:bg-atom-one-dark-light (and the same on keyboard focus).
+  for (const name of [
+    "transition-colors",
+    "hover:bg-gray-100",
+    "dark:hover:bg-atom-one-dark-light",
+  ]) {
+    assert.ok(cardHover.split(/\s+/).includes(name), name);
   }
-  assert.deepEqual(marked, ["mururu-blink-lipsync"]);
-  // On the page: no zoom class on those images; the other photos keep it.
-  let zoomed = 0;
-  for (const card of cardsOf(top)) {
+  const cards = cardsOf(top);
+  const kinds = new Set();
+  for (const card of cards) {
     const work = attr(card, "data-work");
-    if (attr(card, "data-card") === "tool") continue;
-    const img = card.match(/<img\s[^>]*>/)[0];
-    const zoom = attr(img, "class").includes("group-hover:scale-");
-    assert.equal(zoom, !marked.includes(work), work);
-    if (zoom) zoomed++;
-  }
-  assert.ok(zoomed > 0, "self-check");
-});
-
-test("D4: only VR & 3D works have a subcategory", () => {
-  const all = cardsOf(top);
-  assert.ok(all.length > 0);
-  const vr3d = new Set(cardsOf(sectionOf("vr-3d")));
-  for (const card of all) {
-    if (vr3d.has(card)) continue;
-    assert.equal(
-      attr(card, "data-subcategory"),
-      undefined,
-      attr(card, "data-work"),
+    kinds.add(attr(card, "data-card"));
+    const cls = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
+    for (const name of cardHover.split(/\s+/)) {
+      assert.ok(cls.includes(name), `${work}: ${name}`);
+    }
+    assert.ok(cls.includes("relative"), work);
+    // No other hover: no lift, shadow or border change on the card, and no
+    // zoom or transition on the photo.
+    assert.ok(
+      !cls.some((name) =>
+        /translate|shadow|hover:border|^transition$/.test(name),
+      ),
+      work,
     );
+    for (const img of card.match(/<img\s[^>]*>/g)) {
+      // (The logos' static crop, scale-[2.25], is not a hover.)
+      assert.doesNotMatch(attr(img, "class"), /hover:|transition/, work);
+    }
   }
+  assert.deepEqual([...kinds].sort(), ["featured", "frame", "tool"]);
+  // The data has no flag for the zoom any more.
+  const works = readFileSync(join(root, "src/config/works.ts"), "utf8");
+  assert.doesNotMatch(works, /thirdPartyImage/);
 });
 
 test("ui-revise2 3: Apps and Libraries use the tool card, DIY Keyboards and VR & 3D the 4:3 frame", () => {
@@ -374,7 +392,6 @@ test("ui-revise2 3: Apps and Libraries use the tool card, DIY Keyboards and VR &
         assert.doesNotMatch(card, /aspect-4\/3/, work);
       } else {
         assert.match(card, /<div class="aspect-4\/3[^"]*"><img/, work);
-        assert.match(card, new RegExp(`<time datetime="\\d{4}"`), work);
       }
     }
   }
@@ -405,13 +422,46 @@ test("ui-revise2 3: a featured work is a large card, chosen by the data", () => 
   assert.match(featured[0], /<img[^>]*src="\/_astro\/fosty-natural\./);
 });
 
-test("ui-revise2 3: every card shows its one-line summary and opens its details", () => {
+test("ui-revise4 3: no card and no details show a year", () => {
+  const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
+  assert.doesNotMatch(main, /<time[\s>]/);
+  for (const card of cardsOf(main)) {
+    assert.doesNotMatch(text(card), /\b20\d\d\b/, attr(card, "data-work"));
+  }
+  for (const dialog of main.match(/<dialog[\s\S]*?<\/dialog>/g)) {
+    assert.doesNotMatch(text(dialog), /\b20\d\d\b/);
+  }
+  const works = readFileSync(join(root, "src/config/works.ts"), "utf8");
+  assert.doesNotMatch(works, /\byear\b/);
+});
+
+test("ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; the other cards have none", () => {
   const cards = cardsOf(top);
-  assert.equal(cards.length, 15, "self-check of the work count");
+  assert.equal(cards.length, 12, "self-check of the work count");
+  const keyboards = new Set(
+    cardsOf(sectionOf("keyboards")).map((card) => attr(card, "data-work")),
+  );
+  assert.equal(keyboards.size, 4, "self-check");
+  const dialogs = [...top.matchAll(/<dialog[^>]*data-work-dialog="([^"]+)"/g)];
+  assert.deepEqual(dialogs.map((m) => m[1]).sort(), [...keyboards].sort());
   for (const card of cards) {
     const work = attr(card, "data-work");
-    const dialog = dialogOf(work);
+    // Card images are decorative: the title is the heading beside them.
+    for (const img of card.match(/<img\s[^>]*>/g)) {
+      // Astro writes an empty alt as a bare `alt`.
+      assert.match(img, /\salt(="")?[\s>]/, work);
+    }
+    // The summary: one short line on the card.
+    const summary = card.match(/<p[^>]*data-work-summary[^>]*>([^<]*)<\/p>/);
+    assert.ok(summary, `${work}: summary`);
+    assert.ok(summary[1].trim() !== "" && !summary[1].includes("\n"), work);
 
+    if (!keyboards.has(work)) {
+      // A link card: no button, no "詳しく見る", no dialog.
+      assert.doesNotMatch(card, /<button[\s>]|data-work-more|詳しく見る/, work);
+      continue;
+    }
+    const dialog = dialogOf(work);
     // The title is the button that opens the dialog.
     const button = card.match(/<button[^>]*>([\s\S]*?)<\/button>/);
     const title = text(button[1]);
@@ -426,48 +476,24 @@ test("ui-revise2 3: every card shows its one-line summary and opens its details"
       work,
     );
     assert.equal(attr(button[0], "id"), `work-${work}-open`, work);
+    // "詳しく見る" opens the details, not a link: no arrow (ui-revise4 2).
     assert.match(
       card,
-      new RegExp(`<p id="work-${work}-more"[^>]*data-work-more`),
+      new RegExp(
+        `<p id="work-${work}-more"[^>]*aria-hidden="true"[^>]*data-work-more[^>]*>\\s*詳しく見る\\s*</p>`,
+      ),
       work,
     );
-    // Card images are decorative: the title is the heading beside them.
-    for (const img of card.match(/<img\s[^>]*>/g)) {
-      // Astro writes an empty alt as a bare `alt`.
-      assert.match(img, /\salt(="")?[\s>]/, work);
-    }
-
-    // The summary: one short line on the card. The description (several
-    // lines) is in the details only.
-    const summary = card.match(/<p[^>]*data-work-summary[^>]*>([^<]*)<\/p>/);
-    assert.ok(summary, `${work}: summary`);
-    assert.ok(summary[1].trim() !== "" && !summary[1].includes("\n"), work);
+    assert.deepEqual(linksIn(card), [], `${work}: no links`);
+    // The description (several lines) is in the details only.
     const description = dialog.match(
       /<p[^>]*data-work-description[^>]*>([^<]*)<\/p>/,
     )[1];
     assert.ok(description.length > summary[1].length, `${work}: description`);
     assert.ok(!card.includes(description.trim()), `${work}: not on the card`);
 
-    // "詳しく見る" with a chevron says that a click opens the details.
-    assert.match(
-      card,
-      /<p[^>]*aria-hidden="true"[^>]*data-work-more[^>]*>\s*詳しく見る\s*<svg/,
-      work,
-    );
-    // A photo card lifts on hover and keyboard focus; a list item (Apps,
-    // Libraries) takes the former tool site's hover (ui-revise3 3).
-    const cls = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
-    const photo = attr(card, "data-card") !== "tool";
-    for (const name of [
-      "motion-safe:hover:-translate-y-0.5",
-      "hover:shadow-md",
-      "has-[button:focus-visible]:shadow-md",
-    ]) {
-      assert.equal(cls.includes(name), photo, `${work}: ${name}`);
-    }
-    assert.ok(cls.includes("relative"), work);
-
-    // The dialog: closed, named by the work's title, with a close button.
+    // The dialog: closed, named by the work's title, with a close button,
+    // and no links (DIY Keyboards have none).
     const open = dialog.match(/<dialog[^>]*>/)[0];
     assert.equal(attr(open, "id"), `work-${work}`, work);
     assert.doesNotMatch(open, /\sopen(?=[\s=>])/, work);
@@ -477,111 +503,63 @@ test("ui-revise2 3: every card shows its one-line summary and opens its details"
     );
     assert.equal(text(heading[1]), title, work);
     assert.match(dialog, /<button[^>]*aria-label="閉じる"[^>]*data-work-close/);
+    assert.deepEqual(linksIn(dialog), [], `${work}: dialog links`);
   }
 });
 
-test("ui-revise3 (parent): the card and the details have the same links, labels and order", () => {
-  const linksIn = (html) =>
-    [...html.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)].map((m) => [
-      attr(m[0], "href"),
-      text(m[1]),
-    ]);
-  for (const card of cardsOf(top)) {
-    const work = attr(card, "data-work");
-    assert.deepEqual(linksIn(card), linksIn(dialogOf(work)), work);
-  }
-});
-
-test("ui-revise2 3: the details link to where each work is published", () => {
-  const expected = {
-    // The documentation first, as on the card (ui-revise3).
-    "i18n-tiny-astro": [
-      ["ドキュメント", "https://docs.unlibra.com/i18n-tiny/astro/introduction"],
-      ["npm", "https://www.npmjs.com/package/@i18n-tiny/astro"],
-    ],
-    "tkinter-unblur": [
-      ["ドキュメント", "https://docs.unlibra.com/tkinter-unblur/"],
-      ["PyPI", "https://pypi.org/project/tkinter-unblur"],
-    ],
-    "svg-optimizer": [["ツールを使う", "/lab/svg-optimizer"]],
-    "dummy-asset": [["BOOTH で見る", SHOP]],
-    "fosty-natural": [],
-  };
-  for (const [work, links] of Object.entries(expected)) {
-    const found = [
-      ...dialogOf(work).matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g),
-    ].map((m) => [text(m[1]), attr(m[0], "href")]);
-    assert.deepEqual(found, links, work);
-  }
-});
-
-/** The <a> tags of a card's actions, with their text. */
-const actionsOf = (card) =>
-  [...card.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({
-    tag: m[0],
-    label: text(m[1]),
-    href: attr(m[0], "href"),
-  }));
-
-test("ui-revise3 3: every card shows the title, the summary, the year and its actions", () => {
+test("ui-revise4 2: a card goes to its place directly; actions only where there are two places", () => {
   const npm = (name) => `https://www.npmjs.com/package/@i18n-tiny/${name}`;
   const docs = "https://docs.unlibra.com";
+  // [the title link, the actions]
   const expected = {
-    // DIY Keyboards have no links: "詳しく見る" only.
-    "fosty-natural": [],
-    "fosty-dark": [],
-    botsu: [],
-    "mira-zero": [],
     "i18n-tiny-astro": [
-      ["ドキュメント", `${docs}/i18n-tiny/astro/introduction`],
-      ["npm", npm("astro")],
+      `${docs}/i18n-tiny/astro/introduction`,
+      [
+        ["ドキュメント", `${docs}/i18n-tiny/astro/introduction`],
+        ["npm", npm("astro")],
+      ],
     ],
     "i18n-tiny-next": [
-      ["ドキュメント", `${docs}/i18n-tiny/next/introduction`],
-      ["npm", npm("next")],
+      `${docs}/i18n-tiny/next/introduction`,
+      [
+        ["ドキュメント", `${docs}/i18n-tiny/next/introduction`],
+        ["npm", npm("next")],
+      ],
     ],
     "tkinter-unblur": [
-      ["ドキュメント", `${docs}/tkinter-unblur/`],
-      ["PyPI", "https://pypi.org/project/tkinter-unblur"],
+      `${docs}/tkinter-unblur/`,
+      [
+        ["ドキュメント", `${docs}/tkinter-unblur/`],
+        ["PyPI", "https://pypi.org/project/tkinter-unblur"],
+      ],
     ],
-    ...Object.fromEntries(
-      TOOLS.map((tool) => [tool, [["ツールを使う", `/lab/${tool}`]]]),
-    ),
-    "mururu-blink-lipsync": [["BOOTH で見る", MURURU_ITEM]],
-    "dummy-avatar": [["BOOTH で見る", SHOP]],
-    "dummy-asset": [["BOOTH で見る", SHOP]],
-    "dummy-unity-tool": [["BOOTH で見る", SHOP]],
+    ...Object.fromEntries(TOOLS.map((tool) => [tool, [`/lab/${tool}`, []]])),
+    "mururu-blink-lipsync": [MURURU_ITEM, []],
   };
-  const cards = cardsOf(top);
+  const cards = cardsOf(top).filter(
+    (card) => !cardsOf(sectionOf("keyboards")).includes(card),
+  );
   assert.deepEqual(
     cards.map((card) => attr(card, "data-work")).sort(),
     Object.keys(expected).sort(),
   );
   for (const card of cards) {
     const work = attr(card, "data-work");
-    // Title, summary and year on every card (Apps and Libraries too).
-    assert.match(card, /<h3[^>]*data-work-title[^>]*><button/, work);
-    assert.match(card, /data-work-summary/, work);
-    const year = card.match(/<time datetime="(\d{4})"[^>]*>\s*(\d{4})\s*</);
-    assert.ok(year && year[1] === year[2], `${work}: year`);
-
-    const actions = actionsOf(card);
+    const [href, actions] = expected[work];
+    // The title is the link; its ::after covers the card, so a click
+    // anywhere on the card goes there.
+    const link = titleLinkOf(card);
+    assert.equal(link.href, href, work);
+    assert.match(link.tag, /after:absolute after:inset-0/, work);
+    assert.match(card, /<h3[^>]*data-work-title[^>]*><a\s/, work);
+    assert.match(link.tag, new RegExp(`<span id="work-${work}-name">`), work);
+    const found = actionsOf(card);
     assert.deepEqual(
-      actions.map(({ label, href }) => [label, href]),
-      expected[work],
+      found.map(({ label, href }) => [label, href]),
+      actions,
       work,
     );
-    for (const { tag, href } of actions) {
-      // In front of the title button's overlay, so that a click goes there
-      // directly; described by the work's title.
-      const cls = attr(tag, "class").split(/\s+/);
-      assert.ok(cls.includes("relative") && cls.includes("z-10"), work);
-      assert.equal(attr(tag, "aria-describedby"), `work-${work}-name`, work);
-      assert.match(
-        card,
-        new RegExp(`<button[^>]*><span id="work-${work}-name">`),
-        work,
-      );
+    for (const { tag, href } of [link, ...found]) {
       if (href.startsWith("https://")) {
         assert.match(tag, /target="_blank"/, work);
         assert.match(tag, /rel="noopener noreferrer"/, work);
@@ -589,11 +567,39 @@ test("ui-revise3 3: every card shows the title, the summary, the year and its ac
         assert.doesNotMatch(tag, /target=/, work);
       }
     }
-    // The actions come before "詳しく見る", in one row.
-    const row = card.match(/<div[^>]*data-work-links[\s\S]*<\/p>/)[0];
-    assert.equal(actionsOf(row).length, actions.length, work);
-    assert.ok(row.trimEnd().endsWith("</svg></p>"), `${work}: more is last`);
+    for (const { tag } of found) {
+      // In front of the title link's overlay, so that a click goes there
+      // directly; described by the work's title.
+      const cls = attr(tag, "class").split(/\s+/);
+      assert.ok(cls.includes("relative") && cls.includes("z-10"), work);
+      assert.equal(attr(tag, "aria-describedby"), `work-${work}-name`, work);
+    }
+    // All links are in one row; no row when there are no actions.
+    const row = card.match(/<div[^>]*data-work-links[\s\S]*?<\/div>/);
+    assert.equal(Boolean(row), actions.length > 0, work);
   }
+});
+
+test("ui-revise4 2: the links have the up-right arrow, not the chevron; 詳しく見る has none", () => {
+  const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
+  assert.ok(!main.includes(CHEVRON), "no chevron in main");
+  assert.ok(
+    !existsSync(join(root, "src/components/icons/ChevronRightIcon.astro")),
+  );
+  let links = 0;
+  for (const card of cardsOf(main)) {
+    const work = attr(card, "data-work");
+    for (const { tag } of [titleLinkOf(card), ...actionsOf(card)].filter(
+      Boolean,
+    )) {
+      // `tag` is the whole <a> element.
+      assert.equal(tag.split(ARROW).length - 1, 1, `${work}: arrow`);
+      links++;
+    }
+    const more = card.match(/<p[^>]*data-work-more[\s\S]*?<\/p>/);
+    if (more) assert.doesNotMatch(more[0], /<svg/, `${work}: more`);
+  }
+  assert.equal(links, 8 + 6, "self-check: 8 title links and 6 actions");
 });
 
 test("ui-revise3 3: the photo cards and the list items share the title, summary, link, radius and focus classes", async () => {
@@ -614,11 +620,8 @@ test("ui-revise3 3: the photo cards and the list items share the title, summary,
       classes.cardSummary,
       `${work} summary`,
     );
-    has(
-      card.match(/<p[^>]*data-work-more[^>]*>/)[0],
-      classes.cardLink,
-      `${work} more`,
-    );
+    const more = card.match(/<p[^>]*data-work-more[^>]*>/);
+    if (more) has(more[0], classes.cardLink, `${work} more`);
     for (const { tag } of actionsOf(card)) {
       has(tag, classes.cardLink, `${work} action`);
       has(tag, classes.focusRing, `${work} action focus`);
@@ -641,24 +644,13 @@ test("ui-revise3 3: the photo cards and the list items share the title, summary,
   assert.match(css, /--radius-card:\s*0\.5rem;/);
 });
 
-test("ui-revise3 3: the list items take the former tool site's card hover, without the lift", () => {
+test("ui-revise3 3: the list items take the former tool site's card padding and icon color", () => {
   for (const id of ["libraries", "apps"]) {
     for (const card of cardsOf(sectionOf(id))) {
       const work = attr(card, "data-work");
       const cls = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
-      // tool-card.tsx: p-4 rounded-lg transition-colors hover:bg-gray-100
-      // focus-visible:bg-gray-100 dark:hover:bg-atom-one-dark-light.
-      for (const name of [
-        "p-4",
-        "transition-colors",
-        "hover:bg-gray-100",
-        "has-[button:focus-visible]:bg-gray-100",
-        "dark:hover:bg-atom-one-dark-light",
-        "dark:has-[button:focus-visible]:bg-atom-one-dark-light",
-      ]) {
-        assert.ok(cls.includes(name), `${work}: ${name}`);
-      }
-      assert.ok(!cls.some((name) => /translate|shadow/.test(name)), work);
+      // tool-card.tsx: p-4 rounded-lg.
+      assert.ok(cls.includes("p-4"), work);
     }
   }
   // The apps' icons on the former tools' color.
@@ -669,7 +661,8 @@ test("ui-revise3 3: the list items take the former tool site's card hover, witho
 
 test("D5: the three documentation links point to docs.unlibra.com", () => {
   // The works' links (the footer links to the docs site's top since ui-revise).
-  // Each is on the work's card (ui-revise3 3) and in its details.
+  // Each is on the work's card twice: the title link and the action
+  // (ui-revise4 2).
   const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
   const expected = [
     "https://docs.unlibra.com/i18n-tiny/astro/introduction",
@@ -680,10 +673,8 @@ test("D5: the three documentation links point to docs.unlibra.com", () => {
     hrefs(html)
       .filter((href) => /docs|github\.io/.test(href))
       .sort();
-  const dialogs = main.match(/<dialog[\s\S]*?<\/dialog>/g).join("");
-  assert.deepEqual(docsIn(cardsOf(main).join("")), expected);
-  assert.deepEqual(docsIn(dialogs), expected);
   assert.deepEqual(docsIn(main), [...expected, ...expected].sort());
+  assert.deepEqual(docsIn(cardsOf(main).join("")), docsIn(main));
 });
 
 /** Source files tracked or untracked-but-not-ignored, outside docs/ and tests/. */

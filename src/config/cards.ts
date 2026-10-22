@@ -33,12 +33,3 @@ export const photoPosition = (
   work: Pick<Work, "imagePosition">,
 ): "object-top" | "object-center" =>
   work.imagePosition === "top" ? "object-top" : "object-center";
-
-/**
- * The photo's zoom on hover: none for images with other creators' material
- * (`thirdPartyImage`), which are shown as they are.
- */
-export const photoHover = (
-  work: Pick<Work, "thirdPartyImage">,
-): "group-hover:scale-[1.03]" | null =>
-  work.thirdPartyImage ? null : "group-hover:scale-[1.03]";

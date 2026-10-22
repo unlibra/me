@@ -4,16 +4,15 @@
 import { Image } from "astro:assets";
 
 import CardLinks from "@/components/works/CardLinks.astro";
-import OpenDetails from "@/components/works/OpenDetails.astro";
+import CardTitle from "@/components/works/CardTitle.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
 import {
+  cardHover,
   cardRadius,
   cardSummary,
   cardTitle,
-  liftOnHover,
-  subcategoryChip,
 } from "@/components/works/card-classes";
-import { isPhoto, photoHover, photoPosition } from "@/config/cards";
+import { isPhoto, photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -29,12 +28,11 @@ const photo = isPhoto(work.category);
 
 <article
   class:list={[
-    "group relative col-span-full grid overflow-hidden border border-gray-200 hover:border-gray-300 md:grid-cols-2 dark:border-atom-one-dark-lighter dark:hover:border-gray-600",
+    "group relative col-span-full grid overflow-hidden border border-gray-200 md:grid-cols-2 dark:border-atom-one-dark-lighter",
     cardRadius,
-    liftOnHover,
+    cardHover,
   ]}
   data-work={work.id}
-  data-subcategory={work.subcategory}
   data-card="featured"
 >
   <div class="flex aspect-4/3 items-center justify-center overflow-hidden bg-gray-100 dark:bg-atom-one-dark-light">
@@ -42,27 +40,15 @@ const photo = isPhoto(work.category);
       <Image
         src={work.image}
         alt=""
-        class:list={[
-          "size-full object-cover transition-transform duration-300 motion-reduce:transition-none",
-          photoHover(work),
-          photoPosition(work),
-        ]}
+        class:list={["size-full object-cover", photoPosition(work)]}
       />
     ) : (
       <WorkIcon work={work} size="size-28" />
     )}
   </div>
   <div class="flex flex-col justify-center gap-4 p-6 sm:p-8">
-    <p class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-      <time datetime={work.year}>{work.year}</time>
-      {work.subcategory && (
-        <span class={subcategoryChip}>
-          {messages.vr3dSubcategories[work.subcategory]}
-        </span>
-      )}
-    </p>
     <h3 class:list={["text-2xl sm:text-3xl", cardTitle]} data-work-title>
-      <OpenDetails work={work} />
+      <CardTitle work={work} />
     </h3>
     <p class={cardSummary} data-work-summary>
       {summary}

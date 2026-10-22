@@ -8,6 +8,8 @@ import { chooseTheme, hasHorizontalScroll, open } from "./helpers.js";
 const card = (page, id) => page.locator(`article[data-work="${id}"]`);
 /** A work's detail dialog. */
 const dialog = (page, name) => page.getByRole("dialog", { name, exact: true });
+/** A card's title control: the details button or the link (ui-revise4 2). */
+const titleControl = (item) => item.locator("[data-work-title] :is(a, button)");
 
 test.describe("detail dialog", () => {
   test("a click anywhere on a card opens its details; Escape closes them", async ({
@@ -45,18 +47,18 @@ test.describe("detail dialog", () => {
     page,
   }) => {
     await open(page, "/");
-    const button = card(page, "svg-optimizer").getByRole("button", {
-      name: "SVG最適化",
+    const button = card(page, "botsu").getByRole("button", {
+      name: "没キーボード",
     });
     await expect(button).toHaveAttribute("aria-haspopup", "dialog");
-    const details = dialog(page, "SVG最適化");
+    const details = dialog(page, "没キーボード");
 
     await button.focus();
     await page.keyboard.press("Enter");
     await expect(details).toBeVisible();
     // A click inside the details keeps them open.
     await details
-      .getByText("無料のSVG最適化・圧縮ツール", { exact: false })
+      .getByText("数々のプロトタイプキーボード", { exact: false })
       .click();
     await expect(details).toBeVisible();
     // A click on the backdrop (the corner of the window) closes them.
@@ -67,25 +69,25 @@ test.describe("detail dialog", () => {
     await page.keyboard.press("Enter");
     await details.getByRole("button", { name: "閉じる" }).click();
     await expect(details).toBeHidden();
-
-    // The link in the details opens the tool.
-    await button.click();
-    await details.getByRole("link", { name: "ツールを使う" }).click();
-    await expect(page).toHaveURL("/lab/svg-optimizer");
   });
 
-  test("every card says it opens details; the photo cards lift on hover", async ({
+  test("ui-revise4 2: every card is clickable as a whole; only DIY Keyboards say 詳しく見る", async ({
     page,
   }) => {
     await open(page, "/");
     const cards = page.locator("article[data-work]");
-    await expect(cards).toHaveCount(15);
+    await expect(cards).toHaveCount(12);
     for (const article of await cards.all()) {
-      await expect(article.locator("[data-work-more]")).toBeVisible();
-      await expect(article.locator("[data-work-more]")).toHaveText(
-        "詳しく見る",
-      );
-      // The title button's overlay takes clicks on the whole card.
+      const id = await article.getAttribute("data-work");
+      const keyboard = (await article.locator("button").count()) > 0;
+      const more = article.locator("[data-work-more]");
+      if (keyboard) {
+        await expect(more, id).toHaveText("詳しく見る");
+        await expect(more.locator("svg"), id).toHaveCount(0);
+      } else {
+        await expect(more, id).toHaveCount(0);
+      }
+      // The title control's overlay takes clicks on the whole card.
       const hit = await article.evaluate((element) => {
         const box = element.getBoundingClientRect();
         element.scrollIntoView({ block: "center" });
@@ -96,22 +98,16 @@ test.describe("detail dialog", () => {
         );
         return [
           box.width > 0,
-          target?.closest("[data-work-open]") !== null,
+          target?.closest("[data-work-open], [data-work-link]") !== null,
           target ? getComputedStyle(target).cursor : null,
         ];
       });
-      expect(hit).toEqual([true, true, "pointer"]);
+      expect(hit, id).toEqual([true, true, "pointer"]);
     }
-    const frame = card(page, "botsu");
-    // Tailwind's translate-* set the `translate` property.
-    await expect(frame).toHaveCSS("translate", "none");
-    await frame.hover();
-    await expect
-      .poll(() => frame.evaluate((e) => getComputedStyle(e).translate))
-      .not.toBe("none");
-    await expect
-      .poll(() => frame.evaluate((e) => getComputedStyle(e).boxShadow))
-      .not.toBe("none");
+    await expect(page.locator("dialog[data-work-dialog]")).toHaveCount(4);
+    await expect(page.locator("#keyboards button[data-work-open]")).toHaveCount(
+      4,
+    );
   });
 
   test("the featured card spans the width; the others are in columns", async ({
@@ -234,7 +230,7 @@ test.describe("page width of the top page", () => {
         expect(await hasHorizontalScroll(page)).toBe(false);
         for (const [id, name] of [
           ["fosty-natural", "fosty natural"],
-          ["i18n-tiny-next", "@i18n-tiny/next"],
+          ["mira-zero", "mira zero"],
         ]) {
           await card(page, id).getByRole("button", { name }).click();
           const details = dialog(page, name);
@@ -318,8 +314,8 @@ const sameColor = (actual, expected) =>
   [0, 1, 2].every((i) => Math.abs(actual[i] - expected[i]) <= 1);
 
 /**
- * Moves the mouse over an element of a card. The title button's overlay
- * covers the card, so the pointer is on the overlay there, as for a user.
+ * Moves the mouse over an element of a card. The title's overlay covers the
+ * card, so the pointer is on the overlay there, as for a user.
  */
 const hoverOver = async (page, locator) => {
   await locator.scrollIntoViewIfNeeded();
@@ -331,14 +327,14 @@ const hoverOver = async (page, locator) => {
 const SAMPLES = {
   featured: "fosty-natural",
   frame: "botsu",
-  "frame (VR & 3D)": "dummy-asset",
+  "frame (VR & 3D)": "mururu-blink-lipsync",
   "list (Libraries)": "i18n-tiny-astro",
   "list (Apps)": "svg-optimizer",
 };
 
-test.describe("ui-revise3 3: the cards", () => {
+test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
   for (const scheme of ["light", "dark"]) {
-    test(`${scheme}: the list items fade in the former tool site's background on hover and keyboard focus, without moving`, async ({
+    test(`${scheme}: every card fades in the former tool site's background on hover and keyboard focus, without moving or zooming`, async ({
       page,
     }) => {
       await page.emulateMedia({ colorScheme: scheme });
@@ -349,46 +345,71 @@ test.describe("ui-revise3 3: the cards", () => {
       const hoverColor =
         scheme === "light" ? [243, 244, 246, 1] : [0x33, 0x38, 0x42, 1];
       const background = (item) => srgb(item, "backgroundColor");
-      for (const id of ["svg-optimizer", "tkinter-unblur"]) {
+      const transitions = {};
+      for (const [kind, id] of Object.entries(SAMPLES)) {
         const item = card(page, id);
+        await page.mouse.move(0, 0);
         await item.scrollIntoViewIfNeeded();
-        expect(sameColor(await background(item), [0, 0, 0, 0]), id).toBe(true);
+        await expect
+          .poll(async () => sameColor(await background(item), [0, 0, 0, 0]))
+          .toBe(true);
         const style = await item.evaluate((element) => {
           const s = getComputedStyle(element);
           return {
             property: s.transitionProperty.split(", "),
             duration: s.transitionDuration.split(", ")[0],
             timing: s.transitionTimingFunction,
-            padding: s.padding,
             radius: s.borderRadius,
           };
         });
+        transitions[kind] = style;
         // Tailwind's transition-colors: 150ms, cubic-bezier(0.4, 0, 0.2, 1).
-        expect(style.property).toContain("background-color");
-        expect(style.property).not.toContain("translate");
-        expect(style.duration).toBe("0.15s");
-        expect(style.timing).toBe("cubic-bezier(0.4, 0, 0.2, 1)");
-        expect(style.padding).toBe("16px");
-        expect(style.radius).toBe("8px");
+        expect(style.property, kind).toContain("background-color");
+        expect(style.property, kind).not.toContain("translate");
+        expect(style.property, kind).not.toContain("box-shadow");
+        expect(style.duration, kind).toBe("0.15s");
+        expect(style.timing, kind).toBe("cubic-bezier(0.4, 0, 0.2, 1)");
+        expect(style.radius, kind).toBe("8px");
+        const border = await item.evaluate(
+          (e) => getComputedStyle(e).borderTopColor,
+        );
+        // The image's scale and transform (the logos have a static crop).
+        const images = () =>
+          item.locator("img").evaluateAll((elements) =>
+            elements.map((e) => {
+              const s = getComputedStyle(e);
+              return [s.scale, s.transform, s.transitionDuration];
+            }),
+          );
+        const before = await images();
+        for (const [, , duration] of before) expect(duration, kind).toBe("0s");
 
         await hoverOver(page, item.locator("[data-work-summary]"));
         await expect
-          .poll(async () => sameColor(await background(item), hoverColor), id)
+          .poll(async () => sameColor(await background(item), hoverColor), kind)
           .toBe(true);
+        // Past the transition: nothing else changed.
+        await page.waitForTimeout(400);
         await expect(item).toHaveCSS("translate", "none");
         await expect(item).toHaveCSS("box-shadow", "none");
+        await expect(item).toHaveCSS("border-top-color", border);
+        expect(await images(), kind).toEqual(before);
         await page.mouse.move(0, 0);
         await expect.poll(async () => (await background(item))[3]).toBe(0);
 
         // Keyboard focus on the title shows the same background.
-        await item.locator("[data-work-open]").focus();
+        const control = titleControl(item);
+        await control.focus();
         await page.keyboard.press("Shift+Tab");
         await page.keyboard.press("Tab");
-        await expect(item.locator("[data-work-open]")).toBeFocused();
+        await expect(control).toBeFocused();
         await expect
-          .poll(async () => sameColor(await background(item), hoverColor), id)
+          .poll(async () => sameColor(await background(item), hoverColor), kind)
           .toBe(true);
       }
+      // The same transition on every card.
+      const [first, ...rest] = Object.values(transitions);
+      for (const style of rest) expect(style).toEqual(first);
     });
 
     test(`${scheme}: the photo cards and the list items share the title, summary, link, radius and focus styles`, async ({
@@ -398,12 +419,15 @@ test.describe("ui-revise3 3: the cards", () => {
       await open(page, "/");
       await chooseTheme(page, "ja", scheme);
       const styles = {};
+      const linkStyle = async (locator) => [
+        await srgb(locator, "color"),
+        await locator.evaluate((e) => getComputedStyle(e).fontSize),
+      ];
       for (const [kind, id] of Object.entries(SAMPLES)) {
         const item = card(page, id);
         const title = item.locator("[data-work-title]");
         const summary = item.locator("[data-work-summary]");
-        const more = item.locator("[data-work-more]");
-        const button = item.locator("[data-work-open]");
+        const control = titleControl(item);
         styles[kind] = {
           title: [
             await title.evaluate((e) => getComputedStyle(e).fontWeight),
@@ -416,11 +440,6 @@ test.describe("ui-revise3 3: the cards", () => {
             }),
             await srgb(summary, "color"),
           ],
-          link: [
-            await srgb(more, "color"),
-            await more.evaluate((e) => getComputedStyle(e).fontSize),
-            await more.locator("svg").count(),
-          ],
           radius: await item.evaluate((element) => {
             const icon = element.querySelector("div:has(> img)");
             return [
@@ -430,26 +449,26 @@ test.describe("ui-revise3 3: the cards", () => {
                 : "8px",
             ];
           }),
-          focus: await button.evaluate((e) => {
+          focus: await control.evaluate((e) => {
             const s = getComputedStyle(e, "::after");
             return [s.outlineStyle, s.outlineWidth, s.outlineOffset];
           }),
-          focusColor: await srgb(button, "outlineColor", "::after"),
+          focusColor: await srgb(control, "outlineColor", "::after"),
         };
-        // The actions look like "詳しく見る".
-        for (const action of await item.locator("[data-work-action]").all()) {
-          expect(await srgb(action, "color"), `${kind} action`).toEqual(
-            styles[kind].link[0],
-          );
-          expect(await action.locator("svg").count()).toBe(1);
-          await expect(action).toHaveCSS("font-size", styles[kind].link[1]);
-        }
+        // "詳しく見る" and the actions: one link style.
+        const links = [
+          ...(await item.locator("[data-work-more]").all()),
+          ...(await item.locator("[data-work-action]").all()),
+        ];
+        styles[kind].links = await Promise.all(links.map(linkStyle));
       }
       const [first, ...rest] = Object.values(styles);
+      const linkStyles = Object.values(styles).flatMap((s) => s.links);
+      expect(linkStyles.length).toBeGreaterThan(2);
+      for (const style of linkStyles) expect(style).toEqual(linkStyles[0]);
       for (const [kind, style] of Object.entries(styles)) {
         expect(style.title, `${kind}: title`).toEqual(first.title);
         expect(style.summary, `${kind}: summary`).toEqual(first.summary);
-        expect(style.link, `${kind}: link`).toEqual(first.link);
         // One radius for the photo cards, the list items and the icons.
         expect(style.radius, `${kind}: radius`).toEqual(["8px", "8px"]);
         expect(style.focus, `${kind}: focus`).toEqual(first.focus);
@@ -461,27 +480,37 @@ test.describe("ui-revise3 3: the cards", () => {
     });
   }
 
-  test("the links move their chevron on hover: an action on its own hover, 詳しく見る on the card's", async ({
+  test("ui-revise4 2: the links' up-right arrow moves on hover: an action's on its own hover, the title's on the card's; 詳しく見る underlines", async ({
     page,
   }) => {
     await open(page, "/");
-    const chevron = (locator) =>
-      locator.locator("svg").evaluate((e) => getComputedStyle(e).translate);
+    const arrow = (locator) =>
+      locator
+        .locator('svg[data-icon="arrow-up-right"]')
+        .evaluate((e) => getComputedStyle(e).translate);
     for (const id of Object.values(SAMPLES)) {
       const item = card(page, id);
-      const more = item.locator("[data-work-more]");
       await item.scrollIntoViewIfNeeded();
       await page.mouse.move(0, 0);
-      await expect.poll(() => chevron(more)).toBe("none");
+      const link = item.locator("[data-work-link]");
+      const more = item.locator("[data-work-more]");
+      if ((await link.count()) > 0) {
+        await expect.poll(() => arrow(link)).toBe("none");
+      } else {
+        await expect(more).toHaveCSS("text-decoration-line", "none");
+      }
       await hoverOver(page, item.locator("[data-work-summary]"));
-      await expect.poll(() => chevron(more), id).not.toBe("none");
-      await expect(more).toHaveCSS("text-decoration-line", "underline");
+      if ((await link.count()) > 0) {
+        await expect.poll(() => arrow(link), id).not.toBe("none");
+      } else {
+        await expect(more).toHaveCSS("text-decoration-line", "underline");
+      }
       for (const action of await item.locator("[data-work-action]").all()) {
         await page.mouse.move(0, 0);
-        await expect.poll(() => chevron(action)).toBe("none");
+        await expect.poll(() => arrow(action)).toBe("none");
         await expect(action).toHaveCSS("text-decoration-line", "none");
         await action.hover();
-        await expect.poll(() => chevron(action), id).not.toBe("none");
+        await expect.poll(() => arrow(action), id).not.toBe("none");
         await expect(action).toHaveCSS("text-decoration-line", "underline");
       }
     }
@@ -522,14 +551,16 @@ test.describe("ui-revise3 3: the cards", () => {
     expect(offGrid).toEqual([]);
   });
 
-  test("an action goes to its place directly; elsewhere the card opens the details", async ({
+  test("ui-revise4 2: a click on a card goes to its place; an action goes to its own", async ({
     page,
     context,
   }) => {
     await open(page, "/");
-    // Every action is in front of the title button's overlay.
+    // Every action is in front of the title link's overlay.
     const actions = page.locator("[data-work-action]");
-    await expect(actions).toHaveCount(14);
+    await expect(actions).toHaveCount(6);
+    await expect(page.locator("#apps [data-work-action]")).toHaveCount(0);
+    await expect(page.locator("#vr-3d [data-work-action]")).toHaveCount(0);
     for (const action of await actions.all()) {
       await action.scrollIntoViewIfNeeded();
       const onTop = await action.evaluate((element) => {
@@ -542,35 +573,68 @@ test.describe("ui-revise3 3: the cards", () => {
       });
       expect(onTop, await action.textContent()).toBe(true);
     }
-    // DIY Keyboards: no action, "詳しく見る" only.
-    await expect(page.locator("#keyboards [data-work-action]")).toHaveCount(0);
 
-    // The external actions open in a new tab, without the details.
-    await context.route("https://www.npmjs.com/**", (route) =>
-      route.fulfill({ contentType: "text/html", body: "npm" }),
+    // External places open in a new tab: the npm action, and the card of
+    // a library (its documentation) and of the BOOTH item.
+    for (const pattern of [
+      "https://www.npmjs.com/**",
+      "https://docs.unlibra.com/**",
+      "https://unlibra-twin.booth.pm/**",
+    ]) {
+      await context.route(pattern, (route) =>
+        route.fulfill({ contentType: "text/html", body: "ok" }),
+      );
+    }
+    const newTab = async (click, url) => {
+      const opened = context.waitForEvent("page");
+      await click();
+      const tab = await opened;
+      await tab.waitForLoadState();
+      expect(tab.url()).toBe(url);
+      await tab.close();
+      await expect(page).toHaveURL("/");
+    };
+    await newTab(
+      () =>
+        card(page, "i18n-tiny-astro")
+          .getByRole("link", { name: "npm" })
+          .click(),
+      "https://www.npmjs.com/package/@i18n-tiny/astro",
     );
-    const newPage = context.waitForEvent("page");
-    await card(page, "i18n-tiny-astro")
-      .getByRole("link", { name: "npm" })
-      .click();
-    const tab = await newPage;
-    await tab.waitForLoadState();
-    expect(tab.url()).toBe("https://www.npmjs.com/package/@i18n-tiny/astro");
-    await tab.close();
-    await expect(dialog(page, "@i18n-tiny/astro")).toBeHidden();
+    await newTab(
+      () => hoverClick(page, card(page, "i18n-tiny-astro")),
+      "https://docs.unlibra.com/i18n-tiny/astro/introduction",
+    );
+    await newTab(
+      () => hoverClick(page, card(page, "mururu-blink-lipsync")),
+      "https://unlibra-twin.booth.pm/items/9009879",
+    );
 
     // The action's name is its label, described by the work's title.
     await expect(
       card(page, "tkinter-unblur").getByRole("link", { name: "ドキュメント" }),
     ).toHaveAccessibleDescription("tkinter-unblur");
+    // The card link's name is the title.
+    await expect(
+      card(page, "svg-optimizer").getByRole("link", {
+        name: "SVG最適化",
+        exact: true,
+      }),
+    ).toHaveAttribute("href", "/lab/svg-optimizer");
 
-    // The tool page opens without the details.
-    await card(page, "svg-optimizer")
-      .getByRole("link", { name: "ツールを使う" })
-      .click();
+    // An app's card opens the tool page in the same tab, without details.
+    await hoverClick(page, card(page, "svg-optimizer"));
     await expect(page).toHaveURL("/lab/svg-optimizer");
   });
 });
+
+/** Clicks a card at its summary (on the title's overlay), as a user would. */
+const hoverClick = async (page, item) => {
+  const summary = item.locator("[data-work-summary]");
+  await summary.scrollIntoViewIfNeeded();
+  const box = await summary.boundingBox();
+  await page.mouse.click(box.x + 5, box.y + box.height / 2);
+};
 
 test.describe("ui-revise3 1: the hero", () => {
   for (const width of [375, 1280]) {
@@ -594,28 +658,4 @@ test.describe("ui-revise3 1: the hero", () => {
       expect(booth.x).toBeGreaterThan(github.x + github.width);
     });
   }
-});
-
-test("ui-revise3 (parent): an image with other creators' material is not zoomed on hover; the other photos are", async ({
-  page,
-}) => {
-  await open(page, "/");
-  /** The image's computed scale and transform while its card is hovered. */
-  const hoveredImage = async (id) => {
-    const item = card(page, id);
-    await page.mouse.move(0, 0);
-    await hoverOver(page, item.locator("[data-work-summary]"));
-    await expect(item).toHaveCSS("box-shadow", /rgba/); // the card is hovered
-    const image = item.locator("img");
-    // Past the 300ms transition.
-    await page.waitForTimeout(400);
-    return image.evaluate((element) => {
-      const style = getComputedStyle(element);
-      return [style.scale, style.transform];
-    });
-  };
-  expect(await hoveredImage("mururu-blink-lipsync")).toEqual(["none", "none"]);
-  // The control: another photo grows.
-  const [scale] = await hoveredImage("dummy-asset");
-  expect(scale).toBe("1.03");
 });

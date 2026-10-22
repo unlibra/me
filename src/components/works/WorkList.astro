@@ -1,10 +1,12 @@
 ---
 // The works of one category: the category's cards (featured works as large
-// cards), and each work's detail dialog.
+// cards), and the detail dialogs of the cards that open them (DIY Keyboards,
+// ui-revise4 2).
 import FeaturedCard from "@/components/works/FeaturedCard.astro";
 import FrameCard from "@/components/works/FrameCard.astro";
 import ToolCard from "@/components/works/ToolCard.astro";
 import WorkDialog from "@/components/works/WorkDialog.astro";
+import { cardTarget } from "@/components/works/work-links";
 import { cardKind, cardStyles } from "@/config/cards";
 import type { Category, Work } from "@/config/works";
 
@@ -36,9 +38,11 @@ const cards = {
     return <Card work={work} />;
   })}
 </div>
-{works.map((work) => (
-  <WorkDialog work={work} />
-))}
+{works
+  .filter((work) => cardTarget(work).kind === "details")
+  .map((work) => (
+    <WorkDialog work={work} />
+  ))}
 
 <style is:global>
   /* The page behind an open dialog does not scroll. */

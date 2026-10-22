@@ -1,0 +1,69 @@
+# UI の見直し（4回目）の判断ログ（ui-revise4）
+
+計画：`ui-revise4/plan.md`。ここには、計画とユーザーの指示に書かれていない判断を書く。
+
+## UR4-1 カードの行き先の決め方と、リンクのカードの形
+
+- 決めたこと：
+  - カードの行き先は `work-links.ts` の `cardTarget` が、作品のリンク（`linksOf`：ドキュメント、続いて主のリンク）から決める。リンクがなければ詳細（DIY Keyboards）、あれば先頭のリンク（Libraries はドキュメント、Apps はツールのページ、VR & 3D は BOOTH の商品）。操作のリンクは、行き先が2つ以上あるときだけ、全部（Libraries は「ドキュメント」「npm」または「PyPI」）を出す。カードのタイトルのリンクと「ドキュメント」の操作は同じ行き先になる（計画どおり）
+  - `Work` の型を、カテゴリごとにリンクの有無を決める形にした。DIY Keyboards はリンクもドキュメントも持てない。Libraries・Apps・VR & 3D はリンクが必須。リンクのないリンクのカードや、リンクのある詳細のカードは型で作れない（`tests/types/works.ts`）
+  - リンクのカードは、タイトルを `<a>`（`OpenLink.astro`）にし、詳細のボタンと同じく `::after` でカード全体を覆う。外部のリンクは新しいタブ、ツールのページは同じタブ。名前はタイトルだけ
+  - リンクのカードには、タイトルの後ろに斜め矢印（↗、`text-gray-500`）を付けた。カードのホバーで右上に少し動く。Apps と VR & 3D は操作のリンクを出さないので、これがないとリンクだと分かる手がかりがなくなるため
+  - 詳細のダイアログは、詳細を開くカード（DIY Keyboards）の分だけ作る。リンクの一覧は消した（DIY Keyboards はリンクを持たない）
+- 他の選択肢：タイトルに矢印を付けず、Apps と VR & 3D にも「ツールを使う ↗」などを、リンクではない飾りの文字として出す（「詳しく見る」と同じ扱い）
+- 戻すときの作業：`OpenLink.astro` の矢印を消す。詳細に戻すなら `CardTitle.astro` で `OpenDetails` に戻し、`WorkDialog` にリンクを戻す
+
+## UR4-2 データの整理：年、サブ分類、詳細の説明文、`thirdPartyImage`
+
+- 決めたこと：
+  - 年（`year`）を `Work` の型とデータから消した（表示しないため）。実際の商品の年（2026、親の仮）も消えた
+  - VR & 3D のサブ分類（`subcategory`、`vr3dSubcategories`、文言の「アバター」「アセット」「Unityツール」、`data-subcategory`）を、型・データ・文言から消した。商品が1つになり、表示もしないため
+  - ダミーの商品3件と、その画像 `src/assets/works/dummy.svg`、文言を消した
+  - 詳細を開かなくなった作品（Libraries、Apps、VR & 3D）の説明文（`description`）を `messages.works` から消した。詳細のダイアログは、説明文のない作品ではビルドを止める。消えた文面（Libraries の説明、実際の商品の説明「ムルルに、まばたき機能と…」）は git の履歴（`540c9ab` 以前）にある
+  - 写真の拡大をやめたので、`thirdPartyImage` と `photoHover` を消した。画像を `src/assets/works/third-party/` に置くこと（LICENSE 第3節）と、上を基準に切り抜くこと（`imagePosition: "top"`）は残した
+- 他の選択肢：型とデータは残し、表示だけやめる
+- 戻すときの作業：`works.ts`・`ja.ts`・`tests/types/works.ts` を `540c9ab` から戻し、表示する部品に足す
+
+## UR4-3 ホバーの統一で、写真のカードの枠の色の変化もやめた
+
+- 決めたこと：全カードのホバーを `card-classes.ts` の `cardHover`（liblab の `transition-colors`、`hover:bg-gray-100`、`dark:hover:bg-atom-one-dark-light`、タイトルにキーボードのフォーカスがあるときも同じ背景）の1つにした。写真のカードの浮き上がり・影・画像の拡大に加えて、ホバーで枠の色が濃くなる変化（`hover:border-gray-300`）もやめた。枠そのものは残した。キーボードのフォーカスの条件は、ボタンとリンクの両方に効くよう `has-[h3_:focus-visible]`（タイトルの中のフォーカス）にした
+- 根拠：計画の「背景色が変わる動きに揃える」。E2E で、ホバーの前後で枠の色・影・位置・画像の拡大が変わらないことを確かめる
+- 戻すときの作業：`FrameCard`・`FeaturedCard` に `hover:border-*` を戻す
+
+## UR4-4 リンクのアイコン
+
+- 決めたこと：Heroicons v2.2.0 の `arrow-up-right`（24 outline）を `src/components/icons/ArrowUpRightIcon.astro` に置き、LICENSE 第2節の Heroicons の一覧に足した。使わなくなった `ChevronRightIcon.astro` は消し、一覧からも外した。操作のリンクの矢印は自分のホバーで、タイトルの矢印はカードのホバーで右上に動く（前のシェブロンが右に動いていたのと同じ考え）。「詳しく見る」は詳細を開くボタンの一部なので矢印を付けない。ホバーで下線が付くのは今までどおり
+- 戻すときの作業：アイコンの部品と LICENSE の行を戻す
+
+## 直した既存のテストと理由（N1）
+
+| テスト                                                                                                                                                                       | 直した内容と理由                                                                                                                                                                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `portfolio.test.js` の `D3: the apps section's details link to the four tools under /lab`                                                                                    | `D3, ui-revise4 2: each app card links to its tool, in the same tab` にした（詳細をやめた。指示2の2）                                                                                                                                |
+| `portfolio.test.js` の `D4: the VR & 3D section has the real product first, then one dummy work per subcategory, ...`                                                        | `ui-revise4 2: VR & 3D has the real product only, without subcategories or dummies` にした（指示2の4・2の5）                                                                                                                         |
+| `portfolio.test.js` の `ui-revise3 (user): the BOOTH product: its card, details, link and image`                                                                             | 詳細・年・サブ分類の確認を外し、カードが BOOTH の商品に新しいタブで直接飛ぶこと、操作のリンクがないことを見るようにした（指示2の2〜2の4）                                                                                            |
+| `portfolio.test.js` の `ui-revise3 (parent): only the images with other creators' material are not zoomed on hover`                                                          | `ui-revise4 2: every card has the same hover; no photo zooms and no card lifts` に置き換えた（どの写真も拡大しない。指示2の1）                                                                                                       |
+| `portfolio.test.js` の `D4: only VR & 3D works have a subcategory`                                                                                                           | 消した。サブ分類がないことは上の VR & 3D のテストで見る（指示2の4）                                                                                                                                                                  |
+| `portfolio.test.js` の `ui-revise2 3: Apps and Libraries use the tool card, ...`                                                                                             | 写真のカードの `<time>` の確認を外した（指示2の3）                                                                                                                                                                                   |
+| `portfolio.test.js` の `ui-revise2 3: every card shows its one-line summary and opens its details`                                                                           | `ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; the other cards have none` にした。詳細を開くのは DIY Keyboards だけ、作品の数は 15 から 12（指示2の2・2の5）。浮き上がりの確認は上のホバーのテストに移した |
+| `portfolio.test.js` の `ui-revise3 (parent): the card and the details have the same links, labels and order`                                                                 | 消した。詳細にリンクがなくなった（DIY Keyboards の詳細にリンクがないことは上のテストで見る）                                                                                                                                         |
+| `portfolio.test.js` の `ui-revise2 3: the details link to where each work is published` と `ui-revise3 3: every card shows the title, the summary, the year and its actions` | `ui-revise4 2: a card goes to its place directly; actions only where there are two places` と `ui-revise4 3: no card and no details show a year` にした（指示2の2・2の3）                                                            |
+| `portfolio.test.js` の `ui-revise3 3: the photo cards and the list items share ...`                                                                                          | 「詳しく見る」の確認を、それがあるカードだけにした（指示2の2）                                                                                                                                                                            |
+| `portfolio.test.js` の `ui-revise3 3: the list items take the former tool site's card hover, without the lift`                                                               | ホバーの確認を全カードのテストに移し、余白とアイコンの色だけを見るようにした（指示2の1）                                                                                                                                             |
+| `portfolio.test.js` の `D5: the three documentation links point to docs.unlibra.com`                                                                                         | ドキュメントのリンクがカードに2つ（タイトルと操作）、詳細に0になった（指示2の2）                                                                                                                                                     |
+| `tools.test.js` の `E8: the tools are linked from the top page in Japanese, not from the header`                                                                             | トップから日本語のツールのページへのリンクを2つから1つ（カードのタイトル）にした（指示2の2）                                                                                                                                         |
+| `tests/types/works.ts`                                                                                                                                                       | 年とサブ分類の型のテストを、「年・サブ分類を持てない」「リンクのカードはリンクが必須、DIY Keyboards はリンクを持てない」に置き換えた（UR4-1・UR4-2）                                                                                 |
+| `works.spec.js` の `Enter on the focused title opens the details; ...`                                                                                                       | Apps（SVG最適化）から DIY Keyboards（没キーボード）にし、詳細のリンクの確認を外した（指示2の2）                                                                                                                                      |
+| `works.spec.js` の `every card says it opens details; the photo cards lift on hover`                                                                                         | `ui-revise4 2: every card is clickable as a whole; only DIY Keyboards say 詳しく見る` にした（指示2の1・2の2）                                                                                                                       |
+| `works.spec.js` の `{375,1280}px, {light,dark}: no horizontal scroll, with and without a dialog`                                                                             | 詳細を開く作品を `@i18n-tiny/next` から `mira zero` にした（指示2の2）                                                                                                                                                               |
+| `works.spec.js` の `{light,dark}: the list items fade in the former tool site's background ...`                                                                              | 全カード（大きなカード、写真のカード、VR & 3D、Libraries、Apps）で、同じトランジションと背景になり、位置・影・枠の色・画像が変わらないことを見るようにした（指示2の1）                                                               |
+| `works.spec.js` の `{light,dark}: the photo cards and the list items share ...`                                                                                              | リンクの見た目を「詳しく見る」と操作のリンクのすべてで比べるようにした（「詳しく見る」は DIY Keyboards だけになった）                                                                                                                |
+| `works.spec.js` の `the links move their chevron on hover: ...`                                                                                                              | 斜め矢印（`data-icon="arrow-up-right"`）が動くことを見るようにした（指示2の6）                                                                                                                                                       |
+| `works.spec.js` の `an action goes to its place directly; elsewhere the card opens the details`                                                                              | `ui-revise4 2: a click on a card goes to its place; an action goes to its own` にした。操作のリンクは 14 から 6、カードのクリックでドキュメント・BOOTH（新しいタブ）とツールのページ（同じタブ）に飛ぶ（指示2の2）                   |
+| `works.spec.js` の `ui-revise3 (parent): an image with other creators' material is not zoomed on hover; ...`                                                                 | 消した。どの写真も拡大しないことは上のホバーのテストで見る（指示2の1）                                                                                                                                                               |
+
+## 新しい文言（すべて仮の文面、N5）
+
+| 場所                | 文言                                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Apps のカードの要約 | liblab のツールカードの説明文（`tools.{id}.description` の改行を除いたもの）をそのまま使った。新しい文面ではない |
