@@ -62,7 +62,7 @@ test("H4: the list is in dist/ and has the license text of each shipped package"
     "react",
     "react-dom",
     "@headlessui/react",
-    "@heroicons/react",
+    "@tabler/icons-react",
     "svgo",
     "jszip",
   ]) {
@@ -91,7 +91,8 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
       "@fontsource/geist-mono",
       "@fontsource/line-seed-jp",
       "@headlessui/react",
-      "@heroicons/react",
+      "@tabler/icons",
+      "@tabler/icons-react",
       "astro",
       "boolbase",
       "css-select",
@@ -107,7 +108,6 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
       "immediate",
       "jszip",
       "lie",
-      "lucide-static",
       "mdn-data",
       "mdn-data",
       "nth-check",
@@ -159,8 +159,8 @@ test("H4: license expressions are not wrapped in a second pair of parentheses", 
 test("H5: no build-only package is in the list", () => {
   const names = new Set(listedPackages().map((p) => p.name));
   // Packages that a shipped file is made from (DERIVED_ASSETS) are
-  // devDependencies, and are listed. So is lucide-static, whose icon is
-  // copied into the HTML (OUTSIDE_MODULE_GRAPH, ui-revise5 1).
+  // devDependencies, and are listed. So is @tabler/icons, whose icons are
+  // copied into the HTML (OUTSIDE_MODULE_GRAPH, ui-revise7 8').
   const derived = new Set(
     Object.values(DERIVED_ASSETS).map((asset) => asset.name),
   );
@@ -253,14 +253,22 @@ test("every JavaScript file in dist/ points to the list", () => {
 test("the reasons for the hand-listed packages still hold", () => {
   // OUTSIDE_MODULE_GRAPH
   assert.deepEqual(Object.keys(OUTSIDE_MODULE_GRAPH).sort(), [
+    "@tabler/icons",
     "astro",
-    "lucide-static",
     "tailwindcss",
   ]);
-  // The icons copied from lucide-static are in the top page (ui-revise5).
+  // The icons copied from @tabler/icons are in the pages (ui-revise7 8').
   const top = readFileSync(join(dist, "index.html"), "utf8");
-  assert.match(top, /<svg[^>]*data-icon="box"/);
-  assert.match(top, /<svg[^>]*data-icon="move-up-right"/);
+  for (const icon of ["box", "arrow-up-right", "menu-2", "x", "sun", "moon"]) {
+    assert.match(top, new RegExp(`<svg[^>]*data-icon="${icon}"`), icon);
+  }
+  const tool = readFileSync(
+    join(dist, "lab/password-generator/index.html"),
+    "utf8",
+  );
+  for (const icon of ["world", "chevron-right"]) {
+    assert.match(tool, new RegExp(`<svg[^>]*data-icon="${icon}"`), icon);
+  }
   const html = readFileSync(join(dist, "lab/svg-optimizer/index.html"), "utf8");
   assert.match(html, /customElements\.define\(`astro-island`/);
   const css = globSync("_astro/*.css", { cwd: dist })

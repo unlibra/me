@@ -1,8 +1,10 @@
 ---
 import { serializeJsonLd } from "./json-ld";
 
-// The separator icon is Heroicons v2.2.0 "chevron-right" (24 outline).
-// MIT License, Copyright (c) Tailwind Labs, Inc.
+// The separator icon is Tabler Icons "chevron-right" (outline), copied from
+// the npm package @tabler/icons 3.49.0 (icons/outline/chevron-right.svg).
+// MIT License, Copyright (c) 2020-2026 Paweł Kuna. The full text is in
+// LICENSES/Tabler-MIT.txt.
 
 interface BreadcrumbItem {
   label: string;
@@ -44,18 +46,18 @@ const structuredData = {
       {index > 0 && (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          fill="none"
           viewBox="0 0 24 24"
-          stroke-width="1.5"
+          fill="none"
           stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           class="size-4 shrink-0 text-gray-600 dark:text-gray-400"
           aria-hidden="true"
+          data-icon="chevron-right"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m8.25 4.5 7.5 7.5-7.5 7.5"
-          />
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M9 6l6 6l-6 6"></path>
         </svg>
       )}
       {item.href ? (

@@ -54,7 +54,7 @@ const licenseSources = (text) => {
     // The holder may end with the sentence's period ("Contributors.") or
     // with its own ("Inc."): it is kept, and compared with and without.
     const [license, holder] = lines[fullText - 1].split(
-      /, Copyright \(c\) (?:\d{4} )?/,
+      /, Copyright \(c\) (?:\d{4}(?:-\d{4})? )?/,
     );
     return {
       name: lines[0].split(" (")[0],
@@ -71,7 +71,7 @@ const shown = ({ name, url, license }) => ({ name, url, license });
 
 test("ui-revise6 4: the credited materials are the sources of section 2 of LICENSE, in its order", () => {
   const sources = licenseSources(read("LICENSE"));
-  assert.ok(sources.length >= 4, "self-check: sources found in LICENSE");
+  assert.ok(sources.length >= 3, "self-check: sources found in LICENSE");
   assert.deepEqual(materials.map(shown), sources.map(shown));
 });
 

@@ -24,23 +24,18 @@ The following files contain material by other authors, which is licensed
 under the license shown for each source. Other content in the same file
 follows the rest of this LICENSE.
 
-Heroicons v2.2.0 (https://heroicons.com)
-MIT License, Copyright (c) Tailwind Labs, Inc.
-The full text is in LICENSES/Heroicons-MIT.txt.
+Tabler Icons 3.49.0 (https://tabler.io/icons), from the npm package @tabler/icons
+MIT License, Copyright (c) 2020-2026 Paweł Kuna.
+The full text is in LICENSES/Tabler-MIT.txt.
 
-  - src/components/icons/Bars3Icon.astro
-  - src/components/icons/GlobeIcon.astro
+  - src/components/icons/ArrowUpRightIcon.astro
+  - src/components/icons/BoxIcon.astro
+  - src/components/icons/MenuIcon.astro
   - src/components/icons/MoonIcon.astro
   - src/components/icons/SunIcon.astro
-  - src/components/icons/XMarkIcon.astro
+  - src/components/icons/WorldIcon.astro
+  - src/components/icons/XIcon.astro
   - src/components/ui/Breadcrumb.astro
-
-Lucide 1.52.0 (https://lucide.dev), from the npm package lucide-static
-ISC License, Copyright (c) 2026 Lucide Icons and Contributors.
-The full text is in LICENSES/Lucide-ISC.txt.
-
-  - src/components/icons/BoxIcon.astro
-  - src/components/icons/MoveUpRightIcon.astro
 
 Tailwind CSS v3 color palette (tailwindcss 3.4.18, https://tailwindcss.com)
 and values computed from it

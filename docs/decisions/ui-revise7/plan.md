@@ -37,6 +37,11 @@
    - フッター：変えない（14px）
    - R4 は、この 7 に置き換える
 8. **アイコンを Lucide に統一する。** Heroicons（`@heroicons/react` と、`src/components/icons/` の Heroicons から写した部品）をすべて Lucide の対応するアイコンに置き換え、`@heroicons/react` の依存をなくす。Lucide の版は今の `lucide-static` と同じ 1.52.0 に揃えて固定する（React で使うなら `lucide-react` の同じ版。`src/tools/**` と `src/components/ui/**` の MIT 側から All rights reserved 側を import しない規則は守る）。見た目の大きさは今と揃える（テーマ切り替えの太陽と月は線画になる。ユーザー了承済み）。LICENSE 第2節、`LICENSES/`、クレジットのページ、`/third-party-licenses.txt` から Heroicons を消す。置き換えの対応表（Heroicons → Lucide）を判断ログに書く
+   8'. **（2026-10-23 改訂、8 を置き換える）アイコンを Tabler Icons 3.49.0 に統一する。** Lucide の一部が Feather 由来（MIT、別の帰属）でクレジットが減らないため、ユーザーが見本（Heroicons・Lucide・Tabler の比較）を見て Tabler を選んだ。Heroicons と Lucide をすべて Tabler（outline、線の太さは既定の 2）に置き換え、`@heroicons/react` と `lucide-static` の依存をなくす。
+   - 版は 3.49.0 に固定する。React（`src/tools/**`、`src/components/ui/**`）は `@tabler/icons-react@3.49.0`、Astro の部品は `@tabler/icons@3.49.0` から写して出典のコメントを付ける（今の Lucide の写し方と同じ形）。MIT 側から All rights reserved 側を import しない規則は守る
+   - 対応表（用途：Heroicons/Lucide → Tabler）：メニュー bars-3 → menu-2、言語 globe-alt → world、ダーク moon → moon、ライト sun → sun、閉じる x-mark → x、パンくず chevron-right → chevron-right、開閉 chevron-down → chevron-down、ファイルを追加 document-plus → file-plus、成功 check-circle → circle-check、エラー exclamation-circle → alert-circle、警告 exclamation-triangle → alert-triangle、情報 information-circle → info-circle、画像 photo → photo、追加 plus → plus、安全 shield-check → shield-check、再生成 arrow-path → refresh、コピー clipboard-document → clipboard、コピー済み clipboard-document-check → clipboard-check、削除 trash → trash、カードの矢印 Lucide move-up-right → arrow-up-right、BOOTH Lucide box → box。ここにないアイコンがあれば、同じ考え方で選び判断ログに書く
+   - 見た目の大きさのクラスは今のまま（矢印は文字と同じ 16px で上下中央、BOOTH は 18px）。塗りの版（太陽と月、警告、開閉）も outline にする
+   - LICENSE 第2節、`LICENSES/`、クレジットのページ、`/third-party-licenses.txt`、関連するテストから Heroicons と Lucide（と Feather の検査）を消し、Tabler Icons（MIT License, Copyright (c) 2020-2026 Paweł Kuna）を足す。全文はパッケージの LICENSE をそのまま `LICENSES/` に置く
 9. **ムルルの権利表記を `©Lethal Cats`（©のあとにスペースなし。作者の指定どおり）にする**（クレジットのページ）
 
 ## 受け入れ条件

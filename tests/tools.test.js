@@ -2,7 +2,7 @@
 // license boundary lint rule. Run `npm run build` before `npm test`.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, globSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { ESLint } from "eslint";
@@ -346,4 +346,24 @@ test("the palette history is stored under the former tool's localStorage key", (
     source.match(/localStorage\.\w+Item\(PALETTE_HISTORY_KEY/g)?.length,
     2,
   );
+});
+
+test("ui-revise7 8': the tools' icons are Tabler Icons, through the decorative wrappers of src/components/ui/icons.tsx", () => {
+  const files = globSync("src/{tools,components/ui}/**/*.{ts,tsx,astro}", {
+    cwd: root,
+  });
+  assert.ok(files.length > 20, "self-check");
+  const users = [];
+  for (const file of files) {
+    const text = readFileSync(join(root, file), "utf8");
+    assert.doesNotMatch(text, /@heroicons|lucide/i, file);
+    // Only the wrappers import the package (so every icon is aria-hidden).
+    if (join(root, file) !== join(root, "src/components/ui/icons.tsx")) {
+      assert.doesNotMatch(text, /from "@tabler\/icons-react"/, file);
+    }
+    if (/from "(?:\.\/|@\/components\/ui\/)icons"/.test(text)) users.push(file);
+  }
+  assert.ok(users.length >= 7, "self-check: the tools use the wrappers");
+  const icons = readFileSync(join(root, "src/components/ui/icons.tsx"), "utf8");
+  assert.match(icons, /aria-hidden="true"/);
 });

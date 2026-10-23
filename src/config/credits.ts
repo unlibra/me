@@ -17,16 +17,10 @@ export const characters = [{ name: "ムルル", rights: "©Lethal Cats" }] as co
 /** The material by other authors listed in section 2 of LICENSE, in its order. */
 export const materials: readonly Credit[] = [
   {
-    name: "Heroicons v2.2.0",
-    author: "Tailwind Labs, Inc.",
+    name: "Tabler Icons 3.49.0",
+    author: "Paweł Kuna",
     license: "MIT License",
-    url: "https://heroicons.com",
-  },
-  {
-    name: "Lucide 1.52.0",
-    author: "Lucide Icons and Contributors",
-    license: "ISC License",
-    url: "https://lucide.dev",
+    url: "https://tabler.io/icons",
   },
   {
     name: "Tailwind CSS v3 color palette",

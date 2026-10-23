@@ -1,5 +1,7 @@
 ---
-// Heroicons v2.2.0 "sun" (24 solid). MIT License, Copyright (c) Tailwind Labs, Inc.
+// Tabler Icons "sun" (outline), copied from the npm package
+// @tabler/icons 3.49.0 (icons/outline/sun.svg). MIT License, Copyright (c)
+// 2020-2026 Paweł Kuna. The full text is in LICENSES/Tabler-MIT.txt.
 interface Props {
   class?: string;
 }
@@ -11,8 +13,15 @@ const { class: className } = Astro.props;
   class={className}
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 24 24"
-  fill="currentColor"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
   aria-hidden="true"
+  data-icon="sun"
 >
-  <path d="M12 2.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM7.5 12a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM18.894 6.166a.75.75 0 0 0-1.06-1.06l-1.591 1.59a.75.75 0 1 0 1.06 1.061l1.591-1.59ZM21.75 12a.75.75 0 0 1-.75.75h-2.25a.75.75 0 0 1 0-1.5H21a.75.75 0 0 1 .75.75ZM17.834 18.894a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 1 0-1.061 1.06l1.59 1.591ZM12 18a.75.75 0 0 1 .75.75V21a.75.75 0 0 1-1.5 0v-2.25A.75.75 0 0 1 12 18ZM7.758 17.303a.75.75 0 0 0-1.061-1.06l-1.591 1.59a.75.75 0 0 0 1.06 1.061l1.591-1.59ZM6 12a.75.75 0 0 1-.75.75H3a.75.75 0 0 1 0-1.5h2.25A.75.75 0 0 1 6 12ZM6.697 7.757a.75.75 0 0 0 1.06-1.06l-1.59-1.591a.75.75 0 0 0-1.061 1.06l1.59 1.591Z"></path>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path>
+  <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
 </svg>

@@ -1,5 +1,5 @@
 import { Field, Label, Switch } from "@headlessui/react";
-import { ExclamationTriangleIcon } from "@heroicons/react/24/solid";
+import { IconAlertTriangle } from "@/components/ui/icons";
 import { useCallback } from "react";
 
 import { Slider } from "@/components/ui/slider";
@@ -127,7 +127,7 @@ export function SvgOptionsPanel({
               <div className="mb-3">
                 <span className="flex items-center gap-2 text-base font-medium">
                   {isDangerous && (
-                    <ExclamationTriangleIcon className="size-5 shrink-0" />
+                    <IconAlertTriangle className="size-5 shrink-0" />
                   )}
                   {t.groups[group.id]}
                 </span>

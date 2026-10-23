@@ -1,10 +1,10 @@
 import {
-  ArrowPathIcon,
-  ClipboardDocumentIcon,
-  PlusIcon,
-  TrashIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+  IconClipboard,
+  IconPlus,
+  IconRefresh,
+  IconTrash,
+  IconX,
+} from "@/components/ui/icons";
 import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 
 import { useToast } from "@/components/ui/toast";
@@ -389,7 +389,7 @@ function TailwindPaletteGenerator() {
                 title={t.resetAdjustment}
                 aria-label={t.resetAdjustment}
               >
-                <ArrowPathIcon className="size-5" />
+                <IconRefresh className="size-5" />
               </button>
             </div>
             <div className="space-y-4 px-4">
@@ -426,7 +426,7 @@ function TailwindPaletteGenerator() {
                 title={t.saveToHistory}
                 aria-label={t.saveToHistory}
               >
-                <PlusIcon className="size-5" />
+                <IconPlus className="size-5" />
               </button>
             </div>
 
@@ -486,7 +486,7 @@ function TailwindPaletteGenerator() {
                 title={t.deleteAllHistory}
                 aria-label={t.deleteAllHistory}
               >
-                <TrashIcon className="size-5" />
+                <IconTrash className="size-5" />
               </button>
             </div>
             {paletteHistory.length > 0 ? (
@@ -526,7 +526,7 @@ function TailwindPaletteGenerator() {
                       title={t.deleteFromHistory}
                       aria-label={t.deleteFromHistory}
                     >
-                      <XMarkIcon className="size-4" />
+                      <IconX className="size-4" />
                     </button>
                   </div>
                 ))}
@@ -557,7 +557,7 @@ ${getShadeLabels()
                 title={t.copyConfig}
                 aria-label={t.copyConfig}
               >
-                <ClipboardDocumentIcon className="size-5" />
+                <IconClipboard className="size-5" />
               </button>
             </div>
           </section>

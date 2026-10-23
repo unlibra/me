@@ -84,10 +84,12 @@ export const VIRTUAL_MODULES = {
 export const OUTSIDE_MODULE_GRAPH = {
   astro: "island hydration script, inlined into the HTML of the tool pages",
   tailwindcss: "base styles (preflight) and utilities, generated into the CSS",
-  // A devDependency: two icons are copied into src/components/icons/
-  // (LICENSE, section 2), and are in the HTML of the top page (ui-revise5).
-  "lucide-static":
-    "icons box and move-up-right (icons/box.svg, icons/move-up-right.svg), copied into the HTML of the top page",
+  // A devDependency: the icons of the header, the cards and the hero are
+  // copied into src/components/icons/ and the breadcrumb (LICENSE, section
+  // 2), and are in the HTML of the pages (ui-revise7 8'). The tools' icons
+  // come from @tabler/icons-react, a module of the bundle.
+  "@tabler/icons":
+    "outline icons (icons/outline/*.svg), copied into the HTML of the pages",
 };
 
 /**

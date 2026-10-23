@@ -4,7 +4,7 @@
 // button and a click on the backdrop close it.
 import { Image } from "astro:assets";
 
-import XMarkIcon from "@/components/icons/XMarkIcon.astro";
+import XIcon from "@/components/icons/XIcon.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
 import { dialogId, dialogTitleId } from "@/components/works/ids";
 import { isPhoto } from "@/config/cards";
@@ -39,7 +39,7 @@ const focusRing =
     class={`absolute top-3 right-3 z-10 flex size-9 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 ${focusRing}`}
     data-work-close
   >
-    <XMarkIcon class="size-5" />
+    <XIcon class="size-5" />
   </button>
   <div class="relative max-h-[calc(100dvh-2rem)] overflow-y-auto">
     {photo ? (

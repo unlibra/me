@@ -227,3 +227,39 @@ test("ui-revise7 7 (review): the logotypes keep 28px lines, so the header, the f
     ["20px", "28px", 28],
   ]);
 });
+
+test("ui-revise7 8': the icons are Tabler Icons (outline, stroke 2), hidden from assistive technology", async ({
+  page,
+}) => {
+  for (const path of [
+    "/",
+    "/lab/password-generator",
+    "/lab/tw-palette-generator",
+    "/lab/svg-optimizer",
+    "/lab/favicon-generator",
+  ]) {
+    await open(page, path);
+    const icons = await page.locator("svg").evaluateAll((svgs) =>
+      svgs
+        .filter((svg) => !svg.closest("[data-planet]"))
+        .map((svg) => ({
+          name:
+            svg.dataset.icon ??
+            [...svg.classList].find((c) => c.startsWith("tabler-icon-")),
+          hidden: svg.getAttribute("aria-hidden"),
+          stroke: svg.getAttribute("stroke-width"),
+        })),
+    );
+    expect(icons.length, path).toBeGreaterThan(0);
+    for (const icon of icons) {
+      // The wave of the hero and the GitHub mark are not icons of a set.
+      if (icon.name === undefined || icon.name === "github") continue;
+      expect(icon, path).toEqual({ ...icon, hidden: "true", stroke: "2" });
+    }
+    expect(
+      icons.filter((i) => i.name?.startsWith("tabler-icon-")).length > 0 ||
+        path === "/",
+      path,
+    ).toBe(true);
+  }
+});

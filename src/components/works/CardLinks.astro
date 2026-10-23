@@ -3,7 +3,7 @@
 // "詳しく見る". A card that is a link shows all its links as actions, the
 // one the card goes to first (ui-revise5 9, 11); they are in front of the
 // title link's overlay, so that a click on them goes there.
-import MoveUpRightIcon from "@/components/icons/MoveUpRightIcon.astro";
+import ArrowUpRightIcon from "@/components/icons/ArrowUpRightIcon.astro";
 import MoreLabel from "@/components/works/MoreLabel.astro";
 import {
   actionArrow,
@@ -46,7 +46,7 @@ const actions = target.kind === "link" ? target.actions : [];
       >
         {action.label}
       </span>
-      <MoveUpRightIcon class={actionArrow} />
+      <ArrowUpRightIcon class={actionArrow} />
     </a>
   ))}
   {target.kind === "details" && <MoreLabel work={work} />}

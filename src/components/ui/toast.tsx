@@ -1,11 +1,11 @@
 import { Transition, TransitionChild } from "@headlessui/react";
 import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/solid";
+  IconAlertCircle,
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconInfoCircle,
+  IconX,
+} from "./icons";
 import {
   createContext,
   Fragment,
@@ -137,13 +137,13 @@ function ToastItem({
   const getIcon = () => {
     switch (toast.type) {
       case "success":
-        return <CheckCircleIcon className="size-6 text-white" />;
+        return <IconCircleCheck className="size-6 text-white" />;
       case "error":
-        return <ExclamationCircleIcon className="size-6 text-white" />;
+        return <IconAlertCircle className="size-6 text-white" />;
       case "warning":
-        return <ExclamationTriangleIcon className="size-6 text-white" />;
+        return <IconAlertTriangle className="size-6 text-white" />;
       case "info":
-        return <InformationCircleIcon className="size-6 text-white" />;
+        return <IconInfoCircle className="size-6 text-white" />;
     }
   };
 
@@ -186,7 +186,7 @@ function ToastItem({
               className="shrink-0 rounded-lg p-1 transition-colors hover:bg-white/5"
               aria-label="閉じる"
             >
-              <XMarkIcon className="size-5 stroke-2 text-white" />
+              <IconX className="size-5 stroke-2 text-white" />
             </button>
           </div>
         </TransitionChild>

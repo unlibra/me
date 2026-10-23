@@ -170,8 +170,7 @@ test("F2: listed third-party files exist and start with their attribution", () =
   assert.deepEqual(
     sources.map((s) => s.licenseFile),
     [
-      "LICENSES/Heroicons-MIT.txt",
-      "LICENSES/Lucide-ISC.txt",
+      "LICENSES/Tabler-MIT.txt",
       "LICENSES/tailwindcss-MIT.txt",
       "LICENSES/CC0-1.0.txt",
     ],
@@ -179,7 +178,7 @@ test("F2: listed third-party files exist and start with their attribution", () =
   for (const { heading, licenseFile, files } of sources) {
     assert.ok(existsSync(join(root, licenseFile)), licenseFile);
     assert.ok(files.length > 0, `${heading}: no files listed`);
-    // The first word of the heading names the source (Heroicons, Tailwind, DiceBear).
+    // The first word of the heading names the source (Tabler, Tailwind, DiceBear).
     const name = new RegExp(heading.split(" ")[0], "i");
     for (const file of files) {
       assert.ok(existsSync(join(root, file)), `${file} does not exist`);
@@ -252,15 +251,23 @@ test("F3: LICENSES/MIT.txt is the MIT License for unlibra", () => {
   assert.equal(body, MIT_TEXT);
 });
 
-test("F3: Heroicons and tailwindcss licenses are copied verbatim", () => {
-  for (const [file, pkg] of [
-    ["LICENSES/Heroicons-MIT.txt", "node_modules/@heroicons/react/LICENSE"],
-    ["LICENSES/tailwindcss-MIT.txt", "node_modules/tailwindcss/LICENSE"],
+test("F3, ui-revise7 8': Tabler Icons and tailwindcss licenses are copied verbatim", () => {
+  for (const [file, pkg, holder] of [
+    [
+      "LICENSES/Tabler-MIT.txt",
+      "node_modules/@tabler/icons/LICENSE",
+      "Copyright (c) 2020-2026 Paweł Kuna",
+    ],
+    [
+      "LICENSES/tailwindcss-MIT.txt",
+      "node_modules/tailwindcss/LICENSE",
+      "Copyright (c) Tailwind Labs, Inc.",
+    ],
   ]) {
     const text = read(file);
     assert.equal(text, read(pkg), file);
     const { copyright, body } = splitCopyright(text);
-    assert.equal(copyright, "Copyright (c) Tailwind Labs, Inc.", file);
+    assert.equal(copyright, holder, file);
     assert.equal(body, MIT_TEXT, file);
   }
 });
@@ -340,41 +347,70 @@ test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as mate
   }
 });
 
-test("ui-revise5 1, 6: the Lucide icons are from the pinned lucide-static, whose license is copied verbatim", () => {
+test("ui-revise7 8': the icons are Tabler Icons 3.49.0, pinned; the copied ones are as in @tabler/icons", () => {
   const pkg = JSON.parse(read("package.json"));
   // Pinned: the version in LICENSE and in the icons' comments is the one
-  // installed.
-  assert.equal(pkg.devDependencies["lucide-static"], "1.52.0");
-  const installed = JSON.parse(
-    read("node_modules/lucide-static/package.json"),
-  ).version;
-  assert.equal(installed, "1.52.0");
-  const lucide = thirdPartySources().find((s) =>
-    s.heading.startsWith("Lucide "),
-  );
-  assert.match(lucide.heading, /^Lucide 1\.52\.0 .*lucide-static$/);
-  // box for BOOTH in the hero, move-up-right for the cards' links.
-  const icons = { BoxIcon: "box", MoveUpRightIcon: "move-up-right" };
-  assert.deepEqual(
-    lucide.files,
-    Object.keys(icons).map((c) => `src/components/icons/${c}.astro`),
-  );
-  const text = read("LICENSES/Lucide-ISC.txt");
-  const feather = text.match(
-    /derived from the Feather project:\n\n([^\n]*)/,
-  )[1];
-  for (const [component, name] of Object.entries(icons)) {
-    const file = `src/components/icons/${component}.astro`;
-    const head = headOf(file);
-    assert.match(head, /lucide-static 1\.52\.0/, file);
-    assert.ok(head.includes(`icons/${name}.svg`), file);
-    // ISC only: not one of the icons derived from Feather (MIT).
-    assert.ok(!feather.split(/,\s*/).includes(name), name);
-    assert.doesNotMatch(head, /Feather|Cole Bemis/, file);
+  // installed. The tools use @tabler/icons-react, the Astro parts copies
+  // from @tabler/icons.
+  assert.equal(pkg.dependencies["@tabler/icons-react"], "3.49.0");
+  assert.equal(pkg.devDependencies["@tabler/icons"], "3.49.0");
+  for (const name of ["@tabler/icons", "@tabler/icons-react"]) {
+    const installed = JSON.parse(
+      read(`node_modules/${name}/package.json`),
+    ).version;
+    assert.equal(installed, "3.49.0", name);
   }
-  // The whole license file of the package, as it is (ISC, and the MIT
-  // License of the Feather icons, which this site does not use).
-  assert.equal(text, read("node_modules/lucide-static/LICENSE"));
-  assert.match(text, /^ISC License\n\nCopyright \(c\) 2026 Lucide Icons/);
-  assert.doesNotMatch(section(2), /Feather|Cole Bemis/);
+  // Heroicons and Lucide are gone (ui-revise7 8').
+  for (const field of ["dependencies", "devDependencies"]) {
+    assert.equal(pkg[field]["@heroicons/react"], undefined, field);
+    assert.equal(pkg[field]["lucide-static"], undefined, field);
+    assert.equal(pkg[field]["lucide-react"], undefined, field);
+  }
+  assert.doesNotMatch(license, /Heroicons|Lucide|Feather|Cole Bemis/);
+  assert.deepEqual(
+    readdirSync(join(root, "LICENSES")).filter((f) =>
+      /heroicons|lucide/i.test(f),
+    ),
+    [],
+  );
+  for (const file of sourceFiles().filter((p) => p.startsWith("src/"))) {
+    assert.doesNotMatch(read(file), /@heroicons|lucide/i, file);
+  }
+
+  const tabler = thirdPartySources().find((s) =>
+    s.heading.startsWith("Tabler Icons "),
+  );
+  assert.match(tabler.heading, /^Tabler Icons 3\.49\.0 .*@tabler\/icons$/);
+  const icons = {
+    "src/components/icons/ArrowUpRightIcon.astro": "arrow-up-right",
+    "src/components/icons/BoxIcon.astro": "box",
+    "src/components/icons/MenuIcon.astro": "menu-2",
+    "src/components/icons/MoonIcon.astro": "moon",
+    "src/components/icons/SunIcon.astro": "sun",
+    "src/components/icons/WorldIcon.astro": "world",
+    "src/components/icons/XIcon.astro": "x",
+    "src/components/ui/Breadcrumb.astro": "chevron-right",
+  };
+  assert.deepEqual(tabler.files, Object.keys(icons));
+  const paths = (svg) => [...svg.matchAll(/<path [^>]*>/g)].map((m) => m[0]);
+  const attributes = (path) =>
+    Object.fromEntries(
+      [...path.matchAll(/([\w-]+)="([^"]*)"/g)].map(([, k, v]) => [k, v]),
+    );
+  for (const [file, name] of Object.entries(icons)) {
+    const head = headOf(file);
+    assert.match(head, /@tabler\/icons 3\.49\.0/, file);
+    assert.ok(head.includes(`icons/outline/${name}.svg`), file);
+    // The paths as they are in the package (outline, stroke width 2).
+    const source = read(`node_modules/@tabler/icons/icons/outline/${name}.svg`);
+    const copy = read(file).match(
+      new RegExp(`<svg[^>]*data-icon="${name}"[\\s\\S]*?</svg>`),
+    )[0];
+    assert.deepEqual(
+      paths(copy).map(attributes),
+      paths(source).map(attributes),
+      file,
+    );
+    assert.match(copy, /stroke-width="2"/, file);
+  }
 });

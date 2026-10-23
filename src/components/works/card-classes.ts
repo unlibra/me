@@ -18,7 +18,7 @@ export const cardSummary =
 
 /**
  * Links on the cards (the work's actions and "詳しく見る"): the same color
- * and size. The actions end with the up-right arrow (Lucide "move-up-right"),
+ * and size. The actions end with the up-right arrow (Tabler Icons "arrow-up-right" since ui-revise7),
  * the size of the text (16px since ui-revise7 7) and centered on the line
  * (ui-revise5 6, 8);
  * "詳しく見る" opens the details and has none (ui-revise4 2). In light mode

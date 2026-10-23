@@ -2,8 +2,8 @@
 // Mobile menu: the slide-in panel of the former tool site, as a
 // native <dialog> (focus stays inside, Escape closes it).
 import BrandSymbol from "@/components/BrandSymbol.astro";
-import Bars3Icon from "@/components/icons/Bars3Icon.astro";
-import XMarkIcon from "@/components/icons/XMarkIcon.astro";
+import MenuIcon from "@/components/icons/MenuIcon.astro";
+import XIcon from "@/components/icons/XIcon.astro";
 import type { Locale } from "@/config/locales";
 import { site } from "@/config/site";
 import { categories, categoryHref } from "@/config/works";
@@ -31,7 +31,7 @@ const item =
     aria-controls="mobile-menu"
     data-mobile-menu-open
   >
-    <Bars3Icon class="size-6" />
+    <MenuIcon class="size-6" />
   </button>
 
   <dialog
@@ -53,7 +53,7 @@ const item =
           aria-label={t.closeMenu}
           data-mobile-menu-close
         >
-          <XMarkIcon class="size-6" />
+          <XIcon class="size-6" />
         </button>
       </div>
       <ul class="mt-6 space-y-1">

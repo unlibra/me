@@ -1,5 +1,7 @@
 ---
-// Heroicons v2.2.0 "moon" (24 solid). MIT License, Copyright (c) Tailwind Labs, Inc.
+// Tabler Icons "moon" (outline), copied from the npm package
+// @tabler/icons 3.49.0 (icons/outline/moon.svg). MIT License, Copyright (c)
+// 2020-2026 Paweł Kuna. The full text is in LICENSES/Tabler-MIT.txt.
 interface Props {
   class?: string;
 }
@@ -11,12 +13,14 @@ const { class: className } = Astro.props;
   class={className}
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 24 24"
-  fill="currentColor"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
   aria-hidden="true"
+  data-icon="moon"
 >
-  <path
-    fill-rule="evenodd"
-    d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.7-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z"
-    clip-rule="evenodd"
-  ></path>
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008"></path>
 </svg>

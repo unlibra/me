@@ -1,5 +1,5 @@
 ---
-import GlobeIcon from "@/components/icons/GlobeIcon.astro";
+import WorldIcon from "@/components/icons/WorldIcon.astro";
 import { locales, type Locale } from "@/config/locales";
 import type { SitePath } from "@/config/site";
 import { layoutMessages, localeNames } from "@/messages/layout";
@@ -23,7 +23,7 @@ const t = layoutMessages[lang].language;
     aria-controls="language-menu"
     data-popover-button
   >
-    <GlobeIcon class="size-5" />
+    <WorldIcon class="size-5" />
     <span class="mr-1 hidden text-base font-medium sm:block">{t.label}</span>
   </button>
   <div

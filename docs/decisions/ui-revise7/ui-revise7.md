@@ -81,17 +81,62 @@
 | 404 の見出し／ボタン                                                                                     | 24/32、14/20                  | 24/36、16/24                                             |
 | ドロップのオーバーレイの文字（20px）                                                                     | 20/28                         | 20/32                                                    |
 
+## UR7-8 Tabler Icons への統一（指示8'）
+
+- 決めたこと：
+  - `@tabler/icons-react@3.49.0`（`dependencies`）と `@tabler/icons@3.49.0`（`devDependencies`。Astro の部品の写しの出どころ）を固定の版で入れ、`@heroicons/react` と `lucide-static` を消した
+  - ツール（`src/tools/**`、`src/components/ui/**`）のアイコンは、`src/components/ui/icons.tsx`（MIT 側）から使う。ここで `@tabler/icons-react` のアイコンを包み、`aria-hidden="true"` を付ける。Heroicons の React 部品は `aria-hidden` を自分で付けていたが、Tabler の部品は付けないため。`@tabler/icons-react` を直接 import するのはこのファイルだけ（テストで確かめる）
+  - Astro の部品は、パッケージの `icons/outline/*.svg` を写した（パスと属性はパッケージのまま。Tabler のファイルにある見えない外枠のパス `M0 0h24v24H0z` も含む）。名前を Tabler のアイコン名に合わせた：`Bars3Icon` → `MenuIcon`、`GlobeIcon` → `WorldIcon`、`XMarkIcon` → `XIcon`、`MoveUpRightIcon` → `ArrowUpRightIcon`（`SunIcon`、`MoonIcon`、`BoxIcon` はそのまま）。どれにも `data-icon`（Tabler の名前）を付けた。パンくずの矢印は、今までどおり `Breadcrumb.astro`（MIT 側）の中に写した
+  - 大きさのクラスは変えていない。線の太さは既定の 2。`stroke-2` のクラス（Heroicons で線を太くしていたもの）は、同じ値なのでそのまま残した
+  - LICENSE 第2節は、Heroicons と Lucide の2つを「Tabler Icons 3.49.0 (https://tabler.io/icons), from the npm package @tabler/icons」の1つにまとめた。対象は写した7つの部品と `Breadcrumb.astro`。`LICENSES/Heroicons-MIT.txt` と `LICENSES/Lucide-ISC.txt` を消し、`LICENSES/Tabler-MIT.txt`（パッケージの LICENSE そのまま。`@tabler/icons-react` も同じ文面）を足した。クレジットのページは、素材名「Tabler Icons 3.49.0」、著作者「Paweł Kuna」、ライセンス「MIT License」、参照先「https://tabler.io/icons」。README のライセンスの説明も合わせた
+  - `/third-party-licenses.txt` には、バンドルに入る `@tabler/icons-react` と、HTML に写した `@tabler/icons`（`OUTSIDE_MODULE_GRAPH`。今までの `lucide-static` と同じ扱い）が載る
+- 対応表（Heroicons / Lucide → Tabler、すべて outline）：
+
+| 用途                                           | 前                                      | 後              |
+| ---------------------------------------------- | --------------------------------------- | --------------- |
+| モバイルのメニュー                             | Heroicons bars-3                        | menu-2          |
+| 言語                                           | Heroicons globe-alt                     | world           |
+| テーマ（ダーク）                               | Heroicons moon（solid）                 | moon            |
+| テーマ（ライト）                               | Heroicons sun（solid）                  | sun             |
+| 閉じる（メニュー、ダイアログ、トースト、履歴） | Heroicons x-mark                        | x               |
+| パンくず                                       | Heroicons chevron-right                 | chevron-right   |
+| 開閉（ツールのオプション）                     | Heroicons chevron-down（20 solid）      | chevron-down    |
+| ドロップのオーバーレイ                         | Heroicons document-plus                 | file-plus       |
+| トースト（成功）                               | Heroicons check-circle（solid）         | circle-check    |
+| トースト（エラー）                             | Heroicons exclamation-circle（solid）   | alert-circle    |
+| トースト（警告）、SVG の危険なオプション       | Heroicons exclamation-triangle（solid） | alert-triangle  |
+| トースト（情報）                               | Heroicons information-circle（solid）   | info-circle     |
+| プレビューの案内                               | Heroicons photo                         | photo           |
+| 追加（画像を選ぶ、履歴に追加）                 | Heroicons plus                          | plus            |
+| プライバシーの注意                             | Heroicons shield-check                  | shield-check    |
+| 再生成、リセット                               | Heroicons arrow-path                    | refresh         |
+| コピー                                         | Heroicons clipboard-document            | clipboard       |
+| コピー済み                                     | Heroicons clipboard-document-check      | clipboard-check |
+| 履歴を消す                                     | Heroicons trash                         | trash           |
+| カードのリンクの矢印                           | Lucide move-up-right                    | arrow-up-right  |
+| ヒーローの BOOTH                               | Lucide box                              | box             |
+
+- 他の選択肢：ツールで `@tabler/icons-react` を直接 import し、使う場所ごとに `aria-hidden` を書く（書き漏れが起きやすい）。Astro の部品の名前を変えない（`XMarkIcon` が Tabler の `x` を描くなど、名前と中身がずれる）
+- 戻すときの作業：`package.json`／`package-lock.json`、`src/components/icons/`、`Breadcrumb.astro`、`src/components/ui/icons.tsx` とその使い手、LICENSE 第2節、`LICENSES/`、`credits.ts`、README、`scripts/third-party-licenses.mjs` の `OUTSIDE_MODULE_GRAPH`、下の表のテストを戻す
+
 ## 直した既存のテストと理由（R1）
 
-| テスト                                                                                               | 直した内容と理由                                                                                                      |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `portfolio.test.js` の `ui-revise3 (user), ui-revise4 2, ui-revise5 5: the BOOTH product`            | 画像の高さを 1200 から 900 に（指示1）、`object-top` を `object-center` に（指示2）。名前に `ui-revise7 1 2` を足した |
-| `portfolio.test.js` の `ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero ...`                      | 文字が `text-base` で `text-sm` でないことを足した（指示4）                                                           |
-| `works.spec.js` の `ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero`                              | アイコンの大きさを 16px から 18px に（UR7-2）。文字が 16px、アイコンと文字の縦の中心、1行であることを足した           |
-| `third-party-licenses.test.js` の `H4/H5: the list has exactly the packages ...`                     | `@fontsource/roboto-mono` を `@fontsource/geist-mono` に（指示3）                                                     |
-| `build.test.js` の `A4: no Vercel references in build output and source`                             | UR7-3                                                                                                                 |
-| `portfolio.test.js` の `ui-revise3 1, ...: the hero has the h1 ...`                                  | 見出しのクラスを `text-[1.75rem]/9` から `text-[1.75rem]/11` に（指示7）                                              |
-| `portfolio.test.js` の `ui-revise4 2, ui-revise5 2, 6: the actions have Lucide's up-right arrow ...` | 矢印の大きさを `size-3.5` から `size-4` に（指示7）                                                                   |
-| `works.spec.js` の `ui-revise5 6, 8: the actions' arrow is ... 14px ...`                             | 文字と矢印を 14px から 16px に（指示7）。名前に `ui-revise7 7` を足した                                               |
-| `works.spec.js` の `light/dark: the photo cards and the list items share ...`                        | 説明文の行の高さを 24px から 28px に（指示7）                                                                         |
-| `portfolio.test.js` の `ui-revise7 2`（レビューの任意の指摘）                                        | 任意値（`object-[...]`）と `object-position` も検出するようにした                                                     |
+| テスト                                                                                                               | 直した内容と理由                                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `portfolio.test.js` の `ui-revise3 (user), ui-revise4 2, ui-revise5 5: the BOOTH product`                            | 画像の高さを 1200 から 900 に（指示1）、`object-top` を `object-center` に（指示2）。名前に `ui-revise7 1 2` を足した                                                                           |
+| `portfolio.test.js` の `ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero ...`                                      | 文字が `text-base` で `text-sm` でないことを足した（指示4）                                                                                                                                     |
+| `works.spec.js` の `ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero`                                              | アイコンの大きさを 16px から 18px に（UR7-2）。文字が 16px、アイコンと文字の縦の中心、1行であることを足した                                                                                     |
+| `third-party-licenses.test.js` の `H4/H5: the list has exactly the packages ...`                                     | `@fontsource/roboto-mono` を `@fontsource/geist-mono` に（指示3）                                                                                                                               |
+| `build.test.js` の `A4: no Vercel references in build output and source`                                             | UR7-3                                                                                                                                                                                           |
+| `portfolio.test.js` の `ui-revise3 1, ...: the hero has the h1 ...`                                                  | 見出しのクラスを `text-[1.75rem]/9` から `text-[1.75rem]/11` に（指示7）                                                                                                                        |
+| `portfolio.test.js` の `ui-revise4 2, ui-revise5 2, 6: the actions have Lucide's up-right arrow ...`                 | 矢印の大きさを `size-3.5` から `size-4` に（指示7）                                                                                                                                             |
+| `works.spec.js` の `ui-revise5 6, 8: the actions' arrow is ... 14px ...`                                             | 文字と矢印を 14px から 16px に（指示7）。名前に `ui-revise7 7` を足した                                                                                                                         |
+| `works.spec.js` の `light/dark: the photo cards and the list items share ...`                                        | 説明文の行の高さを 24px から 28px に（指示7）                                                                                                                                                   |
+| `portfolio.test.js` の `ui-revise7 2`（レビューの任意の指摘）                                                        | 任意値（`object-[...]`）と `object-position` も検出するようにした                                                                                                                               |
+| `credits.test.js` の `ui-revise6 4, ui-revise7 9: the credits page has ... the character`                            | 権利表記を `© Lethal Cats` から `©Lethal Cats` に（指示9）。© のあとにスペースがないことを足した                                                                                                |
+| `credits.test.js` の `licenseSources` と `the credited materials are the sources of section 2`                       | Copyright の年を範囲（`2020-2026`）でも読めるようにした。出どころの数の自己検査を4から3に（Heroicons と Lucide が Tabler Icons の1つになったため。UR7-8）                                       |
+| `license.test.js` の F2（ライセンスファイルの一覧）と F3（`Heroicons and tailwindcss licenses are copied verbatim`） | Heroicons と Lucide のファイルを `LICENSES/Tabler-MIT.txt` に。F3 は Tabler と tailwindcss の LICENSE がパッケージと同じであることを見る（UR7-8）                                               |
+| `license.test.js` の `ui-revise5 1, 6: the Lucide icons are from the pinned lucide-static ...`                       | `ui-revise7 8': the icons are Tabler Icons 3.49.0 ...` に置き換えた。版の固定、写した部品のパスがパッケージと同じこと、Heroicons・Lucide・Feather が LICENSE と `src/` に残っていないことを見る |
+| `third-party-licenses.test.js` の H4、H4/H5、H5、`the reasons for the hand-listed packages still hold`               | `@heroicons/react` と `lucide-static` を `@tabler/icons-react` と `@tabler/icons` に。HTML に写したアイコンが各ページにあることを見る（UR7-8）                                                  |
+| `portfolio.test.js` のヒーローと、カードのリンクの矢印のテスト                                                       | Lucide の box と move-up-right を、Tabler の box と arrow-up-right に。前の矢印（Heroicons、Lucide）とシェブロン（Heroicons、Tabler）がないことを見る                                           |
+| `works.spec.js` の矢印の `data-icon`                                                                                 | `move-up-right` を `arrow-up-right` に                                                                                                                                                          |

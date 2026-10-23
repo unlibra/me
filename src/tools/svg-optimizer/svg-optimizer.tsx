@@ -3,12 +3,12 @@ import {
   DisclosureButton,
   DisclosurePanel,
 } from "@headlessui/react";
-import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import {
-  PhotoIcon,
-  PlusIcon,
-  ShieldCheckIcon,
-} from "@heroicons/react/24/outline";
+  IconChevronDown,
+  IconPhoto,
+  IconPlus,
+  IconShieldCheck,
+} from "@/components/ui/icons";
 import {
   useCallback,
   useEffect,
@@ -196,7 +196,7 @@ function SvgOptimizer() {
               onClick={handleFileButtonClick}
               className="flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-base font-medium text-white outline-hidden transition-colors hover:bg-sky-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
             >
-              <PlusIcon className="size-5 stroke-2" />
+              <IconPlus className="size-5 stroke-2" />
               {common.selectImage}
             </button>
             <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
@@ -206,7 +206,7 @@ function SvgOptimizer() {
             </p>
             {/* Privacy Notice */}
             <div className="flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 dark:border-sky-950 dark:bg-sky-950">
-              <ShieldCheckIcon className="size-5 shrink-0" />
+              <IconShieldCheck className="size-5 shrink-0" />
               <div className="text-sm leading-6">{common.privacyNotice}</div>
             </div>
           </div>
@@ -217,7 +217,7 @@ function SvgOptimizer() {
               <div className="dark:bg-atom-one-dark-light overflow-hidden rounded-lg bg-gray-100">
                 <DisclosureButton className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-hidden transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
                   <h6 className="text-base font-semibold">{t.options}</h6>
-                  <ChevronDownIcon
+                  <IconChevronDown
                     className={`h-5 w-5 transition-transform ${
                       open ? "rotate-180" : ""
                     }`}
@@ -244,7 +244,7 @@ function SvgOptimizer() {
               <CheckerboardPreview
                 emptyState={
                   <div className="text-center text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    <PhotoIcon className="mx-auto mb-2 h-12 w-12" />
+                    <IconPhoto className="mx-auto mb-2 h-12 w-12" />
                     <p>{t.previewPlaceholder.line1}</p>
                     <p>{t.previewPlaceholder.line2}</p>
                   </div>

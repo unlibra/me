@@ -39,13 +39,22 @@ const TOOLS = [
 ];
 
 /**
- * The former arrow (Heroicons "arrow-up-right", 24 outline), the arrow since
- * ui-revise5 6 (a path of Lucide "move-up-right") and Heroicons
- * "chevron-right".
+ * The former arrows (Heroicons "arrow-up-right" until ui-revise5 6, Lucide
+ * "move-up-right" until ui-revise7 8'), the arrow since ui-revise7 8' (a
+ * path of Tabler Icons "arrow-up-right") and the chevrons (Heroicons and
+ * Tabler Icons "chevron-right").
  */
-const HEROICONS_ARROW = "m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25";
-const ARROW = 'd="M19 5L5 19"';
-const CHEVRON = "m8.25 4.5 7.5 7.5-7.5 7.5";
+const FORMER_ARROWS = [
+  "m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25",
+  'd="M19 5L5 19"',
+];
+const ARROW = 'd="M17 7l-10 10"';
+const CHEVRONS = ["m8.25 4.5 7.5 7.5-7.5 7.5", 'd="M9 6l6 6l-6 6"'];
+/** The paths of an SVG, without the invisible bounding box of Tabler Icons. */
+const svgPaths = (svg) =>
+  [...svg.matchAll(/\sd="([^"]+)"/g)]
+    .map((m) => m[1])
+    .filter((d) => d !== "M0 0h24v24H0z");
 
 const top = readDist("index.html");
 const { cardKind, cardStyles } = await import("../src/config/cards.ts");
@@ -145,17 +154,16 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
   // The buttons below the text: GitHub and BOOTH (site.links), new tabs.
   const links = hero.slice(hero.indexOf("</h1>"));
   // The GitHub mark as in the former footer (GitHubIcon.astro), and
-  // Lucide's box (lucide-static 1.52.0, chosen in ui-revise5) as it is in
-  // the package.
+  // a box (chosen in ui-revise5; Tabler Icons "box" from @tabler/icons
+  // 3.49.0 since ui-revise7 8') as it is in the package.
   assert.match(links, /viewBox="0 0 98 96"[^>]*data-icon="github"/);
-  const lucide = readFileSync(
-    join(root, "node_modules/lucide-static/icons/box.svg"),
+  const tablerBox = readFileSync(
+    join(root, "node_modules/@tabler/icons/icons/outline/box.svg"),
     "utf8",
   );
-  const paths = (svg) => [...svg.matchAll(/\sd="([^"]+)"/g)].map((m) => m[1]);
   const bag = links.match(/<svg[^>]*data-icon="box"[\s\S]*?<\/svg>/)[0];
-  assert.deepEqual(paths(bag), paths(lucide));
-  assert.equal(paths(bag).length, 3);
+  assert.deepEqual(svgPaths(bag), svgPaths(tablerBox));
+  assert.equal(svgPaths(bag).length, 4);
   const anchors = [...links.matchAll(/<a\s[^>]*>([\s\S]*?)<\/a>/g)];
   assert.deepEqual(
     anchors.map((m) => [text(m[1]), attr(m[0], "href")]),
@@ -169,7 +177,7 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
     assert.match(tag, /rel="noopener noreferrer"/);
     // Text buttons (pattern A, ui-revise5 1): the logo, then the text; no
     // up-right arrow, and without the former pill's background and ring.
-    // GitHub has its mark, BOOTH Lucide's box (not BOOTH's logo).
+    // GitHub has its mark, BOOTH a box (not BOOTH's logo).
     const icons = [...inner.matchAll(/<svg[^>]*data-icon="([^"]+)"/g)];
     assert.deepEqual(
       icons.map((m) => m[1]),
@@ -741,26 +749,30 @@ test("ui-revise5 5, 11: the links' text has the growing underline; the first lin
   }
 });
 
-test("ui-revise4 2, ui-revise5 2, 6: the actions have Lucide's up-right arrow, not the chevron; the titles and 詳しく見る have none", () => {
+test("ui-revise4 2, ui-revise5 2, 6, ui-revise7 8': the actions have the up-right arrow, not the chevron; the titles and 詳しく見る have none", () => {
   const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
-  assert.ok(!main.includes(CHEVRON), "no chevron in main");
-  // Lucide "move-up-right" from lucide-static 1.52.0, in place of
-  // Heroicons "arrow-up-right" (ui-revise5 6).
-  assert.ok(!main.includes(HEROICONS_ARROW), "no Heroicons arrow");
+  for (const chevron of CHEVRONS) {
+    assert.ok(!main.includes(chevron), `no chevron in main: ${chevron}`);
+  }
+  // Tabler Icons "arrow-up-right" from @tabler/icons 3.49.0, in place of
+  // Lucide "move-up-right" (ui-revise7 8') and Heroicons "arrow-up-right"
+  // (ui-revise5 6).
+  for (const former of FORMER_ARROWS) {
+    assert.ok(!main.includes(former), `no former arrow: ${former}`);
+  }
   assert.ok(
-    !existsSync(join(root, "src/components/icons/ArrowUpRightIcon.astro")),
+    !existsSync(join(root, "src/components/icons/MoveUpRightIcon.astro")),
   );
-  const lucide = readFileSync(
-    join(root, "node_modules/lucide-static/icons/move-up-right.svg"),
+  const tabler = readFileSync(
+    join(root, "node_modules/@tabler/icons/icons/outline/arrow-up-right.svg"),
     "utf8",
   );
   const icon = readFileSync(
-    join(root, "src/components/icons/MoveUpRightIcon.astro"),
+    join(root, "src/components/icons/ArrowUpRightIcon.astro"),
     "utf8",
   );
-  const paths = (svg) => [...svg.matchAll(/\sd="([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(paths(icon), paths(lucide));
-  assert.ok(lucide.includes(ARROW));
+  assert.deepEqual(svgPaths(icon), svgPaths(tabler));
+  assert.ok(icon.includes(ARROW));
   assert.ok(
     !existsSync(join(root, "src/components/icons/ChevronRightIcon.astro")),
   );

@@ -559,7 +559,7 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     await open(page, "/");
     const arrow = (locator) =>
       locator
-        .locator('svg[data-icon="move-up-right"]')
+        .locator('svg[data-icon="arrow-up-right"]')
         .evaluate((e) => [
           getComputedStyle(e).translate,
           getComputedStyle(e).transform,
@@ -664,7 +664,7 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     });
   }
 
-  test("ui-revise5 6, 8, ui-revise7 7: the actions' arrow is Lucide's move-up-right, 16px, the size of the text, and centered on it", async ({
+  test("ui-revise5 6, 8, ui-revise7 7: the actions' arrow is Tabler Icons' arrow-up-right (ui-revise7 8'), 16px, the size of the text, and centered on it", async ({
     page,
   }) => {
     await open(page, "/");
@@ -673,7 +673,7 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     for (const action of await actions.all()) {
       await expect(action.locator("svg")).toHaveAttribute(
         "data-icon",
-        "move-up-right",
+        "arrow-up-right",
       );
       const { size, fontSize, offset } = await action.evaluate((element) => {
         const svg = element.querySelector("svg");
@@ -867,7 +867,7 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero"
       expect(Math.round(booth.y)).toBe(Math.round(github.y));
       expect(booth.x).toBeGreaterThan(github.x + github.width);
       // Text buttons: no background or ring; the logo (the GitHub mark and
-      // Lucide's box), then the text (ui-revise5 1). The text is 16px and
+      // the box), then the text (ui-revise5 1). The text is 16px and
       // the logo 18px, centered on the text (ui-revise7 4).
       for (const [i, link] of (await links.all()).entries()) {
         await expect(link).toHaveCSS("font-size", "16px");

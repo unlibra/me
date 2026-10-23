@@ -1,9 +1,9 @@
 import { Field, Label, Switch } from "@headlessui/react";
 import {
-  ArrowPathIcon,
-  ClipboardDocumentCheckIcon,
-  ClipboardDocumentIcon,
-} from "@heroicons/react/24/outline";
+  IconClipboard,
+  IconClipboardCheck,
+  IconRefresh,
+} from "@/components/ui/icons";
 import { useCallback, useEffect, useState } from "react";
 
 import { Slider } from "@/components/ui/slider";
@@ -105,9 +105,9 @@ function PasswordGenerator() {
             aria-label={t.copyToClipboard}
           >
             {copied ? (
-              <ClipboardDocumentCheckIcon className="size-5" />
+              <IconClipboardCheck className="size-5" />
             ) : (
-              <ClipboardDocumentIcon className="size-5" />
+              <IconClipboard className="size-5" />
             )}
             {common.copy}
           </button>
@@ -117,7 +117,7 @@ function PasswordGenerator() {
           disabled={!hasCharset}
           className="dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:focus-visible:ring-offset-atom-one-dark flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-base font-medium text-gray-600 transition-colors hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 dark:text-gray-400"
         >
-          <ArrowPathIcon className="size-5" />
+          <IconRefresh className="size-5" />
           {common.regenerate}
         </button>
       </div>

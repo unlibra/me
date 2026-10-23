@@ -1,4 +1,4 @@
-import { DocumentPlusIcon } from "@heroicons/react/24/outline";
+import { IconFilePlus } from "./icons";
 import {
   useCallback,
   useEffect,
@@ -126,7 +126,7 @@ export function FullPageDropZone({
       {isDragging && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-blue-500/10 p-8 backdrop-blur-sm">
           <div className="flex size-full flex-col items-center justify-center gap-4 rounded-2xl border-4 border-dashed border-blue-500">
-            <DocumentPlusIcon className="size-12" />
+            <IconFilePlus className="size-12" />
             <p className="text-xl font-semibold">{common.dropToUpload}</p>
           </div>
         </div>
