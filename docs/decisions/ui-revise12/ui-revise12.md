@@ -26,3 +26,9 @@
 - `tests/portfolio.test.js`「ui-revise5 (design 4)」：大カードの class の期待値 `gap-6` を `gap-4`・`md:gap-6` に
 - `tests/portfolio.test.js`「ui-revise5 13」：見出しの大きさの class を `text-4xl` から `text-2xl`・`md:text-4xl` に
 - `tests/e2e/works.spec.js`「ui-revise5: the cards and the sections」：大カードの見出しの大きさを、768px 未満で 24px、以上で 36px に
+
+## UR12-5 親の判断（2026-10-23）
+
+- UR12-1（h2 でボタンを包む）と UR12-2（本文の幅を max-w-3xl のまま、余白はその外側）は、親が認めた
+- UR12-3：404 の h1（24px）は変えない。404 はヘッダーもフッターもない単独の画面で、親が出した実測の一覧（h1 が3通り）にも入れていなかった。惑星と文字の配置の計算にも関わる
+- 親が目視でスマホ（375px）の大カードとツールのページを確かめた
