@@ -84,12 +84,25 @@ const siteTitle = `${frontmatter.title} - ${site.title}`;
     margin-bottom: 0.25rem;
   }
 
+  /*
+   * Links: at least 4.5:1 with the page's background, at rest and on hover
+   * (final-review 7). Light on white: card-link 5.1:1, hover 7.3:1. Dark on
+   * atom-one-dark: logo-light 7.0:1, hover (lighter) 9.7:1.
+   */
   .prose a {
-    color: #3ba0be;
+    color: #19779b; /* card-link */
     text-decoration: underline;
   }
 
   .prose a:hover {
-    color: #1a7ba0;
+    color: #135d79;
+  }
+
+  .dark .prose a {
+    color: #5bc5dc; /* logo-light */
+  }
+
+  .dark .prose a:hover {
+    color: #a5e1ee;
   }
 </style>

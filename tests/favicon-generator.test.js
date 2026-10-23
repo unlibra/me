@@ -23,7 +23,7 @@ import {
   DEFAULT_SIZES,
   OUTPUT_SETS,
 } from "../src/tools/favicon-generator/favicon-presets.ts";
-import { processImage } from "../src/tools/lib/image.ts";
+import { processImage, setSvgDimensions } from "../src/tools/lib/image.ts";
 import { createZip } from "../src/tools/lib/zip.ts";
 
 const expected = JSON.parse(
@@ -140,4 +140,39 @@ test("E6: several files are put into one ZIP with their names", async () => {
   for (const { name, blob } of files) {
     assert.equal(await zip.file(name).async("string"), await blob.text());
   }
+});
+
+test("final-review 1: setting an SVG's size keeps stroke-width and the other attributes", () => {
+  // A Tabler Icons SVG (outline): stroke-width, and width and height.
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>';
+  const result = setSvgDimensions(svg, { width: 24, height: 24 });
+  const root = result.match(/^<svg([^>]*)>/)[1];
+  const attrs = [...root.matchAll(/\s([\w:-]+)="([^"]*)"/g)].map(
+    ([, name, value]) => [name, value],
+  );
+  // Every attribute is a well-formed name="value" pair.
+  assert.equal(root.replace(/\s[\w:-]+="[^"]*"/g, ""), "");
+  assert.deepEqual(Object.fromEntries(attrs), {
+    xmlns: "http://www.w3.org/2000/svg",
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    "stroke-width": "2",
+    "stroke-linecap": "round",
+    "stroke-linejoin": "round",
+    width: "24",
+    height: "24",
+  });
+  assert.equal(attrs.length, 9);
+  assert.ok(result.endsWith('<path d="M5 12h14"/></svg>'));
+
+  // Without width and height (only viewBox), and with single quotes.
+  assert.equal(
+    setSvgDimensions(
+      "<svg viewBox='0 0 10 20' stroke-width='1.5' height='5'><g/></svg>",
+      { width: 10, height: 20 },
+    ),
+    "<svg viewBox='0 0 10 20' stroke-width='1.5' width=\"10\" height=\"20\"><g/></svg>",
+  );
 });

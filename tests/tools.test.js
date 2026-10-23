@@ -146,7 +146,11 @@ test("E3: tool pages have WebApplication and BreadcrumbList structured data", ()
     ]);
 
     // Visible breadcrumb: a link to the top page, then the current page.
-    const nav = html.match(/<nav[^>]*aria-label="Breadcrumb"[\s\S]*?<\/nav>/);
+    // Its name is in the page's language (final-review 4).
+    const navLabel = lang === "ja" ? "パンくずリスト" : "Breadcrumb";
+    const nav = html.match(
+      new RegExp(`<nav[^>]*aria-label="${navLabel}"[\\s\\S]*?</nav>`),
+    );
     assert.ok(nav, `${path}: no breadcrumb`);
     assert.deepEqual(hrefs(nav[0]), ["/"]);
     assert.ok(nav[0].includes(`>${homeLabel}<`), `${path}: home label`);
@@ -366,4 +370,104 @@ test("ui-revise7 8': the tools' icons are Tabler Icons, through the decorative w
   assert.ok(users.length >= 7, "self-check: the tools use the wrappers");
   const icons = readFileSync(join(root, "src/components/ui/icons.tsx"), "utf8");
   assert.match(icons, /aria-hidden="true"/);
+});
+
+test("final-review 4: the file checks' errors are in the page's language", async () => {
+  const { validateImageFile, validateSvgFile } =
+    await import("../src/tools/lib/file.ts");
+  const { formatMessage } = await import("../src/tools/messages/format.ts");
+  const big = (name, type) =>
+    new File([new Uint8Array(2 * 1024 * 1024)], name, { type });
+  const MB = 1024 * 1024;
+  const cases = {
+    ja: {
+      svgOnly: "SVGファイルのみアップロードできます",
+      tooLarge: "ファイルサイズが大きすぎます（最大1MB）",
+      selectImage: "画像ファイルを選択してください",
+    },
+    en: {
+      svgOnly: "Only SVG files can be uploaded.",
+      tooLarge: "The file is too large (max 1MB).",
+      selectImage: "Please select an image file.",
+    },
+  };
+  for (const [lang, expected] of Object.entries(cases)) {
+    const m = messages[lang].common.fileErrors;
+    const png = new File(["x"], "a.png", { type: "image/png" });
+    assert.equal(validateSvgFile(png, m), expected.svgOnly, lang);
+    assert.equal(
+      validateSvgFile(big("a.svg", "image/svg+xml"), m, { maxSize: MB }),
+      expected.tooLarge,
+      lang,
+    );
+    assert.equal(
+      validateSvgFile(
+        new File(["<svg/>"], "a.svg", { type: "image/svg+xml" }),
+        m,
+        {
+          maxSize: MB,
+        },
+      ),
+      null,
+    );
+    const text = new File(["x"], "a.txt", { type: "text/plain" });
+    assert.equal(await validateImageFile(text, m), expected.selectImage, lang);
+    assert.equal(
+      await validateImageFile(big("a.png", "image/png"), m, { maxSize: MB }),
+      expected.tooLarge,
+      lang,
+    );
+    // HEIC without a MIME type passes the type check.
+    assert.equal(await validateImageFile(new File(["x"], "a.heic"), m), null);
+  }
+  assert.equal(
+    formatMessage(ja.common.fileErrors.dimensionsTooLarge, {
+      width: 4096,
+      height: 4096,
+    }),
+    "画像サイズが大きすぎます（最大4096×4096px）",
+  );
+  assert.equal(
+    formatMessage(en.common.fileErrors.dimensionsTooLarge, {
+      width: 4096,
+      height: 4096,
+    }),
+    "The image is too large (max 4096×4096px).",
+  );
+  assert.throws(() => formatMessage("{a} {b}", { a: 1 }), /No value for \{b\}/);
+});
+
+test("final-review 4: the tool texts in English have no Japanese", () => {
+  const strings = (value) =>
+    typeof value === "string"
+      ? [value]
+      : Object.values(value).flatMap((v) => strings(v));
+  const japanese = /[぀-ヿ㐀-鿿＀-￯]/;
+  for (const text of strings(en)) {
+    assert.ok(!japanese.test(text), text);
+  }
+});
+
+test("final-review 4: the MIT components have no fixed Japanese or English labels", () => {
+  // The labels that were fixed in one language: now from the tool texts.
+  const fixed = [
+    /aria-label="閉じる"/,
+    /alt="(最適化後)?プレビュー"/,
+    /を調整"/,
+    /をコピー`/,
+    /"Toggle (uppercase|lowercase|numbers|symbols)"/,
+    /Select preset:/,
+    /"Deselect" : "Select"/,
+    /aria-label="Breadcrumb"/,
+  ];
+  const files = globSync("src/{tools,components/ui}/**/*.{ts,tsx,astro}", {
+    cwd: root,
+  }).filter((file) => !file.replaceAll("\\", "/").includes("/messages/"));
+  assert.ok(files.length > 10);
+  for (const file of files) {
+    const source = readFileSync(join(root, file), "utf8");
+    for (const pattern of fixed) {
+      assert.ok(!pattern.test(source), `${file}: ${pattern}`);
+    }
+  }
 });

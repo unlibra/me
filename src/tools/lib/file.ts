@@ -1,21 +1,28 @@
 /**
  * File validation utilities
  * Simple MIME type validation (detailed validation is done on backend)
+ *
+ * Each check returns the error text in the page's language (`messages`, the
+ * tool texts' `common.fileErrors`), or `null` when the file passes.
  */
+import { formatMessage } from "../messages/format.ts";
+import type { ToolMessages } from "../messages/en.ts";
 
-export interface FileValidationResult {
-  isValid: boolean;
-  error?: string;
-}
+/** The error texts of the file checks. */
+export type FileErrorMessages = ToolMessages["common"]["fileErrors"];
 
 /**
  * Validate file size
  * Common utility for all file types
  */
-export function validateFileSize(file: File, maxSize: number): string | null {
+export function validateFileSize(
+  file: File,
+  maxSize: number,
+  messages: FileErrorMessages,
+): string | null {
   if (file.size > maxSize) {
     const maxSizeMB = (maxSize / (1024 * 1024)).toFixed(0);
-    return `ファイルサイズが大きすぎます（最大${maxSizeMB}MB）`;
+    return formatMessage(messages.tooLarge, { max: maxSizeMB });
   }
   return null;
 }
@@ -27,16 +34,14 @@ export function validateFileSize(file: File, maxSize: number): string | null {
  * is performed on the backend. This is just a quick pre-check for UX.
  *
  * Some browsers don't recognize HEIC/HEIF MIME types, so we also check extensions.
- *
- * @param file - File to validate
- * @returns Validation result
  */
-export function validateImageFileType(file: File): FileValidationResult {
+export function validateImageFileType(
+  file: File,
+  messages: FileErrorMessages,
+): string | null {
   // Check MIME type (set by browser based on file extension/content)
   if (file.type.startsWith("image/")) {
-    return {
-      isValid: true,
-    };
+    return null;
   }
 
   // Fallback: Check file extension for formats that browsers may not recognize
@@ -45,15 +50,10 @@ export function validateImageFileType(file: File): FileValidationResult {
   const supportedExtensions = ["heic", "heif", "avif"];
 
   if (extension && supportedExtensions.includes(extension)) {
-    return {
-      isValid: true,
-    };
+    return null;
   }
 
-  return {
-    isValid: false,
-    error: "画像ファイルを選択してください",
-  };
+  return messages.selectImage;
 }
 
 /**
@@ -62,16 +62,17 @@ export function validateImageFileType(file: File): FileValidationResult {
  */
 export function validateSvgFile(
   file: File,
+  messages: FileErrorMessages,
   options: { maxSize?: number } = {},
 ): string | null {
   // MIME type check (SVG specific)
   if (file.type !== "image/svg+xml") {
-    return "SVGファイルのみアップロードできます";
+    return messages.svgOnly;
   }
 
   // File size check
   if (options.maxSize) {
-    const sizeError = validateFileSize(file, options.maxSize);
+    const sizeError = validateFileSize(file, options.maxSize, messages);
     if (sizeError) return sizeError;
   }
 
@@ -84,20 +85,19 @@ export function validateSvgFile(
  */
 export async function validateImageFile(
   file: File,
+  messages: FileErrorMessages,
   options: {
     maxSize?: number;
     maxDimensions?: { width: number; height: number };
   } = {},
 ): Promise<string | null> {
   // MIME type check
-  const typeValidation = validateImageFileType(file);
-  if (!typeValidation.isValid) {
-    return typeValidation.error || "サポートされていない画像形式です";
-  }
+  const typeError = validateImageFileType(file, messages);
+  if (typeError) return typeError;
 
   // File size check
   if (options.maxSize) {
-    const sizeError = validateFileSize(file, options.maxSize);
+    const sizeError = validateFileSize(file, options.maxSize, messages);
     if (sizeError) return sizeError;
   }
 
@@ -111,11 +111,14 @@ export async function validateImageFile(
         dimensions.width > options.maxDimensions.width ||
         dimensions.height > options.maxDimensions.height
       ) {
-        return `画像サイズが大きすぎます（最大${options.maxDimensions.width}×${options.maxDimensions.height}px）`;
+        return formatMessage(messages.dimensionsTooLarge, {
+          width: options.maxDimensions.width,
+          height: options.maxDimensions.height,
+        });
       }
     } catch {
       // Error if image cannot be loaded (only for formats browser should support)
-      return "画像の読み込みに失敗しました";
+      return messages.loadFailed;
     }
   }
 

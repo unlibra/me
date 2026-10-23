@@ -75,7 +75,6 @@ export function SvgOptionsPanel({
                   ? "bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
                   : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
               }`}
-              aria-label={`Select preset: ${t[preset.id]}`}
               aria-pressed={selectedPreset === preset.id}
             >
               {t[preset.id]}

@@ -21,6 +21,8 @@ const ja = {
     closeMenu: "メニューを閉じる",
   },
   breadcrumb: {
+    /** The name of the breadcrumb navigation (its aria-label). */
+    label: "パンくずリスト",
     /** The first item: the top page. */
     home: "ホーム",
   },
@@ -63,6 +65,7 @@ const en: LayoutMessages = {
     closeMenu: "Close menu",
   },
   breadcrumb: {
+    label: "Breadcrumb",
     // The top page is in Japanese only.
     home: "Home (Japanese)",
   },

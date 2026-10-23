@@ -42,8 +42,8 @@ for (const locale of LOCALES) {
     const downloadButton = (page) =>
       page.getByRole("button", { name: t.common.download, exact: true });
     const preset = (page, id) =>
-      page.getByRole("button", { name: `Select preset: ${m[id]}` });
-    const preview = (page) => page.getByAltText("最適化後プレビュー");
+      page.getByRole("button", { name: m[id], exact: true });
+    const preview = (page) => page.getByAltText(m.optimizedPreviewAlt);
     /**
      * Selects an SVG and waits for its first preview. SVGO is a lazy chunk,
      * and until ui-revise8 1 the sizes appearing with the preview pushed the
@@ -193,9 +193,7 @@ for (const locale of LOCALES) {
       page,
     }) => {
       await chooseFile(page, await pngFile("image.png", 10, 10));
-      await expect(
-        toast(page, "SVGファイルのみアップロードできます"),
-      ).toBeVisible();
+      await expect(toast(page, t.common.fileErrors.svgOnly)).toBeVisible();
       await expect(downloadButton(page)).toBeDisabled();
     });
 

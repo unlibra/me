@@ -13,6 +13,16 @@ export default {
     unsupportedFileType: "対応していないファイル形式です。",
     fileValidationError: "ファイルの検証中にエラーが発生しました。",
     dropToUpload: "ドロップして画像をアップロード",
+    close: "閉じる",
+    // Checks of the selected file (src/tools/lib/file.ts). {max}, {width}
+    // and {height} are replaced with numbers.
+    fileErrors: {
+      tooLarge: "ファイルサイズが大きすぎます（最大{max}MB）",
+      selectImage: "画像ファイルを選択してください",
+      svgOnly: "SVGファイルのみアップロードできます",
+      dimensionsTooLarge: "画像サイズが大きすぎます（最大{width}×{height}px）",
+      loadFailed: "画像の読み込みに失敗しました",
+    },
   },
   tools: {
     "tw-palette-generator": {
@@ -56,6 +66,8 @@ export default {
     tailwindConfig: "Tailwind Config",
     copyConfig: "Tailwind設定をコピー",
     deleteFromHistory: "履歴から削除",
+    // The label of a color's button: {color} is "BASE #0EA5E9", "500 #0EA5E9".
+    copyColor: "{color} をコピー",
     errors: {
       colorCodeCopyFailed: "コピーに失敗しました",
       colorCodeCopied: "カラーコードをコピーしました",
@@ -122,6 +134,7 @@ export default {
     },
     original: "元のファイル",
     optimized: "最適化後",
+    optimizedPreviewAlt: "最適化後プレビュー",
     compressionRatio: "圧縮率",
     preset: "プリセット",
     safe: "推奨",

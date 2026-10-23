@@ -12,3 +12,5 @@ export const toolMessages: Record<ToolLocale, ToolMessages> = { ja, en };
 
 /** IDs of the tools that have texts. */
 export type ToolMessageId = keyof ToolMessages["tools"];
+
+export { formatMessage } from "./format";

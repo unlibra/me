@@ -292,3 +292,29 @@ test.describe("former URLs", () => {
     }
   });
 });
+
+test.describe("final-review 7: the links of the privacy policy and credits", () => {
+  for (const scheme of ["light", "dark"]) {
+    test(`${scheme}: are at least 4.5:1 with the page, at rest and on hover`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      for (const path of ["/privacy", "/credits"]) {
+        await open(page, path);
+        await chooseTheme(page, "ja", scheme);
+        const back = await luminance(page.locator("body"), "backgroundColor");
+        const ratio = (l) =>
+          (Math.max(l, back) + 0.05) / (Math.min(l, back) + 0.05);
+        const links = page.locator("main.prose a");
+        expect(await links.count()).toBeGreaterThan(0);
+        const link = links.first();
+        await page.mouse.move(0, 0);
+        const rest = ratio(await luminance(link, "color"));
+        await link.hover();
+        const hover = ratio(await luminance(link, "color"));
+        expect(rest, `${path} at rest`).toBeGreaterThanOrEqual(4.5);
+        expect(hover, `${path} on hover`).toBeGreaterThanOrEqual(4.5);
+      }
+    });
+  }
+});

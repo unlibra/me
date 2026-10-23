@@ -57,19 +57,27 @@ for (const locale of LOCALES) {
           slider(page, name).inputValue(),
         ),
       );
+    /**
+     * The name of a color's copy button, in the page's language
+     * (final-review 4): `color` is a pattern such as "BASE #[0-9A-Z]{6}".
+     */
+    const copyName = (color) =>
+      new RegExp(`^${m.copyColor.replace("{color}", color)}$`);
+    /** The color code in a copy button's name. */
+    const hexOf = (label) => label.match(/#[0-9A-Za-z]{6}/)[0];
     /** BASE and the eleven shades of the generated palette, as shown. */
     const shown = async (page) => {
       const label = async (pattern) =>
-        (
+        hexOf(
           await page
             .getByRole("button", { name: pattern })
             .first()
-            .getAttribute("aria-label")
-        ).split(" ")[1];
+            .getAttribute("aria-label"),
+        );
       return {
-        base: await label(/^BASE #/),
+        base: await label(copyName("BASE #[0-9A-Z]{6}")),
         palette: await Promise.all(
-          SHADES.map((shade) => label(new RegExp(`^${shade} #`))),
+          SHADES.map((shade) => label(copyName(`${shade} #[0-9A-Z]{6}`))),
         ),
       };
     };
@@ -175,14 +183,14 @@ for (const locale of LOCALES) {
         .poll(async () => (await shown(page)).palette)
         .toEqual(upper(palette));
       await page
-        .getByRole("button", { name: /^500 #/ })
+        .getByRole("button", { name: copyName("500 #[0-9A-Z]{6}") })
         .first()
         .click();
       await expect(toast(page, m.errors.colorCodeCopied)).toBeVisible();
       expect(await readClipboard(page)).toBe(palette[500].toUpperCase());
 
       await page
-        .getByRole("button", { name: /^BASE #/ })
+        .getByRole("button", { name: copyName("BASE #[0-9A-Z]{6}") })
         .first()
         .click();
       expect(await readClipboard(page)).toBe("#0EA5E9");
@@ -248,12 +256,12 @@ for (const locale of LOCALES) {
       await expect(historyRows(page)).toHaveCount(2);
       // Shown newest first (top to bottom).
       const bases = await page
-        .getByRole("button", { name: /^BASE #[0-9a-f]{6} / })
+        .getByRole("button", { name: copyName("BASE #[0-9a-f]{6}") })
         .evaluateAll((buttons) =>
           buttons
             .map((b) => [
               b.getBoundingClientRect().top,
-              b.getAttribute("aria-label").split(" ")[1],
+              b.getAttribute("aria-label").match(/#[0-9a-f]{6}/)[0],
             ])
             .sort((a, b) => a[0] - b[0])
             .map(([, hex]) => hex),
@@ -388,6 +396,107 @@ for (const locale of LOCALES) {
       expect(saved).toHaveLength(30);
       expect(saved[0].id).toBe("1700000000001"); // the oldest is dropped
       expect(saved[29].baseColor).toBe("#0ea5e9");
+    });
+  });
+}
+
+for (const locale of LOCALES) {
+  const { t } = locale;
+  const m = t.twPaletteGenerator;
+
+  test.describe(`tw palette generator, final review (${locale.lang})`, () => {
+    const url = toolUrl(locale, "tw-palette-generator");
+    test.beforeEach(async ({ page }) => {
+      await open(page, url);
+    });
+
+    test("final-review 4: the color buttons are named in the page's language", async ({
+      page,
+    }) => {
+      const expected =
+        locale.lang === "ja" ? "BASE #0EA5E9 をコピー" : "Copy BASE #0EA5E9";
+      await expect(
+        page.getByRole("button", { name: expected, exact: true }),
+      ).toHaveCount(1);
+    });
+
+    test("final-review 5: a Tailwind config that cannot be copied shows an error", async ({
+      page,
+    }) => {
+      await page.evaluate(() => {
+        navigator.clipboard.writeText = () =>
+          Promise.reject(new Error("denied"));
+      });
+      await page.getByRole("button", { name: m.copyConfig }).click();
+      await expect(toast(page, m.errors.colorCodeCopyFailed)).toBeVisible();
+      await expect(toast(page, m.errors.configCopied)).toHaveCount(0);
+    });
+
+    test("final-review 6: history entries of the wrong shape are dropped, and the tool still works", async ({
+      page,
+    }) => {
+      const good = formerItem("#f88c49", 1700000000000);
+      const noShade = { ...good.palette };
+      delete noShade[500];
+      await page.evaluate(
+        ([key, value]) => localStorage.setItem(key, value),
+        [
+          HISTORY_KEY,
+          JSON.stringify([
+            null,
+            { id: "1", baseColor: "#000000" },
+            { ...good, id: "2", palette: noShade },
+            good,
+          ]),
+        ],
+      );
+      await open(page, url);
+      await expect(
+        page.getByRole("button", { name: m.deleteFromHistory }),
+      ).toHaveCount(1);
+      await expect(
+        page.getByRole("heading", { name: m.generatedPalette }),
+      ).toBeVisible();
+      await expect
+        .poll(() =>
+          page.evaluate(
+            (key) => JSON.parse(localStorage.getItem(key)),
+            HISTORY_KEY,
+          ),
+        )
+        .toEqual([good]);
+    });
+
+    test("final-review 9: the grayscale swatches show keyboard focus as the others do", async ({
+      page,
+    }) => {
+      for (const name of ["slate-500", "red-500"]) {
+        const swatch = page.getByRole("button", { name, exact: true });
+        await expect(swatch).toHaveClass(/(^|\s)focus-visible:scale-110(\s|$)/);
+      }
+      // Focused with the keyboard, the grayscale swatch is scaled.
+      const slate = page.getByRole("button", {
+        name: "slate-500",
+        exact: true,
+      });
+      await slate.focus();
+      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Tab");
+      await expect(slate).toBeFocused();
+      await expect
+        .poll(() => slate.evaluate((e) => getComputedStyle(e).scale))
+        .toBe("1.1");
+    });
+
+    test("final-review 10: a success toast is in the status live region", async ({
+      page,
+    }) => {
+      await page.getByRole("button", { name: m.saveToHistory }).click();
+      const status = page.getByRole("status");
+      await expect(status).toHaveAttribute("aria-live", "polite");
+      await expect(
+        status.getByText(m.errors.addedToHistory, { exact: true }),
+      ).toBeVisible();
     });
   });
 }

@@ -18,6 +18,14 @@ const en: ToolMessages = {
     unsupportedFileType: "Unsupported file type.",
     fileValidationError: "File validation failed.",
     dropToUpload: "Drop to upload your image.",
+    close: "Close",
+    fileErrors: {
+      tooLarge: "The file is too large (max {max}MB).",
+      selectImage: "Please select an image file.",
+      svgOnly: "Only SVG files can be uploaded.",
+      dimensionsTooLarge: "The image is too large (max {width}×{height}px).",
+      loadFailed: "Failed to load the image.",
+    },
   },
   tools: {
     "tw-palette-generator": {
@@ -62,6 +70,7 @@ const en: ToolMessages = {
     tailwindConfig: "Tailwind Config",
     copyConfig: "Copy Tailwind Config",
     deleteFromHistory: "Delete from History",
+    copyColor: "Copy {color}",
     errors: {
       colorCodeCopyFailed: "Failed to copy color code.",
       colorCodeCopied: "Color code copied!",
@@ -128,6 +137,7 @@ const en: ToolMessages = {
     },
     original: "Original",
     optimized: "Optimized",
+    optimizedPreviewAlt: "Optimized preview",
     compressionRatio: "Compression Ratio",
     preset: "Preset",
     safe: "Recommended",

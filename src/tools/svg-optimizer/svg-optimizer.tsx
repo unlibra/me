@@ -58,7 +58,7 @@ function SvgOptimizer() {
   const handleFileSelect = useCallback(
     async (file: File) => {
       // Validate SVG file (type + size)
-      const validationError = validateSvgFile(file, {
+      const validationError = validateSvgFile(file, common.fileErrors, {
         maxSize: 10 * 1024 * 1024,
       });
       if (validationError) {
@@ -76,7 +76,7 @@ function SvgOptimizer() {
         console.error(err);
       }
     },
-    [toast, t],
+    [toast, t, common],
   );
 
   const handleInputChange = useCallback(
@@ -254,7 +254,7 @@ function SvgOptimizer() {
                   <div className="flex size-full items-center justify-center">
                     <img
                       src={previewUrl}
-                      alt="最適化後プレビュー"
+                      alt={t.optimizedPreviewAlt}
                       className="h-auto max-h-full w-auto max-w-full"
                     />
                   </div>

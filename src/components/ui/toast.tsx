@@ -15,6 +15,8 @@ import {
   type ReactNode,
 } from "react";
 
+import { useMessages } from "@/tools/i18n";
+
 export type ToastType = "success" | "error" | "warning" | "info";
 
 export interface Toast {
@@ -109,11 +111,28 @@ function ToastContainer({
   toasts: Toast[];
   onRemove: (id: string) => void;
 }) {
+  // Two live regions, always in the page so that a toast added to them is
+  // read by screen readers: errors at once (alert), others when the reader
+  // is idle (status)
+  const errors = toasts.filter((toast) => toast.type === "error");
+  const others = toasts.filter((toast) => toast.type !== "error");
+  const regionClass = "flex flex-col items-center gap-2";
   return (
-    <div className="pointer-events-none fixed inset-0 z-50 flex flex-col items-center justify-end gap-2 p-4 sm:p-6">
-      {toasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
-      ))}
+    <div className="pointer-events-none fixed inset-0 z-50 flex flex-col items-center justify-end p-4 sm:p-6">
+      <div role="status" aria-live="polite" className={regionClass}>
+        {others.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
+        ))}
+      </div>
+      <div
+        role="alert"
+        aria-live="assertive"
+        className={`${regionClass} ${others.length > 0 && errors.length > 0 ? "mt-2" : ""}`}
+      >
+        {errors.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -125,6 +144,7 @@ function ToastItem({
   toast: Toast;
   onRemove: (id: string) => void;
 }) {
+  const { common } = useMessages();
   const [show, setShow] = useState(true);
 
   const handleClose = useCallback(() => {
@@ -184,7 +204,7 @@ function ToastItem({
               type="button"
               onClick={handleClose}
               className="shrink-0 rounded-lg p-1 transition-colors hover:bg-white/5"
-              aria-label="閉じる"
+              aria-label={common.close}
             >
               <IconX className="size-5 stroke-2 text-white" />
             </button>

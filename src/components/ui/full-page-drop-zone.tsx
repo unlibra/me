@@ -30,29 +30,29 @@ export function FullPageDropZone({
   const dragCounterRef = useRef(0);
   const toast = useToast();
 
+  // dragenter and dragleave are counted with the same condition, so that
+  // each counted enter has its counted leave
   const handleDragEnter = useCallback((e: globalThis.DragEvent) => {
     e.preventDefault();
-
-    // Ignore drag events from interactive elements (sliders, inputs, etc.)
-    const target = e.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.closest('input[type="range"]')) {
-      return;
-    }
-
-    // Check if dragged content includes files
-    if (!e.dataTransfer?.types.includes("Files")) {
-      return;
-    }
+    if (!isCountedDrag(e)) return;
 
     dragCounterRef.current++;
     setIsDragging(true);
   }, []);
 
-  const handleDragLeave = useCallback(() => {
-    dragCounterRef.current--;
+  const handleDragLeave = useCallback((e: globalThis.DragEvent) => {
+    if (!isCountedDrag(e)) return;
+
+    dragCounterRef.current = Math.max(0, dragCounterRef.current - 1);
     if (dragCounterRef.current === 0) {
       setIsDragging(false);
     }
+  }, []);
+
+  // The drag ended (a drag that started on the page, such as text)
+  const handleDragEnd = useCallback(() => {
+    dragCounterRef.current = 0;
+    setIsDragging(false);
   }, []);
 
   const handleDrop = useCallback((e: globalThis.DragEvent) => {
@@ -70,14 +70,22 @@ export function FullPageDropZone({
     window.addEventListener("dragleave", handleDragLeave);
     window.addEventListener("drop", handleDrop);
     window.addEventListener("dragover", handleDragOver);
+    window.addEventListener("dragend", handleDragEnd);
 
     return () => {
       window.removeEventListener("dragenter", handleDragEnter);
       window.removeEventListener("dragleave", handleDragLeave);
       window.removeEventListener("drop", handleDrop);
       window.removeEventListener("dragover", handleDragOver);
+      window.removeEventListener("dragend", handleDragEnd);
     };
-  }, [handleDragEnter, handleDragLeave, handleDrop, handleDragOver]);
+  }, [
+    handleDragEnter,
+    handleDragLeave,
+    handleDrop,
+    handleDragOver,
+    handleDragEnd,
+  ]);
 
   const handleDropOnDiv = useCallback(
     async (e: DragEvent<HTMLDivElement>) => {
@@ -133,6 +141,16 @@ export function FullPageDropZone({
       )}
     </div>
   );
+}
+
+/**
+ * Whether a dragenter or dragleave counts toward showing the overlay: a drag
+ * of files, not over an input (sliders, text fields, etc.).
+ */
+function isCountedDrag(e: globalThis.DragEvent): boolean {
+  if (!e.dataTransfer?.types.includes("Files")) return false;
+  const target = e.target;
+  return !(target instanceof Element && target.closest("input"));
 }
 
 // Helper function to check if file type is accepted

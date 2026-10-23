@@ -51,6 +51,24 @@ function parseSvgDimensions(
 }
 
 /**
+ * The SVG text with the root `<svg>`'s width and height set to these. Only
+ * the attributes named exactly `width` and `height` are replaced (the name
+ * must follow whitespace), so that `stroke-width` and the like are kept.
+ */
+export function setSvgDimensions(
+  svgText: string,
+  dimensions: { width: number; height: number },
+): string {
+  return svgText.replace(/<svg([^>]*)>/, (_match, attrs: string) => {
+    const cleanedAttrs = attrs.replace(
+      /\s+(?:width|height)\s*=\s*(?:"[^"]*"|'[^']*')/gi,
+      "",
+    );
+    return `<svg${cleanedAttrs} width="${dimensions.width}" height="${dimensions.height}">`;
+  });
+}
+
+/**
  * Load image from file
  * For SVG files without width/height attributes, extracts dimensions from viewBox
  */
@@ -66,16 +84,7 @@ export async function loadImageFromFile(file: File): Promise<HTMLImageElement> {
     // If we have viewBox dimensions, inject width/height attributes upfront
     // This avoids the browser's default 150x150 sizing for SVGs without explicit dimensions
     if (dimensions) {
-      const svgWithDimensions = svgText.replace(
-        /<svg([^>]*)>/,
-        (_match, attrs) => {
-          // Remove existing width/height if present
-          const cleanedAttrs = attrs
-            .replace(/\s*width\s*=\s*["'][^"']*["']/gi, "")
-            .replace(/\s*height\s*=\s*["'][^"']*["']/gi, "");
-          return `<svg${cleanedAttrs} width="${dimensions.width}" height="${dimensions.height}">`;
-        },
-      );
+      const svgWithDimensions = setSvgDimensions(svgText, dimensions);
 
       return new Promise((resolve, reject) => {
         const img = new Image();

@@ -7,6 +7,7 @@ import {
   adjustColor,
   adjustPalette,
   generatePalette,
+  getShadeLabels,
   type ColorPalette,
 } from "./palette.ts";
 
@@ -140,4 +141,32 @@ export function createHistoryItem(
   now: number,
 ): PaletteHistoryItem {
   return { id: now.toString(), baseColor, palette, timestamp: now };
+}
+
+/**
+ * The palette history read from `localStorage` (the parsed JSON), keeping
+ * only the entries of the right shape: an `id` and a `baseColor` that are
+ * strings, a `timestamp` that is a number, and a `palette` with every shade
+ * as a string. Anything else (edited by hand, or saved by another version)
+ * would break the drawing of the history, so it is dropped.
+ */
+export function parsePaletteHistory(saved: unknown): PaletteHistoryItem[] {
+  if (!Array.isArray(saved)) return [];
+  return saved.filter(isPaletteHistoryItem);
+}
+
+function isPaletteHistoryItem(item: unknown): item is PaletteHistoryItem {
+  if (typeof item !== "object" || item === null) return false;
+  const { id, baseColor, palette, timestamp } = item as Record<string, unknown>;
+  return (
+    typeof id === "string" &&
+    typeof baseColor === "string" &&
+    typeof timestamp === "number" &&
+    typeof palette === "object" &&
+    palette !== null &&
+    getShadeLabels().every(
+      (shade) =>
+        typeof (palette as Record<string, unknown>)[shade] === "string",
+    )
+  );
 }

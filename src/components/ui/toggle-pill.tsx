@@ -4,20 +4,19 @@ type TogglePillProps = {
   pressed: boolean;
   onClick: () => void;
   children: ReactNode;
-  ariaLabel?: string;
   className?: string;
   activeClassName?: string;
   inactiveClassName?: string;
 };
 
 /**
- * Reusable pill-style toggle button.
+ * Reusable pill-style toggle button. Its accessible name is its visible text
+ * (`children`); `aria-pressed` tells whether it is on.
  */
 export function TogglePill({
   pressed,
   onClick,
   children,
-  ariaLabel,
   className = "",
   activeClassName,
   inactiveClassName,
@@ -38,7 +37,6 @@ export function TogglePill({
       onClick={onClick}
       className={`${baseClasses} ${stateClasses} ${className}`.trim()}
       aria-pressed={pressed}
-      aria-label={ariaLabel}
       type="button"
     >
       {children}

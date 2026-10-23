@@ -4,8 +4,14 @@ import { useCallback, useMemo, type ChangeEvent } from "react";
 
 import { useIsDark } from "./use-is-dark";
 
-export type SliderProps = {
-  label?: string;
+/**
+ * A slider has a name: the visible `label`, or `ariaLabel` when the label is
+ * shown by the caller (such as a heading above the slider).
+ */
+type SliderName =
+  { label: string; ariaLabel?: never } | { label?: never; ariaLabel: string };
+
+export type SliderProps = SliderName & {
   value: number;
   min: number;
   max: number;
@@ -18,6 +24,7 @@ export type SliderProps = {
 
 export function Slider({
   label,
+  ariaLabel,
   value,
   min,
   max,
@@ -77,7 +84,7 @@ export function Slider({
             background: `linear-gradient(to right, rgb(0, 166, 244) 0%, rgb(0, 166, 244) ${percentage}%, ${trackColor} ${percentage}%, ${trackColor} 100%)`,
           }}
           className="ui-slider h-2 w-full cursor-pointer appearance-none rounded-full outline-hidden"
-          aria-label={label || "値を調整"}
+          aria-label={label ?? ariaLabel}
         />
       </div>
       {description && (

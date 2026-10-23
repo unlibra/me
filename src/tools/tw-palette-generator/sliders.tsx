@@ -6,7 +6,8 @@ import { hexToOklch, oklchToHex } from "./color";
 import { getColorNames, tailwindColors } from "./tailwind-colors";
 
 export type HueSliderProps = {
-  label?: string;
+  /** The visible label, also the slider's accessible name. */
+  label: string;
   value: number;
   min: number;
   max: number;
@@ -102,7 +103,7 @@ export function HueSlider({
             background: gradientBackground,
           }}
           className="palette-slider h-2 w-full cursor-pointer appearance-none rounded-full outline-hidden"
-          aria-label={label || "色相を調整"}
+          aria-label={label}
         />
       </div>
     </div>
@@ -110,7 +111,8 @@ export function HueSlider({
 }
 
 export type LightnessSliderProps = {
-  label?: string;
+  /** The visible label, also the slider's accessible name. */
+  label: string;
   value: number;
   min?: number;
   max?: number;
@@ -157,7 +159,7 @@ export function LightnessSlider({
             background: gradientBackground,
           }}
           className="palette-slider h-2 w-full cursor-pointer appearance-none rounded-full outline-hidden"
-          aria-label={label || "明度を調整"}
+          aria-label={label}
         />
       </div>
     </div>
@@ -165,7 +167,8 @@ export function LightnessSlider({
 }
 
 export type SaturationSliderProps = {
-  label?: string;
+  /** The visible label, also the slider's accessible name. */
+  label: string;
   value: number;
   min?: number;
   max?: number;
@@ -239,7 +242,7 @@ export function SaturationSlider({
             background: gradientBackground,
           }}
           className="palette-slider h-2 w-full cursor-pointer appearance-none rounded-full outline-hidden"
-          aria-label={label || "彩度を調整"}
+          aria-label={label}
         />
       </div>
     </div>

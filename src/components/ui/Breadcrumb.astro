@@ -14,11 +14,13 @@ interface BreadcrumbItem {
 
 interface Props {
   items: BreadcrumbItem[];
+  /** The name of the navigation, in the page's language. */
+  label: string;
   /** Origin used to make absolute URLs for the structured data. */
   siteUrl: string;
 }
 
-const { items, siteUrl } = Astro.props;
+const { items, label, siteUrl } = Astro.props;
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -37,10 +39,7 @@ const structuredData = {
   is:inline
   set:html={serializeJsonLd(structuredData)}
 />
-<nav
-  class="mb-6 flex min-w-0 items-center gap-2 text-base"
-  aria-label="Breadcrumb"
->
+<nav class="mb-6 flex min-w-0 items-center gap-2 text-base" aria-label={label}>
   {items.map((item, index) => (
     <div class="flex min-w-0 items-center gap-2">
       {index > 0 && (

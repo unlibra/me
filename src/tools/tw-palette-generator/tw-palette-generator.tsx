@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 
 import { useToast } from "@/components/ui/toast";
 import { useMessages } from "@/tools/i18n";
-import type { ToolLocale } from "@/tools/messages";
+import { formatMessage, type ToolLocale } from "@/tools/messages";
 import { ToolRoot } from "@/tools/tool-root";
 
 import {
@@ -18,6 +18,7 @@ import {
   getBaseState,
   getResetState,
   normalizeInputColor,
+  parsePaletteHistory,
   type BaseState,
   type SliderBase,
   type SliderValues,
@@ -94,8 +95,7 @@ function TailwindPaletteGenerator() {
     try {
       const saved = localStorage.getItem(PALETTE_HISTORY_KEY);
       if (saved) {
-        const parsed = JSON.parse(saved) as PaletteHistoryItem[];
-        setPaletteHistory(parsed);
+        setPaletteHistory(parsePaletteHistory(JSON.parse(saved)));
       }
     } catch (err) {
       console.error("Failed to load palette history:", err);
@@ -221,13 +221,13 @@ function TailwindPaletteGenerator() {
   );
 
   // Copy as Tailwind Config
-  const handleCopyAsTailwind = useCallback(() => {
+  const handleCopyAsTailwind = useCallback(async () => {
     if (!palette) return;
     try {
       const tailwindConfig = `colors: {\n  custom: {\n${getShadeLabels()
         .map((shade) => `    ${shade}: '${palette[shade]}',`)
         .join("\n")}\n  }\n}`;
-      navigator.clipboard.writeText(tailwindConfig);
+      await navigator.clipboard.writeText(tailwindConfig);
       toast.success(t.errors.configCopied);
     } catch (err) {
       toast.error(t.errors.colorCodeCopyFailed);
@@ -360,7 +360,7 @@ function TailwindPaletteGenerator() {
                             onClick={() =>
                               handleTailwindColorSelect(colorName, shade)
                             }
-                            className="group relative aspect-square h-full flex-1 shrink-0 rounded-sm transition-transform hover:scale-110 focus:outline-hidden active:scale-95"
+                            className="group relative aspect-square h-full flex-1 shrink-0 rounded-sm transition-transform hover:scale-110 focus:outline-hidden focus-visible:scale-110 active:scale-95"
                             style={{ backgroundColor: hex }}
                             title={`${colorName}-${shade}`}
                           >
@@ -442,7 +442,9 @@ function TailwindPaletteGenerator() {
                   className="aspect-square w-full cursor-pointer rounded-sm transition-transform hover:scale-110 focus:outline-hidden focus-visible:scale-110 active:scale-95"
                   style={{ backgroundColor: baseColor }}
                   title={`BASE - ${baseColor.toUpperCase()}`}
-                  aria-label={`BASE ${baseColor.toUpperCase()} をコピー`}
+                  aria-label={formatMessage(t.copyColor, {
+                    color: `BASE ${baseColor.toUpperCase()}`,
+                  })}
                 >
                   <span className="sr-only">BASE</span>
                 </button>
@@ -463,7 +465,9 @@ function TailwindPaletteGenerator() {
                       className="aspect-square w-full cursor-pointer rounded-sm transition-transform hover:scale-110 focus:outline-hidden focus-visible:scale-110 active:scale-95"
                       style={{ backgroundColor: hex }}
                       title={`${shade} - ${hex.toUpperCase()}`}
-                      aria-label={`${shade} ${hex.toUpperCase()} をコピー`}
+                      aria-label={formatMessage(t.copyColor, {
+                        color: `${shade} ${hex.toUpperCase()}`,
+                      })}
                     >
                       <span className="sr-only">{shade}</span>
                     </button>
@@ -499,7 +503,9 @@ function TailwindPaletteGenerator() {
                       className="aspect-square w-full cursor-pointer rounded-sm transition-transform hover:scale-110 focus:outline-hidden focus-visible:scale-110 active:scale-95"
                       style={{ backgroundColor: item.baseColor }}
                       title={`BASE - ${item.baseColor}`}
-                      aria-label={`BASE ${item.baseColor} をコピー`}
+                      aria-label={formatMessage(t.copyColor, {
+                        color: `BASE ${item.baseColor}`,
+                      })}
                     >
                       <span className="sr-only">BASE</span>
                     </button>
@@ -514,7 +520,9 @@ function TailwindPaletteGenerator() {
                           className="aspect-square w-full cursor-pointer rounded-sm transition-transform hover:scale-110 focus:outline-hidden focus-visible:scale-110 active:scale-95"
                           style={{ backgroundColor: hex }}
                           title={`${shade} - ${hex}`}
-                          aria-label={`${shade} ${hex} をコピー`}
+                          aria-label={formatMessage(t.copyColor, {
+                            color: `${shade} ${hex}`,
+                          })}
                         >
                           <span className="sr-only">{shade}</span>
                         </button>

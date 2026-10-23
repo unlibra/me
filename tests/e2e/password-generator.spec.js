@@ -58,36 +58,32 @@ for (const locale of LOCALES) {
     test("the character types decide which characters are used", async ({
       page,
     }) => {
-      const pill = (name) => page.getByRole("button", { name });
+      const pill = (name) => page.getByRole("button", { name, exact: true });
       await setRange(page.getByRole("slider", { name: m.length }), 64);
       // Defaults: uppercase, lowercase and numbers on, symbols off.
       for (const [name, pressed] of [
-        ["Toggle uppercase", "true"],
-        ["Toggle lowercase", "true"],
-        ["Toggle numbers", "true"],
-        ["Toggle symbols", "false"],
+        [m.uppercase, "true"],
+        [m.lowercase, "true"],
+        [m.numbers, "true"],
+        [m.symbols, "false"],
       ]) {
         await expect(pill(name)).toHaveAttribute("aria-pressed", pressed);
       }
       await expect(passwordText(page)).toHaveText(/^[A-Za-z0-9]{64}$/);
 
-      await pill("Toggle uppercase").click();
-      await pill("Toggle lowercase").click();
+      await pill(m.uppercase).click();
+      await pill(m.lowercase).click();
       await expect(passwordText(page)).toHaveText(/^[0-9]{64}$/);
-      await pill("Toggle numbers").click();
-      await pill("Toggle symbols").click();
+      await pill(m.numbers).click();
+      await pill(m.symbols).click();
       await expect(passwordText(page)).toHaveText(/^[!@#$%^&*\-_+=?]{64}$/);
     });
 
     test("with no character type, it asks for one and cannot copy or regenerate", async ({
       page,
     }) => {
-      for (const name of [
-        "Toggle uppercase",
-        "Toggle lowercase",
-        "Toggle numbers",
-      ]) {
-        await page.getByRole("button", { name }).click();
+      for (const name of [m.uppercase, m.lowercase, m.numbers]) {
+        await page.getByRole("button", { name, exact: true }).click();
       }
       await expect(passwordText(page)).toHaveText(m.selectCharacterTypes);
       await expect(

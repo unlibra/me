@@ -1224,7 +1224,22 @@ test("ui-revise2 (parent): the privacy policy names the site and its update date
   const description = metaOf(privacy, "name", "description");
   assert.match(description, /^unlibra のプライバシーポリシーです。/);
   assert.equal(metaOf(privacy, "property", "og:description"), description);
-  assert.match(privacy, /<strong>最終更新日：<\/strong> 2026年10月22日<\/p>/);
+  assert.match(privacy, /<strong>最終更新日：<\/strong> 2026年10月23日<\/p>/);
+});
+
+test("final-review 8: the privacy policy has one h1, and does not call the site open source", () => {
+  const privacy = readDist("privacy/index.html");
+  const main = privacy.match(/<main[\s>][\s\S]*?<\/main>/)[0];
+  const h1s = [...main.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/g)].map((m) => m[1]);
+  assert.deepEqual(h1s, ["プライバシーポリシー"]);
+  assert.ok(!/<h2[^>]*>プライバシーポリシー<\/h2>/.test(main));
+  // The site is All rights reserved; only the tools and UI parts are MIT.
+  assert.ok(!main.includes("オープンソース"));
+  assert.ok(
+    main.includes(
+      "当サイトのソースコードはGitHubで公開されているため、誰でもデータの取り扱いを確認できます。",
+    ),
+  );
 });
 
 test("ui-revise3 2, ui-revise6 1: the top page's description is the footer's description", () => {

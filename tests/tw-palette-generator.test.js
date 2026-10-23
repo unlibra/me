@@ -19,6 +19,7 @@ import {
   createHistoryItem,
   getResetState,
   normalizeInputColor,
+  parsePaletteHistory,
 } from "../src/tools/tw-palette-generator/adjustments.ts";
 import { hexToOklch } from "../src/tools/tw-palette-generator/color.ts";
 import {
@@ -122,4 +123,34 @@ test("H3: the input color gets # only when it is missing", () => {
   assert.equal(normalizeInputColor("3ba0be"), "#3ba0be");
   assert.equal(normalizeInputColor("#3ba0be"), "#3ba0be");
   assert.equal(normalizeInputColor(""), "#");
+});
+
+test("final-review 6: the history read from localStorage keeps only entries of the right shape", () => {
+  const palette = generatePalette("#0ea5e9");
+  const good = createHistoryItem("#0ea5e9", palette, 1700000000000);
+  const noShade = { ...palette };
+  delete noShade[500];
+  assert.deepEqual(parsePaletteHistory([good]), [good]);
+  assert.deepEqual(
+    parsePaletteHistory([
+      null,
+      "x",
+      1,
+      [],
+      {},
+      { ...good, id: 1 },
+      { ...good, baseColor: null },
+      { ...good, timestamp: "1700000000000" },
+      { ...good, palette: null },
+      { ...good, palette: "x" },
+      { ...good, palette: noShade },
+      { ...good, palette: { ...palette, 950: 950 } },
+      good,
+    ]),
+    [good],
+  );
+  // Not a list at all.
+  for (const saved of [null, {}, "[]", 1, { 0: good, length: 1 }]) {
+    assert.deepEqual(parsePaletteHistory(saved), []);
+  }
 });

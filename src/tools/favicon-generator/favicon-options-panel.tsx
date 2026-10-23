@@ -52,7 +52,6 @@ export function FaviconOptionsPanel({
               key={outputSet.id}
               pressed={selectedSets.has(outputSet.id)}
               onClick={() => onSetToggle(outputSet.id)}
-              ariaLabel={`${selectedSets.has(outputSet.id) ? "Deselect" : "Select"} ${outputSet.label}`}
             >
               {outputSet.label}
             </TogglePill>
@@ -91,7 +90,6 @@ export function FaviconOptionsPanel({
                       key={size}
                       pressed={selectedSizes.has(size)}
                       onClick={() => onSizeToggle(size)}
-                      ariaLabel={`${selectedSizes.has(size) ? "Deselect" : "Select"} ${size}x${size}`}
                     >
                       {size}×{size}
                     </TogglePill>
@@ -112,7 +110,6 @@ export function FaviconOptionsPanel({
                       key={size}
                       pressed={selectedSizes.has(size)}
                       onClick={() => onSizeToggle(size)}
-                      ariaLabel={`${selectedSizes.has(size) ? "Deselect" : "Select"} ${size}x${size}`}
                     >
                       {size}×{size}
                     </TogglePill>
@@ -137,13 +134,12 @@ export function FaviconOptionsPanel({
           </p>
         </div>
         <Slider
-          label=""
+          ariaLabel={t.borderRadius}
           value={borderRadius}
           min={0}
           max={100}
           unit="%"
           onChange={onBorderRadiusChange}
-          description=""
         />
       </div>
 

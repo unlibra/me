@@ -145,28 +145,24 @@ function PasswordGenerator() {
             <TogglePill
               pressed={options.uppercase}
               onClick={() => updateOption("uppercase", !options.uppercase)}
-              ariaLabel="Toggle uppercase"
             >
               {t.uppercase}
             </TogglePill>
             <TogglePill
               pressed={options.lowercase}
               onClick={() => updateOption("lowercase", !options.lowercase)}
-              ariaLabel="Toggle lowercase"
             >
               {t.lowercase}
             </TogglePill>
             <TogglePill
               pressed={options.numbers}
               onClick={() => updateOption("numbers", !options.numbers)}
-              ariaLabel="Toggle numbers"
             >
               {t.numbers}
             </TogglePill>
             <TogglePill
               pressed={options.symbols}
               onClick={() => updateOption("symbols", !options.symbols)}
-              ariaLabel="Toggle symbols"
             >
               {t.symbols}
             </TogglePill>

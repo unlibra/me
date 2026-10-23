@@ -83,12 +83,12 @@ function FaviconGenerator() {
 
   const validateImageFileWrapper = useCallback(
     async (file: File): Promise<string | null> => {
-      return validateImageFile(file, {
+      return validateImageFile(file, common.fileErrors, {
         maxSize: 10 * 1024 * 1024, // 10MB
         maxDimensions: { width: 4096, height: 4096 },
       });
     },
-    [],
+    [common],
   );
 
   const handleFileSelect = useCallback(
@@ -129,6 +129,9 @@ function FaviconGenerator() {
       return;
     }
 
+    // Set when the settings change again: a preview made for older settings
+    // that ends later than the newer one is dropped
+    let cancelled = false;
     let currentUrl: string | null = null;
 
     const updatePreview = async () => {
@@ -139,11 +142,13 @@ function FaviconGenerator() {
           borderRadiusPercent: borderRadius,
           backgroundColor: useBackground ? backgroundColor : undefined,
         });
+        if (cancelled) return;
 
         const url = URL.createObjectURL(blob);
         currentUrl = url;
         setPreviewUrl(url);
       } catch (err) {
+        if (cancelled) return;
         console.error("Failed to update preview:", err);
       }
     };
@@ -152,6 +157,7 @@ function FaviconGenerator() {
 
     // Cleanup
     return () => {
+      cancelled = true;
       if (currentUrl) {
         URL.revokeObjectURL(currentUrl);
       }
@@ -336,7 +342,7 @@ function FaviconGenerator() {
                 </div>
               }
             >
-              {previewUrl && <img src={previewUrl} alt="プレビュー" />}
+              {previewUrl && <img src={previewUrl} alt={common.preview} />}
             </CheckerboardPreview>
           </div>
 
