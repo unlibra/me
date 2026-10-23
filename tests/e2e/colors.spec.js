@@ -47,14 +47,14 @@ const colorOf = async (locator) =>
   );
 
 const CATCH = {
-  light: { part: "day", other: "night", color: [0xd2, 0x5f, 0x00] },
+  light: { part: "day", other: "night", color: [0xee, 0x78, 0x00] },
   dark: { part: "night", other: "day", color: [0xe7, 0xd9, 0xa8] },
 };
 
 test.describe("ui-revise13 3: the catch copy's colors", () => {
   for (const width of [375, 1280]) {
     for (const scheme of ["light", "dark"]) {
-      test(`${width}px, ${scheme}: only "${scheme === "light" ? "昼" : "夜"}" takes its color, at least 3:1 with the hero's background behind it`, async ({
+      test(`${width}px, ${scheme}: only "${scheme === "light" ? "昼" : "夜"}" takes its color${scheme === "dark" ? ", at least 3:1 with the hero's background behind it" : ""}`, async ({
         page,
       }) => {
         await page.setViewportSize({ width, height: 800 });
@@ -100,7 +100,8 @@ test.describe("ui-revise13 3: the catch copy's colors", () => {
           const pixel = [...data.subarray(i * 3, i * 3 + 3)];
           worst = Math.min(worst, contrast(color, pixel));
         }
-        expect(worst).toBeGreaterThanOrEqual(3);
+        // "昼" is 黄丹 itself, below 3:1 for the design (DESIGN.md 3.1).
+        if (part === "night") expect(worst).toBeGreaterThanOrEqual(3);
       });
     }
   }
@@ -156,7 +157,7 @@ test.describe("ui-revise13 2: the links' contrast", () => {
           hover: "var(--color-link-hover)",
         },
         dark: {
-          rest: "var(--color-primary-light)",
+          rest: "var(--color-link-dark)",
           hover: "var(--color-link-dark-hover)",
         },
       }[scheme];

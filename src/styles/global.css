@@ -30,29 +30,39 @@
   --color-atom-one-dark: #282c34;
   --color-atom-one-dark-deep: #21252b;
   /*
-   * The site's theme colors (ui-revise13): the sky blue. primary-light is
-   * the traditional color "空色" (sora-iro). The hero's background, the Apps'
-   * icons and the links in dark mode. The logo itself is black.
+   * The site's theme colors (ui-revise13), for decoration only: the sky
+   * blue. sora is the traditional color "空色" (sora-iro). The hero's
+   * background and the Apps' icons. The logo itself is black.
    */
-  --color-primary-light: #a0d8ef;
-  --color-primary: #4d9fd6;
+  --color-sora: #a0d8ef;
+  --color-sora-deep: #4d9fd6;
+
+  /*
+   * The UI's color: the buttons, toggles, sliders and focus outlines. sora
+   * deep darkened in OKLCH (same hue and chroma) until white on it is 4.5:1;
+   * primary-dark, the hover and the checkboxes, darker by the same step.
+   */
+  --color-primary: #277db2;
+  --color-primary-dark: #02689c;
 
   /*
    * The links in light mode (the cards and the Markdown pages): 4.51:1 on
-   * gray-100, the cards' hover. The Markdown pages' hover: darker in light
-   * mode, lighter than primary-light in dark mode (ui-revise13).
+   * gray-100, the cards' hover; in dark mode, the color of sora. The
+   * Markdown pages' hover: darker in light mode, lighter than link-dark in
+   * dark mode (ui-revise13).
    */
   --color-link: #1e76ab;
   --color-link-hover: #005d91;
+  --color-link-dark: #a0d8ef;
   --color-link-dark-hover: #a5def5;
 
   /*
    * The catch copy's colors, for decoration only (ui-revise13): "昼" in
-   * light mode, the traditional color "黄丹" (#ee7800) darkened just enough
-   * for 3:1 with every pixel of the hero's background behind it, measured
-   * from 320px to 1920px wide (ui-revise14); "夜" in dark mode, the moon.
+   * light mode, the traditional color "黄丹" itself: below 3:1 with the
+   * hero's background behind it (about 2.3:1), an exception for the design
+   * (DESIGN.md 3.1); "夜" in dark mode, the moon.
    */
-  --color-catch-day: #d25f00;
+  --color-catch-day: #ee7800;
   --color-catch-night: #e7d9a8;
 
   /*

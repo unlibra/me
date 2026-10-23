@@ -70,7 +70,7 @@ function PasswordGenerator() {
       {/* Password Display */}
       <div className="mb-8 space-y-3">
         <div className="dark:bg-atom-one-dark-light relative overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600">
-          <div className="w-full truncate bg-transparent py-3 pr-28 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100">
+          <div className="w-full truncate bg-transparent py-3 pr-44 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100">
             {password || (
               <span className="text-gray-400 dark:text-gray-500">
                 {t.selectCharacterTypes}
@@ -87,7 +87,7 @@ function PasswordGenerator() {
         <button
           onClick={regenerate}
           disabled={!hasCharset}
-          className="dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:focus-visible:ring-offset-atom-one-dark flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-base font-medium text-gray-600 transition-colors hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 dark:text-gray-400"
+          className="dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:focus-visible:ring-offset-atom-one-dark focus-visible:ring-primary flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-base font-medium text-gray-600 transition-colors hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 dark:text-gray-400"
         >
           <IconRefresh className="size-5" />
           {common.regenerate}
@@ -152,9 +152,9 @@ function PasswordGenerator() {
               onChange={(v) => updateOption("avoidAmbiguous", v)}
               className={`${
                 options.avoidAmbiguous
-                  ? "bg-sky-500 dark:bg-sky-600"
+                  ? "bg-primary"
                   : "bg-gray-300 dark:bg-gray-600"
-              } dark:focus-visible:ring-offset-atom-one-dark relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white`}
+              } dark:focus-visible:ring-offset-atom-one-dark focus-visible:ring-primary relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out before:absolute before:-inset-x-1.5 before:-inset-y-3.5 before:content-[''] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white`}
             >
               <span
                 aria-hidden="true"

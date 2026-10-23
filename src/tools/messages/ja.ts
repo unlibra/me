@@ -5,7 +5,7 @@ export default {
     selectImage: "画像を選択",
     download: "ダウンロード",
     copy: "コピー",
-    copied: "コピーしました",
+    copied: "完了",
     regenerate: "再生成",
     preview: "プレビュー",
     privacyNotice: "画像はサーバーに送信されず、ブラウザで安全に実行されます。",

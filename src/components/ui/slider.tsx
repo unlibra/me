@@ -1,6 +1,11 @@
 import "./slider.css";
 
-import { useCallback, useMemo, type ChangeEvent } from "react";
+import {
+  useCallback,
+  useMemo,
+  type ChangeEvent,
+  type CSSProperties,
+} from "react";
 
 import { useIsDark } from "./use-is-dark";
 
@@ -80,10 +85,15 @@ export function Slider({
           step={step}
           value={value}
           onChange={handleChange}
-          style={{
-            background: `linear-gradient(to right, rgb(0, 166, 244) 0%, rgb(0, 166, 244) ${percentage}%, ${trackColor} ${percentage}%, ${trackColor} 100%)`,
-          }}
-          className="ui-slider h-2 w-full cursor-pointer appearance-none rounded-full outline-hidden"
+          // The track is drawn in slider.css from these: the input itself is
+          // 44px high, the whole of it a target (DESIGN.md 5.4).
+          style={
+            {
+              "--slider-fill": `${percentage}%`,
+              "--slider-track": trackColor,
+            } as CSSProperties
+          }
+          className="ui-slider h-11 w-full cursor-pointer appearance-none bg-transparent outline-hidden"
           aria-label={label ?? ariaLabel}
         />
       </div>

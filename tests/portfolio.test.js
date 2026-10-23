@@ -202,8 +202,8 @@ test('ui-revise13 2, 3: the hero\'s background is in the theme colors, and the c
   for (const name of [
     "from-white/0",
     "from-3%",
-    "via-primary-light/60",
-    "to-primary/80",
+    "via-sora/60",
+    "to-sora-deep/80",
   ]) {
     assert.ok(background.split(/\s+/).includes(name), name);
   }
@@ -1043,7 +1043,7 @@ test("ui-revise3 3: the list items take the former tool site's card padding and 
   }
   // The apps' icons on the former tools' color.
   for (const card of cardsOf(sectionOf("apps"))) {
-    assert.match(card, /bg-primary\/70[^"]*"><img/);
+    assert.match(card, /bg-sora-deep\/70[^"]*"><img/);
   }
 });
 

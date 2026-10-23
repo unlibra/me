@@ -944,10 +944,10 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero"
         await expect(icon).toHaveAttribute("data-icon", ["github", "box"][i]);
         await expect(icon).toBeVisible();
         const box = await icon.boundingBox();
-        // The box is 21px, for the height of the 18px GitHub mark
-        // (ui-revise11 1).
-        const size = [18, 21][i];
-        expect([box.width, box.height]).toEqual([size, size]);
+        // Both 18px high, their widths from their viewBoxes: the GitHub mark
+        // (98 x 96) and the box cropped to its strokes (18 x 20).
+        expect(box.height).toBe(18);
+        expect(box.width).toBeCloseTo([18 * (98 / 96), 18 * (18 / 20)][i], 1);
         const range = await link.evaluate((element) => {
           const r = document.createRange();
           r.selectNodeContents(element);

@@ -15,25 +15,31 @@ const frontmatter = {
 };
 
 const focus =
-  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+
+// The steps' headings (sized in the style below): the number in a gray
+// circle, where white text is 4.8:1.
+const step = "flex items-center gap-2";
+const stepNumber =
+  "flex size-6 shrink-0 items-center justify-center rounded-full bg-gray-500 text-sm/5 font-semibold text-white";
 ---
 
 <MarkdownLayout frontmatter={frontmatter}>
   <h1>寄付・支援</h1>
   <p>
-    活動を応援していただける方は、Amazonギフトカードで寄付をお送りください。
-  </p>
-  <p>
-    受取人のメールアドレスに下のアドレスを入力して、ギフトカードを贈ってください。金額は自由です。
+    サイトの運営や制作活動を応援していただける方は、Amazonギフトカードで支援できます。
   </p>
 
+  <h2 class={step} data-step>
+    <span class={stepNumber}>1</span>送付先メールアドレスをコピー
+  </h2>
   <!-- The address in the password generator's field, with its copy button
        (src/components/ui/copy-button.tsx). The address is text only, never
        in an attribute, so that Cloudflare's Email Address Obfuscation can
        hide it from scrapers. -->
-  <div class="relative mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600 dark:bg-atom-one-dark-light">
+  <div class="relative mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600 dark:bg-atom-one-dark-light">
     <div
-      class="w-full truncate bg-transparent py-3 pr-28 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100"
+      class="w-full truncate bg-transparent py-3 pr-44 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100"
       data-donate-email
     >
       {email}
@@ -45,16 +51,36 @@ const focus =
     />
   </div>
 
-  <p class="mt-6">
+  <h2 class={step} data-step>
+    <span class={stepNumber}>2</span>Amazonでギフトカードを購入
+  </h2>
+  <p>
+    Eメールタイプを選び、受取人欄にコピーしたアドレスを入力してください。金額は自由です。
+  </p>
+  <!-- A div, not a p: the Markdown pages' paragraph margins would override
+       its own. -->
+  <div class="mt-6">
     <a
       href={amazonGift}
       target="_blank"
       rel="noopener noreferrer"
-      class={`inline-flex items-center gap-1 rounded-md bg-link px-4 py-2 text-base font-medium text-white motion-safe:transition-colors hover:bg-link-hover dark:bg-primary-light dark:text-gray-900 dark:hover:bg-link-dark-hover ${focus}`}
+      class={`inline-flex items-center gap-1 rounded-full bg-primary px-8 py-2.5 text-base font-medium text-white motion-safe:transition-colors hover:bg-primary-dark ${focus}`}
       data-button
     >
-      Amazonギフトカードを贈る
+      Amazonでギフトカードを選ぶ
       <ArrowUpRightIcon class="size-4" />
     </a>
-  </p>
+  </div>
 </MarkdownLayout>
+
+<style>
+  /*
+   * The steps' headings are h2 (after the h1) in the size of the tools'
+   * headings, 16px / 24px in 600 (DESIGN.md 2.2), not the Markdown pages'
+   * 24px: the attribute outweighs ".prose h2".
+   */
+  h2[data-step] {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+</style>

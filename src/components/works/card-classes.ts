@@ -23,10 +23,10 @@ export const cardSummary =
  * (ui-revise5 6, 8);
  * "詳しく見る" opens the details and has none (ui-revise4 2). The color is
  * the site's link color: 4.5:1 on the cards' hover (gray-100) in light mode,
- * primary-light in dark mode (ui-revise13).
+ * link-dark in dark mode (ui-revise13).
  */
 export const cardLink =
-  "inline-flex items-center gap-0.5 text-base font-medium text-link dark:text-primary-light";
+  "inline-flex items-center gap-0.5 text-base font-medium text-link dark:text-link-dark";
 /** The arrow of an action. It does not move (ui-revise5 5). */
 export const actionArrow = "size-4 shrink-0";
 
@@ -53,7 +53,7 @@ export const primaryText =
 
 /** The keyboard focus ring of the cards and their links. */
 export const focusRing =
-  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 /**
  * Every card's hover: the former tool site's card hover (the background

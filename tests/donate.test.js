@@ -27,7 +27,19 @@ test("the donation settings: the address and the Amazon e-gift card", () => {
 
 test("the page shows the address and a button that copies it", () => {
   assert.match(main, /<h1[^>]*>寄付・支援<\/h1>/);
-  assert.match(main, /Amazonギフトカードで寄付をお送りください/);
+  assert.match(
+    main,
+    /サイトの運営や制作活動を応援していただける方は、Amazonギフトカードで支援できます。/,
+  );
+  assert.match(main, /アドレスを入力してください。金額は自由です。/);
+  // Two steps: copy the address, then buy the gift card.
+  assert.deepEqual(
+    [...main.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/g)].map((m) =>
+      m[1].replace(/<[^>]*>/g, "|").replace(/\s+/g, ""),
+    ),
+    // The number in its circle, then the step.
+    ["|1|送付先メールアドレスをコピー", "|2|Amazonでギフトカードを購入"],
+  );
   assert.doesNotMatch(main, /unlibra の/);
   // The password generator's field: the address in monospace, with the
   // shared copy button (src/components/ui/copy-button.tsx) at its right.
@@ -37,7 +49,7 @@ test("the page shows the address and a button that copies it", () => {
   );
   const button = main.match(/<button[^>]*>[\s\S]*?<\/button>/)[0];
   assert.match(button, /type="button"/);
-  assert.match(button, /\bbg-sky-500\b/);
+  assert.match(button, /\bbg-primary\b/);
   // The name contains the label on screen (WCAG 2.5.3), as on the password
   // generator.
   assert.match(button, /aria-label="メールアドレスをクリップボードにコピー"/);
@@ -63,7 +75,7 @@ test("the page links to the Amazon e-gift card in a new tab, drawn as a button",
   assert.match(link, /target="_blank"/);
   assert.match(link, /rel="noopener noreferrer"/);
   assert.match(link, /\bdata-button\b/);
-  assert.match(main, />\s*Amazonギフトカードを贈る\s*</);
+  assert.match(main, />\s*Amazonでギフトカードを選ぶ\s*</);
 });
 
 test("the page is like the privacy policy: Japanese, canonical, in the sitemap", () => {

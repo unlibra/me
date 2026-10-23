@@ -22,7 +22,7 @@ const { work, link } = Astro.props;
   target={link.external ? "_blank" : undefined}
   rel={link.external ? "noopener noreferrer" : undefined}
   data-work-link={work.id}
-  class="outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-sky-500"
+  class="outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary"
 >
   <span id={cardTitleId(work)}>{messages.works[work.id].title}</span>
 </a>

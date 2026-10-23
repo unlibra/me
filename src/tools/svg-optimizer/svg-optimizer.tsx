@@ -194,7 +194,7 @@ function SvgOptimizer() {
             />
             <button
               onClick={handleFileButtonClick}
-              className="flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-base font-medium text-white outline-hidden transition-colors hover:bg-sky-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
+              className="bg-primary hover:bg-primary-dark focus-visible:outline-primary flex items-center gap-2 rounded-lg px-4 py-2.5 text-base font-medium text-white outline-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               <IconPlus className="size-5 stroke-2" />
               {common.selectImage}
