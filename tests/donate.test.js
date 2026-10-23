@@ -29,19 +29,26 @@ test("the page shows the address and a button that copies it", () => {
   assert.match(main, /<h1[^>]*>寄付・支援<\/h1>/);
   assert.match(main, /Amazonギフトカードで寄付をお送りください/);
   assert.doesNotMatch(main, /unlibra の/);
-  const box = main.match(/<div[^>]*data-donate-email[\s\S]*?<\/div>/)[0];
+  // The password generator's field: the address in monospace, with the
+  // shared copy button (src/components/ui/copy-button.tsx) at its right.
   assert.match(
-    box,
-    /<span[^>]*\bfont-mono\b[^>]*>\s*gift@unlibra\.com\s*<\/span>/,
+    main,
+    /<div[^>]*\bfont-mono\b[^>]*data-donate-email[^>]*>\s*gift@unlibra\.com\s*<\/div>/,
   );
-  const button = box.match(/<button[^>]*>[\s\S]*?<\/button>/)[0];
+  const button = main.match(/<button[^>]*>[\s\S]*?<\/button>/)[0];
   assert.match(button, /type="button"/);
-  assert.match(button, /data-copy="gift@unlibra\.com"/);
-  // The name read out is the label on screen (WCAG 2.5.3).
-  assert.doesNotMatch(button, /aria-label/);
-  assert.match(button, />\s*コピー\s*</);
-  // The result of copying is announced.
-  assert.match(main, /<p[^>]*role="status"[^>]*data-copy-status/);
+  assert.match(button, /\bbg-sky-500\b/);
+  // The name contains the label on screen (WCAG 2.5.3), as on the password
+  // generator.
+  assert.match(button, /aria-label="メールアドレスをクリップボードにコピー"/);
+  assert.match(button, />コピー</);
+});
+
+test("Scrape Shield: the address is text only, never in an attribute", () => {
+  // Cloudflare's Email Address Obfuscation hides addresses in the text but
+  // leaves attributes (and so the island's props) as they are.
+  assert.equal(page.match(/gift@unlibra\.com/g).length, 1);
+  assert.doesNotMatch(page, /="[^"]*gift@unlibra\.com/);
 });
 
 test("the page links to the Amazon e-gift card in a new tab, drawn as a button", () => {

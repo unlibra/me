@@ -2,6 +2,7 @@
 // Donate: Japanese only, like the privacy policy and the credits. Donations
 // come as Amazon e-gift cards sent to the address in src/config/site.ts.
 import ArrowUpRightIcon from "@/components/icons/ArrowUpRightIcon.astro";
+import DonateCopyButton from "@/components/donate/donate-copy-button";
 import MarkdownLayout from "@/layouts/MarkdownLayout.astro";
 import { site } from "@/config/site";
 
@@ -26,28 +27,23 @@ const focus =
     受取人のメールアドレスに下のアドレスを入力して、ギフトカードを贈ってください。金額は自由です。
   </p>
 
-  <div
-    class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card bg-gray-50 p-4 dark:bg-atom-one-dark-light"
-    data-donate-email
-  >
-    <span class="font-mono text-base/6 break-all text-gray-900 dark:text-white">
-      {email}
-    </span>
-    <button
-      type="button"
-      class={`rounded-md bg-gray-200 px-3 py-2 text-base font-medium text-gray-900 motion-safe:transition-colors hover:bg-gray-300 dark:bg-atom-one-dark-lighter dark:text-white dark:hover:bg-gray-600 ${focus}`}
-      data-copy={email}
-      data-copied="コピーしました"
-      data-failed="コピーできませんでした。アドレスを選択してコピーしてください。"
+  <!-- The address in the password generator's field, with its copy button
+       (src/components/ui/copy-button.tsx). The address is text only, never
+       in an attribute, so that Cloudflare's Email Address Obfuscation can
+       hide it from scrapers. -->
+  <div class="relative mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600 dark:bg-atom-one-dark-light">
+    <div
+      class="w-full truncate bg-transparent py-3 pr-28 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100"
+      data-donate-email
     >
-      コピー
-    </button>
+      {email}
+    </div>
+    <DonateCopyButton
+      client:load
+      label="メールアドレスをクリップボードにコピー"
+      failed="コピーに失敗しました"
+    />
   </div>
-  <p
-    class="mt-2 min-h-5 text-sm/5 text-gray-600 dark:text-gray-400"
-    role="status"
-    data-copy-status
-  ></p>
 
   <p class="mt-6">
     <a
@@ -62,17 +58,3 @@ const focus =
     </a>
   </p>
 </MarkdownLayout>
-
-<script>
-  const button = document.querySelector<HTMLButtonElement>("[data-copy]");
-  const status = document.querySelector<HTMLElement>("[data-copy-status]");
-  button?.addEventListener("click", async () => {
-    if (!status) return;
-    try {
-      await navigator.clipboard.writeText(button.dataset.copy ?? "");
-      status.textContent = button.dataset.copied ?? "";
-    } catch {
-      status.textContent = button.dataset.failed ?? "";
-    }
-  });
-</script>
