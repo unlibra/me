@@ -917,6 +917,8 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero"
       const heading = page.locator("[data-hero] h1");
       // 28px at every width (ui-revise5; 24px, text-2xl, since ui-revise4).
       await expect(heading).toHaveCSS("font-size", "28px");
+      // Half a character on the left, for the closing "。" (ui-revise11 2).
+      await expect(heading).toHaveCSS("padding-left", "14px");
       const h1 = await heading.boundingBox();
       const lineHeight = await heading.evaluate((e) =>
         parseFloat(getComputedStyle(e).lineHeight),
@@ -940,7 +942,10 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero"
         await expect(icon).toHaveAttribute("data-icon", ["github", "box"][i]);
         await expect(icon).toBeVisible();
         const box = await icon.boundingBox();
-        expect([box.width, box.height]).toEqual([18, 18]);
+        // The box is 21px, for the height of the 18px GitHub mark
+        // (ui-revise11 1).
+        const size = [18, 21][i];
+        expect([box.width, box.height]).toEqual([size, size]);
         const range = await link.evaluate((element) => {
           const r = document.createRange();
           r.selectNodeContents(element);
