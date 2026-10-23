@@ -31,7 +31,7 @@ test("the copy button copies the address and announces it", async ({
 
 test("the Amazon link opens the e-gift card in a new tab", async ({ page }) => {
   await open(page, "/donate");
-  const link = page.getByRole("link", { name: "Amazon eギフトカードを贈る" });
+  const link = page.getByRole("link", { name: "Amazonギフトカードを贈る" });
   await expect(link).toHaveAttribute("href", site.donation.amazonGift);
   await expect(link).toHaveAttribute("target", "_blank");
 });
@@ -45,7 +45,7 @@ for (const scheme of ["light", "dark"]) {
     await chooseTheme(page, "ja", scheme);
     for (const button of [
       page.getByRole("button", { name: "コピー", exact: true }),
-      page.getByRole("link", { name: "Amazon eギフトカードを贈る" }),
+      page.getByRole("link", { name: "Amazonギフトカードを贈る" }),
     ]) {
       for (const state of ["rest", "hover"]) {
         if (state === "hover") await button.hover();

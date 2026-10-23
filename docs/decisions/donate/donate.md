@@ -8,7 +8,7 @@
 
 ## DN-2 寄付の受け取り方（ユーザーの決定）
 
-寄付は Amazon eギフトカードで受け取る。受取人のアドレスは `gift@unlibra.com`。リンクのボタンは amazon.co.jp の Amazon eギフトカードの商品ページ（`/dp/B06X1GVMW7`）に飛ぶ。ユーザーが選んだのは「Eメールタイプ」で、Amazon での今の名前が「Amazon eギフトカード」なので、ページの文言もそちらにした（2026-10-24 に商品ページで確かめた）。値は `src/config/site.ts` の `site.donation` に置いた。
+寄付は Amazon eギフトカードで受け取る。受取人のアドレスは `gift@unlibra.com`。リンクのボタンは amazon.co.jp の Amazon eギフトカードの商品ページ（`/dp/B06X1GVMW7`）に飛ぶ。ユーザーが選んだのは「Eメールタイプ」で、Amazon での今の名前は「Amazon eギフトカード」（2026-10-24 に商品ページで確かめた）。ページの文言はユーザーの指定で「Amazonギフトカード」にした。値は `src/config/site.ts` の `site.donation` に置いた。
 
 商品ページはユーザーの指定で、デザイン「Amazon スマイル」の `B06X1GVMW7`（初めは「Amazonロゴ - クラシック」の `B004N3APGO` だった）。
 

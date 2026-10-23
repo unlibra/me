@@ -27,7 +27,8 @@ test("the donation settings: the address and the Amazon e-gift card", () => {
 
 test("the page shows the address and a button that copies it", () => {
   assert.match(main, /<h1[^>]*>寄付・支援<\/h1>/);
-  assert.match(main, /Amazon\s+eギフトカード/);
+  assert.match(main, /Amazonギフトカードで寄付をお送りください/);
+  assert.doesNotMatch(main, /unlibra の/);
   const box = main.match(/<div[^>]*data-donate-email[\s\S]*?<\/div>/)[0];
   assert.match(
     box,
@@ -55,7 +56,7 @@ test("the page links to the Amazon e-gift card in a new tab, drawn as a button",
   assert.match(link, /target="_blank"/);
   assert.match(link, /rel="noopener noreferrer"/);
   assert.match(link, /\bdata-button\b/);
-  assert.match(main, />\s*Amazon eギフトカードを贈る\s*</);
+  assert.match(main, />\s*Amazonギフトカードを贈る\s*</);
 });
 
 test("the page is like the privacy policy: Japanese, canonical, in the sitemap", () => {
