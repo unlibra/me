@@ -48,10 +48,11 @@
 
   /*
    * The catch copy's colors, for decoration only (ui-revise13): "昼" in
-   * light mode, the traditional color "黄丹" (#ee7800) darkened to 3.3:1 on
-   * the hero's background where the text is; "夜" in dark mode, the moon.
+   * light mode, the traditional color "黄丹" (#ee7800) darkened just enough
+   * for 3:1 with every pixel of the hero's background behind it, measured
+   * from 320px to 1920px wide (ui-revise14); "夜" in dark mode, the moon.
    */
-  --color-catch-day: #ce5a00;
+  --color-catch-day: #d25f00;
   --color-catch-night: #e7d9a8;
 
   /*

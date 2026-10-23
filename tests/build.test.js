@@ -354,7 +354,7 @@ test("ui-revise13 1, 2: the theme colors, the link colors and the catch copy's c
   assert.equal(tokens.link, "#1e76ab");
   assert.equal(tokens["link-hover"], "#005d91");
   assert.equal(tokens["link-dark-hover"], "#a5def5");
-  assert.equal(tokens["catch-day"], "#ce5a00");
+  assert.equal(tokens["catch-day"], "#d25f00");
   assert.equal(tokens["catch-night"], "#e7d9a8");
   // The Markdown pages' links take the tokens, not values written there.
   const markdown = readFileSync(

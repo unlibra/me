@@ -47,7 +47,7 @@ const colorOf = async (locator) =>
   );
 
 const CATCH = {
-  light: { part: "day", other: "night", color: [0xce, 0x5a, 0x00] },
+  light: { part: "day", other: "night", color: [0xd2, 0x5f, 0x00] },
   dark: { part: "night", other: "day", color: [0xe7, 0xd9, 0xa8] },
 };
 
