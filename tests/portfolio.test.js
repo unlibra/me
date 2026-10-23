@@ -476,11 +476,14 @@ test("ui-revise9 1, 2, 4: the i18n-tiny and DIY Keyboards summaries and the keyb
     "i18n-tiny-next": i18n("Next.js", "アプリ"),
     "i18n-tiny-react": i18n("React", "アプリ"),
     "fosty-natural":
-      "HHKBを40%に落とし込んだような美しい配列とデザインを持つエンドゲームキーボード。",
+      "HHKB配列を40%キーボードに落とし込み、美しいデザインと打鍵感を両立したエンドゲームキーボード。",
     "fosty-dark": "fosty naturalのアナザーカラー。もうひとつのエンドゲーム。",
     "mira-zero": "はじめて基板・ケースともに自作した思い出の分割キーボード。",
     prototypes:
       "エンドゲームに行き着くまでに生まれた、数々のプロトタイプキーボードたち...。",
+    // ui-revise11 (2026-10-23, the user's wording)
+    "favicon-generator":
+      "画像からファビコンとApple Touch Iconを一括生成。角丸や背景色も設定できます。",
   };
   for (const [work, summary] of Object.entries(summaries)) {
     assert.equal(summaryOf(work), summary, work);

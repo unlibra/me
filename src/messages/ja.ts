@@ -57,7 +57,7 @@ export default {
     "fosty-natural": {
       title: "fosty natural",
       summary:
-        "HHKBを40%に落とし込んだような美しい配列とデザインを持つエンドゲームキーボード。",
+        "HHKB配列を40%キーボードに落とし込み、美しいデザインと打鍵感を両立したエンドゲームキーボード。",
       description: `HHKBの特徴的な配列を40%キーボードに落とし込んだ、ロープロファイル（Choc V2）キーボード。
 HHKBのJust60キーに対してJust40キーとなるようにしたのもこだわりポイント。
 アルミ削り出しの筐体と無駄のない薄型設計による美しいデザイン、ガスケットマウントによる心地よい打鍵感、そして一体型レイアウトによる携帯性と安定性を追求。
@@ -96,7 +96,7 @@ fosty naturalの持っている打鍵感・携帯性・配列・デザインは�
     "favicon-generator": {
       title: "Faviconジェネレーター",
       summary:
-        "画像から、Webサイトに必要な全サイズのFaviconとApple Touch Iconを一括生成。角丸や背景色も設定できます。",
+        "画像からファビコンとApple Touch Iconを一括生成。角丸や背景色も設定できます。",
     },
     "svg-optimizer": {
       title: "SVG最適化",
