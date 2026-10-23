@@ -33,7 +33,7 @@
 
 ## 結果（2026-10-24）
 
-切替は完了した。本番は Workers Builds（`main` への push でデプロイ）と Custom Domain `unlibra.com` で配信している。`npm run check:prod -- https://unlibra.com` は失敗 0。Vercel の3プロジェクトは削除し、liblab は `unlibra-archive/liblab` に移してアーカイブした。IndexNow で unlibra.com と docs.unlibra.com の URL を送った（どちらも 202）。以下は切替前に書いた手順で、記録として残す。
+切替は完了した。本番は Workers Builds（`main` への push でデプロイ）と Custom Domain `unlibra.com` で配信している。`npm run check:prod -- https://unlibra.com` は失敗 0。Vercel の3プロジェクトは削除し、liblab は `unlibra-archive/liblab` に移してアーカイブした。IndexNow で unlibra.com と docs.unlibra.com の URL を送った（どちらも 202）。Web Analytics は、ダッシュボードでサイトを設定し直したあと、自動挿入が効いている（ブラウザのように `Accept: text/html` を付けたリクエストにだけ挿入される。`check:prod` もそのヘッダーを付けるようにした）。以下は切替前に書いた手順で、記録として残す。
 
 ## 現状（2026-10-23 時点）
 
