@@ -15,7 +15,6 @@ import {
   IconPlus as Plus,
   IconRefresh as Refresh,
   IconShieldCheck as ShieldCheck,
-  IconTrash as Trash,
   IconX as X,
   type IconProps,
   type TablerIcon,
@@ -41,5 +40,4 @@ export const IconPhoto = decorative(Photo);
 export const IconPlus = decorative(Plus);
 export const IconRefresh = decorative(Refresh);
 export const IconShieldCheck = decorative(ShieldCheck);
-export const IconTrash = decorative(Trash);
 export const IconX = decorative(X);

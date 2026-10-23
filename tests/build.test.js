@@ -186,12 +186,7 @@ test("A6: sitemap lists the top page, privacy, credits, and the tool pages only"
     .sort();
   // @astrojs/sitemap 3.7.4+ writes the origin-only URL with "/", which is
   // the same resource as the canonical URL without it.
-  const tools = [
-    "favicon-generator",
-    "password-generator",
-    "svg-optimizer",
-    "tw-palette-generator",
-  ];
+  const tools = ["favicon-generator", "password-generator", "svg-optimizer"];
   assert.deepEqual(locs, [
     `${SITE}/`,
     `${SITE}/credits`,

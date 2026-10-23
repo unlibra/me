@@ -52,12 +52,7 @@ const isThemeInit = (body) =>
 
 test("the build has the pages this test suite expects", () => {
   // Guards against the checks below passing on an empty page list.
-  const tools = [
-    "favicon-generator",
-    "password-generator",
-    "svg-optimizer",
-    "tw-palette-generator",
-  ];
+  const tools = ["favicon-generator", "password-generator", "svg-optimizer"];
   assert.deepEqual(
     htmlPages(),
     [

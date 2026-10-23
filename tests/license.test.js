@@ -65,10 +65,7 @@ const ATTRIBUTION =
  * Files with material by other authors that cannot carry an attribution
  * comment (JSON has no comments). They must still be listed in LICENSE.
  */
-const WITHOUT_COMMENT = [
-  // tailwindcss 3.4.18 colors (docs/decisions/phase-4/tools.md T-21)
-  "tests/fixtures/tw-palette-generator/tailwind-v3-colors.json",
-];
+const WITHOUT_COMMENT = [];
 
 /**
  * Files that name licenses and copyright holders without containing material
@@ -169,16 +166,12 @@ test("F2: listed third-party files exist and start with their attribution", () =
   const sources = thirdPartySources();
   assert.deepEqual(
     sources.map((s) => s.licenseFile),
-    [
-      "LICENSES/Tabler-MIT.txt",
-      "LICENSES/tailwindcss-MIT.txt",
-      "LICENSES/CC0-1.0.txt",
-    ],
+    ["LICENSES/Tabler-MIT.txt", "LICENSES/CC0-1.0.txt"],
   );
   for (const { heading, licenseFile, files } of sources) {
     assert.ok(existsSync(join(root, licenseFile)), licenseFile);
     assert.ok(files.length > 0, `${heading}: no files listed`);
-    // The first word of the heading names the source (Tabler, Tailwind, DiceBear).
+    // The first word of the heading names the source (Tabler, DiceBear).
     const name = new RegExp(heading.split(" ")[0], "i");
     for (const file of files) {
       assert.ok(existsSync(join(root, file)), `${file} does not exist`);
@@ -251,17 +244,12 @@ test("F3: LICENSES/MIT.txt is the MIT License for unlibra", () => {
   assert.equal(body, MIT_TEXT);
 });
 
-test("F3, ui-revise7 8': Tabler Icons and tailwindcss licenses are copied verbatim", () => {
+test("F3, ui-revise7 8': Tabler Icons license is copied verbatim", () => {
   for (const [file, pkg, holder] of [
     [
       "LICENSES/Tabler-MIT.txt",
       "node_modules/@tabler/icons/LICENSE",
       "Copyright (c) 2020-2026 Paweł Kuna",
-    ],
-    [
-      "LICENSES/tailwindcss-MIT.txt",
-      "node_modules/tailwindcss/LICENSE",
-      "Copyright (c) Tailwind Labs, Inc.",
     ],
   ]) {
     const text = read(file);

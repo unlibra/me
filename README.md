@@ -64,8 +64,8 @@ See [LICENSE](LICENSE) for the full terms.
 
 - The web tools (`src/tools/`) and shared UI parts (`src/components/ui/`) are
   licensed under the [MIT License](LICENSES/MIT.txt).
-- Some files contain material by other authors (Tabler Icons, the Tailwind
-  CSS color palette, DiceBear). They are listed in [LICENSE](LICENSE), with the
-  full license texts in [LICENSES/](LICENSES/).
+- Some files contain material by other authors (Tabler Icons, DiceBear). They
+  are listed in [LICENSE](LICENSE), with the full license texts in
+  [LICENSES/](LICENSES/).
 - BOOTH product images that show material by other creators are not covered by
   any of these licenses.

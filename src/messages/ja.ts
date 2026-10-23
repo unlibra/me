@@ -88,11 +88,6 @@ fosty naturalの持っている打鍵感・携帯性・配列・デザインは�
     },
     // The Apps: the former tool site's names; the summaries are shortened
     // from its cards' texts (ui-revise6 2).
-    "tw-palette-generator": {
-      title: "TWパレットジェネレーター",
-      summary:
-        "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。統一感のある配色を作れます。",
-    },
     "favicon-generator": {
       title: "Faviconジェネレーター",
       summary:

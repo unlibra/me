@@ -129,12 +129,6 @@ export const works: Work[] = [
     docs: "https://docs.unlibra.com/tkinter-unblur/",
   },
   {
-    id: "tw-palette-generator",
-    category: "apps",
-    image: toolIcons["tw-palette-generator"],
-    link: toolPath("tw-palette-generator", "ja"),
-  },
-  {
     id: "favicon-generator",
     category: "apps",
     image: toolIcons["favicon-generator"],

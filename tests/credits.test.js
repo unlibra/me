@@ -71,7 +71,7 @@ const shown = ({ name, url, license }) => ({ name, url, license });
 
 test("ui-revise6 4: the credited materials are the sources of section 2 of LICENSE, in its order", () => {
   const sources = licenseSources(read("LICENSE"));
-  assert.ok(sources.length >= 3, "self-check: sources found in LICENSE");
+  assert.ok(sources.length >= 2, "self-check: sources found in LICENSE");
   assert.deepEqual(materials.map(shown), sources.map(shown));
 });
 

@@ -88,27 +88,28 @@ Custom Domain（案C）か Route（案R）かを選ぶ。違いは3章の表に�
 
 ### 2.1 全ページが 200 になる
 
-| パス                                                                                                                          |
-| ----------------------------------------------------------------------------------------------------------------------------- |
-| `/`、`/privacy`                                                                                                               |
-| `/lab`、`/lab/tw-palette-generator`、`/lab/favicon-generator`、`/lab/svg-optimizer`、`/lab/password-generator`                |
-| `/en/lab`、`/en/lab/tw-palette-generator`、`/en/lab/favicon-generator`、`/en/lab/svg-optimizer`、`/en/lab/password-generator` |
-| `/robots.txt`、`/sitemap-index.xml`、`/sitemap-0.xml`                                                                         |
+| パス                                                                                          |
+| --------------------------------------------------------------------------------------------- |
+| `/`、`/privacy`                                                                               |
+| `/lab`、`/lab/favicon-generator`、`/lab/svg-optimizer`、`/lab/password-generator`             |
+| `/en/lab`、`/en/lab/favicon-generator`、`/en/lab/svg-optimizer`、`/en/lab/password-generator` |
+| `/robots.txt`、`/sitemap-index.xml`、`/sitemap-0.xml`                                         |
 
-ブラウザでも開き、4つのツールが日英で動くこと、ライト・ダークの切替が効くことを見る。存在しないパス（例：`/nope`）は 404 になり、自前の404ページが出る。
+ブラウザでも開き、3つのツールが日英で動くこと、ライト・ダークの切替が効くことを見る。存在しないパス（例：`/nope`）は 404 になり、自前の404ページが出る。
 
 ### 2.2 旧URLが 301 で新URLに転送される
 
-| 旧URL                                      | ステータス | `location`                        |
-| ------------------------------------------ | ---------- | --------------------------------- |
-| `/ja`、`/ja/`、`/en`、`/en/`               | 301        | `/`                               |
-| `/lab/ja`、`/lab/ja/`                      | 301        | `/lab`                            |
-| `/lab/en`、`/lab/en/`                      | 301        | `/en/lab`                         |
-| `/lab/ja/svg-optimizer`（4ツールとも）     | 301        | `/lab/svg-optimizer`              |
-| `/lab/ja/svg-optimizer/`                   | 301        | `/lab/svg-optimizer`              |
-| `/lab/en/favicon-generator`（4ツールとも） | 301        | `/en/lab/favicon-generator`       |
-| `/lab/en/iromide`                          | 301        | `/en/lab/iromide`（その先は 404） |
-| `/sitemap.xml`                             | 301        | `/sitemap-index.xml`              |
+| 旧URL                                      | ステータス | `location`                                  |
+| ------------------------------------------ | ---------- | ------------------------------------------- |
+| `/ja`、`/ja/`、`/en`、`/en/`               | 301        | `/`                                         |
+| `/lab/ja`、`/lab/ja/`                      | 301        | `/lab`                                      |
+| `/lab/en`、`/lab/en/`                      | 301        | `/en/lab`                                   |
+| `/lab/ja/svg-optimizer`（3ツールとも）     | 301        | `/lab/svg-optimizer`                        |
+| `/lab/ja/svg-optimizer/`                   | 301        | `/lab/svg-optimizer`                        |
+| `/lab/en/favicon-generator`（3ツールとも） | 301        | `/en/lab/favicon-generator`                 |
+| `/lab/en/iromide`                          | 301        | `/en/lab/iromide`（その先は 404）           |
+| `/lab/ja/tw-palette-generator`             | 301        | `/lab/tw-palette-generator`（その先は 404） |
+| `/sitemap.xml`                             | 301        | `/sitemap-index.xml`                        |
 
 `/privacy/` のような新URLの末尾スラッシュ付きの形は 307 で末尾スラッシュなしに転送される。これは Workers の `html_handling` の仕様で、想定どおり（Phase 1 の判断 P1-6）。
 

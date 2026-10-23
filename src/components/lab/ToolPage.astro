@@ -11,7 +11,6 @@ import FaviconGenerator from "@/tools/favicon-generator/favicon-generator";
 import { toolMessages } from "@/tools/messages";
 import PasswordGenerator from "@/tools/password-generator/password-generator";
 import SvgOptimizer from "@/tools/svg-optimizer/svg-optimizer";
-import TwPaletteGenerator from "@/tools/tw-palette-generator/tw-palette-generator";
 
 interface Props {
   lang: Locale;
@@ -24,7 +23,6 @@ const otherLang: Locale = lang === "ja" ? "en" : "ja";
 
 // Width of the tool area, as on the former tool pages.
 const widths: Record<ToolId, string> = {
-  "tw-palette-generator": "max-w-screen-sm lg:max-w-screen-xl",
   "favicon-generator": "max-w-screen-lg",
   "svg-optimizer": "max-w-screen-lg",
   "password-generator": "max-w-screen-sm",
@@ -83,9 +81,6 @@ const webApplication = {
       </div>
 
       {/* Each island is referenced statically so that Astro can hydrate it. */}
-      {tool === "tw-palette-generator" && (
-        <TwPaletteGenerator client:load locale={lang} />
-      )}
       {tool === "favicon-generator" && (
         <FaviconGenerator client:load locale={lang} />
       )}

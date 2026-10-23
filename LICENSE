@@ -37,15 +37,6 @@ The full text is in LICENSES/Tabler-MIT.txt.
   - src/components/icons/XIcon.astro
   - src/components/ui/Breadcrumb.astro
 
-Tailwind CSS v3 color palette (tailwindcss 3.4.18, https://tailwindcss.com)
-and values computed from it
-MIT License, Copyright (c) Tailwind Labs, Inc.
-The full text is in LICENSES/tailwindcss-MIT.txt.
-
-  - src/tools/tw-palette-generator/tailwind-colors.ts
-  - src/tools/tw-palette-generator/palette-anchors.ts
-  - tests/fixtures/tw-palette-generator/tailwind-v3-colors.json
-
 DiceBear "Shapes" and "Planets" (https://www.dicebear.com)
 CC0 1.0 Universal.
 The full text is in LICENSES/CC0-1.0.txt.
@@ -55,7 +46,6 @@ The full text is in LICENSES/CC0-1.0.txt.
   - src/assets/tools/favicon-generator.svg
   - src/assets/tools/password-generator.svg
   - src/assets/tools/svg-optimizer.svg
-  - src/assets/tools/tw-palette-generator.svg
 
 
 3. Not covered by this LICENSE

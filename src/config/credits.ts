@@ -23,12 +23,6 @@ export const materials: readonly Credit[] = [
     url: "https://tabler.io/icons",
   },
   {
-    name: "Tailwind CSS v3 color palette",
-    author: "Tailwind Labs, Inc.",
-    license: "MIT License",
-    url: "https://tailwindcss.com",
-  },
-  {
     name: 'DiceBear "Shapes" and "Planets"',
     author: "DiceBear",
     license: "CC0 1.0 Universal",

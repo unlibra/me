@@ -28,12 +28,6 @@ const en: ToolMessages = {
     },
   },
   tools: {
-    "tw-palette-generator": {
-      name: "TW Palette Generator",
-      description:
-        "Generate a complete Tailwind CSS color palette from any base color. Easily create harmonious, production-ready color scales (50-950) that align perfectly with your brand, all for free.",
-      shortDescription: "Create Tailwind CSS color palettes from a single hue.",
-    },
     "favicon-generator": {
       name: "Favicon Generator",
       description:
@@ -51,32 +45,6 @@ const en: ToolMessages = {
       description:
         "Generate robust, secure passwords with our free online tool. Customize length, include/exclude uppercase, lowercase, numbers, and symbols. We even offer an option to avoid ambiguous characters (like '0' and 'O'). All generation happens securely in your browser.",
       shortDescription: "Quick and secure password generation.",
-    },
-  },
-  twPaletteGenerator: {
-    baseColorSelection: "Base Color Selection",
-    colorCode: "Color Code",
-    adjustment: "Adjustments",
-    hue: "Hue",
-    lightness: "Lightness",
-    saturation: "Saturation",
-    resetAdjustment: "Reset Adjustments",
-    generatedPalette: "Generated Palette",
-    saveToHistory: "Save to History",
-    paletteHistory: "Palette History",
-    deleteAllHistory: "Delete All History",
-    historyEmptyMessage:
-      "Your generated color palettes will appear here when saved.",
-    tailwindConfig: "Tailwind Config",
-    copyConfig: "Copy Tailwind Config",
-    deleteFromHistory: "Delete from History",
-    copyColor: "Copy {color}",
-    errors: {
-      colorCodeCopyFailed: "Failed to copy color code.",
-      colorCodeCopied: "Color code copied!",
-      configCopied: "Tailwind config copied!",
-      configCopyFailed: "Failed to copy Tailwind config.",
-      addedToHistory: "Added to history.",
     },
   },
   passwordGenerator: {

@@ -23,12 +23,7 @@ const attr = (tag, name) => tag.match(new RegExp(`${name}="([^"]*)"`))?.[1];
 const hrefs = (html) =>
   [...html.matchAll(/<a\s[^>]*>/g)].map((m) => attr(m[0], "href"));
 
-const TOOLS = [
-  "tw-palette-generator",
-  "favicon-generator",
-  "svg-optimizer",
-  "password-generator",
-];
+const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
 const messages = { ja, en };
 const prefix = { ja: "", en: "/en" };
 const other = { ja: "en", en: "ja" };
@@ -37,7 +32,7 @@ const other = { ja: "en", en: "ja" };
 const pathOf = (lang, tool) => `${prefix[lang]}/lab/${tool}`;
 const fileOf = (path) => `${path.slice(1)}/index.html`;
 
-/** The eight tool pages as { lang, tool, path }. */
+/** The six tool pages as { lang, tool, path }. */
 const pages = ["ja", "en"].flatMap((lang) =>
   TOOLS.map((tool) => ({
     lang,
@@ -56,8 +51,8 @@ const jsonLd = (html) =>
     ),
   ].map((m) => JSON.parse(m[1]));
 
-test("E2: the eight tool pages exist with lang, canonical and hreflang", () => {
-  assert.equal(pages.length, 8);
+test("E2: the six tool pages exist with lang, canonical and hreflang", () => {
+  assert.equal(pages.length, 6);
   for (const { lang, tool, path } of pages) {
     const html = readDist(fileOf(path));
     assert.match(html, new RegExp(`<html[^>]*lang="${lang}"`), path);
@@ -249,6 +244,31 @@ test("E5: tool texts have the same keys in ja and en", () => {
   }
 });
 
+test("remove-tw-palette: the build output has no trace of the TW Palette Generator", () => {
+  // The tool's ID, its names and texts that were in its messages (ja, en).
+  const traces = [
+    /tw-palette/i,
+    /twPalette/,
+    /TWパレット/,
+    /TW Palette/i,
+    /パレット/,
+    /Palette Generator/i,
+    /Palette History/i,
+    /Generated Palette/i,
+    /Tailwind Config/i,
+    /Tailwind設定/,
+    /tailwind-v3-colors/,
+  ];
+  const files = globSync("**/*.{html,js,css,txt,xml,json,svg}", { cwd: dist });
+  assert.ok(files.length > 20, "self-check: files found in dist/");
+  for (const file of files) {
+    const text = readDist(file);
+    for (const trace of traces) {
+      assert.doesNotMatch(text, trace, file);
+    }
+  }
+});
+
 // E4: the license boundary (decision P4-1).
 const eslint = new ESLint({ cwd: root });
 
@@ -334,24 +354,6 @@ test("E4: the repository's MIT code passes the license boundary rule", async () 
   assert.deepEqual(errors, []);
 });
 
-test("the palette history is stored under the former tool's localStorage key", () => {
-  // Same origin and the same key, so history saved before the move carries
-  // over (plan item 8). The behavior itself is checked by hand (E7).
-  const html = readDist(fileOf(pathOf("ja", "tw-palette-generator")));
-  const [island] = islands(html);
-  const code = readDist(island.component.slice(1));
-  assert.match(code, /["'`]tw-palette-history["'`]/);
-  const source = readFileSync(
-    join(root, "src/tools/tw-palette-generator/tw-palette-generator.tsx"),
-    "utf8",
-  );
-  assert.match(source, /PALETTE_HISTORY_KEY = "tw-palette-history";/);
-  assert.equal(
-    source.match(/localStorage\.\w+Item\(PALETTE_HISTORY_KEY/g)?.length,
-    2,
-  );
-});
-
 test("ui-revise7 8': the tools' icons are Tabler Icons, through the decorative wrappers of src/components/ui/icons.tsx", () => {
   const files = globSync("src/{tools,components/ui}/**/*.{ts,tsx,astro}", {
     cwd: root,
@@ -367,7 +369,7 @@ test("ui-revise7 8': the tools' icons are Tabler Icons, through the decorative w
     }
     if (/from "(?:\.\/|@\/components\/ui\/)icons"/.test(text)) users.push(file);
   }
-  assert.ok(users.length >= 7, "self-check: the tools use the wrappers");
+  assert.ok(users.length >= 6, "self-check: the tools use the wrappers");
   const icons = readFileSync(join(root, "src/components/ui/icons.tsx"), "utf8");
   assert.match(icons, /aria-hidden="true"/);
 });

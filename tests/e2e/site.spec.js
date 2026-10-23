@@ -14,12 +14,7 @@ import {
   open,
 } from "./helpers.js";
 
-const TOOLS = [
-  "tw-palette-generator",
-  "favicon-generator",
-  "svg-optimizer",
-  "password-generator",
-];
+const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
 const PAGES = [
   "/",
   "/privacy",
@@ -105,12 +100,6 @@ test.describe("theme", () => {
     [
       "/en/lab/svg-optimizer",
       "div.rounded-lg.border.border-sky-200",
-      "backgroundColor",
-      "background",
-    ],
-    [
-      "/en/lab/tw-palette-generator",
-      'input[name="hex-input"]',
       "backgroundColor",
       "background",
     ],
@@ -272,11 +261,37 @@ test.describe("former URLs", () => {
     }
   });
 
+  test("the removed TW Palette Generator ends in 404, as Iromide", async ({
+    request,
+  }) => {
+    for (const slash of ["", "/"]) {
+      for (const [from, to] of [
+        [`/lab/ja/tw-palette-generator${slash}`, `/lab/tw-palette-generator`],
+        [
+          `/lab/en/tw-palette-generator${slash}`,
+          `/en/lab/tw-palette-generator`,
+        ],
+      ]) {
+        const response = await request.get(from, { maxRedirects: 0 });
+        expect(response.status(), from).toBe(301);
+        expect(response.headers().location, from).toBe(`${to}${slash}`);
+      }
+      for (const path of [
+        `/lab/tw-palette-generator${slash}`,
+        `/en/lab/tw-palette-generator${slash}`,
+        `/lab/ja/tw-palette-generator${slash}`,
+        `/lab/en/tw-palette-generator${slash}`,
+      ]) {
+        expect((await request.get(path)).status(), path).toBe(404);
+      }
+    }
+  });
+
   test("the former tool URLs land on the new pages in a browser", async ({
     page,
   }) => {
-    await page.goto("/lab/en/tw-palette-generator/");
-    await expect(page).toHaveURL("/en/lab/tw-palette-generator");
+    await page.goto("/lab/en/svg-optimizer/");
+    await expect(page).toHaveURL("/en/lab/svg-optimizer");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await page.goto("/ja");
     await expect(page).toHaveURL("/");

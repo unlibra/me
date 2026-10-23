@@ -33,12 +33,7 @@ const CATEGORIES = [
 ];
 /** The DIY keyboard whose card opens nothing (ui-revise9 3). */
 const PLAIN = "prototypes";
-const TOOLS = [
-  "tw-palette-generator",
-  "favicon-generator",
-  "svg-optimizer",
-  "password-generator",
-];
+const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
 
 /**
  * The former arrows (Heroicons "arrow-up-right" until ui-revise5 6, Lucide
@@ -201,7 +196,7 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
 
 test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the donate link", () => {
   const pages = globSync("**/*.html", { cwd: dist });
-  assert.ok(pages.length >= 11, "self-check of the page list");
+  assert.ok(pages.length >= 9, "self-check of the page list");
   for (const page of pages) {
     const html = readDist(page);
     if (page === "404.html") {
@@ -295,10 +290,6 @@ test("ui-revise4 2, ui-revise6 2: the Apps cards have the former tool site's nam
   // (tool-card.tsx replaces /\r?\n/g with ''). Since ui-revise6 2 the
   // summaries are shorter (about two lines; the E2E counts the lines).
   const liblab = {
-    "tw-palette-generator": [
-      "TWパレットジェネレーター",
-      "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。\nコーポレートカラーやブランドカラーをベースに、50〜950まで統一感のある配色を無料で作成できます。",
-    ],
     "favicon-generator": [
       "Faviconジェネレーター",
       "無料のFavicon一括生成ツール。PNG、JPEG、SVGなどの画像をアップロードするだけで、Webサイトに必要な全サイズのFaviconとApple Touch Iconを自動生成。\n角丸加工や背景色の設定もブラウザ上で簡単に完了します。",
@@ -428,8 +419,6 @@ test("ui-revise8 3: the cards' summaries; none says it runs in the browser", () 
       "文字数や文字の種類を選んで、強力なパスワードを生成。紛らわしい文字の除外にも対応しています。",
     "tkinter-unblur":
       "Windows で Tkinter のアプリがぼやけて表示される問題をシンプルに解決する Python ライブラリです。",
-    "tw-palette-generator":
-      "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。統一感のある配色を作れます。",
     "mururu-blink-lipsync":
       "ムルルに、ユーザーの声に合わせて自然に口が動くリップシンク機能とまばたき機能を追加するUnityツールです。",
   };
@@ -711,8 +700,8 @@ test("ui-revise4 3: no card and no details show a year", () => {
 
 test("ui-revise2 3, ui-revise4 2, ui-revise9 3: the DIY Keyboards cards open their details, except prototypes; the other cards have none", () => {
   const cards = cardsOf(top);
-  // 13 since ui-revise8 4 (@i18n-tiny/react).
-  assert.equal(cards.length, 13, "self-check of the work count");
+  // 13 since ui-revise8 4 (@i18n-tiny/react), 12 since remove-tw-palette.
+  assert.equal(cards.length, 12, "self-check of the work count");
   const keyboards = new Set(
     cardsOf(sectionOf("keyboards")).map((card) => attr(card, "data-work")),
   );
@@ -959,8 +948,8 @@ test("ui-revise4 2, ui-revise5 2, 6, ui-revise7 8': the actions have the up-righ
     const more = card.match(/<p[^>]*data-work-more[\s\S]*?<\/p>/);
     if (more) assert.doesNotMatch(more[0], /<svg/, `${work}: more`);
   }
-  // 4 Libraries since ui-revise8 4.
-  assert.equal(links, 4 * 2 + 4 + 2, "self-check: the number of actions");
+  // 4 Libraries since ui-revise8 4, 3 Apps since remove-tw-palette.
+  assert.equal(links, 4 * 2 + 3 + 2, "self-check: the number of actions");
 });
 
 test("ui-revise3 3: the photo cards and the list items share the title, summary, link, radius and focus classes", async () => {

@@ -12,12 +12,7 @@ import {
   toolUrl,
 } from "./helpers.js";
 
-const TOOLS = [
-  "tw-palette-generator",
-  "favicon-generator",
-  "svg-optimizer",
-  "password-generator",
-];
+const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
 const TOOL_PAGES = LOCALES.flatMap((locale) =>
   TOOLS.map((tool) => toolUrl(locale, tool)),
 );

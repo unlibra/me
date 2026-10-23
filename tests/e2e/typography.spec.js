@@ -15,12 +15,7 @@ import { expect, test } from "@playwright/test";
 import { layoutMessages } from "../../src/messages/layout.ts";
 import { chooseFile, LOCALES, open, pngFile, toolUrl } from "./helpers.js";
 
-const TOOLS = [
-  "tw-palette-generator",
-  "favicon-generator",
-  "svg-optimizer",
-  "password-generator",
-];
+const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
 
 /** The text under `selector` that breaks the rule, as readable lines. */
 const typographyErrors = (page, selector = "body") =>
@@ -234,7 +229,6 @@ test("ui-revise7 8': the icons are Tabler Icons (outline, stroke 2), hidden from
   for (const path of [
     "/",
     "/lab/password-generator",
-    "/lab/tw-palette-generator",
     "/lab/svg-optimizer",
     "/lab/favicon-generator",
   ]) {

@@ -41,7 +41,7 @@
 | ツール（日本語・既定）             | `/lab/{tool}`    |
 | ツール（英語）                     | `/en/lab/{tool}` |
 
-`{tool}` は `tw-palette-generator`、`favicon-generator`、`svg-optimizer`、`password-generator` の4つ。ツール一覧ページ（`/lab`、`/en/lab`）は、ユーザーの最終UIチェックの指示で廃止した（2026-10-21、`docs/decisions/ui-revise/`）。ツールへの入口はトップの Apps のセクション（`/#apps`）とヘッダー（2026-10-22 にカテゴリ名を変更。`docs/decisions/ui-revise2/`）。
+`{tool}` は `favicon-generator`、`svg-optimizer`、`password-generator` の3つ（TW Palette Generator は 2026-10-23 にユーザーの指示で廃止。`docs/decisions/remove-tw-palette/`）。ツール一覧ページ（`/lab`、`/en/lab`）は、ユーザーの最終UIチェックの指示で廃止した（2026-10-21、`docs/decisions/ui-revise/`）。ツールへの入口はトップの Apps のセクション（`/#apps`）とヘッダー（2026-10-22 にカテゴリ名を変更。`docs/decisions/ui-revise2/`）。
 
 旧URLからの301リダイレクト：
 
@@ -55,7 +55,7 @@
 | `/lab/en/*`                                                  | `/en/lab/:splat` |
 | `/lab`、`/en/lab`（Phase 4 で作った一覧。2026-10-21 に廃止） | `/#apps`         |
 
-廃止したイロマイド（`/lab/{ja,en}/iromide`）は個別に扱わない。上の一括ルールで転送され、転送先が存在しないので404になる。
+廃止したイロマイド（`/lab/{ja,en}/iromide`）と TW Palette Generator（`/lab/{ja,en}/tw-palette-generator`）は個別に扱わない。上の一括ルールで転送され、転送先が存在しないので404になる。新URL（`/lab/tw-palette-generator`、`/en/lab/tw-palette-generator`）も404になる。
 
 ### 3.3 多言語
 
@@ -66,8 +66,8 @@
 
 ### 3.4 WEBツール
 
-- 残す：TW Palette Generator、Favicon Generator、SVG Optimizer、Password Generator
-- 廃止：イロマイド、liblab のバックエンド
+- 残す：Favicon Generator、SVG Optimizer、Password Generator
+- 廃止：イロマイド、liblab のバックエンド、TW Palette Generator（2026-10-23 ユーザーの指示。移植したあとに撤去した）
 - liblab の `src/components/ui/spinner.tsx` に含まれる Vercel 由来のコード（Apache-2.0）はイロマイドでしか使っていないので、移植しない
 
 ### 3.5 デザイン
@@ -81,7 +81,7 @@
 
 - 作品カテゴリ：DIY Keyboards / Libraries / Apps / VR & 3D（2026-10-22 に「自作キーボード / ソフトウェア / WEBツール / VRChat」から改名。表記は先頭大文字）
 - VR & 3D（旧 VRChat）の作品は BOOTH の商品。サブ分類（アバター / アセット / Unityツール）は 2026-10-23 に表示とデータから削除した（`docs/decisions/ui-revise4/`）
-- 作品一覧から `liblab` と `iromide` を外し、残す4ツールを Apps（旧 WEBツール）の作品として載せる。リンク先はサイト内の `/lab/{tool}`
+- 作品一覧から `liblab` と `iromide` を外し、残す3ツールを Apps（旧 WEBツール）の作品として載せる。リンク先はサイト内の `/lab/{tool}`
 - ドキュメントのリンクは、パスはそのままでホストだけ `unlibra.github.io` から `docs.unlibra.com` に変える（3つとも 200 を返すことを確認済み）
 - BOOTH のショップURLは `https://unlibra-twin.booth.pm/`（本番。2026-10-23 ユーザー確認）
 - BOOTH の商品画像はリポジトリに置く。ダミーの商品は 2026-10-23 に削除した。商品は今は1つ（ムルル対応ツール。2026-10-23 ユーザー確認）。他の作者の素材が写っている画像は `src/assets/works/third-party/` に置く

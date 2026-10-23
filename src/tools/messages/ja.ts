@@ -25,12 +25,6 @@ export default {
     },
   },
   tools: {
-    "tw-palette-generator": {
-      name: "TWパレットジェネレーター",
-      description:
-        "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。\nコーポレートカラーやブランドカラーをベースに、50〜950まで統一感のある配色を無料で作成できます。",
-      shortDescription: "選んだ色からカラーパレットを生成",
-    },
     "favicon-generator": {
       name: "Faviconジェネレーター",
       description:
@@ -48,32 +42,6 @@ export default {
       description:
         "無料の強力なパスワード生成ツール。文字数、大文字・小文字・数字・記号を自由に組み合わせて、セキュアなパスワードを作成。\n紛らわしい文字の除外にも対応し、ブラウザ完結で安全です。",
       shortDescription: "シンプルなパスワードジェネレーター",
-    },
-  },
-  twPaletteGenerator: {
-    baseColorSelection: "ベースカラー選択",
-    colorCode: "カラーコード",
-    adjustment: "調整",
-    hue: "色相",
-    lightness: "明度",
-    saturation: "彩度",
-    resetAdjustment: "調整をリセット",
-    generatedPalette: "生成されたパレット",
-    saveToHistory: "ヒストリーに保存",
-    paletteHistory: "パレットヒストリー",
-    deleteAllHistory: "ヒストリーを全削除",
-    historyEmptyMessage: "作成したカラーパレットを履歴に追加することができます",
-    tailwindConfig: "Tailwind Config",
-    copyConfig: "Tailwind設定をコピー",
-    deleteFromHistory: "履歴から削除",
-    // The label of a color's button: {color} is "BASE #0EA5E9", "500 #0EA5E9".
-    copyColor: "{color} をコピー",
-    errors: {
-      colorCodeCopyFailed: "コピーに失敗しました",
-      colorCodeCopied: "カラーコードをコピーしました",
-      configCopied: "Tailwind設定としてコピーしました",
-      configCopyFailed: "Tailwind設定のコピーに失敗しました",
-      addedToHistory: "ヒストリーに追加しました",
     },
   },
   passwordGenerator: {

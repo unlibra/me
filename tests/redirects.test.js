@@ -15,12 +15,7 @@ if (!existsSync(join(dist, "_redirects"))) {
   );
 }
 
-const TOOLS = [
-  "tw-palette-generator",
-  "favicon-generator",
-  "svg-optimizer",
-  "password-generator",
-];
+const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
 
 /**
  * Former URLs and their new URLs (design doc 3.2, and P1-4 for the sitemap).
@@ -284,6 +279,29 @@ test("G2: the removed Iromide is forwarded by the bulk rules to a missing page",
   assert.equal(resolve("/lab/en/iromide"), "/en/lab/iromide");
   assert.equal(existsInDist("/lab/iromide"), false);
   assert.equal(existsInDist("/en/lab/iromide"), false);
+});
+
+test("remove-tw-palette: the removed TW Palette Generator ends in 404, as Iromide", () => {
+  // No rule of its own: the former URLs go by the bulk rules to the removed
+  // page, and the new URLs are not redirected.
+  assert.ok(!rules.some((r) => r.line.includes("tw-palette")));
+  for (const slash of ["", "/"]) {
+    assert.equal(
+      resolve(`/lab/ja/tw-palette-generator${slash}`),
+      `/lab/tw-palette-generator${slash}`,
+    );
+    assert.equal(
+      resolve(`/lab/en/tw-palette-generator${slash}`),
+      `/en/lab/tw-palette-generator${slash}`,
+    );
+    for (const path of [
+      `/lab/tw-palette-generator${slash}`,
+      `/en/lab/tw-palette-generator${slash}`,
+    ]) {
+      assert.equal(resolve(path), null, path);
+      assert.equal(existsInDist(path), false, path);
+    }
+  }
 });
 
 test("G2: no redirect shadows a page or file of the new site", () => {
