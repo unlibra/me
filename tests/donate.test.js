@@ -20,7 +20,7 @@ const main = page.match(/<main[\s>][\s\S]*?<\/main>/)[0];
 test("the donation settings: the address and the Amazon e-gift card", () => {
   assert.deepEqual(site.donation, {
     email: "gift@unlibra.com",
-    amazonGift: "https://www.amazon.co.jp/dp/B004N3APGO?gpo=500",
+    amazonGift: "https://www.amazon.co.jp/dp/B06X1GVMW7?gpo=500",
   });
   assert.equal(site.links.sponsor, undefined);
 });
@@ -50,7 +50,7 @@ test("the page links to the Amazon e-gift card in a new tab, drawn as a button",
   // gpo fills in ¥500 on Amazon's page (the amount can be changed there).
   assert.match(
     link,
-    /href="https:\/\/www\.amazon\.co\.jp\/dp\/B004N3APGO\?gpo=500"/,
+    /href="https:\/\/www\.amazon\.co\.jp\/dp\/B06X1GVMW7\?gpo=500"/,
   );
   assert.match(link, /target="_blank"/);
   assert.match(link, /rel="noopener noreferrer"/);

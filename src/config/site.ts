@@ -18,7 +18,7 @@ export const site = {
      * Amazon eギフトカード (formerly the Eメールタイプ) on amazon.co.jp, with
      * ¥500 filled in (gpo; the amount can still be changed there).
      */
-    amazonGift: "https://www.amazon.co.jp/dp/B004N3APGO?gpo=500",
+    amazonGift: "https://www.amazon.co.jp/dp/B06X1GVMW7?gpo=500",
   },
 } as const;
 
