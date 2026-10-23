@@ -50,6 +50,15 @@
 
 ### 0.2 決めること
 
+**決定（2026-10-23、ユーザー）：** サイトは数時間までなら止まってよく、安全よりスピードを優先する。そのため次のとおりにする。以下の (1)〜(4) の案の比較は、記録として残す。
+
+- マージの順序は気にしない：Workers Builds を main につないでから main にマージする（Vercel の自動デプロイは止めない）
+- 付け替えは案C（Custom Domain）
+- `www.unlibra.com` は `unlibra.com` に 301 で転送する
+- Vercel の3プロジェクトは、切替後の確認が済んだその日に消す（8章の様子を見る期間は設けない）。Vercel を指すほかの DNS レコードも消す
+- AI のクローラーは拒否しない（Cloudflare の管理された robots.txt と AI ボットのブロックは無効にする）
+- Google Search Console と Bing Webmaster Tools は登録済み。サイトマップを `/sitemap-index.xml` に替える
+
 **(1) main へのマージと Vercel の自動デプロイの順序（案）**
 
 Vercel の me プロジェクトは main への push で本番にデプロイしている（と考えられる。要確認）。新サイトを main にマージすると、Vercel が新サイトを本番にデプロイし、`vercel.json` が消えるので `/lab/*` の rewrite もなくなる。DNS を付け替える前にこれが起きると、本番の `/lab/*` が壊れる。
