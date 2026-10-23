@@ -54,7 +54,8 @@
    *   text-sm   14px, a label (Dense 1.3)       -> 20px (Tailwind's own)
    *   text-base 16px, a label (Dense 1.3)       -> 24px (Tailwind's own)
    *   text-lg   18px, the cards' titles         -> 28px (Tailwind's own; kept)
-   *   text-xl   20px, a heading (1.5)           -> 32px
+   *   text-xl   20px, a heading (1.5)           -> 32px (the logotypes
+   *             "unlibra" are labels: text-xl/7, 28px)
    *   text-2xl  24px, a heading (1.5)           -> 36px
    *   text-4xl  36px, a heading (1.4)           -> 52px
    */

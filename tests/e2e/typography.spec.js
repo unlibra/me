@@ -36,7 +36,12 @@ const typographyErrors = (page, selector = "body") =>
       const texts = [...element.childNodes].filter(
         (node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim(),
       );
-      if (texts.length === 0) continue;
+      // Form fields show their value (or placeholder) without a text node
+      // (review of ui-revise7): one line, checked as a label.
+      const field = element.matches(
+        "input:not([type=range], [type=checkbox], [type=radio], [type=file], [type=color], [type=hidden]), select, textarea",
+      );
+      if (texts.length === 0 && !field) continue;
       if (!element.checkVisibility({ visibilityProperty: true })) continue;
       const box = element.getBoundingClientRect();
       if (box.width <= 1 || box.height <= 1) continue; // sr-only
@@ -57,7 +62,7 @@ const typographyErrors = (page, selector = "body") =>
       }
       const mono = style.fontFamily.startsWith('"Geist Mono"');
       const heading = !!element.closest("h1, h2, h3, h4, h5, h6");
-      const lines = tops.length;
+      const lines = field ? 1 : tops.length;
       // 14px is for supplementary text: a heading in 14px (the footer's
       // group names) is a label too.
       const [role, ratio, exact] =
@@ -69,7 +74,10 @@ const typographyErrors = (page, selector = "body") =>
               ? ["text", 1.7, true]
               : ["label", 1.3, false];
       const min = minimum(ratio, size);
-      const label = `${element.tagName.toLowerCase()} "${element.textContent
+      const label = `${element.tagName.toLowerCase()} "${(field
+        ? element.value || element.placeholder
+        : element.textContent
+      )
         .trim()
         .slice(
           0,
@@ -181,4 +189,41 @@ test("ui-revise7 6, 7: the language menu of a tool page", async ({ page }) => {
     await expect(page.locator("#language-menu")).toBeVisible();
     expect(await typographyErrors(page, "header")).toEqual([]);
   }
+});
+
+test("ui-revise7 7 (review): the logotypes keep 28px lines, so the header, the footer and the mobile menu keep their heights", async ({
+  page,
+}) => {
+  // "unlibra" in 20px is a one-line label (Dense 1.3 -> 28px), not a
+  // heading: text-xl's 32px would make the footer and the mobile menu 4px
+  // taller, which the user did not approve.
+  const logotypes = async () =>
+    page
+      .locator("[data-logotype]")
+      .evaluateAll((elements) =>
+        elements
+          .filter((e) => e.checkVisibility())
+          .map((e) => [
+            getComputedStyle(e).fontSize,
+            getComputedStyle(e).lineHeight,
+            e.getBoundingClientRect().height,
+          ]),
+      );
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await open(page, "/");
+  // The header's and the footer's.
+  expect(await logotypes()).toEqual([
+    ["20px", "28px", 28],
+    ["20px", "28px", 28],
+  ]);
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page
+    .getByRole("button", { name: layoutMessages.ja.header.openMenu })
+    .click();
+  await expect(page.locator("dialog[open]")).toBeVisible();
+  expect(await logotypes()).toEqual([
+    ["20px", "28px", 28],
+    ["20px", "28px", 28],
+    ["20px", "28px", 28],
+  ]);
 });
