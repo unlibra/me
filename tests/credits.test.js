@@ -176,7 +176,7 @@ const textOf = (html) =>
 const page = readFileSync(join(dist, "credits/index.html"), "utf8");
 const main = page.match(/<main[\s>][\s\S]*?<\/main>/)[0];
 
-test("ui-revise6 4: the credits page has its heading, description and the character", () => {
+test("ui-revise6 4, ui-revise7 9: the credits page has its heading, description and the character", () => {
   assert.match(page, /<title>クレジット - unlibra<\/title>/);
   assert.match(main, /<h1>クレジット<\/h1>/);
   assert.ok(
@@ -189,9 +189,11 @@ test("ui-revise6 4: the credits page has its heading, description and the charac
   const list = main.match(/<ul[^>]*data-credits-characters[\s\S]*?<\/ul>/)[0];
   assert.deepEqual(
     [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => textOf(m[1])),
-    ["ムルル © Lethal Cats"],
+    ["ムルル ©Lethal Cats"],
   );
-  assert.deepEqual(characters, [{ name: "ムルル", rights: "© Lethal Cats" }]);
+  // ui-revise7 9: as the author writes it, without a space after ©.
+  assert.deepEqual(characters, [{ name: "ムルル", rights: "©Lethal Cats" }]);
+  assert.doesNotMatch(list, /© /);
   assert.ok(
     main.includes(
       "<p>必要に応じて素材名、著作者、ライセンス、参照先を記載します。</p>",

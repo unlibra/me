@@ -12,9 +12,7 @@ export interface Credit {
 }
 
 /** The characters in the site's images. */
-export const characters = [
-  { name: "ムルル", rights: "© Lethal Cats" },
-] as const;
+export const characters = [{ name: "ムルル", rights: "©Lethal Cats" }] as const;
 
 /** The material by other authors listed in section 2 of LICENSE, in its order. */
 export const materials: readonly Credit[] = [
