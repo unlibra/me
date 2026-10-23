@@ -176,7 +176,7 @@ const textOf = (html) =>
 const page = readFileSync(join(dist, "credits/index.html"), "utf8");
 const main = page.match(/<main[\s>][\s\S]*?<\/main>/)[0];
 
-test("ui-revise6 4, ui-revise7 9: the credits page has its heading, description and the character", () => {
+test("ui-revise6 4, ui-revise7 9, ui-revise10: the credits page has its heading, description and the character", () => {
   assert.match(page, /<title>クレジット - unlibra<\/title>/);
   assert.match(main, /<h1>クレジット<\/h1>/);
   assert.ok(
@@ -185,7 +185,11 @@ test("ui-revise6 4, ui-revise7 9: the credits page has its heading, description 
     ),
   );
   const headings = [...main.matchAll(/<h2>([^<]*)<\/h2>/g)].map((m) => m[1]);
-  assert.deepEqual(headings, ["キャラクター", "その他の素材・ライセンス"]);
+  assert.deepEqual(headings, [
+    "キャラクター",
+    "その他の素材・ライセンス",
+    "オープンソースライセンス",
+  ]);
   const list = main.match(/<ul[^>]*data-credits-characters[\s\S]*?<\/ul>/)[0];
   assert.deepEqual(
     [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => textOf(m[1])),
@@ -229,6 +233,16 @@ test("ui-revise6 4: the credits page links to the list of the bundled packages",
   assert.equal(thirdPartyLicensesPath, `/${LICENSES_FILE}`);
   assert.ok(existsSync(join(dist, LICENSES_FILE)));
   assert.match(main, new RegExp(`<a href="${thirdPartyLicensesPath}"[^>]*>`));
+});
+
+test("ui-revise10: the list of the bundled packages has its own section, with the link alone", () => {
+  assert.match(
+    main,
+    new RegExp(
+      `<h2[^>]*>オープンソースライセンス</h2>\\s*<p[^>]*>\\s*<a href="${thirdPartyLicensesPath}"[^>]*>サードパーティライセンス一覧</a>\\s*</p>`,
+    ),
+  );
+  assert.doesNotMatch(main, /同梱ライブラリ|このほか/);
 });
 
 test("ui-revise6 4: the credits page is like the privacy policy: Japanese, canonical, in the sitemap", () => {
