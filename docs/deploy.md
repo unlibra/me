@@ -31,6 +31,10 @@
 | 9   | Vercel と liblab を閉じる                      | ユーザー               | 戻せない                           |
 | 10  | 後片付け（ブランチ、プレビュー用の作業コピー） | 親                     | —                                  |
 
+## 結果（2026-10-24）
+
+切替は完了した。本番は Workers Builds（`main` への push でデプロイ）と Custom Domain `unlibra.com` で配信している。`npm run check:prod -- https://unlibra.com` は失敗 0。Vercel の3プロジェクトは削除し、liblab は `unlibra-archive/liblab` に移してアーカイブした。IndexNow で unlibra.com と docs.unlibra.com の URL を送った（どちらも 202）。以下は切替前に書いた手順で、記録として残す。
+
 ## 現状（2026-10-23 時点）
 
 - `unlibra.com` は Cloudflare のプロキシ経由で Vercel から配信されている（レスポンスに `x-vercel-id` が付く）
