@@ -1251,3 +1251,15 @@ test("ui-revise3 2, ui-revise6 1: the top page's description is the footer's des
     assert.equal(metaOf(top, key, name), text, name);
   }
 });
+
+test("remove-tw-palette: the privacy policy says local storage keeps only the theme", () => {
+  const privacy = readDist("privacy/index.html");
+  const main = privacy.match(/<main[\s>][\s\S]*?<\/main>/)[0];
+  assert.ok(
+    main.includes(
+      "当サイトでは、表示テーマの選択を保持するため、お客様のブラウザにデータを保存する仕組み「ローカルストレージ」を使用しています。",
+    ),
+  );
+  // The palette history (the only tool setting kept) was removed.
+  assert.ok(!main.includes("ツール機能の設定"));
+});
