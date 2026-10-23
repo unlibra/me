@@ -133,8 +133,9 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
   assert.doesNotMatch(hero, /viewBox="0 0 512 512"/);
   // The main text is the page's only h1, in the body font (no font-brand,
   // not a logotype).
-  const h1 = hero.match(/<h1([^>]*)>([^<]*)<\/h1>/);
-  assert.equal(h1[2].trim(), "昼はカフェ。夜はバー。");
+  // The text is in parts since ui-revise13 (the colors of "昼" and "夜").
+  const h1 = hero.match(/<h1([^>]*)>([\s\S]*?)<\/h1>/);
+  assert.equal(text(h1[2]), "昼はカフェ。夜はバー。");
   assert.doesNotMatch(h1[1], /font-brand|data-logotype/);
   // 28px (1.75rem) at every width (ui-revise5; text-2xl since ui-revise4 1),
   // with a 44px line (ui-revise7 7).
@@ -192,6 +193,40 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
     assert.ok(cls.includes("text-base"), tag);
     assert.ok(!cls.includes("text-sm"), tag);
   }
+});
+
+test('ui-revise13 2, 3: the hero\'s background is in the theme colors, and the catch copy colors only "昼" (light) and "夜" (dark)', () => {
+  const hero = top.match(/<div[^>]*data-hero[\s\S]*?<\/ul>/)[0];
+  const background = hero.match(/class="([^"]*bg-linear-to-b[^"]*)"/)[1];
+  for (const name of [
+    "from-white/0",
+    "from-3%",
+    "via-primary-light/60",
+    "to-primary/80",
+  ]) {
+    assert.ok(background.split(/\s+/).includes(name), name);
+  }
+  const h1 = hero.match(/<h1([^>]*)>([\s\S]*?)<\/h1>/);
+  // The 0.5em on the left is kept (ui-revise11).
+  assert.ok(attr(`<h1${h1[1]}>`, "class").split(/\s+/).includes("pl-[0.5em]"));
+  const spans = [...h1[2].matchAll(/<span([^>]*)>([^<]*)<\/span>/g)].map(
+    ([, attrs, inner]) => ({
+      part: attr(attrs, "data-catch-copy"),
+      classes: attr(attrs, "class").split(/\s+/),
+      text: inner,
+    }),
+  );
+  assert.deepEqual(spans, [
+    {
+      part: "day",
+      classes: ["text-catch-day", "dark:text-inherit"],
+      text: "昼",
+    },
+    { part: "night", classes: ["dark:text-catch-night"], text: "夜" },
+  ]);
+  // No space between the parts: the text reads as one line.
+  assert.equal(text(h1[2]), "昼はカフェ。夜はバー。");
+  assert.doesNotMatch(h1[2], /aria-|role=/);
 });
 
 test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the donate link", () => {
@@ -1005,7 +1040,7 @@ test("ui-revise3 3: the list items take the former tool site's card padding and 
   }
   // The apps' icons on the former tools' color.
   for (const card of cardsOf(sectionOf("apps"))) {
-    assert.match(card, /bg-logo-medium\/70[^"]*"><img/);
+    assert.match(card, /bg-primary\/70[^"]*"><img/);
   }
 });
 

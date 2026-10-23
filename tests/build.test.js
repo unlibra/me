@@ -334,3 +334,41 @@ test("not-found: the planet and the stars are the DiceBear Planets SVG, split in
   );
   assert.match(html, /background-image: ?url\(\/_astro\/stars\.[\w-]+\.svg\)/);
 });
+
+test("ui-revise13 1: the former color names logo-* and card-link are gone from the source and the build output", () => {
+  const pattern = /\b(?:logo-(?:light|medium|dark|accent)|card-link)\b/;
+  assert.deepEqual(findOccurrences(dist, distTextFiles(), pattern), []);
+  assert.deepEqual(findOccurrences(root, sourceTextFiles(), pattern), []);
+});
+
+test("ui-revise13 1, 2: the theme colors, the link colors and the catch copy's colors are tokens with their values", () => {
+  const css = readFileSync(join(root, "src/styles/global.css"), "utf8");
+  const tokens = Object.fromEntries(
+    [...css.matchAll(/--color-([\w-]+):\s*([^;]+);/g)].map(([, n, v]) => [
+      n,
+      v.trim(),
+    ]),
+  );
+  assert.equal(tokens["primary-light"], "#a0d8ef");
+  assert.equal(tokens.primary, "#4d9fd6");
+  assert.equal(tokens.link, "#1e76ab");
+  assert.equal(tokens["link-hover"], "#005d91");
+  assert.equal(tokens["link-dark-hover"], "#a5def5");
+  assert.equal(tokens["catch-day"], "#ce5a00");
+  assert.equal(tokens["catch-night"], "#e7d9a8");
+  // The Markdown pages' links take the tokens, not values written there.
+  const markdown = readFileSync(
+    join(root, "src/layouts/MarkdownLayout.astro"),
+    "utf8",
+  );
+  const links = markdown.slice(markdown.indexOf(".prose a {"));
+  assert.doesNotMatch(links, /#[0-9a-f]{3,8}\b/i);
+  for (const token of [
+    "link",
+    "link-hover",
+    "primary-light",
+    "link-dark-hover",
+  ]) {
+    assert.ok(links.includes(`var(--color-${token})`), token);
+  }
+});

@@ -29,18 +29,36 @@
   --color-atom-one-dark-light: #333842;
   --color-atom-one-dark: #282c34;
   --color-atom-one-dark-deep: #21252b;
-  --color-logo-light: #5bc5dc;
-  --color-logo-medium: #3ba0be;
-  --color-logo-dark: #1a7ba0;
-  --color-logo-accent: #f88c49;
+  /*
+   * The site's theme colors (ui-revise13): the sky blue. primary-light is
+   * the traditional color "空色" (sora-iro). The hero's background, the Apps'
+   * icons and the links in dark mode. The logo itself is black.
+   */
+  --color-primary-light: #a0d8ef;
+  --color-primary: #4d9fd6;
 
   /*
-   * The links on the work cards in light mode: logo-dark, 3% darker, for
-   * 4.5:1 on the cards' hover (gray-100). The large card's hover in dark
-   * mode: halfway between atom-one-dark-light and atom-one-dark, for 4.5:1
-   * with gray-400 text (ui-revise5, UR5-10).
+   * The links in light mode (the cards and the Markdown pages): 4.51:1 on
+   * gray-100, the cards' hover. The Markdown pages' hover: darker in light
+   * mode, lighter than primary-light in dark mode (ui-revise13).
    */
-  --color-card-link: #19779b;
+  --color-link: #1e76ab;
+  --color-link-hover: #005d91;
+  --color-link-dark-hover: #a5def5;
+
+  /*
+   * The catch copy's colors, for decoration only (ui-revise13): "昼" in
+   * light mode, the traditional color "黄丹" (#ee7800) darkened to 3.3:1 on
+   * the hero's background where the text is; "夜" in dark mode, the moon.
+   */
+  --color-catch-day: #ce5a00;
+  --color-catch-night: #e7d9a8;
+
+  /*
+   * The large card's hover in dark mode: halfway between
+   * atom-one-dark-light and atom-one-dark, for 4.5:1 with gray-400 text
+   * (ui-revise5, UR5-10).
+   */
   --color-featured-hover-dark: #2e323b;
 
   /* The corner radius of the work cards and their icons (rounded-card). */

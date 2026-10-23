@@ -33,6 +33,28 @@ const heroLinks = [
   },
 ];
 
+/**
+ * The catch copy in parts (ui-revise13): "昼" takes its color in light mode
+ * and "夜" in dark mode, for decoration only (the text says it). The text
+ * itself does not change, so it reads the same.
+ */
+const catchCopy = messages.hero.title.match(/^(昼)(.*。)(夜)(.*)$/u);
+if (!catchCopy) {
+  throw new Error(
+    `The catch copy "${messages.hero.title}" no longer has "昼" and "夜" where their colors go.`,
+  );
+}
+const catchCopyParts = [
+  {
+    text: catchCopy[1],
+    part: "day",
+    color: "text-catch-day dark:text-inherit",
+  },
+  { text: catchCopy[2] },
+  { text: catchCopy[3], part: "night", color: "dark:text-catch-night" },
+  { text: catchCopy[4] },
+];
+
 const link =
   "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
 ---
@@ -48,7 +70,7 @@ const link =
     <div class="relative -mt-6 mb-12 sm:mb-16" data-hero>
       <!-- Wave background: full width, behind the header and below -->
       <div class="absolute -top-24 -bottom-10 left-1/2 -z-10 w-screen -translate-x-1/2 overflow-hidden sm:-bottom-24 xl:-bottom-32">
-        <div class="absolute inset-0 border-b border-transparent bg-linear-to-b/srgb from-white/0 from-3% via-logo-light/60 to-logo-medium/80 dark:from-atom-one-dark/0 dark:from-3% dark:via-[#999999]/20 dark:to-[#CFCFCF]/20"></div>
+        <div class="absolute inset-0 border-b border-transparent bg-linear-to-b/srgb from-white/0 from-3% via-primary-light/60 to-primary/80 dark:from-atom-one-dark/0 dark:from-3% dark:via-[#999999]/20 dark:to-[#CFCFCF]/20"></div>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1440 320"
@@ -69,7 +91,15 @@ const link =
              line looks half a character to the left: half a character of
              padding on the left puts it back in the middle (ui-revise11). -->
         <h1 class="mb-8 pl-[0.5em] text-[1.75rem]/11 font-semibold">
-          {messages.hero.title}
+          {catchCopyParts.map(({ text, part, color }) =>
+            part ? (
+              <span class={color} data-catch-copy={part}>
+                {text}
+              </span>
+            ) : (
+              text
+            ),
+          )}
         </h1>
         <!-- Text buttons: the logo and the text (ui-revise5 1, pattern A of
              ui-revise4 1), in 16px with an 18px logo (ui-revise7 4). -->
