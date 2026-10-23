@@ -265,9 +265,9 @@ function TailwindPaletteGenerator() {
         <div className="space-y-8">
           {/* HEX Input */}
           <section>
-            <h6 className="mb-4 text-base font-semibold">
+            <h2 className="mb-4 text-base font-semibold">
               {t.baseColorSelection}
-            </h6>
+            </h2>
             <div className="flex gap-3">
               <input
                 type="color"
@@ -382,7 +382,7 @@ function TailwindPaletteGenerator() {
           {/* Adjustments */}
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h6 className="text-base font-semibold">{t.adjustment}</h6>
+              <h2 className="text-base font-semibold">{t.adjustment}</h2>
               <button
                 onClick={handleReset}
                 className="dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter rounded-lg p-1.5 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -419,7 +419,7 @@ function TailwindPaletteGenerator() {
           </section>
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h6 className="text-base font-semibold">{t.generatedPalette}</h6>
+              <h2 className="text-base font-semibold">{t.generatedPalette}</h2>
               <button
                 onClick={handleAddToHistory}
                 className="dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter rounded-lg p-1.5 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -483,7 +483,7 @@ function TailwindPaletteGenerator() {
           {/* Palette History */}
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h6 className="text-base font-semibold">{t.paletteHistory}</h6>
+              <h2 className="text-base font-semibold">{t.paletteHistory}</h2>
               <button
                 onClick={handleClearHistory}
                 className="dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter rounded-lg p-1.5 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -548,7 +548,7 @@ function TailwindPaletteGenerator() {
 
           {/* Tailwind Config Snippet */}
           <section>
-            <h6 className="mb-4 text-base font-semibold">{t.tailwindConfig}</h6>
+            <h2 className="mb-4 text-base font-semibold">{t.tailwindConfig}</h2>
             <div className="relative">
               <pre className="bg-atom-one-dark dark:bg-atom-one-dark-light overflow-x-auto rounded-lg p-3 font-mono text-sm leading-6 text-gray-300 dark:text-gray-300">
                 {`colors: {

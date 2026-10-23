@@ -1058,7 +1058,9 @@ test("ui-revise5 (design 4): the large card is a light gray surface with the pho
   }
   const card = cardsOf(top).find((c) => attr(c, "data-card") === "featured");
   const article = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
-  for (const name of ["p-4", "sm:p-6", "gap-6", "md:grid-cols-2"]) {
+  // 16px between the photo and the text below 768px, 24px from there
+  // (ui-revise12 2).
+  for (const name of ["p-4", "sm:p-6", "gap-4", "md:gap-6", "md:grid-cols-2"]) {
     assert.ok(article.includes(name), name);
   }
   // The photo's frame has the card radius, inside the padding.
@@ -1066,7 +1068,7 @@ test("ui-revise5 (design 4): the large card is a light gray surface with the pho
   assert.ok(frame.includes(cardRadius));
 });
 
-test("ui-revise5 13: the large card has SPOTLIGHT above its title, in text-4xl", () => {
+test("ui-revise5 13, ui-revise12 1: the large card has SPOTLIGHT above its title, in text-4xl from 768px and text-2xl below", () => {
   const featured = cardsOf(top).filter(
     (card) => attr(card, "data-card") === "featured",
   );
@@ -1083,7 +1085,7 @@ test("ui-revise5 13: the large card has SPOTLIGHT above its title, in text-4xl",
   const sizes = attr(h3, "class")
     .split(/\s+/)
     .filter((name) => /(^|:)text-(xs|sm|base|lg|\dxl)$/.test(name));
-  assert.deepEqual(sizes, ["text-4xl"]);
+  assert.deepEqual(sizes, ["text-2xl", "md:text-4xl"]);
   // Only the large card has it.
   assert.equal(top.match(/data-work-spotlight/g).length, 1);
 });

@@ -182,9 +182,9 @@ function SvgOptimizer() {
         <div className="flex-1 space-y-8">
           {/* File Upload */}
           <div className="space-y-2">
-            <h6 className="block text-base font-semibold">
+            <h2 className="block text-base font-semibold">
               {common.selectImage}
-            </h6>
+            </h2>
             <input
               ref={fileInputRef}
               type="file"
@@ -215,14 +215,18 @@ function SvgOptimizer() {
           <Disclosure defaultOpen={false} as="div" className="lg:hidden">
             {({ open }) => (
               <div className="dark:bg-atom-one-dark-light overflow-hidden rounded-lg bg-gray-100">
-                <DisclosureButton className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-hidden transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
-                  <h6 className="text-base font-semibold">{t.options}</h6>
-                  <IconChevronDown
-                    className={`h-5 w-5 transition-transform ${
-                      open ? "rotate-180" : ""
-                    }`}
-                  />
-                </DisclosureButton>
+                {/* The heading holds the button (a heading inside a button
+                    is not exposed as a heading; ui-revise12 5). */}
+                <h2>
+                  <DisclosureButton className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-hidden transition-colors hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <span className="text-base font-semibold">{t.options}</span>
+                    <IconChevronDown
+                      className={`h-5 w-5 transition-transform ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </DisclosureButton>
+                </h2>
                 <DisclosurePanel className="p-4">
                   <SvgOptionsPanel
                     options={options}
@@ -237,9 +241,9 @@ function SvgOptimizer() {
 
           {/* Preview */}
           <div className="flex flex-col">
-            <h6 className="mb-2 block text-base font-semibold">
+            <h2 className="mb-2 block text-base font-semibold">
               {common.preview}
-            </h6>
+            </h2>
             <div className="space-y-4">
               <CheckerboardPreview
                 emptyState={
@@ -315,7 +319,7 @@ function SvgOptimizer() {
 
         {/* Right Column - Options Panel (Desktop Only) */}
         <div className="hidden lg:block lg:flex-1">
-          <h6 className="mb-4 text-base font-semibold">{t.options}</h6>
+          <h2 className="mb-4 text-base font-semibold">{t.options}</h2>
           <SvgOptionsPanel
             options={options}
             onOptionsChange={handleOptionsChange}

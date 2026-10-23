@@ -268,9 +268,9 @@ function FaviconGenerator() {
         <div className="flex-1 space-y-8">
           {/* File Upload */}
           <div className="space-y-2">
-            <h6 className="block text-base font-semibold">
+            <h2 className="block text-base font-semibold">
               {common.selectImage}
-            </h6>
+            </h2>
             <input
               ref={fileInputRef}
               type="file"
@@ -301,14 +301,20 @@ function FaviconGenerator() {
           <Disclosure defaultOpen={false} as="div" className="lg:hidden">
             {({ open }) => (
               <div className="dark:bg-atom-one-dark-light overflow-hidden rounded-lg bg-gray-100">
-                <DisclosureButton className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-hidden transition-colors hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <h6 className="text-base font-semibold">{t.outputOptions}</h6>
-                  <IconChevronDown
-                    className={`h-5 w-5 transition-transform ${
-                      open ? "rotate-180" : ""
-                    }`}
-                  />
-                </DisclosureButton>
+                {/* The heading holds the button (a heading inside a button
+                    is not exposed as a heading; ui-revise12 5). */}
+                <h2>
+                  <DisclosureButton className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-hidden transition-colors hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <span className="text-base font-semibold">
+                      {t.outputOptions}
+                    </span>
+                    <IconChevronDown
+                      className={`h-5 w-5 transition-transform ${
+                        open ? "rotate-180" : ""
+                      }`}
+                    />
+                  </DisclosureButton>
+                </h2>
                 <DisclosurePanel className="p-4">
                   <FaviconOptionsPanel
                     selectedSets={selectedSets}
@@ -330,9 +336,9 @@ function FaviconGenerator() {
 
           {/* Preview */}
           <div className="flex flex-col">
-            <h6 className="mb-2 block text-base font-semibold">
+            <h2 className="mb-2 block text-base font-semibold">
               {common.preview}
-            </h6>
+            </h2>
             <CheckerboardPreview
               emptyState={
                 <div className="text-center text-sm leading-6 text-gray-600 dark:text-gray-400">
@@ -360,7 +366,7 @@ function FaviconGenerator() {
 
         {/* Right Column - Settings Panel (Desktop Only) */}
         <div className="hidden lg:block lg:flex-1">
-          <h6 className="mb-4 text-base font-semibold">{t.outputOptions}</h6>
+          <h2 className="mb-4 text-base font-semibold">{t.outputOptions}</h2>
           <FaviconOptionsPanel
             selectedSets={selectedSets}
             selectedSizes={selectedSizes}

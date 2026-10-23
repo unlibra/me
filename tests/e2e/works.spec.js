@@ -967,7 +967,7 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero"
 test.describe("ui-revise5: the cards and the sections", () => {
   for (const width of [375, 1280]) {
     for (const scheme of ["light", "dark"]) {
-      test(`${width}px, ${scheme}: no border on the cards and the icons; round app icons; the large card's SPOTLIGHT and 36px title; the works 24px lower`, async ({
+      test(`${width}px, ${scheme}: no border on the cards and the icons; round app icons; the large card's SPOTLIGHT and title (36px from 768px, 24px below: ui-revise12 1); the works 24px lower`, async ({
         page,
       }) => {
         await page.setViewportSize({ width, height: 800 });
@@ -1015,12 +1015,16 @@ test.describe("ui-revise5: the cards and the sections", () => {
           expect(round).toBe(true);
         }
 
-        // 13: SPOTLIGHT above the large card's title, which is 36px.
+        // 13: SPOTLIGHT above the large card's title, which is 36px from
+        // 768px wide and 24px below (ui-revise12 1).
         const featured = card(page, "fosty-natural");
         const spotlight = featured.locator("[data-work-spotlight]");
         await expect(spotlight).toHaveText("SPOTLIGHT");
         const title = featured.locator("[data-work-title]");
-        await expect(title).toHaveCSS("font-size", "36px");
+        await expect(title).toHaveCSS(
+          "font-size",
+          width < 768 ? "24px" : "36px",
+        );
         const above = await spotlight.boundingBox();
         const below = await title.boundingBox();
         expect(above.y + above.height).toBeLessThanOrEqual(below.y);
