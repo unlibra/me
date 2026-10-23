@@ -331,7 +331,7 @@ test("ui-revise4 2, ui-revise6 2: the Apps cards have the former tool site's nam
       "無料のFavicon一括生成ツール。PNG、JPEG、SVGなどの画像をアップロードするだけで、Webサイトに必要な全サイズのFaviconとApple Touch Iconを自動生成。\n角丸加工や背景色の設定もブラウザ上で簡単に完了します。",
     ],
     "svg-optimizer": [
-      "SVG最適化",
+      "SVGオプティマイザー",
       "無料のSVG最適化・圧縮ツール。品質を保ったままファイルサイズを削減し、Webサイトの読み込み速度を改善。\nブラウザ上で完結するため、セキュアで高速に最適化できます。",
     ],
     "password-generator": [

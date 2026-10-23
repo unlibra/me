@@ -94,7 +94,7 @@ fosty naturalの持っている打鍵感・携帯性・配列・デザインは�
         "画像からファビコンとApple Touch Iconを一括生成。角丸や背景色も設定できます。",
     },
     "svg-optimizer": {
-      title: "SVG最適化",
+      title: "SVGオプティマイザー",
       summary:
         "品質を保ったままSVGのファイルサイズを削減し、Webサイトの読み込みを速くします。",
     },

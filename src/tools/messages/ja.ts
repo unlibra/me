@@ -32,7 +32,7 @@ export default {
       shortDescription: "画像からfaviconファイルを生成",
     },
     "svg-optimizer": {
-      name: "SVG最適化",
+      name: "SVGオプティマイザー",
       description:
         "無料のSVG最適化・圧縮ツール。品質を保ったままファイルサイズを削減し、Webサイトの読み込み速度を改善。\nブラウザ上で完結するため、セキュアで高速に最適化できます。",
       shortDescription: "SVGファイルを最適化・圧縮",

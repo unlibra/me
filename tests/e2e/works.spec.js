@@ -881,7 +881,7 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     // The card link's name is the title.
     await expect(
       card(page, "svg-optimizer").getByRole("link", {
-        name: "SVG最適化",
+        name: "SVGオプティマイザー",
         exact: true,
       }),
     ).toHaveAttribute("href", "/lab/svg-optimizer");
