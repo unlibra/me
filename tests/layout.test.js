@@ -58,6 +58,7 @@ test("the build has the pages this test suite expects", () => {
     [
       "404.html",
       "credits/index.html",
+      "donate/index.html",
       ...tools.map((tool) => `en/lab/${tool}/index.html`),
       "index.html",
       ...tools.map((tool) => `lab/${tool}/index.html`),
@@ -88,6 +89,7 @@ const langOf = (file) => (file.startsWith("en/") ? "en" : "ja");
 const singleLanguagePages = [
   "404.html",
   "credits/index.html",
+  "donate/index.html",
   "index.html",
   "privacy/index.html",
 ];
@@ -524,7 +526,7 @@ test("C4: every page has the common footer with the required links", () => {
     for (const href of [
       "/",
       "https://github.com/unlibra",
-      "https://ofuse.me/unlibra",
+      "/donate",
       "/privacy",
       "/credits",
     ]) {
@@ -567,9 +569,10 @@ test("ui-revise 6: the footer has the GitHub, docs and BOOTH links in place of t
   }
 });
 
-test("ui-revise6 3: the footer's Information group links to donate, the privacy policy and the credits", async () => {
+test("ui-revise6 3: the footer's Information group links to the donate page, the privacy policy and the credits", async () => {
   const { layoutMessages } = await import("../src/messages/layout.ts");
   // The pages linked here are in Japanese only; the English labels say so.
+  assert.equal(layoutMessages.en.footer.donate, "Donate & Support (Japanese)");
   assert.equal(layoutMessages.en.footer.credits, "Credits (Japanese)");
   assert.equal(
     layoutMessages.en.footer.privacyPolicy,
@@ -595,7 +598,7 @@ test("ui-revise6 3: the footer's Information group links to donate, the privacy 
         text: text.replace(/&amp;/g, "&"),
       })),
       [
-        { href: "https://ofuse.me/unlibra", text: t.donate },
+        { href: "/donate", text: t.donate },
         { href: "/privacy", text: t.privacyPolicy },
         { href: "/credits", text: t.credits },
       ],
@@ -691,9 +694,12 @@ test("ui-revise2 4: the site name is unlibra; the domain stays unlibra.com", () 
 
     // The logotypes (header, mobile menu, footer, hero): see the LINE Seed JP
     // test below.
-    // The domain as text is gone; URLs keep it.
+    // The domain as text is gone; URLs keep it, and so does the donate
+    // page's address.
     assert.doesNotMatch(
-      html.replace(/<script[\s\S]*?<\/script>/g, ""),
+      html
+        .replace(/<script[\s\S]*?<\/script>/g, "")
+        .replaceAll(">gift@unlibra.com<", "><"),
       />[^<]*\bunlibra\.com\b[^<]*</,
       file,
     );

@@ -70,9 +70,9 @@ export function SvgOptionsPanel({
             <button
               key={preset.id}
               onClick={() => onPresetChange(preset.id)}
-              className={`rounded-full px-4 py-2 text-base font-medium outline-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
+              className={`focus-visible:outline-primary rounded-full px-4 py-2.5 text-base font-medium outline-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${
                 selectedPreset === preset.id
-                  ? "bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
+                  ? "bg-primary hover:bg-primary-dark text-white"
                   : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
               }`}
               aria-pressed={selectedPreset === preset.id}
@@ -154,9 +154,9 @@ export function SvgOptionsPanel({
                         options[key]
                           ? isDangerous
                             ? "bg-amber-500 dark:bg-amber-600"
-                            : "bg-sky-500 dark:bg-sky-600"
+                            : "bg-primary"
                           : "bg-gray-300 dark:bg-gray-600"
-                      } dark:focus-visible:ring-offset-atom-one-dark relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white`}
+                      } dark:focus-visible:ring-offset-atom-one-dark focus-visible:ring-primary relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out before:absolute before:-inset-x-1.5 before:-inset-y-3.5 before:content-[''] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white`}
                     >
                       <span
                         aria-hidden="true"

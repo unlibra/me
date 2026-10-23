@@ -8,7 +8,6 @@ import {
   open,
   readClipboard,
   setRange,
-  toast,
   toolUrl,
 } from "./helpers.js";
 
@@ -126,22 +125,42 @@ for (const locale of LOCALES) {
 
     test("the slider's track follows the theme", async ({ page }) => {
       const slider = page.getByRole("slider", { name: m.length });
-      const track = () => slider.evaluate((input) => input.style.background);
+      const track = () =>
+        slider.evaluate((input) =>
+          input.style.getPropertyValue("--slider-track"),
+        );
       await chooseTheme(page, locale.lang, "light");
       await expect.poll(track).toContain("rgb(226, 232, 240)");
       await chooseTheme(page, locale.lang, "dark");
       await expect.poll(track).toContain("rgb(75, 85, 99)");
     });
 
-    test("copy puts the password on the clipboard and shows a toast", async ({
+    test("copy puts the password on the clipboard and the button reads copied, at the same width", async ({
       page,
       context,
       baseURL,
     }) => {
       await grantClipboard(context, baseURL);
       const password = await passwordText(page).textContent();
-      await page.getByRole("button", { name: m.copyToClipboard }).click();
-      await expect(toast(page, t.common.copied)).toBeVisible();
+      const button = page.getByRole("button", { name: m.copyToClipboard });
+      const width = (await button.boundingBox()).width;
+      await button.click();
+      await expect(
+        button.getByText(t.common.copied, { exact: true }),
+      ).toBeVisible();
+      await expect(
+        button.getByText(t.common.copy, { exact: true }),
+      ).toBeHidden();
+      expect((await button.boundingBox()).width).toBe(width);
+      // No toast: the result is read out from the field's status.
+      await expect(
+        page.getByRole("status").filter({ hasText: t.common.copied }),
+      ).toHaveCount(1);
+      await expect(
+        page
+          .locator("div.pointer-events-none.fixed")
+          .getByText(t.common.copied),
+      ).toHaveCount(0);
       expect(await readClipboard(page)).toBe(password);
     });
   });

@@ -87,9 +87,10 @@ const en: LayoutMessages = {
     docs: "Docs",
     shop: "BOOTH",
     information: "Information",
-    donate: "Donate & Support",
+    // The donate and credits pages are in Japanese only, like the privacy
+    // policy.
+    donate: "Donate & Support (Japanese)",
     privacyPolicy: "Privacy Policy (Japanese)",
-    // The credits page is in Japanese only, like the privacy policy.
     credits: "Credits (Japanese)",
   },
 };

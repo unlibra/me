@@ -5,10 +5,10 @@
 import {
   IconAlertCircle as AlertCircle,
   IconAlertTriangle as AlertTriangle,
+  IconCheck as Check,
   IconChevronDown as ChevronDown,
   IconCircleCheck as CircleCheck,
   IconClipboard as Clipboard,
-  IconClipboardCheck as ClipboardCheck,
   IconFilePlus as FilePlus,
   IconInfoCircle as InfoCircle,
   IconPhoto as Photo,
@@ -30,10 +30,10 @@ const decorative = (Icon: TablerIcon) => {
 
 export const IconAlertCircle = decorative(AlertCircle);
 export const IconAlertTriangle = decorative(AlertTriangle);
+export const IconCheck = decorative(Check);
 export const IconChevronDown = decorative(ChevronDown);
 export const IconCircleCheck = decorative(CircleCheck);
 export const IconClipboard = decorative(Clipboard);
-export const IconClipboardCheck = decorative(ClipboardCheck);
 export const IconFilePlus = decorative(FilePlus);
 export const IconInfoCircle = decorative(InfoCircle);
 export const IconPhoto = decorative(Photo);

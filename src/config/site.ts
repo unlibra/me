@@ -7,10 +7,18 @@ export const site = {
   ogImage: "/ogp.png",
   links: {
     github: "https://github.com/unlibra",
-    sponsor: "https://ofuse.me/unlibra",
     docs: "https://docs.unlibra.com/",
     /** BOOTH shop (the production shop, design doc 3.6). */
     booth: "https://unlibra-twin.booth.pm/",
+  },
+  /** Donations: an Amazon e-gift card sent to this address (/donate). */
+  donation: {
+    email: "gift@unlibra.com",
+    /**
+     * Amazon eギフトカード (formerly the Eメールタイプ) on amazon.co.jp, with
+     * ¥500 filled in (gpo; the amount can still be changed there).
+     */
+    amazonGift: "https://www.amazon.co.jp/dp/B06X1GVMW7?gpo=500",
   },
 } as const;
 
@@ -35,11 +43,13 @@ export type SitePath = `/${string}`;
 export const paths = {
   privacy: "/privacy",
   credits: "/credits",
+  donate: "/donate",
   /** Where the tool pages live in each language (there is no page here). */
   tools: { ja: "/lab", en: "/en/lab" },
 } as const satisfies {
   privacy: SitePath;
   credits: SitePath;
+  donate: SitePath;
   tools: Record<Locale, SitePath>;
 };
 

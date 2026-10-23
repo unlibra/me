@@ -22,10 +22,9 @@ export function TogglePill({
   inactiveClassName,
 }: TogglePillProps) {
   const baseClasses =
-    "rounded-full px-4 py-2 text-base font-medium outline-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+    "rounded-full px-4 py-2.5 text-base font-medium outline-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
   const activeClasses =
-    activeClassName ??
-    "bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500";
+    activeClassName ?? "bg-primary text-white hover:bg-primary-dark";
   const inactiveClasses =
     inactiveClassName ??
     "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600";

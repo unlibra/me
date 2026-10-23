@@ -202,8 +202,8 @@ test('ui-revise13 2, 3: the hero\'s background is in the theme colors, and the c
   for (const name of [
     "from-white/0",
     "from-3%",
-    "via-primary-light/60",
-    "to-primary/80",
+    "via-sora/60",
+    "to-sora-deep/80",
   ]) {
     assert.ok(background.split(/\s+/).includes(name), name);
   }
@@ -230,7 +230,7 @@ test('ui-revise13 2, 3: the hero\'s background is in the theme colors, and the c
   assert.doesNotMatch(h1[2], /aria-|role=/);
 });
 
-test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the donate link", () => {
+test("ui-revise 3: no page has sponsor or share buttons; the footer links to the donate page", () => {
   const pages = globSync("**/*.html", { cwd: dist });
   assert.ok(pages.length >= 9, "self-check of the page list");
   for (const page of pages) {
@@ -254,7 +254,7 @@ test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the do
       /navigator\.share|スポンサー|シェアする|ポストする/,
       page,
     );
-    assert.ok(hrefs(footer).includes("https://ofuse.me/unlibra"), page);
+    assert.ok(hrefs(footer).includes("/donate"), page);
   }
   assert.equal(
     existsSync(join(root, "src/components/SponsorButton.astro")),
@@ -1043,7 +1043,7 @@ test("ui-revise3 3: the list items take the former tool site's card padding and 
   }
   // The apps' icons on the former tools' color.
   for (const card of cardsOf(sectionOf("apps"))) {
-    assert.match(card, /bg-primary\/70[^"]*"><img/);
+    assert.match(card, /bg-sora-deep\/70[^"]*"><img/);
   }
 });
 

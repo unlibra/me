@@ -16,7 +16,7 @@ const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
 const TOOL_PAGES = LOCALES.flatMap((locale) =>
   TOOLS.map((tool) => toolUrl(locale, tool)),
 );
-const MARKDOWN_PAGES = ["/credits", "/privacy"];
+const MARKDOWN_PAGES = ["/credits", "/donate", "/privacy"];
 const PAGES = ["/", ...TOOL_PAGES, ...MARKDOWN_PAGES];
 
 const box = (locator) =>

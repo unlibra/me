@@ -19,6 +19,7 @@ const PAGES = [
   "/",
   "/privacy",
   "/credits",
+  "/donate",
   ...TOOLS.flatMap((tool) => [`/lab/${tool}`, `/en/lab/${tool}`]),
 ];
 
@@ -168,7 +169,7 @@ test.describe("language switch", () => {
   }
 
   test("the Japanese-only pages have no language switch", async ({ page }) => {
-    for (const path of ["/", "/privacy", "/credits"]) {
+    for (const path of ["/", "/privacy", "/credits", "/donate"]) {
       await open(page, path);
       await expect(
         page.getByRole("button", { name: layoutMessages.ja.language.toggle }),

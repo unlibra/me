@@ -20,7 +20,7 @@ interface Props {
 const { lang, languagePaths } = Astro.props;
 const t = layoutMessages[lang].header;
 const menuItem =
-  "flex items-center gap-1 rounded-lg px-3 py-2 text-base font-medium whitespace-nowrap transition-colors outline-none hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/5 dark:focus-visible:bg-white/5";
+  "flex items-center gap-1 rounded-lg px-3 py-2.5 text-base font-medium whitespace-nowrap transition-colors outline-none hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/5 dark:focus-visible:bg-white/5";
 ---
 
 <header>
@@ -31,10 +31,17 @@ const menuItem =
     <!-- Logo: centered on mobile, left on desktop -->
     <a
       href="/"
-      class="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-500 lg:static lg:translate-x-0"
+      class="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary lg:static lg:translate-x-0"
     >
       <BrandSymbol class="size-6" />
-      <span class="font-brand text-xl/7 font-bold" data-site-name data-logotype>
+      <!-- LINE Seed JP's ink ("unlibra", ascent 16px, descent 1px at 20px)
+           sits 1px below the middle of its 28px line: up 1px, its middle is
+           the symbol's. -->
+      <span
+        class="font-brand -translate-y-px text-xl/7 font-bold"
+        data-site-name
+        data-logotype
+      >
         {site.title}
       </span>
     </a>

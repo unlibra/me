@@ -16,7 +16,7 @@ const t = layoutMessages[lang].theme;
 <div class="relative" data-popover data-theme-toggle>
   <button
     type="button"
-    class="flex cursor-pointer items-center justify-center rounded-full p-2 transition-colors outline-none hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/5 dark:focus-visible:bg-white/5"
+    class="flex cursor-pointer items-center justify-center rounded-full p-3 transition-colors outline-none hover:bg-black/5 focus-visible:bg-black/5 dark:hover:bg-white/5 dark:focus-visible:bg-white/5"
     aria-label={t.toggle}
     aria-expanded="false"
     aria-controls="theme-menu"
@@ -34,7 +34,7 @@ const t = layoutMessages[lang].theme;
     {themePreferences.map((preference) => (
       <button
         type="button"
-        class="w-full cursor-pointer rounded-lg px-3 py-2 text-left text-base transition-colors outline-none hover:bg-gray-100 focus-visible:bg-gray-100 aria-pressed:bg-sky-50 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter dark:aria-pressed:bg-atom-one-dark-lighter"
+        class="w-full cursor-pointer rounded-lg px-3 py-2.5 text-left text-base transition-colors outline-none hover:bg-gray-100 focus-visible:bg-gray-100 aria-pressed:bg-primary/10 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter dark:aria-pressed:bg-atom-one-dark-lighter"
         aria-pressed="false"
         data-popover-item
         data-theme-option={preference}

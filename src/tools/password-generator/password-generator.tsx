@@ -1,13 +1,9 @@
 import { Field, Label, Switch } from "@headlessui/react";
-import {
-  IconClipboard,
-  IconClipboardCheck,
-  IconRefresh,
-} from "@/components/ui/icons";
+import { IconRefresh } from "@/components/ui/icons";
 import { useCallback, useEffect, useState } from "react";
 
+import { CopyButton } from "@/components/ui/copy-button";
 import { Slider } from "@/components/ui/slider";
-import { useToast } from "@/components/ui/toast";
 import { TogglePill } from "@/components/ui/toggle-pill";
 import { useMessages } from "@/tools/i18n";
 import type { ToolLocale } from "@/tools/messages";
@@ -30,7 +26,6 @@ export default function PasswordGeneratorIsland({
 
 function PasswordGenerator() {
   const { common, passwordGenerator: t } = useMessages();
-  const toast = useToast();
 
   // Password options
   const [options, setOptions] = useState<PasswordOptions>({
@@ -44,7 +39,6 @@ function PasswordGenerator() {
 
   // Generated password
   const [password, setPassword] = useState("");
-  const [copied, setCopied] = useState(false);
 
   // Generate password on mount and when options change
   const regenerate = useCallback(() => {
@@ -55,21 +49,6 @@ function PasswordGenerator() {
   useEffect(() => {
     regenerate();
   }, [regenerate]);
-
-  // Copy to clipboard
-  const handleCopy = useCallback(async () => {
-    if (!password) return;
-
-    try {
-      await navigator.clipboard.writeText(password);
-      toast.success(common.copied);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      toast.error(t.errors.copyFailed);
-      console.error("Failed to copy:", err);
-    }
-  }, [password, toast, common, t]);
 
   // Update option helper
   const updateOption = <K extends keyof PasswordOptions>(
@@ -91,31 +70,24 @@ function PasswordGenerator() {
       {/* Password Display */}
       <div className="mb-8 space-y-3">
         <div className="dark:bg-atom-one-dark-light relative overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600">
-          <div className="w-full truncate bg-transparent py-3 pr-28 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100">
+          <div className="w-full truncate bg-transparent py-3 pr-44 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100">
             {password || (
               <span className="text-gray-400 dark:text-gray-500">
                 {t.selectCharacterTypes}
               </span>
             )}
           </div>
-          <button
-            onClick={handleCopy}
+          <CopyButton
+            text={() => password}
+            label={t.copyToClipboard}
+            failed={t.errors.copyFailed}
             disabled={!password}
-            className="dark:focus-visible:ring-offset-atom-one-dark absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-1.5 rounded-md bg-sky-500 px-3 py-1.5 text-base font-medium text-white transition-colors hover:bg-sky-600 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50"
-            aria-label={t.copyToClipboard}
-          >
-            {copied ? (
-              <IconClipboardCheck className="size-5" />
-            ) : (
-              <IconClipboard className="size-5" />
-            )}
-            {common.copy}
-          </button>
+          />
         </div>
         <button
           onClick={regenerate}
           disabled={!hasCharset}
-          className="dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:focus-visible:ring-offset-atom-one-dark flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-base font-medium text-gray-600 transition-colors hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 dark:text-gray-400"
+          className="dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:focus-visible:ring-offset-atom-one-dark focus-visible:ring-primary flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-base font-medium text-gray-600 transition-colors hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 dark:text-gray-400"
         >
           <IconRefresh className="size-5" />
           {common.regenerate}
@@ -180,9 +152,9 @@ function PasswordGenerator() {
               onChange={(v) => updateOption("avoidAmbiguous", v)}
               className={`${
                 options.avoidAmbiguous
-                  ? "bg-sky-500 dark:bg-sky-600"
+                  ? "bg-primary"
                   : "bg-gray-300 dark:bg-gray-600"
-              } dark:focus-visible:ring-offset-atom-one-dark relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white`}
+              } dark:focus-visible:ring-offset-atom-one-dark focus-visible:ring-primary relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out before:absolute before:-inset-x-1.5 before:-inset-y-3.5 before:content-[''] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white`}
             >
               <span
                 aria-hidden="true"

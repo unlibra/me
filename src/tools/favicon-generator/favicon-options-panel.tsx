@@ -157,25 +157,27 @@ export function FaviconOptionsPanel({
           </p>
         </div>
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
+          {/* The whole row is the label, a 44px target (DESIGN.md 5.4). */}
+          <label
+            htmlFor={checkboxId}
+            className="flex min-h-11 w-fit cursor-pointer items-center gap-2 text-base font-medium"
+          >
             <input
               type="checkbox"
               id={checkboxId}
               checked={useBackground}
               onChange={(e) => onUseBackgroundChange(e.target.checked)}
-              className="size-4 accent-sky-600 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+              className="accent-primary-dark focus-visible:outline-primary size-4 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2"
             />
-            <label htmlFor={checkboxId} className="text-base font-medium">
-              {t.addBackgroundColor}
-            </label>
-          </div>
+            {t.addBackgroundColor}
+          </label>
           <div className="flex items-center gap-3">
             <input
               type="color"
               value={backgroundColor}
               onChange={(e) => onBackgroundColorChange(e.target.value)}
               disabled={!useBackground}
-              className="size-10 cursor-pointer bg-transparent outline-hidden transition-opacity focus-visible:ring-2 focus-visible:ring-sky-500 disabled:cursor-default disabled:opacity-20"
+              className="focus-visible:ring-primary size-11 cursor-pointer bg-transparent outline-hidden transition-opacity focus-visible:ring-2 disabled:cursor-default disabled:opacity-20"
               aria-label={t.selectBackgroundColor}
             />
             <input
@@ -185,7 +187,7 @@ export function FaviconOptionsPanel({
               onChange={(e) => onBackgroundColorChange(e.target.value)}
               disabled={!useBackground}
               placeholder="#000000"
-              className="dark:bg-atom-one-dark-light flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono outline-hidden transition-colors focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-40 dark:border-gray-600"
+              className="dark:bg-atom-one-dark-light focus-visible:ring-primary flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 font-mono outline-hidden transition-colors focus-visible:border-transparent focus-visible:ring-2 disabled:opacity-40 dark:border-gray-600"
               aria-label={t.backgroundColorCode}
             />
           </div>

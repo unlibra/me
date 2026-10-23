@@ -1,33 +1,63 @@
-/* Range input of the Slider component (scoped by the `ui-slider` class). */
+/*
+ * Range input of the Slider component (scoped by the `ui-slider` class). The
+ * input is 44px high, the whole of it a target (DESIGN.md 5.4); the 8px
+ * track is drawn in its middle, filled with primary up to --slider-fill and
+ * --slider-track after it (both set by the component).
+ */
 input[type="range"].ui-slider {
-  height: 8px;
+  height: 44px;
   padding: 0;
+  background: transparent;
+}
+
+input[type="range"].ui-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--color-primary) var(--slider-fill),
+    var(--slider-track) var(--slider-fill)
+  );
+}
+
+input[type="range"].ui-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--color-primary) var(--slider-fill),
+    var(--slider-track) var(--slider-fill)
+  );
 }
 
 input[type="range"].ui-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
+  /* Centered on the 8px track. */
+  margin-top: -6px;
   width: 20px;
   height: 20px;
   border-radius: 50%;
   background: #fff;
-  border: 2px solid rgb(0, 166, 244);
+  border: 2px solid var(--color-primary);
   cursor: pointer;
 }
 
 input[type="range"].ui-slider:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 4px rgba(0, 166, 244, 0.3);
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 input[type="range"].ui-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  border: 2px solid rgb(0, 166, 244);
+  border: 2px solid var(--color-primary);
   border-radius: 50%;
   background: #fff;
   cursor: pointer;
 }
 
 input[type="range"].ui-slider:focus-visible::-moz-range-thumb {
-  box-shadow: 0 0 0 4px rgba(0, 166, 244, 0.3);
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
