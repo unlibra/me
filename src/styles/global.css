@@ -1,21 +1,94 @@
 @import "tailwindcss";
+@import "../tools/styles.css";
+
+/*
+ * LINE Seed JP Bold with only the letters of the logotype "unlibra", made by
+ * scripts/subset-brand-font.mjs from @fontsource/line-seed-jp (SIL Open Font
+ * License 1.1). Other text in font-brand falls back to Noto Sans JP.
+ */
+@font-face {
+  font-family: "LINE Seed JP";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("../assets/fonts/line-seed-jp-unlibra-700.woff2") format("woff2");
+  unicode-range: U+61-62, U+69, U+6C, U+6E, U+72, U+75;
+}
+
+/* Dark mode follows the `dark` class on <html>, set by BaseLayout's script. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-base-primary: #282c34;
-  --color-base-secondary: #333842;
-  --color-accent-primary: #1a7ba0;
-  --color-accent-secondary: #3ba0be;
-  --font-sans: "IBM Plex Sans JP", sans-serif;
-  --text-x-base: 15px;
-  --text-x-base--line-height: 20px;
-  --text-x-sm: 13px;
-  --text-x-sm--line-height: 16px;
+  --font-sans: "Noto Sans JP Variable", sans-serif;
+  --font-mono: "Geist Mono", monospace;
+  /* The logotype "unlibra" (bold only; see the @font-face above). */
+  --font-brand: "LINE Seed JP", "Noto Sans JP Variable", sans-serif;
+
+  /* Colors carried over from the former tool site's Tailwind config. */
+  --color-atom-one-dark-lighter: #3d4148;
+  --color-atom-one-dark-light: #333842;
+  --color-atom-one-dark: #282c34;
+  --color-atom-one-dark-deep: #21252b;
+  /*
+   * The site's theme colors (ui-revise13): the sky blue. primary-light is
+   * the traditional color "空色" (sora-iro). The hero's background, the Apps'
+   * icons and the links in dark mode. The logo itself is black.
+   */
+  --color-primary-light: #a0d8ef;
+  --color-primary: #4d9fd6;
+
+  /*
+   * The links in light mode (the cards and the Markdown pages): 4.51:1 on
+   * gray-100, the cards' hover. The Markdown pages' hover: darker in light
+   * mode, lighter than primary-light in dark mode (ui-revise13).
+   */
+  --color-link: #1e76ab;
+  --color-link-hover: #005d91;
+  --color-link-dark-hover: #a5def5;
+
+  /*
+   * The catch copy's colors, for decoration only (ui-revise13): "昼" in
+   * light mode, the traditional color "黄丹" (#ee7800) darkened just enough
+   * for 3:1 with every pixel of the hero's background behind it, measured
+   * from 320px to 1920px wide (ui-revise14); "夜" in dark mode, the moon.
+   */
+  --color-catch-day: #d25f00;
+  --color-catch-night: #e7d9a8;
+
+  /*
+   * The large card's hover in dark mode: halfway between
+   * atom-one-dark-light and atom-one-dark, for 4.5:1 with gray-400 text
+   * (ui-revise5, UR5-10).
+   */
+  --color-featured-hover-dark: #2e323b;
+
+  /* The corner radius of the work cards and their icons (rounded-card). */
+  --radius-card: 0.5rem;
+
+  /*
+   * Default line heights (ui-revise7 6): at least the size times the DADS
+   * ratio of the text's role, rounded up to a multiple of 4px. The defaults
+   * are for one-line labels and headings; text to read (16px and 14px,
+   * DADS 1.7) sets leading-7 / leading-6 where it is used.
+   *   text-sm   14px, a label (Dense 1.3)       -> 20px (Tailwind's own)
+   *   text-base 16px, a label (Dense 1.3)       -> 24px (Tailwind's own)
+   *   text-lg   18px, the cards' titles         -> 28px (Tailwind's own; kept)
+   *   text-xl   20px, a heading (1.5)           -> 32px (the logotypes
+   *             "unlibra" are labels: text-xl/7, 28px)
+   *   text-2xl  24px, a heading (1.5)           -> 36px
+   *   text-4xl  36px, a heading (1.4)           -> 52px
+   */
+  --text-xl--line-height: 2rem;
+  --text-2xl--line-height: 2.25rem;
+  --text-4xl--line-height: 3.25rem;
 }
 
-.pinned-label {
-  display: none;
-}
+@layer base {
+  :root {
+    color-scheme: light;
+  }
 
-#timeline.pinned-mode .pinned-label {
-  display: flex;
+  .dark {
+    color-scheme: dark;
+  }
 }

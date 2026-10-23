@@ -1,0 +1,79 @@
+---
+import { serializeJsonLd } from "./json-ld";
+
+// The separator icon is Tabler Icons "chevron-right" (outline), copied from
+// the npm package @tabler/icons 3.49.0 (icons/outline/chevron-right.svg).
+// MIT License, Copyright (c) 2020-2026 Paweł Kuna. The full text is in
+// LICENSES/Tabler-MIT.txt.
+
+interface BreadcrumbItem {
+  label: string;
+  /** Site-relative path. The current page (last item) has none. */
+  href?: `/${string}`;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+  /** The name of the navigation, in the page's language. */
+  label: string;
+  /** Origin used to make absolute URLs for the structured data. */
+  siteUrl: string;
+}
+
+const { items, label, siteUrl } = Astro.props;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.label,
+    ...(item.href && { item: `${siteUrl}${item.href}` }),
+  })),
+};
+---
+
+<script
+  type="application/ld+json"
+  is:inline
+  set:html={serializeJsonLd(structuredData)}
+/>
+<nav class="mb-6 flex min-w-0 items-center gap-2 text-base" aria-label={label}>
+  {items.map((item, index) => (
+    <div class="flex min-w-0 items-center gap-2">
+      {index > 0 && (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="size-4 shrink-0 text-gray-600 dark:text-gray-400"
+          aria-hidden="true"
+          data-icon="chevron-right"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M9 6l6 6l-6 6"></path>
+        </svg>
+      )}
+      {item.href ? (
+        <a
+          href={item.href}
+          class="truncate font-medium text-blue-600 outline-hidden transition-colors hover:text-blue-900 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-500 dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          {item.label}
+        </a>
+      ) : (
+        <span
+          class="truncate font-medium text-gray-600 dark:text-gray-400"
+          aria-current="page"
+        >
+          {item.label}
+        </span>
+      )}
+    </div>
+  ))}
+</nav>

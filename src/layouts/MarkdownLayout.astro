@@ -1,60 +1,64 @@
 ---
-import "@/styles/global.css";
-import "@fontsource/ibm-plex-sans-jp/400.css";
-import "@fontsource/ibm-plex-sans-jp/500.css";
-import "@fontsource/ibm-plex-sans-jp/700.css";
-import Analytics from "@/components/Analytics.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { site } from "@/config/site";
 
 interface Props {
-  frontmatter?: {
+  frontmatter: {
     title?: string;
+    description?: string;
   };
 }
 
 const { frontmatter } = Astro.props;
-const title = frontmatter?.title || "プライバシーポリシー";
-const siteName = import.meta.env.PUBLIC_SITE_TITLE || "unlibra.com";
-const siteTitle = title + " - " + siteName;
+if (!frontmatter.title || !frontmatter.description) {
+  throw new Error(
+    `${Astro.url.pathname}: frontmatter needs both "title" and "description".`,
+  );
+}
+const siteTitle = `${frontmatter.title} - ${site.title}`;
 ---
 
-<!doctype html>
-<html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>{siteTitle}</title>
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-  </head>
-  <body class="antialiased">
-    <div class="mx-auto max-w-3xl px-4 py-8">
-      <main class="prose max-w-none">
-        <slot />
-      </main>
-      <footer class="mt-12 border-t border-neutral-200 pt-8 text-center text-sm text-neutral-500">
-        <a href="/" class="hover:underline">{siteName}</a>
-      </footer>
-    </div>
-    <Analytics />
-  </body>
-</html>
+<BaseLayout
+  lang="ja"
+  title={siteTitle}
+  description={frontmatter.description}
+  canonical={true}
+>
+  <!-- The same margins as the other pages (ui-revise12 6); the text keeps
+       its width of max-w-3xl. -->
+  <div class="px-4 pt-8 pb-12 sm:px-6 lg:px-8">
+    <main class="prose mx-auto max-w-3xl">
+      <slot />
+    </main>
+  </div>
+</BaseLayout>
 
 <style is:global>
+  /*
+   * Line heights (ui-revise7 5, 6): the size times the DADS ratio, rounded
+   * up to a multiple of 4px. Headings 1.5 (28px -> 44px, 24px -> 36px,
+   * 20px -> 32px), in 600 like the other headings; the h1 is the size of
+   * the other pages' h1 (ui-revise12 3, 4); the text to read, paragraphs and list items, 1.7
+   * (16px -> 28px).
+   */
   .prose h1 {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    line-height: 2.75rem;
+    font-weight: 600;
     margin-bottom: 1.5rem;
   }
 
   .prose h2 {
     font-size: 1.5rem;
-    font-weight: 700;
+    line-height: 2.25rem;
+    font-weight: 600;
     margin-top: 2rem;
     margin-bottom: 1rem;
   }
 
   .prose h3 {
     font-size: 1.25rem;
+    line-height: 2rem;
     font-weight: 600;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
@@ -63,7 +67,7 @@ const siteTitle = title + " - " + siteName;
   .prose p {
     margin-top: 0.75rem;
     margin-bottom: 0.75rem;
-    line-height: 1.75;
+    line-height: 1.75rem;
   }
 
   .prose strong {
@@ -78,16 +82,31 @@ const siteTitle = title + " - " + siteName;
   }
 
   .prose li {
+    line-height: 1.75rem;
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
   }
 
+  /*
+   * Links: at least 4.5:1 with the page's background, at rest and on hover
+   * (final-review 7), in the site's link colors (ui-revise13). Light on
+   * white: link 5.0:1, hover 7.1:1. Dark on atom-one-dark: primary-light
+   * 9.0:1, hover (lighter) 9.6:1.
+   */
   .prose a {
-    color: #3ba0be;
+    color: var(--color-link);
     text-decoration: underline;
   }
 
   .prose a:hover {
-    color: #1a7ba0;
+    color: var(--color-link-hover);
+  }
+
+  .dark .prose a {
+    color: var(--color-primary-light);
+  }
+
+  .dark .prose a:hover {
+    color: var(--color-link-dark-hover);
   }
 </style>

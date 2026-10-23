@@ -1,0 +1,63 @@
+---
+// Credits (ui-revise6 4): Japanese only, like the privacy policy. The
+// materials are those of section 2 of LICENSE (src/config/credits.ts).
+import MarkdownLayout from "@/layouts/MarkdownLayout.astro";
+import {
+  characters,
+  fonts,
+  materials,
+  thirdPartyLicensesPath,
+} from "@/config/credits";
+
+const frontmatter = {
+  title: "クレジット",
+  description:
+    "unlibra のクレジットです。当サイトで使用しているキャラクターや素材等の権利表記を掲載しています。",
+};
+---
+
+<MarkdownLayout frontmatter={frontmatter}>
+  <h1>クレジット</h1>
+  <p>当サイトで使用しているキャラクターや素材等の権利表記を掲載しています。</p>
+
+  <h2>キャラクター</h2>
+  <ul data-credits-characters>
+    {characters.map(({ name, rights }) => (
+      <li>
+        {name} {rights}
+      </li>
+    ))}
+  </ul>
+
+  <h2>その他の素材・ライセンス</h2>
+  {[...materials, ...fonts].map(({ name, author, license, url }) => (
+    <section data-credit>
+      <h3 data-credit-name>{name}</h3>
+      <ul>
+        <li>
+          著作者：<span data-credit-author>{author}</span>
+        </li>
+        <li>
+          ライセンス：<span data-credit-license>{license}</span>
+        </li>
+        <li>
+          参照先：
+          <a
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="break-all"
+          >
+            {url}
+          </a>
+        </li>
+      </ul>
+    </section>
+  ))}
+  <h2>オープンソースライセンス</h2>
+  <p>
+    <a href={thirdPartyLicensesPath} data-credits-licenses>
+      サードパーティライセンス一覧
+    </a>
+  </p>
+</MarkdownLayout>

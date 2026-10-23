@@ -1,0 +1,53 @@
+---
+// One frame for the photo categories (DIY Keyboards, VR & 3D): a 4:3 photo,
+// the title, the summary and the links, without a border (ui-revise5 12).
+// A card that opens nothing has no hover (ui-revise9 3).
+import { Image } from "astro:assets";
+
+import CardLinks from "@/components/works/CardLinks.astro";
+import CardTitle from "@/components/works/CardTitle.astro";
+import {
+  cardHover,
+  cardRadius,
+  cardSummary,
+  cardTitle,
+} from "@/components/works/card-classes";
+import { cardTarget } from "@/components/works/work-links";
+import type { Work } from "@/config/works";
+import messages from "@/messages/ja";
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+// The photo is decorative: the title is the heading next to it.
+const { summary } = messages.works[work.id];
+---
+
+<article
+  class:list={[
+    "group relative flex flex-col overflow-hidden",
+    cardRadius,
+    cardTarget(work).kind !== "none" && cardHover,
+  ]}
+  data-work={work.id}
+  data-card="frame"
+>
+  <div class="aspect-4/3 overflow-hidden bg-gray-100 dark:bg-atom-one-dark-light">
+    <Image
+      src={work.image}
+      alt=""
+      class="size-full object-cover object-center"
+    />
+  </div>
+  <div class="flex flex-1 flex-col gap-2 p-4">
+    <h3 class:list={["text-lg", cardTitle]} data-work-title>
+      <CardTitle work={work} />
+    </h3>
+    <p class={cardSummary} data-work-summary>
+      {summary}
+    </p>
+    <CardLinks work={work} class="mt-auto" />
+  </div>
+</article>

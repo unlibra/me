@@ -1,18 +1,14 @@
 import type { APIRoute } from "astro";
+import { site } from "@/config/site";
 
 export const prerender = true;
 
 export const GET: APIRoute = () => {
-  const disableRobots = process.env.DISABLE_ROBOTS === "true";
-  const siteUrl = import.meta.env.PUBLIC_SITE_URL || "https://unlibra.com";
-
-  const robotsTxt = disableRobots
-    ? `User-agent: *
-Disallow: /`
-    : `User-agent: *
+  const robotsTxt = `User-agent: *
 Allow: /
 
-Sitemap: ${siteUrl}/sitemap.xml`;
+Sitemap: ${site.url}/sitemap-index.xml
+`;
 
   return new Response(robotsTxt, {
     headers: {

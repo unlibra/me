@@ -1,84 +1,112 @@
+import { layoutMessages } from "@/messages/layout";
+
 export default {
   site: {
-    description:
-      "Xオマージュのポートフォリオサイトです。趣味で開発したWebサービスやアプリ、ライブラリ、自作キーボードなどを掲載しています。",
+    /** The top page's meta description: the footer's description. */
+    description: layoutMessages.ja.footer.description,
   },
-  profile: {
-    bio: `Xオマージュのポートフォリオサイトです
-趣味で開発したWebサービスやアプリ、ライブラリ、自作キーボードなどを掲載しています`,
-    parodyLabel: "パロディサイト",
-    updated: "Updated",
+  hero: {
+    /** The top page's h1. */
+    title: "昼はカフェ。夜はバー。",
+    /** The link buttons below the title (provisional wording). */
+    github: "GitHub",
+    booth: "BOOTH",
   },
-  categories: {
-    all: "All",
-    web: "Web",
-    software: "Software",
-    keyboard: "Keyboard",
+  categories: layoutMessages.ja.header.categories,
+  links: {
+    docs: "ドキュメント",
   },
+  /** The cards and their detail dialogs (provisional wording). */
+  workDetails: {
+    /** On the cards that open their details (DIY Keyboards). */
+    more: "詳しく見る",
+    close: "閉じる",
+    /** The links of a work, on its card and in its details. */
+    openApp: "アプリを開く",
+    viewOnBooth: "BOOTH で見る",
+    npm: "npm",
+    pypi: "PyPI",
+    /** Above the title of a large card (ui-revise5 13). */
+    spotlight: "SPOTLIGHT",
+  },
+  /**
+   * Each work's title and the summary for its card (provisional). The
+   * summaries of Libraries and Apps are about two lines on a 1280px wide
+   * page (ui-revise6 2). The works whose cards open their details (DIY
+   * Keyboards) have the description shown there; a DIY keyboard without a
+   * description has a card that opens nothing (`plain` in works.ts,
+   * ui-revise9 3).
+   */
   works: {
-    "liblab": {
-      title: "Lib Lab",
-      description: `Tailwindと相性の良いカラーパレット生成を中心に、Favicon作成やSVG最適化など、Web・アプリ開発者が日常的に使うツールをまとめたユーティリティアプリ。
-「自分が本当に欲しい機能を一つに集約する」という発想から生まれ、直感的で扱いやすい操作性を重視して設計しています。`,
-    },
     "tkinter-unblur": {
       title: "tkinter-unblur",
-      description:
-        `Windowsの高DPI環境でTkinterアプリがぼやけてしまう問題を、importを書き換えるだけという究極にシンプルなAPIで解決するライブラリ。
-複雑な設定不要で、既存コードに最小限の変更で組み込める点を重視して作りました。
-ドキュメント: https://unlibra.github.io/tkinter-unblur/`,
+      summary:
+        "Windows で Tkinter のアプリがぼやけて表示される問題をシンプルに解決する Python ライブラリです。",
     },
     "mira-zero": {
       title: "mira zero",
+      summary: "はじめて基板・ケースともに自作した思い出の分割キーボード。",
       description: `40%サイズの左右分割ロープロファイル（Choc V1）キーボード。
-基板・ケースともに自作した初号機で、さまざまな技術を試す“プロトタイプ”として制作。終売。`,
+はじめて基板から自作した初号機で、さまざまな技術を試す“プロトタイプ”として制作。`,
     },
-    "botsu": {
-      title: "没キーボード",
-      description: `エンドゲームに行き着くまでに量産された、数々のプロトタイプキーボードたち...。`,
+    prototypes: {
+      title: "prototypes",
+      summary:
+        "エンドゲームに行き着くまでに生まれた、数々のプロトタイプキーボードたち...。",
     },
     "fosty-natural": {
       title: "fosty natural",
-      description: `HHKBを40%に落とし込んだような美しい配列とデザインを持つ、ロープロファイル（Choc V2）キーボード。
-アルミ削り出し筐体、無駄のない薄型設計、ガスケットマウントによる心地よい打鍵感、USB Type-C、そして一体型レイアウトによる携帯性と安定性を追求。
+      summary:
+        "HHKB配列を40%キーボードに落とし込み、美しいデザインと打鍵感を両立したエンドゲームキーボード。",
+      description: `HHKBの特徴的な配列を40%キーボードに落とし込んだ、ロープロファイル（Choc V2）キーボード。
+HHKBのJust60キーに対してJust40キーとなるようにしたのもこだわりポイント。
+アルミ削り出しの筐体と無駄のない薄型設計による美しいデザイン、ガスケットマウントによる心地よい打鍵感、そして一体型レイアウトによる携帯性と安定性を追求。
 白いデスクに映える白×シルバーの配色で、キースイッチまで統一したキメラスイッチを採用。
-打鍵感・携帯性・配列・デザインのバランスが理想形となり、自分の“エンドゲーム”と呼べる一台に仕上がっています。（非売品）`,
+打鍵感・携帯性・配列・デザインのバランスが理想形となり、自分の“エンドゲーム”と呼べる一台に仕上がっています。`,
     },
     "fosty-dark": {
       title: "fosty dark",
-      description: `fosty natural の兄弟モデルとなる40%ロープロ（Choc V2）キーボード。
-黒いデスクに映えるブラック×オレンジという配色に合わせ、こちらもキースイッチを特別な構成でカスタム。
-「黒も欲しくなった」ことをきっかけに制作した、もうひとつのエンドゲーム（非売品）`,
-    },
-    iromide: {
-      title: "推し色生成 イロマイド",
-      description: `画像から推しのイメージカラーを抽出し、本物のチェキと同じ比率でレイアウトされたオリジナルチェキを生成できるWebサービス。
-カラーパレット抽出アルゴリズムを調整し、ワンポイントになりがちな推し色がしっかり拾われるよう最適化しているのが特徴。
-Lib Labから利用可能。`,
+      summary: "fosty naturalのアナザーカラー。もうひとつのエンドゲーム。",
+      description: `fosty naturalのアナザーカラー。40%ロープロキーボード。
+fosty naturalの持っている打鍵感・携帯性・配列・デザインはそのままに、黒いデスクに映えるブラック×オレンジという配色に合わせた特別な構成のキースイッチでカスタム。
+「黒も欲しくなった」ことをきっかけに制作した、もうひとつのエンドゲーム。`,
     },
     "i18n-tiny-next": {
       title: "@i18n-tiny/next",
-      description:
-        `依存なし・型安全・シンプル構造を追求した、Next.js向けの最小構成i18nライブラリ。
-翻訳ファイルを用意してdefine関数を呼ぶだけで、Server ComponentsとClient Componentsの両方で即座に利用可能。
-messages.site.titleやt("site.title")などのパスがすべて型付きで自動サジェストされ、タイポの心配がありません。
-generateStaticParamsなどのSSG設定もシンプルに記述でき、ページごとに設定を繰り返す必要なし。
-middleware / proxyもcreate関数一つで完結し、プレフィックスの有無や自動言語検出など柔軟な構成に対応します。
-ドキュメント: https://unlibra.github.io/i18n-tiny/next/introduction`,
+      summary:
+        "依存ゼロ・型安全・最小構成で、Next.js のアプリを多言語化できる1KB未満のi18nライブラリです。",
+    },
+    "i18n-tiny-react": {
+      title: "@i18n-tiny/react",
+      summary:
+        "依存ゼロ・型安全・最小構成で、React のアプリを多言語化できる1KB未満のi18nライブラリです。",
     },
     "i18n-tiny-astro": {
       title: "@i18n-tiny/astro",
-      description:
-        `依存ゼロ・型安全・最小構成のAstro向けi18nライブラリ。
-SSGとSSRの両方に対応。define関数一つで設定が完了し、messages.common.titleなどのキーパスがすべて自動補完されます。
-getStaticPathsでのロケール設定も最小限の記述で済み、ページごとに繰り返し書く必要はありません。
-middleware.create()でルーティング設定も完結し、プレフィックスの有無や自動言語検出など柔軟な構成に対応します。
-ドキュメント: https://unlibra.github.io/i18n-tiny/astro/introduction`,
+      summary:
+        "依存ゼロ・型安全・最小構成で、Astro のサイトを多言語化できる1KB未満のi18nライブラリです。",
+    },
+    // The Apps: the former tool site's names; the summaries are shortened
+    // from its cards' texts (ui-revise6 2).
+    "favicon-generator": {
+      title: "Faviconジェネレーター",
+      summary:
+        "画像からファビコンとApple Touch Iconを一括生成。角丸や背景色も設定できます。",
+    },
+    "svg-optimizer": {
+      title: "SVGオプティマイザー",
+      summary:
+        "品質を保ったままSVGのファイルサイズを削減し、Webサイトの読み込みを速くします。",
+    },
+    "password-generator": {
+      title: "パスワードジェネレーター",
+      summary:
+        "文字数や文字の種類を選んで、強力なパスワードを生成。紛らわしい文字の除外にも対応しています。",
+    },
+    "mururu-blink-lipsync": {
+      title: "【ムルル対応】まばたき＆リップシンク追加ツール",
+      summary:
+        "ムルルに、ユーザーの声に合わせて自然に口が動くリップシンク機能とまばたき機能を追加するUnityツールです。",
     },
   },
-  footer: {
-    endOfTimeline: "ここで終わりです",
-    privacyPolicy: "プライバシーポリシー",
-  },
-  pinned: "固定",
-};
+} as const;

@@ -1,0 +1,216 @@
+import { Transition, TransitionChild } from "@headlessui/react";
+import {
+  IconAlertCircle,
+  IconAlertTriangle,
+  IconCircleCheck,
+  IconInfoCircle,
+  IconX,
+} from "./icons";
+import {
+  createContext,
+  Fragment,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
+
+import { useMessages } from "@/tools/i18n";
+
+export type ToastType = "success" | "error" | "warning" | "info";
+
+export interface Toast {
+  id: string;
+  type: ToastType;
+  message: string;
+  duration?: number;
+}
+
+interface ToastContextType {
+  showToast: (message: string, type?: ToastType, duration?: number) => void;
+  success: (message: string, duration?: number) => void;
+  error: (message: string, duration?: number) => void;
+  warning: (message: string, duration?: number) => void;
+  info: (message: string, duration?: number) => void;
+}
+
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
+
+export function useToast(): ToastContextType {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error("useToast must be used within ToastProvider");
+  }
+  return context;
+}
+
+export function ToastProvider({ children }: { children: ReactNode }) {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
+
+  const showToast = useCallback(
+    (message: string, type: ToastType = "info", duration?: number) => {
+      const id = `${Date.now()}-${Math.random()}`;
+      const toast: Toast = { id, message, type, duration };
+
+      setToasts((prev) => [...prev, toast]);
+
+      if (duration !== undefined && duration > 0) {
+        setTimeout(() => {
+          removeToast(id);
+        }, duration);
+      }
+    },
+    [removeToast],
+  );
+
+  const success = useCallback(
+    (message: string, duration: number = 3000) => {
+      showToast(message, "success", duration);
+    },
+    [showToast],
+  );
+
+  const error = useCallback(
+    (message: string, duration?: number) => {
+      // Error toasts don't auto-close by default (duration = undefined = Infinity)
+      showToast(message, "error", duration);
+    },
+    [showToast],
+  );
+
+  const warning = useCallback(
+    (message: string, duration: number = 3000) => {
+      showToast(message, "warning", duration);
+    },
+    [showToast],
+  );
+
+  const info = useCallback(
+    (message: string, duration: number = 3000) => {
+      showToast(message, "info", duration);
+    },
+    [showToast],
+  );
+
+  return (
+    <ToastContext.Provider value={{ showToast, success, error, warning, info }}>
+      {children}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+    </ToastContext.Provider>
+  );
+}
+
+function ToastContainer({
+  toasts,
+  onRemove,
+}: {
+  toasts: Toast[];
+  onRemove: (id: string) => void;
+}) {
+  // Two live regions, always in the page so that a toast added to them is
+  // read by screen readers: errors at once (alert), others when the reader
+  // is idle (status)
+  const errors = toasts.filter((toast) => toast.type === "error");
+  const others = toasts.filter((toast) => toast.type !== "error");
+  const regionClass = "flex flex-col items-center gap-2";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-50 flex flex-col items-center justify-end p-4 sm:p-6">
+      <div role="status" aria-live="polite" className={regionClass}>
+        {others.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
+        ))}
+      </div>
+      <div
+        role="alert"
+        aria-live="assertive"
+        className={`${regionClass} ${others.length > 0 && errors.length > 0 ? "mt-2" : ""}`}
+      >
+        {errors.map((toast) => (
+          <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ToastItem({
+  toast,
+  onRemove,
+}: {
+  toast: Toast;
+  onRemove: (id: string) => void;
+}) {
+  const { common } = useMessages();
+  const [show, setShow] = useState(true);
+
+  const handleClose = useCallback(() => {
+    setShow(false);
+    setTimeout(() => {
+      onRemove(toast.id);
+    }, 300);
+  }, [onRemove, toast.id]);
+
+  const getIcon = () => {
+    switch (toast.type) {
+      case "success":
+        return <IconCircleCheck className="size-6 text-white" />;
+      case "error":
+        return <IconAlertCircle className="size-6 text-white" />;
+      case "warning":
+        return <IconAlertTriangle className="size-6 text-white" />;
+      case "info":
+        return <IconInfoCircle className="size-6 text-white" />;
+    }
+  };
+
+  const getBgColor = useCallback(() => {
+    switch (toast.type) {
+      case "success":
+        return "bg-green-500";
+      case "error":
+        return "bg-red-500";
+      case "warning":
+        return "bg-yellow-500";
+      case "info":
+        return "bg-blue-500";
+    }
+  }, [toast.type]);
+
+  return (
+    <Transition show={show} as={Fragment}>
+      <div className="pointer-events-auto w-fit max-w-screen-sm min-w-80">
+        <TransitionChild
+          as={Fragment}
+          enter="transform ease-out duration-300 transition"
+          enterFrom="translate-y-full opacity-0"
+          enterTo="translate-y-0 opacity-100"
+          leave="transition ease-in duration-200"
+          leaveFrom="translate-y-0 opacity-100"
+          leaveTo="translate-y-full opacity-0"
+        >
+          <div
+            className={`flex items-center gap-3 rounded-lg p-4 shadow-lg ${getBgColor()}`}
+          >
+            {getIcon()}
+            <div className="flex-1 text-base font-medium text-white">
+              {toast.message}
+            </div>
+            <div className="h-6 w-px bg-white" />
+            <button
+              type="button"
+              onClick={handleClose}
+              className="shrink-0 rounded-lg p-1 transition-colors hover:bg-white/5"
+              aria-label={common.close}
+            >
+              <IconX className="size-5 stroke-2 text-white" />
+            </button>
+          </div>
+        </TransitionChild>
+      </div>
+    </Transition>
+  );
+}

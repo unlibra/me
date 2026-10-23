@@ -1,26 +1,29 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import { loadEnv } from "vite";
+import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
-// Load environment variables for config (Astro doesn't auto-load .env for config)
-const { PUBLIC_SITE_URL } = loadEnv(
-  process.env.NODE_ENV || "production",
-  process.cwd(),
-  "",
-);
+import thirdPartyLicenses from "./scripts/third-party-licenses.mjs";
 
 // https://astro.build/config
 export default defineConfig({
-  site: PUBLIC_SITE_URL || "https://unlibra.com",
+  site: "https://unlibra.com",
   trailingSlash: "never",
-  integrations: [sitemap()],
+  integrations: [react(), sitemap(), thirdPartyLicenses()],
   vite: {
-    // @ts-expect-error: @tailwindcss/vite uses Vite 7 types, but Astro uses Vite 6
     plugins: [tailwindcss()],
-    esbuild: {
-      drop: ["console", "debugger"],
+    build: {
+      rolldownOptions: {
+        output: {
+          minify: {
+            compress: {
+              dropConsole: true,
+              dropDebugger: true,
+            },
+          },
+        },
+      },
     },
   },
 });

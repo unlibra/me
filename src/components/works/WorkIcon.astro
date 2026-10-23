@@ -1,0 +1,39 @@
+---
+// A work's icon on a background, as on the former tool site's cards: the
+// app icons on a circle of the brand color (ui-revise5 6), the npm and PyPI
+// logos on their own white, with the cards' corner radius (ui-revise3 3)
+// and no border (ui-revise5 7).
+import { Image } from "astro:assets";
+
+import { cardRadius } from "@/components/works/card-classes";
+
+import type { Work } from "@/config/works";
+
+interface Props {
+  work: Work;
+  /** Tailwind size class, e.g. "size-10". */
+  size: string;
+}
+
+const { work, size } = Astro.props;
+---
+
+{work.category === "apps" ? (
+  <div
+    class:list={[
+      "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/70",
+      size,
+    ]}
+  >
+    <Image src={work.image} alt="" class="size-full" />
+  </div>
+) : (
+  <div class:list={["shrink-0 overflow-hidden bg-white", cardRadius, size]}>
+    {/* The logo images are 16:9 with the logo small in the middle: crop to it. */}
+    <Image
+      src={work.image}
+      alt=""
+      class="size-full scale-[2.25] object-cover"
+    />
+  </div>
+)}

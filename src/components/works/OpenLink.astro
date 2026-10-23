@@ -1,0 +1,28 @@
+---
+// A work's title as the link to where its card goes (ui-revise4 2). As with
+// OpenDetails, its ::after covers the card (which needs `relative`), so a
+// click anywhere on the card follows the link, and the focus ring goes
+// around the card. The card's first action goes to the same place and says
+// so; the title has no arrow (ui-revise5 2).
+import { cardTitleId } from "@/components/works/ids";
+import type { WorkLink } from "@/components/works/work-links";
+import type { Work } from "@/config/works";
+import messages from "@/messages/ja";
+
+interface Props {
+  work: Work;
+  link: WorkLink;
+}
+
+const { work, link } = Astro.props;
+---
+
+<a
+  href={link.href}
+  target={link.external ? "_blank" : undefined}
+  rel={link.external ? "noopener noreferrer" : undefined}
+  data-work-link={work.id}
+  class="outline-none after:absolute after:inset-0 after:rounded-[inherit] focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-sky-500"
+>
+  <span id={cardTitleId(work)}>{messages.works[work.id].title}</span>
+</a>

@@ -1,0 +1,122 @@
+---
+import "@fontsource-variable/noto-sans-jp";
+import "@fontsource/geist-mono/400.css";
+import "@fontsource/geist-mono/500.css";
+import "@/styles/global.css";
+
+import Footer from "@/components/layout/Footer.astro";
+import Header from "@/components/layout/Header.astro";
+import { defaultLocale, ogLocales, type Locale } from "@/config/locales";
+import { absoluteUrl, site, type SitePath } from "@/config/site";
+import { themeStorageKey } from "@/config/theme";
+
+interface Props {
+  lang: Locale;
+  /** Full document title. */
+  title: string;
+  description: string;
+  /**
+   * Whether this page has a canonical URL (and og:url). Pass `false` only for
+   * pages that are not addressable by their own URL, such as the 404 page.
+   */
+  canonical: boolean;
+  /** Path of the same page in the other language, if it exists. */
+  alternatePath?: SitePath;
+  /**
+   * The page fills the screen by itself, without the header and the footer
+   * (the 404 page).
+   */
+  bare?: true;
+}
+
+const { lang, title, description, canonical, alternatePath, bare } =
+  Astro.props;
+
+const currentPath = (Astro.url.pathname.replace(/\/+$/, "") || "/") as SitePath;
+const pageUrl = absoluteUrl(currentPath);
+const ogImage = absoluteUrl(site.ogImage);
+
+const languagePaths: Record<Locale, SitePath> | undefined = alternatePath
+  ? lang === "ja"
+    ? { ja: currentPath, en: alternatePath }
+    : { ja: alternatePath, en: currentPath }
+  : undefined;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    {/* Apply the theme before the first paint to avoid a flash. */}
+    <script is:inline define:vars={{ themeStorageKey }}>
+      let preference = null;
+      try {
+        preference = localStorage.getItem(themeStorageKey);
+      } catch {
+        // Storage may be unavailable (privacy settings); follow the system.
+      }
+      const dark =
+        preference === "dark" ||
+        (preference !== "light" &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.classList.toggle("dark", dark);
+    </script>
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={pageUrl} />}
+    {languagePaths && (
+      <>
+        <link
+          rel="alternate"
+          hreflang="ja"
+          href={absoluteUrl(languagePaths.ja)}
+        />
+        <link
+          rel="alternate"
+          hreflang="en"
+          href={absoluteUrl(languagePaths.en)}
+        />
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={absoluteUrl(languagePaths[defaultLocale])}
+        />
+      </>
+    )}
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    {canonical && <meta property="og:url" content={pageUrl} />}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={ogLocales[lang]} />
+    <meta property="og:site_name" content={site.title} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  </head>
+  <body class="bg-white text-gray-700 antialiased dark:bg-atom-one-dark dark:text-gray-300">
+    {bare ? (
+      <slot />
+    ) : (
+      <div class="flex min-h-screen flex-col overflow-x-hidden">
+        <Header lang={lang} languagePaths={languagePaths} />
+        <div class="flex-1">
+          <slot />
+        </div>
+        <Footer lang={lang} />
+      </div>
+    )}
+  </body>
+</html>

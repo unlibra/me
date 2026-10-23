@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with an editor -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:xlink="http://www.w3.org/1999/xlink" width="120.000mm" height="80.0000" viewBox="0 0 120.000 80.0000" version="1.1" id="svg8" inkscape:version="1.0" sodipodi:docname="drawing.svg">
+  <title id="title1">Sample drawing</title>
+  <desc>A drawing used to test the optimizer.</desc>
+  <metadata id="metadata5">
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"><rdf:Description about="x"/></rdf:RDF>
+  </metadata>
+  <sodipodi:namedview id="base" pagecolor="#ffffff" inkscape:zoom="0.35"/>
+  <defs id="defs2">
+    <linearGradient id="unused-gradient"><stop offset="0" stop-color="#ff0000"/></linearGradient>
+    <linearGradient id="grad"><stop offset="0" stop-color="#0000ff"/><stop offset="1" stop-color="rgb(255, 255, 255)"/></linearGradient>
+  </defs>
+  <style>.box { fill: #ff0000; stroke: none; }</style>
+  <script>alert("hello")</script>
+  <g id="layer1" inkscape:label="Layer 1" inkscape:groupmode="layer" transform="translate(10.123456, 5.987654)">
+    <g fill="#336699">
+      <rect class="box" x="0.000000" y="0.0000" width="40.123456789" height="20.98765" style="fill-opacity:1.0000;stroke-width:0.264583"/>
+      <circle cx="60.55555" cy="30.44444" r="10.0" fill="url(#grad)"/>
+    </g>
+    <g><g><path d="M 10.123456,50.987654 L 30.555555,50.987654 L 30.555555,70.111111 Z" stroke="#000000" stroke-width="1.000"/></g></g>
+    <path d="M 40,50 L 60,50" fill="none" stroke="black"/>
+    <path d="M 60,50 L 80,50" fill="none" stroke="black"/>
+    <polygon points="90.5,10.25 110.75,10.25 100.125,30.0625"/>
+    <ellipse cx="100" cy="60" rx="8.5" ry="4.25" transform="rotate(45.123456 100 60) scale(1.0000001)"/>
+    <text x="5" y="78"> </text>
+    <rect x="0" y="0" width="0" height="0"/>
+    <g style="display:none"><rect width="10" height="10"/></g>
+    <image width="2" height="2" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="/>
+  </g>
+</svg>

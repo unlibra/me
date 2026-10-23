@@ -1,34 +1,58 @@
 {
-  "name": "me",
+  "name": "unlibra.com",
   "type": "module",
   "version": "1.0.0",
+  "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
+    "preview:cf": "wrangler dev",
+    "test": "node --test \"tests/**/*.test.js\"",
     "astro": "astro",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "generate:icons": "node scripts/generate-icons.mjs",
+    "generate:brand-font": "node scripts/subset-brand-font.mjs",
+    "test:e2e": "astro build && playwright test",
+    "check:prod": "node scripts/check-prod.mjs"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.6.0",
-    "@fontsource/ibm-plex-sans-jp": "^5.2.8",
-    "@i18n-tiny/astro": "^1.1.1",
-    "@tailwindcss/vite": "^4.1.17",
-    "@vercel/analytics": "^1.6.1",
-    "astro": "^5.16.4",
-    "tailwindcss": "^4.1.17"
+    "@astrojs/react": "^7.1.0",
+    "@astrojs/sitemap": "^3.7.4",
+    "@fontsource-variable/noto-sans-jp": "^5.3.1",
+    "@fontsource/geist-mono": "^5.3.0",
+    "@headlessui/react": "^2.2.10",
+    "@tabler/icons-react": "3.49.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "astro": "^7.4.1",
+    "jszip": "^3.10.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "svgo": "^4.1.0",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.6",
-    "@typescript-eslint/parser": "^8.48.0",
-    "eslint": "^9.39.1",
-    "eslint-plugin-astro": "^1.5.0",
+    "@astrojs/check": "^0.9.11",
+    "@fontsource/line-seed-jp": "^5.3.2",
+    "@playwright/test": "^1.64.1",
+    "@tabler/icons": "3.49.0",
+    "@typescript-eslint/parser": "^8.72.0",
+    "eslint": "^10.13.0",
+    "eslint-plugin-astro": "^3.2.1",
     "prettier": "^3.7.3",
-    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-astro": "^1.1.1",
     "prettier-plugin-tailwindcss": "^0.7.1",
-    "typescript-eslint": "^8.48.0"
+    "sharp": "^0.35.5",
+    "subset-font": "^2.9.0",
+    "typescript-eslint": "^8.72.0",
+    "wrangler": "^4.151.3"
+  },
+  "engines": {
+    "node": ">=22.22.0"
   }
 }

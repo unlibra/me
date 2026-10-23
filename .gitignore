@@ -28,4 +28,7 @@ pnpm-debug.log*
 
 # vscode
 .vscode/
-.vercel
+
+# playwright
+playwright-report/
+test-results/

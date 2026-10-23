@@ -1,0 +1,79 @@
+---
+// The works of one category: the category's cards (featured works as large
+// cards), and the detail dialogs of the cards that open them (DIY Keyboards,
+// ui-revise4 2).
+import FeaturedCard from "@/components/works/FeaturedCard.astro";
+import FrameCard from "@/components/works/FrameCard.astro";
+import ToolCard from "@/components/works/ToolCard.astro";
+import WorkDialog from "@/components/works/WorkDialog.astro";
+import { cardTarget } from "@/components/works/work-links";
+import { cardKind, cardStyles } from "@/config/cards";
+import type { Category, Work } from "@/config/works";
+
+interface Props {
+  category: Category;
+  works: Work[];
+}
+
+const { category, works } = Astro.props;
+const style = cardStyles[category];
+const cards = {
+  featured: FeaturedCard,
+  frame: FrameCard,
+  tool: ToolCard,
+} satisfies Record<ReturnType<typeof cardKind>, unknown>;
+---
+
+<div
+  class:list={[
+    "grid grid-cols-1",
+    style === "frame"
+      ? "gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      : "gap-4 lg:grid-cols-2",
+  ]}
+  data-work-list={style}
+>
+  {works.map((work) => {
+    const Card = cards[cardKind(work)];
+    return <Card work={work} />;
+  })}
+</div>
+{works
+  .filter((work) => cardTarget(work).kind === "details")
+  .map((work) => (
+    <WorkDialog work={work} />
+  ))}
+
+<style is:global>
+  /* The page behind an open dialog does not scroll. */
+  html:has(dialog[data-work-dialog][open]) {
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>(
+    "[data-work-open]",
+  )) {
+    const dialog = document.getElementById(
+      button.getAttribute("aria-controls") ?? "",
+    );
+    if (!(dialog instanceof HTMLDialogElement)) {
+      throw new Error(`no dialog for ${button.dataset.workOpen}`);
+    }
+    button.addEventListener("click", () => dialog.showModal());
+  }
+
+  for (const dialog of document.querySelectorAll<HTMLDialogElement>(
+    "dialog[data-work-dialog]",
+  )) {
+    dialog.addEventListener("click", (event) => {
+      const target = event.target as Element;
+      // A click on the dialog element itself is on the backdrop: the
+      // content fills the dialog.
+      if (target === dialog || target.closest("[data-work-close]")) {
+        dialog.close();
+      }
+    });
+  }
+</script>

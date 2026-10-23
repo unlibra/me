@@ -1,0 +1,71 @@
+---
+// A featured work (`featured: true`): a full-width card on a light gray
+// surface, with the image inset on it and the summary side by side (design 4
+// of the mock, in light gray; ui-revise5). "SPOTLIGHT" is above the title,
+// in text-4xl (ui-revise5 13).
+import { Image } from "astro:assets";
+
+import CardLinks from "@/components/works/CardLinks.astro";
+import CardTitle from "@/components/works/CardTitle.astro";
+import WorkIcon from "@/components/works/WorkIcon.astro";
+import {
+  cardRadius,
+  cardSummary,
+  cardTitle,
+  featuredSurface,
+} from "@/components/works/card-classes";
+import { isPhoto } from "@/config/cards";
+import type { Work } from "@/config/works";
+import messages from "@/messages/ja";
+
+interface Props {
+  work: Work;
+}
+
+const { work } = Astro.props;
+// The photo is decorative: the title is the heading next to it.
+const { summary } = messages.works[work.id];
+const photo = isPhoto(work.category);
+---
+
+<article
+  class:list={[
+    "group relative col-span-full grid gap-4 overflow-hidden p-4 sm:p-6 md:grid-cols-2 md:gap-6",
+    cardRadius,
+    featuredSurface,
+  ]}
+  data-work={work.id}
+  data-card="featured"
+>
+  <div
+    class:list={[
+      "flex aspect-4/3 items-center justify-center overflow-hidden bg-white dark:bg-atom-one-dark",
+      cardRadius,
+    ]}
+  >
+    {photo ? (
+      <Image
+        src={work.image}
+        alt=""
+        class="size-full object-cover object-center"
+      />
+    ) : (
+      <WorkIcon work={work} size="size-28" />
+    )}
+  </div>
+  <div class="flex flex-col justify-center gap-4 md:p-4">
+    <p
+      class="text-sm font-semibold tracking-widest text-gray-600 dark:text-gray-400"
+      data-work-spotlight
+    >
+      {messages.workDetails.spotlight}
+    </p>
+    <h3 class:list={["text-2xl md:text-4xl", cardTitle]} data-work-title>
+      <CardTitle work={work} />
+    </h3>
+    <p class={cardSummary} data-work-summary>
+      {summary}
+    </p>
+    <CardLinks work={work} />
+  </div>
+</article>

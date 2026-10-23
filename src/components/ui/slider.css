@@ -1,0 +1,33 @@
+/* Range input of the Slider component (scoped by the `ui-slider` class). */
+input[type="range"].ui-slider {
+  height: 8px;
+  padding: 0;
+}
+
+input[type="range"].ui-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid rgb(0, 166, 244);
+  cursor: pointer;
+}
+
+input[type="range"].ui-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(0, 166, 244, 0.3);
+}
+
+input[type="range"].ui-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgb(0, 166, 244);
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+
+input[type="range"].ui-slider:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(0, 166, 244, 0.3);
+}
