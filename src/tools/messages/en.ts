@@ -75,6 +75,7 @@ const en: ToolMessages = {
       colorCodeCopyFailed: "Failed to copy color code.",
       colorCodeCopied: "Color code copied!",
       configCopied: "Tailwind config copied!",
+      configCopyFailed: "Failed to copy Tailwind config.",
       addedToHistory: "Added to history.",
     },
   },

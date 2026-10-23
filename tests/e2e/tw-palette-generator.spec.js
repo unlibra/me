@@ -428,7 +428,7 @@ for (const locale of LOCALES) {
           Promise.reject(new Error("denied"));
       });
       await page.getByRole("button", { name: m.copyConfig }).click();
-      await expect(toast(page, m.errors.colorCodeCopyFailed)).toBeVisible();
+      await expect(toast(page, m.errors.configCopyFailed)).toBeVisible();
       await expect(toast(page, m.errors.configCopied)).toHaveCount(0);
     });
 

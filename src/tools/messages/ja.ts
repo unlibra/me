@@ -72,6 +72,7 @@ export default {
       colorCodeCopyFailed: "コピーに失敗しました",
       colorCodeCopied: "カラーコードをコピーしました",
       configCopied: "Tailwind設定としてコピーしました",
+      configCopyFailed: "Tailwind設定のコピーに失敗しました",
       addedToHistory: "ヒストリーに追加しました",
     },
   },

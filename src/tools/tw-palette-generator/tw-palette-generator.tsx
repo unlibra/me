@@ -230,7 +230,7 @@ function TailwindPaletteGenerator() {
       await navigator.clipboard.writeText(tailwindConfig);
       toast.success(t.errors.configCopied);
     } catch (err) {
-      toast.error(t.errors.colorCodeCopyFailed);
+      toast.error(t.errors.configCopyFailed);
       console.error(err);
     }
   }, [palette, toast, t]);

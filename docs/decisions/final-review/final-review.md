@@ -80,3 +80,10 @@
 - `tests/e2e/password-generator.spec.js`：文字種のボタンを見えている文字（`m.uppercase` など）で探す
 - `tests/e2e/svg-optimizer.spec.js`：プリセットのボタンを見えている文字で、プレビューの alt と「SVGファイルのみ」の文言をメッセージから取る
 - `tests/e2e/tw-palette-generator.spec.js`：色のボタンの名前を `copyColor` の文面から作り、色のコードを名前から正規表現で取り出す（英語は「Copy BASE #…」で、空白で区切った2つ目が色ではなくなった）
+
+## FR-11 2回目のレビューの指摘（親が直接修正）
+
+- Tailwind 設定のコピーに失敗したときの文言を、色のコピーの失敗の文言から専用の `configCopyFailed` に替えた（ja「Tailwind設定のコピーに失敗しました」、en「Failed to copy Tailwind config.」、仮の文面）。`tw-palette-generator.spec.js`「final-review 5」の期待値も合わせた
+- `src/config/site.ts` の BOOTH のリンクの注記「provisional」を、本番のショップであること（設計書 3.6）に直した
+- FR-2 の逸脱（TogglePill などの aria-label を外し、見えている文字を名前にした）は親が認めた（WCAG 2.5.3）
+- 3回目のレビュー（この修正の差分）で指摘はなかった
