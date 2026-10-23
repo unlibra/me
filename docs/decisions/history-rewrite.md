@@ -7,7 +7,7 @@
 - 書き換え後、ブランチのすべてのコミットの `LICENSE` は `Copyright (c) 2025 unlibra. All rights reserved.` で始まる
 - 最終的なファイルの内容は、書き換え前と完全に一致する（`git diff` で差分なし）
 - すでに push していた旧コミットの内容を取得した人がいれば、その分は MIT のまま（取り消せない）
-- 書き換え前の履歴は、ローカルのタグ `backup/pre-license-rewrite` に残してある
+- 書き換え前の履歴は、ローカルのタグ `backup/pre-license-rewrite` に残してある（2026-10-23 にユーザーの指示で削除した。書き換え後の作業に問題がなかったため）
 
 ## 新旧の SHA の対応
 
