@@ -14,8 +14,11 @@ export const site = {
   /** Donations: an Amazon e-gift card sent to this address (/donate). */
   donation: {
     email: "gift@unlibra.com",
-    /** Amazon eギフトカード (formerly the Eメールタイプ) on amazon.co.jp. */
-    amazonGift: "https://www.amazon.co.jp/dp/B004N3APGO",
+    /**
+     * Amazon eギフトカード (formerly the Eメールタイプ) on amazon.co.jp, with
+     * ¥500 filled in (gpo; the amount can still be changed there).
+     */
+    amazonGift: "https://www.amazon.co.jp/dp/B004N3APGO?gpo=500",
   },
 } as const;
 
