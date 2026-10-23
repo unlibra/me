@@ -261,9 +261,17 @@ function SvgOptimizer() {
                 )}
               </CheckerboardPreview>
 
-              {/* File Size Info */}
-              {previewOptimizedSvg && (
-                <div className="dark:bg-atom-one-dark-light space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 text-base dark:border-gray-700">
+              {/* File Size Info: its place is kept (hidden) from the file's
+                  selection until the first preview, so that the Download
+                  button does not move when the sizes appear (TS-10). */}
+              {originalSvg && (
+                <div
+                  data-svg-sizes
+                  aria-hidden={previewOptimizedSvg ? undefined : true}
+                  className={`dark:bg-atom-one-dark-light space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 text-base dark:border-gray-700 ${
+                    previewOptimizedSvg ? "" : "invisible"
+                  }`}
+                >
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">
                       {t.original}:

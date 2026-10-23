@@ -39,7 +39,7 @@ export default {
     "tkinter-unblur": {
       title: "tkinter-unblur",
       summary:
-        "高 DPI の Windows で Tkinter のアプリがぼやけて表示される問題を、import を一行足すだけで解決する Python ライブラリです。",
+        "Windows で Tkinter のアプリがぼやけて表示される問題をシンプルに解決する Python ライブラリです。",
     },
     "mira-zero": {
       title: "mira zero",
@@ -72,6 +72,11 @@ export default {
       summary:
         "依存ゼロ・型安全・最小構成で、Next.js のアプリを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。",
     },
+    "i18n-tiny-react": {
+      title: "@i18n-tiny/react",
+      summary:
+        "依存ゼロ・型安全・最小構成で、React のアプリを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。",
+    },
     "i18n-tiny-astro": {
       title: "@i18n-tiny/astro",
       summary:
@@ -82,7 +87,7 @@ export default {
     "tw-palette-generator": {
       title: "TWパレットジェネレーター",
       summary:
-        "指定した色から、TailwindCSSに最適化された50〜950のカラーパレットを自動生成。統一感のある配色を作れます。",
+        "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。統一感のある配色を作れます。",
     },
     "favicon-generator": {
       title: "Faviconジェネレーター",
@@ -92,16 +97,17 @@ export default {
     "svg-optimizer": {
       title: "SVG最適化",
       summary:
-        "品質を保ったままSVGのファイルサイズを削減し、Webサイトの読み込みを速くします。ブラウザ上で完結するので安全です。",
+        "品質を保ったままSVGのファイルサイズを削減し、Webサイトの読み込みを速くします。",
     },
     "password-generator": {
       title: "パスワードジェネレーター",
       summary:
-        "文字数や文字の種類を選んで、強力なパスワードを生成。紛らわしい文字の除外にも対応し、ブラウザ上で安全に作成できます。",
+        "文字数や文字の種類を選んで、強力なパスワードを生成。紛らわしい文字の除外にも対応しています。",
     },
     "mururu-blink-lipsync": {
       title: "【ムルル対応】まばたき＆リップシンク追加ツール",
-      summary: "ムルルにまばたきとリップシンクを追加する Unity ツール",
+      summary:
+        "ムルルに、ユーザーの声に合わせて自然に口が動くリップシンク機能とまばたき機能を追加するUnityツールです。",
     },
   },
 } as const;

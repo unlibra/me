@@ -92,6 +92,13 @@ export const works: Work[] = [
     docs: "https://docs.unlibra.com/i18n-tiny/next/introduction",
   },
   {
+    id: "i18n-tiny-react",
+    category: "libraries",
+    image: npmImg,
+    link: "https://www.npmjs.com/package/@i18n-tiny/react",
+    docs: "https://docs.unlibra.com/i18n-tiny/react/introduction",
+  },
+  {
     id: "tkinter-unblur",
     category: "libraries",
     image: pypiImg,

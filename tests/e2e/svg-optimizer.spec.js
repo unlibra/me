@@ -46,9 +46,10 @@ for (const locale of LOCALES) {
     const preview = (page) => page.getByAltText("最適化後プレビュー");
     /**
      * Selects an SVG and waits for its first preview. SVGO is a lazy chunk,
-     * and when the preview and the sizes appear they push the Download button
-     * down (126px): a click pressed before that releases off the button and
-     * is lost (tests.md TS-10).
+     * and until ui-revise8 1 the sizes appearing with the preview pushed the
+     * Download button down (126px): a click pressed before that released off
+     * the button and was lost (tests.md TS-10). Their place is kept now (see
+     * the test below); the tests still wait, to act on a loaded page.
      */
     const chooseSvg = async (page, file) => {
       await chooseFile(page, file);
@@ -153,6 +154,40 @@ for (const locale of LOCALES) {
       expect(d).toContain("1.1");
       expect(d).not.toMatch(/\.\d\d/);
     });
+
+    for (const [width, height] of [
+      [375, 800],
+      [1280, 900],
+    ]) {
+      test(`ui-revise8 1: ${width}px: the Download button does not move when the first preview appears`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height });
+        // Hold SVGO's lazy chunk until the button has been measured.
+        let release;
+        const held = new Promise((resolve) => (release = resolve));
+        await page.route(/\/svgo\.browser\.[\w-]+\.js$/, async (route) => {
+          await held;
+          await route.continue();
+        });
+        const top = () =>
+          downloadButton(page).evaluate(
+            (button) => button.getBoundingClientRect().top + window.scrollY,
+          );
+        const requested = page.waitForRequest(/\/svgo\.browser\.[\w-]+\.js$/);
+        await chooseFile(page, ICON);
+        await requested;
+        await expect(downloadButton(page)).toBeEnabled();
+        await expect(preview(page)).toHaveCount(0);
+        await expect(page.getByText(`${m.original}:`)).toBeHidden();
+        const before = await top();
+
+        release();
+        await expect(preview(page)).toBeVisible();
+        await expect(page.getByText(`${m.original}:`)).toBeVisible();
+        expect(await top()).toBe(before);
+      });
+    }
 
     test("a file that is not an SVG is refused with a message", async ({
       page,

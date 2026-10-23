@@ -333,15 +333,20 @@ test("ui-revise4 2: VR & 3D has the real product only, without subcategories or 
   );
   // No subcategory label or attribute anywhere on the page. The footer's
   // description (the owner's words, ui-revise6 1) names VR avatars and 3D
-  // assets, which are not labels: that paragraph only is left out.
+  // assets, which are not labels: that paragraph only is left out. So is the
+  // product's summary (the owner's words, ui-revise8 3), which calls it a
+  // Unity tool.
   assert.doesNotMatch(top, /data-subcategory/);
   const footer = top.match(/<footer[\s>][\s\S]*?<\/footer>/)[0];
   const description = footer.match(/<p class="mt-3[^"]*">[^<]*<\/p>/);
   assert.ok(description?.[0].includes("VRアバター"), "self-check");
+  const summary = cards[0].match(/<p[^>]*data-work-summary[^>]*>[^<]*<\/p>/);
+  assert.ok(summary?.[0].includes("Unityツール"), "self-check");
   const body = text(
     top
       .match(/<body[\s\S]*<\/body>/)[0]
-      .replace(footer, footer.replace(description[0], "")),
+      .replace(footer, footer.replace(description[0], ""))
+      .replace(summary[0], ""),
   );
   for (const label of ["アバター", "アセット", "Unityツール", "ダミー"]) {
     assert.ok(!body.includes(label), label);
@@ -362,7 +367,7 @@ test("ui-revise4 2: VR & 3D has the real product only, without subcategories or 
   assert.ok(!top.includes("BOOTH ショップ"));
 });
 
-test("ui-revise3 (user), ui-revise4 2, ui-revise5 5, ui-revise7 1 2: the BOOTH product: its card, links and image", () => {
+test("ui-revise3 (user), ui-revise4 2, ui-revise5 5, ui-revise7 1 2, ui-revise8 3: the BOOTH product: its card, links and image", () => {
   const work = "mururu-blink-lipsync";
   const card = cardsOf(sectionOf("vr-3d"))[0];
   assert.equal(attr(card, "data-work"), work);
@@ -374,7 +379,7 @@ test("ui-revise3 (user), ui-revise4 2, ui-revise5 5, ui-revise7 1 2: the BOOTH p
   );
   assert.match(
     card,
-    /<p[^>]*data-work-summary[^>]*>ムルルにまばたきとリップシンクを追加する Unity ツール<\/p>/,
+    /<p[^>]*data-work-summary[^>]*>ムルルに、ユーザーの声に合わせて自然に口が動くリップシンク機能とまばたき機能を追加するUnityツールです。<\/p>/,
   );
   // The card goes to the item on BOOTH, in a new tab. The text links are
   // "BOOTH で見る" (where the card goes) and the documentation (ui-revise5 5).
@@ -405,6 +410,56 @@ test("ui-revise3 (user), ui-revise4 2, ui-revise5 5, ui-revise7 1 2: the BOOTH p
   assert.equal(attr(img, "width"), "1200");
   assert.equal(attr(img, "height"), "900");
   assert.ok(attr(img, "class").split(/\s+/).includes("object-center"), img);
+});
+
+test("ui-revise8 3: the cards' summaries; none says it runs in the browser", () => {
+  const summaries = Object.fromEntries(
+    cardsOf(top).map((card) => [
+      attr(card, "data-work"),
+      card.match(/<p[^>]*data-work-summary[^>]*>([^<]*)<\/p>/)[1],
+    ]),
+  );
+  const expected = {
+    "svg-optimizer":
+      "品質を保ったままSVGのファイルサイズを削減し、Webサイトの読み込みを速くします。",
+    "password-generator":
+      "文字数や文字の種類を選んで、強力なパスワードを生成。紛らわしい文字の除外にも対応しています。",
+    "tkinter-unblur":
+      "Windows で Tkinter のアプリがぼやけて表示される問題をシンプルに解決する Python ライブラリです。",
+    "tw-palette-generator":
+      "指定した色から、TailwindCSSに最適化されたカラーパレットを自動生成。統一感のある配色を作れます。",
+    "mururu-blink-lipsync":
+      "ムルルに、ユーザーの声に合わせて自然に口が動くリップシンク機能とまばたき機能を追加するUnityツールです。",
+  };
+  for (const [work, summary] of Object.entries(expected)) {
+    assert.equal(summaries[work], summary, work);
+  }
+  assert.ok(Object.keys(summaries).length > 10, "self-check");
+  for (const [work, summary] of Object.entries(summaries)) {
+    assert.ok(!summary.includes("ブラウザ"), `${work}: ${summary}`);
+  }
+});
+
+test("ui-revise8 4: Libraries has @i18n-tiny/react after @i18n-tiny/next, with the npm image", () => {
+  const cards = cardsOf(sectionOf("libraries"));
+  assert.deepEqual(
+    cards.map((card) => attr(card, "data-work")),
+    ["i18n-tiny-astro", "i18n-tiny-next", "i18n-tiny-react", "tkinter-unblur"],
+  );
+  const card = cards[2];
+  assert.match(
+    card,
+    /<span id="work-i18n-tiny-react-name">@i18n-tiny\/react<\/span>/,
+  );
+  assert.match(
+    card,
+    /<p[^>]*data-work-summary[^>]*>依存ゼロ・型安全・最小構成で、React のアプリを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。<\/p>/,
+  );
+  // The same image as the other npm libraries.
+  const image = (c) => attr(c.match(/<img\s[^>]*>/)[0], "src");
+  assert.match(image(cards[0]), /\/npm\.[\w-]+\.svg$/);
+  assert.equal(image(cards[1]), image(cards[0]));
+  assert.equal(image(card), image(cards[0]));
 });
 
 test("ui-revise7 2: every photo is cropped around its center; nothing is cropped at an edge", () => {
@@ -555,7 +610,8 @@ test("ui-revise4 3: no card and no details show a year", () => {
 
 test("ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; the other cards have none", () => {
   const cards = cardsOf(top);
-  assert.equal(cards.length, 12, "self-check of the work count");
+  // 13 since ui-revise8 4 (@i18n-tiny/react).
+  assert.equal(cards.length, 13, "self-check of the work count");
   const keyboards = new Set(
     cardsOf(sectionOf("keyboards")).map((card) => attr(card, "data-work")),
   );
@@ -638,6 +694,10 @@ test("ui-revise4 2, ui-revise5 9, 10, 11: a card goes to its first link; every l
     "i18n-tiny-next": [
       ["npm", npm("next")],
       ["ドキュメント", `${docs}/i18n-tiny/next/introduction`],
+    ],
+    "i18n-tiny-react": [
+      ["npm", npm("react")],
+      ["ドキュメント", `${docs}/i18n-tiny/react/introduction`],
     ],
     "tkinter-unblur": [
       ["PyPI", "https://pypi.org/project/tkinter-unblur"],
@@ -793,7 +853,8 @@ test("ui-revise4 2, ui-revise5 2, 6, ui-revise7 8': the actions have the up-righ
     const more = card.match(/<p[^>]*data-work-more[\s\S]*?<\/p>/);
     if (more) assert.doesNotMatch(more[0], /<svg/, `${work}: more`);
   }
-  assert.equal(links, 3 * 2 + 4 + 2, "self-check: the number of actions");
+  // 4 Libraries since ui-revise8 4.
+  assert.equal(links, 4 * 2 + 4 + 2, "self-check: the number of actions");
 });
 
 test("ui-revise3 3: the photo cards and the list items share the title, summary, link, radius and focus classes", async () => {
@@ -933,13 +994,14 @@ test("ui-revise5 3: the works are 24px further below the hero than the hero's ma
   assert.equal(attr(first, "id"), "keyboards");
 });
 
-test("D5, ui-revise5 5: the four documentation links point to docs.unlibra.com", () => {
+test("D5, ui-revise5 5, ui-revise8 4: the five documentation links point to docs.unlibra.com", () => {
   // The works' links (the footer links to the docs site's top since ui-revise).
   // Each is on the work's card once, as its second action (ui-revise5 10).
   const main = top.match(/<main[\s>][\s\S]*?<\/main>/)[0];
   const expected = [
     "https://docs.unlibra.com/i18n-tiny/astro/introduction",
     "https://docs.unlibra.com/i18n-tiny/next/introduction",
+    "https://docs.unlibra.com/i18n-tiny/react/introduction",
     "https://docs.unlibra.com/mururu-blink-lipsync/",
     "https://docs.unlibra.com/tkinter-unblur/",
   ];

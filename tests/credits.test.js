@@ -194,10 +194,11 @@ test("ui-revise6 4, ui-revise7 9: the credits page has its heading, description 
   // ui-revise7 9: as the author writes it, without a space after ©.
   assert.deepEqual(characters, [{ name: "ムルル", rights: "©Lethal Cats" }]);
   assert.doesNotMatch(list, /© /);
-  assert.ok(
-    main.includes(
-      "<p>必要に応じて素材名、著作者、ライセンス、参照先を記載します。</p>",
-    ),
+  // ui-revise8 2: no paragraph under the materials' heading.
+  assert.ok(!main.includes("必要に応じて"));
+  assert.match(
+    main,
+    /<h2>その他の素材・ライセンス<\/h2>\s*<section[^>]*data-credit/,
   );
 });
 
