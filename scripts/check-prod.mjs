@@ -110,6 +110,12 @@ export async function checkSite(base, report) {
   const get = async (path) => {
     const response = await fetch(new URL(path, origin), {
       redirect: "manual",
+      // As a browser asks for a page: Cloudflare injects the Web Analytics
+      // beacon only into responses to requests that accept HTML.
+      headers: {
+        accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
     });
     fetched.push([path, response.headers.get("x-vercel-id")]);
     return response;
