@@ -235,6 +235,9 @@ test("A9: wrangler.jsonc serves dist/ as static assets without a Worker script",
 
   assert.equal(config.name, "unlibra-com");
   assert.equal(config.main, undefined);
+  // Only the custom domain serves the site (no workers.dev, no Version URLs).
+  assert.equal(config.workers_dev, false);
+  assert.equal(config.preview_urls, false);
   assert.deepEqual(config.assets, {
     directory: "./dist",
     html_handling: "drop-trailing-slash",
