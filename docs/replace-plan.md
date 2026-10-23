@@ -72,7 +72,7 @@
 
 ### 3.5 デザイン
 
-- liblab のデザインをベースにする（ヘッダー、フッター、カード、色トークン `logo-*` と `atom-one-dark`、ダークモード切替）
+- liblab のデザインをベースにする（ヘッダー、フッター、カード、色トークン `atom-one-dark`。liblab の `logo-*` の水色は 2026-10-23 に整理し、空色のテーマカラー `primary-light`・`primary` と `link` にした（`DESIGN.md` 3、`docs/decisions/ui-revise13/`）、ダークモード切替）
 - 本文フォントは Noto Sans JP（`@fontsource-variable/noto-sans-jp`、自前ホスティング）
 - ロゴシンボルは `unlibra.github.io` リポジトリの `brand/symbol.svg`。favicon と OGP 画像もこれをもとに作り直す
 - LINE Seed JP はロゴタイプ「unlibra」に使う（ui-revise2 で決定。使う7文字だけのサブセット、OFL）
