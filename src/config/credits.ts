@@ -64,11 +64,11 @@ export const fonts: readonly (Credit & { package: string })[] = [
     url: "https://fontsource.org/fonts/line-seed-jp",
   },
   {
-    name: "Roboto Mono",
-    package: "@fontsource/roboto-mono",
-    author: "The Roboto Mono Project Authors",
+    name: "Geist Mono",
+    package: "@fontsource/geist-mono",
+    author: "The Geist Project Authors",
     license: "SIL Open Font License 1.1",
-    url: "https://fontsource.org/fonts/roboto-mono",
+    url: "https://fontsource.org/fonts/geist-mono",
   },
 ];
 

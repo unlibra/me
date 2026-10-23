@@ -14,7 +14,7 @@ import {
   cardTitle,
   featuredSurface,
 } from "@/components/works/card-classes";
-import { isPhoto, photoPosition } from "@/config/cards";
+import { isPhoto } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -47,7 +47,7 @@ const photo = isPhoto(work.category);
       <Image
         src={work.image}
         alt=""
-        class:list={["size-full object-cover", photoPosition(work)]}
+        class="size-full object-cover object-center"
       />
     ) : (
       <WorkIcon work={work} size="size-28" />

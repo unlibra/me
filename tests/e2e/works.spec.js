@@ -838,7 +838,7 @@ const hoverClick = async (page, item) => {
   await page.mouse.click(box.x + 5, box.y + box.height / 2);
 };
 
-test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero", () => {
+test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero", () => {
   for (const width of [375, 1280]) {
     test(`${width}px: the h1 is one line in 28px, with the GitHub and BOOTH text buttons side by side below it`, async ({
       page,
@@ -865,23 +865,31 @@ test.describe("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero", () => {
       expect(github.y).toBeGreaterThan(h1.y + h1.height);
       expect(Math.round(booth.y)).toBe(Math.round(github.y));
       expect(booth.x).toBeGreaterThan(github.x + github.width);
-      // Text buttons: no background or ring; the logo (16px, the GitHub
-      // mark and Lucide's box), then the text (ui-revise5 1).
+      // Text buttons: no background or ring; the logo (the GitHub mark and
+      // Lucide's box), then the text (ui-revise5 1). The text is 16px and
+      // the logo 18px, centered on the text (ui-revise7 4).
       for (const [i, link] of (await links.all()).entries()) {
+        await expect(link).toHaveCSS("font-size", "16px");
         await expect(link).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
         await expect(link).toHaveCSS("box-shadow", "none");
         const icon = link.locator("svg");
         await expect(icon).toHaveAttribute("data-icon", ["github", "box"][i]);
         await expect(icon).toBeVisible();
         const box = await icon.boundingBox();
-        expect([box.width, box.height]).toEqual([16, 16]);
+        expect([box.width, box.height]).toEqual([18, 18]);
         const range = await link.evaluate((element) => {
           const r = document.createRange();
           r.selectNodeContents(element);
           r.setStartAfter(element.querySelector("svg"));
-          return r.getBoundingClientRect().x;
+          const { x, y, height } = r.getBoundingClientRect();
+          return { x, y, height };
         });
-        expect(range).toBeGreaterThanOrEqual(box.x + box.width);
+        expect(range.x).toBeGreaterThanOrEqual(box.x + box.width);
+        expect(
+          Math.abs(box.y + box.height / 2 - (range.y + range.height / 2)),
+        ).toBeLessThanOrEqual(1);
+        // One line: the button does not wrap.
+        expect(range.height).toBeLessThan(16 * 2);
       }
     });
   }

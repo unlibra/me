@@ -120,7 +120,7 @@ test("ui-revise 4: the category buttons are gone from the top page", () => {
   assert.doesNotMatch(main, /<nav[\s>]/);
 });
 
-test("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero has the h1 in the body font and the GitHub and BOOTH text buttons with their logos, without the symbol", () => {
+test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h1 in the body font and the GitHub and BOOTH text buttons with their logos, without the symbol", () => {
   const hero = top.match(/<div[^>]*data-hero[\s\S]*?<\/ul>/)[0];
   // The wave; the brand symbol is gone (ui-revise4 1).
   assert.match(hero, /viewBox="0 0 1440 320"/);
@@ -182,6 +182,9 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1: the hero has the h1 in the body 
       !cls.some((name) => /^(dark:)?(bg-|ring-|rounded-full)/.test(name)),
       tag,
     );
+    // ui-revise7 4: the text is 16px (text-base, no longer text-sm).
+    assert.ok(cls.includes("text-base"), tag);
+    assert.ok(!cls.includes("text-sm"), tag);
   }
 });
 
@@ -350,7 +353,7 @@ test("ui-revise4 2: VR & 3D has the real product only, without subcategories or 
   assert.ok(!top.includes("BOOTH ショップ"));
 });
 
-test("ui-revise3 (user), ui-revise4 2, ui-revise5 5: the BOOTH product: its card, links and image", () => {
+test("ui-revise3 (user), ui-revise4 2, ui-revise5 5, ui-revise7 1 2: the BOOTH product: its card, links and image", () => {
   const work = "mururu-blink-lipsync";
   const card = cardsOf(sectionOf("vr-3d"))[0];
   assert.equal(attr(card, "data-work"), work);
@@ -380,7 +383,7 @@ test("ui-revise3 (user), ui-revise4 2, ui-revise5 5: the BOOTH product: its card
   assert.doesNotMatch(top, new RegExp(`data-work-dialog="${work}"`));
 
   // The image: the file from the third-party directory (LICENSE section 3),
-  // kept in view at the top, where its credit is.
+  // 1200x900 (ui-revise7 1), cropped around its center like every photo.
   const source = join(
     root,
     "src/assets/works/third-party/mururu-blink-lipsync.webp",
@@ -391,11 +394,41 @@ test("ui-revise3 (user), ui-revise4 2, ui-revise5 5: the BOOTH product: its card
   assert.match(src, /^\/_astro\/mururu-blink-lipsync\.[\w-]+\.webp$/);
   assert.ok(existsSync(join(dist, src.slice(1))), src);
   assert.equal(attr(img, "width"), "1200");
-  assert.equal(attr(img, "height"), "1200");
-  assert.ok(attr(img, "class").split(/\s+/).includes("object-top"), img);
-  // The other photos are cropped around the center as before.
-  const other = cardsOf(sectionOf("keyboards"))[1].match(/<img\s[^>]*>/)[0];
-  assert.ok(attr(other, "class").split(/\s+/).includes("object-center"));
+  assert.equal(attr(img, "height"), "900");
+  assert.ok(attr(img, "class").split(/\s+/).includes("object-center"), img);
+});
+
+test("ui-revise7 2: every photo is cropped around its center; nothing is cropped at an edge", () => {
+  // The photos: the frame and featured cards' images and the dialogs'.
+  const photos = [...top.matchAll(/<img\s[^>]*>/g)]
+    .map(([img]) => img)
+    .filter((img) => /\bobject-cover\b/.test(attr(img, "class")));
+  const icons = photos.filter((img) => /\bscale-/.test(attr(img, "class")));
+  const framed = photos.filter((img) => !icons.includes(img));
+  assert.ok(
+    framed.some((img) => /mururu-blink-lipsync/.test(img)) &&
+      framed.length > cardsOf(sectionOf("keyboards")).length,
+    "self-check: the cards' and the dialogs' photos are found",
+  );
+  for (const img of framed) {
+    assert.ok(attr(img, "class").split(/\s+/).includes("object-center"), img);
+  }
+  // No edge or corner as the crop position anywhere: the sources and the
+  // built pages. (Not the built CSS: Tailwind also generates the classes
+  // named in the docs, which is harmless while no element uses them.)
+  const edge = /\bobject-(?:top|bottom|left|right)\b/;
+  const files = [
+    ...globSync("src/**/*.{astro,ts,tsx,css}", { cwd: root }),
+    ...globSync("dist/**/*.html", { cwd: root }),
+  ];
+  assert.ok(
+    files.some((f) => f.endsWith(".html")),
+    "self-check: dist",
+  );
+  for (const file of files) {
+    const found = readFileSync(join(root, file), "utf8").match(edge);
+    assert.equal(found, null, `${file}: ${found?.[0]}`);
+  }
 });
 
 test("ui-revise4 2: every card has the same hover; no photo zooms and no card lifts", async () => {

@@ -75,6 +75,19 @@ export const withSubcategory: Work[] = [
   },
 ];
 
+// ui-revise7 2: every photo is cropped around its center; no work sets
+// where its photo is cropped.
+export const withImagePosition: Work[] = [
+  {
+    id: "mururu-blink-lipsync",
+    category: "vr-3d",
+    image,
+    link: "https://unlibra-twin.booth.pm/items/9009879",
+    // @ts-expect-error Photos are cropped around the center.
+    imagePosition: "top",
+  },
+];
+
 export const oldDocsHost: Work[] = [
   {
     id: "tkinter-unblur",

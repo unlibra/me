@@ -20,7 +20,7 @@
 
 @theme {
   --font-sans: "Noto Sans JP Variable", sans-serif;
-  --font-mono: "Roboto Mono", monospace;
+  --font-mono: "Geist Mono", monospace;
   /* The logotype "unlibra" (bold only; see the @font-face above). */
   --font-brand: "LINE Seed JP", "Noto Sans JP Variable", sans-serif;
 

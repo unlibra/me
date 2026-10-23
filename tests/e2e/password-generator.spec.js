@@ -25,6 +25,23 @@ for (const locale of LOCALES) {
 
     const passwordText = (page) => page.locator("div.font-mono").first();
 
+    test("ui-revise7 3: the password is shown in Geist Mono", async ({
+      page,
+    }) => {
+      await expect(passwordText(page)).toHaveCSS(
+        "font-family",
+        /^"Geist Mono", monospace$/,
+      );
+      const loaded = await page.evaluate(async () => {
+        await document.fonts.ready;
+        return [...document.fonts]
+          .filter((f) => f.family.replace(/"/g, "") === "Geist Mono")
+          .filter((f) => f.status === "loaded")
+          .map((f) => f.weight);
+      });
+      expect(loaded).toContain("400");
+    });
+
     test("shows a password on opening, and the length slider sets its length", async ({
       page,
     }) => {

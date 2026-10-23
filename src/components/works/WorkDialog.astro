@@ -7,7 +7,7 @@ import { Image } from "astro:assets";
 import XMarkIcon from "@/components/icons/XMarkIcon.astro";
 import WorkIcon from "@/components/works/WorkIcon.astro";
 import { dialogId, dialogTitleId } from "@/components/works/ids";
-import { isPhoto, photoPosition } from "@/config/cards";
+import { isPhoto } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -47,7 +47,7 @@ const focusRing =
         <Image
           src={work.image}
           alt={title}
-          class:list={["size-full object-cover", photoPosition(work)]}
+          class="size-full object-cover object-center"
         />
       </div>
     ) : (

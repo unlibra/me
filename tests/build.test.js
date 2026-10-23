@@ -121,7 +121,20 @@ test("A3: build output has no locale-prefixed pages", () => {
 
 test("A4: no Vercel references in build output and source", () => {
   const pattern = /vercel/i;
-  assert.deepEqual(findOccurrences(dist, distTextFiles(), pattern), []);
+  // Geist Mono's copyright notice, which the list of the bundled packages
+  // must carry as it is, names its repository on GitHub (ui-revise7 3,
+  // UR7-3). Only that URL, and only in that list, is allowed.
+  const notice = /\(https:\/\/github\.com\/vercel\/geist-font\.git\)/g;
+  const distAllowed = { "third-party-licenses.txt": notice };
+  assert.ok(notice.test(readDist("third-party-licenses.txt")), "self-check");
+  assert.deepEqual(
+    distTextFiles().filter((p) =>
+      pattern.test(
+        readFileSync(join(dist, p), "utf8").replace(distAllowed[p] ?? /^$/, ""),
+      ),
+    ),
+    [],
+  );
   // The production check (scripts/check-prod.mjs) makes sure responses do
   // not come from Vercel by the absence of its x-vercel-id header, so that
   // file may name the header, and only the header

@@ -286,6 +286,53 @@ test("C6: no IBM Plex references remain", () => {
   );
 });
 
+test("ui-revise7 3: monospace text uses Geist Mono in the weights used (400, 500); Roboto Mono is gone", () => {
+  for (const file of htmlPages()) {
+    const css = pageCss(readDist(file));
+    assert.match(css, /--font-mono:\s*"Geist Mono",\s*monospace/, file);
+    const faces = [...css.matchAll(/@font-face\s*{([^}]*)}/g)]
+      .map((m) => m[1])
+      .filter((face) => /font-family:\s*"?Geist Mono/.test(face));
+    // Only the upright 400 and 500 (font-medium) are loaded.
+    const weights = new Set(
+      faces.map((face) => face.match(/font-weight:\s*(\d+)/)[1]),
+    );
+    assert.deepEqual([...weights].sort(), ["400", "500"], file);
+    for (const face of faces) {
+      assert.match(face, /font-style:\s*normal/, file);
+      for (const [, url] of face.matchAll(/url\(([^)]+)\)/g)) {
+        const path = url.replace(/^["']|["']$/g, "").replace(/^\//, "");
+        // The bundler inlines the small subsets as data: URLs.
+        if (path.startsWith("data:font/")) continue;
+        assert.ok(existsSync(join(dist, path)), `${file}: ${path} is missing`);
+      }
+    }
+  }
+  // The font files in dist/: Geist Mono in 400 and 500 only.
+  const files = globSync("_astro/geist-mono-*", { cwd: dist });
+  assert.ok(files.length > 0, "Geist Mono files in dist/");
+  for (const f of files) {
+    assert.match(f, /geist-mono-[\w-]+-(400|500)-normal\.[\w-]+\.woff2?$/, f);
+  }
+
+  const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+  assert.ok(pkg.dependencies["@fontsource/geist-mono"]);
+  for (const field of ["dependencies", "devDependencies"]) {
+    assert.equal(pkg[field]?.["@fontsource/roboto-mono"], undefined);
+  }
+  // ("Roboto" alone is in the system font stack of Tailwind's preflight.)
+  const roboto = /roboto[ -]?mono/i;
+  assert.deepEqual(
+    globSync("**/*.{html,css,js,txt}", { cwd: dist })
+      .concat(globSync("**/*roboto*", { cwd: dist }))
+      .filter(
+        (p) =>
+          roboto.test(p) || roboto.test(readFileSync(join(dist, p), "utf8")),
+      ),
+    [],
+  );
+});
+
 /**
  * JavaScript a page loads: inline module scripts, external scripts and
  * modulepreloads, and the dist/_astro/*.js files they reference (recursively).

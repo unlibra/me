@@ -26,11 +26,6 @@ interface WorkBase {
   image: ImageMetadata;
   /** Shown as a large, full-width card in its category. */
   featured?: true;
-  /**
-   * Where a photo is cropped to the frame: "top" keeps its top in view (for
-   * a credit there). Without it, the photo is cropped around its center.
-   */
-  imagePosition?: "top";
 }
 
 /**
@@ -131,8 +126,6 @@ export const works: Work[] = [
     id: "mururu-blink-lipsync",
     category: "vr-3d",
     image: mururuBlinkLipsyncImg,
-    // The image's credit is in its top right corner: keep the top in view.
-    imagePosition: "top",
     link: "https://unlibra-twin.booth.pm/items/9009879",
     docs: "https://docs.unlibra.com/mururu-blink-lipsync/",
   },

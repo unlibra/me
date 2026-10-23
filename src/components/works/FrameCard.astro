@@ -11,7 +11,6 @@ import {
   cardSummary,
   cardTitle,
 } from "@/components/works/card-classes";
-import { photoPosition } from "@/config/cards";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -37,7 +36,7 @@ const { summary } = messages.works[work.id];
     <Image
       src={work.image}
       alt=""
-      class:list={["size-full object-cover", photoPosition(work)]}
+      class="size-full object-cover object-center"
     />
   </div>
   <div class="flex flex-1 flex-col gap-2 p-4">
