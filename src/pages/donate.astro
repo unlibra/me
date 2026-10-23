@@ -1,0 +1,79 @@
+---
+// Donate: Japanese only, like the privacy policy and the credits. Donations
+// come as Amazon e-gift cards sent to the address in src/config/site.ts.
+import ArrowUpRightIcon from "@/components/icons/ArrowUpRightIcon.astro";
+import MarkdownLayout from "@/layouts/MarkdownLayout.astro";
+import { site } from "@/config/site";
+
+const { email, amazonGift } = site.donation;
+
+const frontmatter = {
+  title: "寄付・支援",
+  description:
+    "unlibra への寄付・支援のご案内です。Amazon eギフトカードで寄付を受け付けています。",
+};
+
+const focus =
+  "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+---
+
+<MarkdownLayout frontmatter={frontmatter}>
+  <h1>寄付・支援</h1>
+  <p>
+    unlibra の活動を応援していただける方は、Amazon
+    eギフトカードで寄付をお送りください。
+  </p>
+  <p>
+    受取人のメールアドレスに下のアドレスを入力して、ギフトカードを贈ってください。金額は自由です。
+  </p>
+
+  <div
+    class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-card bg-gray-50 p-4 dark:bg-atom-one-dark-light"
+    data-donate-email
+  >
+    <span class="font-mono text-base/6 break-all text-gray-900 dark:text-white">
+      {email}
+    </span>
+    <button
+      type="button"
+      class={`rounded-md bg-gray-200 px-3 py-2 text-base font-medium text-gray-900 motion-safe:transition-colors hover:bg-gray-300 dark:bg-atom-one-dark-lighter dark:text-white dark:hover:bg-gray-600 ${focus}`}
+      data-copy={email}
+      data-copied="コピーしました"
+      data-failed="コピーできませんでした。アドレスを選択してコピーしてください。"
+    >
+      コピー
+    </button>
+  </div>
+  <p
+    class="mt-2 min-h-5 text-sm/5 text-gray-600 dark:text-gray-400"
+    role="status"
+    data-copy-status
+  ></p>
+
+  <p class="mt-6">
+    <a
+      href={amazonGift}
+      target="_blank"
+      rel="noopener noreferrer"
+      class={`inline-flex items-center gap-1 rounded-md bg-link px-4 py-2 text-base font-medium text-white motion-safe:transition-colors hover:bg-link-hover dark:bg-primary-light dark:text-gray-900 dark:hover:bg-link-dark-hover ${focus}`}
+      data-button
+    >
+      Amazon eギフトカードを贈る
+      <ArrowUpRightIcon class="size-4" />
+    </a>
+  </p>
+</MarkdownLayout>
+
+<script>
+  const button = document.querySelector<HTMLButtonElement>("[data-copy]");
+  const status = document.querySelector<HTMLElement>("[data-copy-status]");
+  button?.addEventListener("click", async () => {
+    if (!status) return;
+    try {
+      await navigator.clipboard.writeText(button.dataset.copy ?? "");
+      status.textContent = button.dataset.copied ?? "";
+    } catch {
+      status.textContent = button.dataset.failed ?? "";
+    }
+  });
+</script>

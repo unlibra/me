@@ -92,21 +92,23 @@ const siteTitle = `${frontmatter.title} - ${site.title}`;
    * (final-review 7), in the site's link colors (ui-revise13). Light on
    * white: link 5.0:1, hover 7.1:1. Dark on atom-one-dark: primary-light
    * 9.0:1, hover (lighter) 9.6:1.
+   * Links drawn as buttons (data-button, the donate page) keep their own
+   * colors.
    */
-  .prose a {
+  .prose a:not([data-button]) {
     color: var(--color-link);
     text-decoration: underline;
   }
 
-  .prose a:hover {
+  .prose a:not([data-button]):hover {
     color: var(--color-link-hover);
   }
 
-  .dark .prose a {
+  .dark .prose a:not([data-button]) {
     color: var(--color-primary-light);
   }
 
-  .dark .prose a:hover {
+  .dark .prose a:not([data-button]):hover {
     color: var(--color-link-dark-hover);
   }
 </style>

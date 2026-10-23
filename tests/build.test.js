@@ -176,7 +176,7 @@ test("A6: robots.txt allows all and points to sitemap-index.xml", () => {
   ]);
 });
 
-test("A6: sitemap lists the top page, privacy, credits, and the tool pages only", () => {
+test("A6: sitemap lists the top page, privacy, credits, donate, and the tool pages only", () => {
   assert.match(
     readDist("sitemap-index.xml"),
     new RegExp(`<loc>${SITE}/sitemap-0\\.xml</loc>`),
@@ -190,6 +190,7 @@ test("A6: sitemap lists the top page, privacy, credits, and the tool pages only"
   assert.deepEqual(locs, [
     `${SITE}/`,
     `${SITE}/credits`,
+    `${SITE}/donate`,
     ...tools.map((tool) => `${SITE}/en/lab/${tool}`),
     ...tools.map((tool) => `${SITE}/lab/${tool}`),
     `${SITE}/privacy`,
@@ -364,7 +365,9 @@ test("ui-revise13 1, 2: the theme colors, the link colors and the catch copy's c
     join(root, "src/layouts/MarkdownLayout.astro"),
     "utf8",
   );
-  const links = markdown.slice(markdown.indexOf(".prose a {"));
+  const links = markdown.slice(
+    markdown.indexOf(".prose a:not([data-button]) {"),
+  );
   assert.doesNotMatch(links, /#[0-9a-f]{3,8}\b/i);
   for (const token of [
     "link",

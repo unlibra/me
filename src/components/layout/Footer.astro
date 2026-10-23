@@ -65,17 +65,13 @@ const externalLinks = [
         </ul>
       </div>
 
-      <!-- Right: information (support, the privacy policy and the credits) -->
+      <!-- Right: information (the donate page, the privacy policy and the
+           credits), all on this site -->
       <div data-footer-information>
         <h2 class={heading}>{t.information}</h2>
         <ul class="space-y-2">
           <li>
-            <a
-              href={site.links.sponsor}
-              target="_blank"
-              rel="noopener noreferrer"
-              class={link}
-            >
+            <a href={paths.donate} class={link}>
               {t.donate}
             </a>
           </li>

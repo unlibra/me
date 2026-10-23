@@ -230,7 +230,7 @@ test('ui-revise13 2, 3: the hero\'s background is in the theme colors, and the c
   assert.doesNotMatch(h1[2], /aria-|role=/);
 });
 
-test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the donate link", () => {
+test("ui-revise 3: no page has sponsor or share buttons; the footer links to the donate page", () => {
   const pages = globSync("**/*.html", { cwd: dist });
   assert.ok(pages.length >= 9, "self-check of the page list");
   for (const page of pages) {
@@ -254,7 +254,7 @@ test("ui-revise 3: no page has sponsor or share buttons; the footer keeps the do
       /navigator\.share|スポンサー|シェアする|ポストする/,
       page,
     );
-    assert.ok(hrefs(footer).includes("https://ofuse.me/unlibra"), page);
+    assert.ok(hrefs(footer).includes("/donate"), page);
   }
   assert.equal(
     existsSync(join(root, "src/components/SponsorButton.astro")),
