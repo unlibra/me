@@ -44,3 +44,9 @@
 | `works.spec.js`「1280px: each summary takes two or three lines」                                         | Libraries 3 と Apps 4 で7件                             | Libraries 4 と Apps 4 で8件（2〜3行の検査は変えていない）                                                             |
 
 追加したテスト：`portfolio.test.js` の「ui-revise8 3」（変えた説明文と「ブラウザ」がないこと）と「ui-revise8 4」（Libraries の並び、名前、説明文、画像）、`works.spec.js` の「ui-revise8 3: 1280px: every card's summary takes three lines at most」（ムルルを含むすべてのカード）、`svg-optimizer.spec.js` の「ui-revise8 1」（UR8-1）。
+
+## UR8-6 ユーザーの決定（2026-10-23）
+
+- ツールのページの説明文の「ブラウザ上で完結…」などは残す（UR8-3 のとおり。指示はトップページのカードだけ）
+- SVG Optimizer は UR8-1 のとおり、ファイルを選んだ時点から場所を確保する形のままにする
+- カードのクリックは今の作り（タイトルのリンクをカード全体に広げる stretched link）のままにする。カードの文字は選択できないが、JavaScript でクリックを処理する案は採らない
