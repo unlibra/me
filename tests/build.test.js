@@ -372,3 +372,9 @@ test("ui-revise13 1, 2: the theme colors, the link colors and the catch copy's c
     assert.ok(links.includes(`var(--color-${token})`), token);
   }
 });
+
+test("IndexNow: the key file is at the site root, holding only its own key", () => {
+  // Microsoft's IndexNow (Bing): the key is the file's name and its content.
+  const key = "67426e8c4c044cef96ebc2f901da0154";
+  assert.equal(readDist(`${key}.txt`), key);
+});
