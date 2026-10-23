@@ -286,6 +286,19 @@ test("C6: no IBM Plex references remain", () => {
   );
 });
 
+test("ui-revise7 5: no text class smaller than 14px in the sources (the sizes and line heights are checked in typography.spec.js)", () => {
+  const small = /\btext-(?:xs|2xs|\[(?:\d|1[0-3])px\]|\[0?\.\d+rem\])/;
+  const files = globSync("src/**/*.{astro,ts,tsx,css,md}", { cwd: root });
+  assert.ok(files.length > 50, "self-check");
+  const found = files.filter((f) =>
+    small.test(readFileSync(join(root, f), "utf8")),
+  );
+  assert.deepEqual(found, []);
+  // The check finds them.
+  assert.ok(small.test('className="text-xs"'));
+  assert.ok(small.test('class="text-[0.75rem]"'));
+});
+
 test("ui-revise7 3: monospace text uses Geist Mono in the weights used (400, 500); Roboto Mono is gone", () => {
   for (const file of htmlPages()) {
     const css = pageCss(readDist(file));

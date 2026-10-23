@@ -50,8 +50,8 @@ export function Slider({
     <div className={`space-y-2 ${className}`}>
       {label && (
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">{label}</label>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <label className="text-base font-medium">{label}</label>
+          <span className="text-base text-gray-600 dark:text-gray-400">
             {value}
             {unit}
           </span>
@@ -59,7 +59,7 @@ export function Slider({
       )}
       {!label && (
         <div className="flex items-center justify-end">
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-base text-gray-600 dark:text-gray-400">
             {value}
             {unit}
           </span>
@@ -81,7 +81,7 @@ export function Slider({
         />
       </div>
       {description && (
-        <p className="text-xs text-gray-600 dark:text-gray-400">
+        <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
           {description}
         </p>
       )}

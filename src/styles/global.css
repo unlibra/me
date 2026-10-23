@@ -45,6 +45,22 @@
 
   /* The corner radius of the work cards and their icons (rounded-card). */
   --radius-card: 0.5rem;
+
+  /*
+   * Default line heights (ui-revise7 6): at least the size times the DADS
+   * ratio of the text's role, rounded up to a multiple of 4px. The defaults
+   * are for one-line labels and headings; text to read (16px and 14px,
+   * DADS 1.7) sets leading-7 / leading-6 where it is used.
+   *   text-sm   14px, a label (Dense 1.3)       -> 20px (Tailwind's own)
+   *   text-base 16px, a label (Dense 1.3)       -> 24px (Tailwind's own)
+   *   text-lg   18px, the cards' titles         -> 28px (Tailwind's own; kept)
+   *   text-xl   20px, a heading (1.5)           -> 32px
+   *   text-2xl  24px, a heading (1.5)           -> 36px
+   *   text-4xl  36px, a heading (1.4)           -> 52px
+   */
+  --text-xl--line-height: 2rem;
+  --text-2xl--line-height: 2.25rem;
+  --text-4xl--line-height: 3.25rem;
 }
 
 @layer base {

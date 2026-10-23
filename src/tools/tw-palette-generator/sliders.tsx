@@ -85,8 +85,8 @@ export function HueSlider({
     <div className={`space-y-2 ${className}`}>
       {label && (
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">{label}</label>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <label className="text-base font-medium">{label}</label>
+          <span className="text-base text-gray-600 dark:text-gray-400">
             {value}°
           </span>
         </div>
@@ -140,8 +140,8 @@ export function LightnessSlider({
     <div className={`space-y-2 ${className}`}>
       {label && (
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">{label}</label>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <label className="text-base font-medium">{label}</label>
+          <span className="text-base text-gray-600 dark:text-gray-400">
             {value}
           </span>
         </div>
@@ -222,8 +222,8 @@ export function SaturationSlider({
     <div className={`space-y-2 ${className}`}>
       {label && (
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">{label}</label>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <label className="text-base font-medium">{label}</label>
+          <span className="text-base text-gray-600 dark:text-gray-400">
             {value}
           </span>
         </div>

@@ -63,14 +63,14 @@ export function SvgOptionsPanel({
       {/* Preset Selection */}
       <div>
         <div className="mb-3">
-          <span className="block text-sm font-semibold">{t.preset}</span>
+          <span className="block text-base font-semibold">{t.preset}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {PRESETS.map((preset) => (
             <button
               key={preset.id}
               onClick={() => onPresetChange(preset.id)}
-              className={`rounded-full px-4 py-2 text-sm font-medium outline-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
+              className={`rounded-full px-4 py-2 text-base font-medium outline-hidden transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
                 selectedPreset === preset.id
                   ? "bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-500"
                   : "bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -87,10 +87,10 @@ export function SvgOptionsPanel({
       {/* Numeric Options */}
       <div>
         <div className="mb-3">
-          <span className="block text-sm font-semibold">
+          <span className="block text-base font-semibold">
             {t.precisionSettings}
           </span>
-          <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
             {t.precisionHint}
           </p>
         </div>
@@ -125,14 +125,14 @@ export function SvgOptionsPanel({
               className={`mt-6 ${isDangerous ? "rounded-lg border border-amber-500 bg-amber-50 p-4 dark:border-amber-600 dark:bg-amber-950/30" : ""}`}
             >
               <div className="mb-3">
-                <span className="flex items-center gap-2 text-sm font-medium">
+                <span className="flex items-center gap-2 text-base font-medium">
                   {isDangerous && (
                     <ExclamationTriangleIcon className="size-5 shrink-0" />
                   )}
                   {t.groups[group.id]}
                 </span>
                 {isDangerous && (
-                  <p className="mt-1 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <p className="mt-1 text-sm leading-6 font-medium text-gray-600 dark:text-gray-400">
                     {t.groups.dangerousDescription}
                   </p>
                 )}
@@ -145,7 +145,7 @@ export function SvgOptionsPanel({
                     as="div"
                     className="flex items-center justify-between gap-4"
                   >
-                    <Label className="flex-1 cursor-pointer text-sm">
+                    <Label className="flex-1 cursor-pointer text-base">
                       {PLUGIN_DESCRIPTIONS[key]}
                     </Label>
                     <Switch

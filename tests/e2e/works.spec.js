@@ -547,8 +547,9 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
         expect(style.focusColor, `${kind}: focus`).toEqual(first.focusColor);
       }
       expect(rest.length).toBe(4);
-      // The summaries are a little larger than the former tool cards' 14px.
-      expect(first.summary[0]).toEqual(["16px", "24px"]);
+      // The summaries are a little larger than the former tool cards' 14px,
+      // with the line of text to read (ui-revise7 7).
+      expect(first.summary[0]).toEqual(["16px", "28px"]);
     });
   }
 
@@ -663,7 +664,7 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
     });
   }
 
-  test("ui-revise5 6, 8: the actions' arrow is Lucide's move-up-right, 14px, the size of the text, and centered on it", async ({
+  test("ui-revise5 6, 8, ui-revise7 7: the actions' arrow is Lucide's move-up-right, 16px, the size of the text, and centered on it", async ({
     page,
   }) => {
     await open(page, "/");
@@ -688,8 +689,8 @@ test.describe("ui-revise3 3, ui-revise4 2: the cards", () => {
         };
       });
       const label = await action.textContent();
-      expect(fontSize, label).toBe("14px");
-      expect(size, label).toEqual([14, 14]);
+      expect(fontSize, label).toBe("16px");
+      expect(size, label).toEqual([16, 16]);
       expect(Math.abs(offset), label).toBeLessThanOrEqual(0.5);
     }
   });

@@ -262,7 +262,7 @@ function FaviconGenerator() {
         <div className="flex-1 space-y-8">
           {/* File Upload */}
           <div className="space-y-2">
-            <h6 className="block text-sm font-semibold">
+            <h6 className="block text-base font-semibold">
               {common.selectImage}
             </h6>
             <input
@@ -274,12 +274,12 @@ function FaviconGenerator() {
             />
             <button
               onClick={handleFileButtonClick}
-              className="flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-medium text-white outline-hidden transition-colors hover:bg-sky-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
+              className="flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-base font-medium text-white outline-hidden transition-colors hover:bg-sky-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 dark:bg-sky-600 dark:hover:bg-sky-500"
             >
               <PlusIcon className="size-5 stroke-2" />
               {common.selectImage}
             </button>
-            <p className="text-xs text-gray-600 dark:text-gray-400">
+            <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
               {t.uploadHint}
               <br />
               {common.dragDropAnywhere}
@@ -287,7 +287,7 @@ function FaviconGenerator() {
             {/* Privacy Notice */}
             <div className="flex items-center gap-3 rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 dark:border-sky-950 dark:bg-sky-950">
               <ShieldCheckIcon className="size-5 shrink-0" />
-              <div className="text-sm">{common.privacyNotice}</div>
+              <div className="text-sm leading-6">{common.privacyNotice}</div>
             </div>
           </div>
 
@@ -296,7 +296,7 @@ function FaviconGenerator() {
             {({ open }) => (
               <div className="dark:bg-atom-one-dark-light overflow-hidden rounded-lg bg-gray-100">
                 <DisclosureButton className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left font-medium outline-hidden transition-colors hover:bg-gray-100 dark:hover:bg-gray-700">
-                  <h6 className="text-sm font-semibold">{t.outputOptions}</h6>
+                  <h6 className="text-base font-semibold">{t.outputOptions}</h6>
                   <ChevronDownIcon
                     className={`h-5 w-5 transition-transform ${
                       open ? "rotate-180" : ""
@@ -324,12 +324,12 @@ function FaviconGenerator() {
 
           {/* Preview */}
           <div className="flex flex-col">
-            <h6 className="mb-2 block text-sm font-semibold">
+            <h6 className="mb-2 block text-base font-semibold">
               {common.preview}
             </h6>
             <CheckerboardPreview
               emptyState={
-                <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+                <div className="text-center text-sm leading-6 text-gray-600 dark:text-gray-400">
                   <PhotoIcon className="mx-auto mb-2 h-12 w-12" />
                   <p>{t.previewPlaceholder.line1}</p>
                   <p>{t.previewPlaceholder.line2}</p>
@@ -354,7 +354,7 @@ function FaviconGenerator() {
 
         {/* Right Column - Settings Panel (Desktop Only) */}
         <div className="hidden lg:block lg:flex-1">
-          <h6 className="mb-4 text-sm font-semibold">{t.outputOptions}</h6>
+          <h6 className="mb-4 text-base font-semibold">{t.outputOptions}</h6>
           <FaviconOptionsPanel
             selectedSets={selectedSets}
             selectedSizes={selectedSizes}

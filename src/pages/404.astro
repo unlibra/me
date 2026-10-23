@@ -34,7 +34,7 @@ const title = "ページが見つかりません / Page not found";
         <h1 class="text-2xl font-semibold">{heading}</h1>
         <a
           href="/"
-          class="inline-flex items-center rounded-full bg-white px-6 py-2 text-sm font-semibold text-atom-one-dark hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
+          class="inline-flex items-center rounded-full bg-white px-6 py-2 text-base font-semibold text-atom-one-dark hover:bg-gray-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
           data-back
         >
           トップに戻る
@@ -46,11 +46,12 @@ const title = "ページが見つかりません / Page not found";
 
 <style>
   /*
-   * The caption (the heading, the gap and the button: 32 + 24 + 36px) and
-   * the space above it (24px) take 116px. On screens tall enough, the planet
-   * is about half the short side, and at most 100dvh - 2 × 132px (the size
-   * that kept the caption on the screen when the planet was in the middle,
-   * before ui-revise5 4); never less than a quarter of the short side.
+   * The caption (the heading, the gap and the button: 36 + 24 + 40px since
+   * ui-revise7 5) and the space above it (24px) take 124px. On screens tall
+   * enough, the planet is about half the short side, and at most
+   * 100dvh - 2 × 140px (the caption and a 1rem margin, kept off the planet
+   * as when the planet was in the middle, before ui-revise5 4); never less
+   * than a quarter of the short side.
    *
    * The planet and the caption below it are one group, in the middle of the
    * screen, and lifted a little above it (ui-revise5 4): the space below
@@ -58,8 +59,8 @@ const title = "ページが見つかりません / Page not found";
    * margin above and below it fit on the screen.
    */
   [data-not-found] {
-    --planet: max(25vmin, min(50vmin, 100dvh - 16.5rem));
-    --lift: min(8dvh, max(0px, 100dvh - var(--planet) - 9.25rem));
+    --planet: max(25vmin, min(50vmin, 100dvh - 17.5rem));
+    --lift: min(8dvh, max(0px, 100dvh - var(--planet) - 9.75rem));
     padding-bottom: var(--lift);
   }
 

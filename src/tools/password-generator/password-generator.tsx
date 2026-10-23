@@ -91,7 +91,7 @@ function PasswordGenerator() {
       {/* Password Display */}
       <div className="mb-8 space-y-3">
         <div className="dark:bg-atom-one-dark-light relative overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600">
-          <div className="w-full truncate bg-transparent py-3 pr-28 pl-4 font-mono text-lg text-gray-900 outline-hidden dark:text-gray-100">
+          <div className="w-full truncate bg-transparent py-3 pr-28 pl-4 font-mono text-base text-gray-900 outline-hidden dark:text-gray-100">
             {password || (
               <span className="text-gray-400 dark:text-gray-500">
                 {t.selectCharacterTypes}
@@ -101,7 +101,7 @@ function PasswordGenerator() {
           <button
             onClick={handleCopy}
             disabled={!password}
-            className="dark:focus-visible:ring-offset-atom-one-dark absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-1.5 rounded-md bg-sky-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-sky-600 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50"
+            className="dark:focus-visible:ring-offset-atom-one-dark absolute top-1/2 right-2 flex -translate-y-1/2 items-center gap-1.5 rounded-md bg-sky-500 px-3 py-1.5 text-base font-medium text-white transition-colors hover:bg-sky-600 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50"
             aria-label={t.copyToClipboard}
           >
             {copied ? (
@@ -115,7 +115,7 @@ function PasswordGenerator() {
         <button
           onClick={regenerate}
           disabled={!hasCharset}
-          className="dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:focus-visible:ring-offset-atom-one-dark flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 dark:text-gray-400"
+          className="dark:bg-atom-one-dark-light dark:hover:bg-atom-one-dark-lighter dark:focus-visible:ring-offset-atom-one-dark flex w-full items-center justify-center gap-2 rounded-lg bg-gray-100 px-4 py-3 text-base font-medium text-gray-600 transition-colors hover:bg-gray-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white disabled:opacity-50 dark:text-gray-400"
         >
           <ArrowPathIcon className="size-5" />
           {common.regenerate}
@@ -135,10 +135,10 @@ function PasswordGenerator() {
 
         {/* Character Type Toggles */}
         <div>
-          <label className="mb-2 block text-sm font-semibold">
+          <label className="mb-2 block text-base font-semibold">
             {t.characterTypes}
           </label>
-          <p className="mb-3 text-xs text-gray-600 dark:text-gray-400">
+          <p className="mb-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
             {t.characterTypesHint}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -176,7 +176,7 @@ function PasswordGenerator() {
         {/* Avoid Ambiguous Toggle */}
         <div>
           <Field as="div" className="flex items-center justify-between gap-4">
-            <Label className="flex-1 cursor-pointer text-sm font-semibold text-gray-700 dark:text-gray-300">
+            <Label className="flex-1 cursor-pointer text-base font-semibold text-gray-700 dark:text-gray-300">
               {t.avoidAmbiguous}
             </Label>
             <Switch
@@ -196,7 +196,7 @@ function PasswordGenerator() {
               />
             </Switch>
           </Field>
-          <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-sm leading-6 text-gray-600 dark:text-gray-400">
             {t.avoidAmbiguousHint}
           </p>
         </div>

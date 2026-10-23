@@ -44,7 +44,7 @@ export function FaviconOptionsPanel({
       {/* Format Selection */}
       <div>
         <div className="mb-3">
-          <span className="block text-sm font-semibold">{t.fileFormat}</span>
+          <span className="block text-base font-semibold">{t.fileFormat}</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {OUTPUT_SETS.map((outputSet) => (
@@ -58,7 +58,7 @@ export function FaviconOptionsPanel({
             </TogglePill>
           ))}
         </div>
-        <div className="mt-4 text-xs text-gray-600 dark:text-gray-400">
+        <div className="mt-4 text-sm leading-6 text-gray-600 dark:text-gray-400">
           {OUTPUT_SETS.map((set) => (
             <div key={set.id}>
               <strong>{set.label}:</strong> {t.formatDescriptions[set.id]}
@@ -74,7 +74,7 @@ export function FaviconOptionsPanel({
         <>
           <div>
             <div className="mb-3">
-              <span className="block text-sm font-semibold">
+              <span className="block text-base font-semibold">
                 {t.faviconSizes}
               </span>
             </div>
@@ -82,7 +82,7 @@ export function FaviconOptionsPanel({
             <div className="space-y-4">
               {/* Recommended sizes */}
               <div>
-                <div className="mb-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                <div className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t.recommendedSizes}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -101,7 +101,7 @@ export function FaviconOptionsPanel({
 
               {/* Other sizes */}
               <div>
-                <div className="mb-2 text-xs font-medium text-gray-600 dark:text-gray-400">
+                <div className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
                   {t.otherSizes}
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -129,8 +129,10 @@ export function FaviconOptionsPanel({
       {/* Border Radius */}
       <div>
         <div className="mb-3">
-          <span className="block text-sm font-semibold">{t.borderRadius}</span>
-          <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+          <span className="block text-base font-semibold">
+            {t.borderRadius}
+          </span>
+          <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
             {t.borderRadiusHint}
           </p>
         </div>
@@ -150,10 +152,10 @@ export function FaviconOptionsPanel({
       {/* Background Color */}
       <div>
         <div className="mb-3">
-          <span className="block text-sm font-semibold">
+          <span className="block text-base font-semibold">
             {t.backgroundColorSetting}
           </span>
-          <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+          <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">
             {t.backgroundColorHint}
           </p>
         </div>
@@ -166,7 +168,7 @@ export function FaviconOptionsPanel({
               onChange={(e) => onUseBackgroundChange(e.target.checked)}
               className="size-4 accent-sky-600 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500"
             />
-            <label htmlFor={checkboxId} className="text-sm font-medium">
+            <label htmlFor={checkboxId} className="text-base font-medium">
               {t.addBackgroundColor}
             </label>
           </div>

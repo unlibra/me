@@ -24,7 +24,7 @@ const t = layoutMessages[lang].language;
     data-popover-button
   >
     <GlobeIcon class="size-5" />
-    <span class="mr-1 hidden text-sm font-medium sm:block">{t.label}</span>
+    <span class="mr-1 hidden text-base font-medium sm:block">{t.label}</span>
   </button>
   <div
     id="language-menu"
@@ -38,7 +38,7 @@ const t = layoutMessages[lang].language;
         hreflang={locale}
         lang={locale}
         aria-current={locale === lang ? "page" : undefined}
-        class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors outline-none hover:bg-gray-100 focus-visible:bg-gray-100 aria-[current=page]:bg-sky-50 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter dark:aria-[current=page]:bg-atom-one-dark-lighter"
+        class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-base transition-colors outline-none hover:bg-gray-100 focus-visible:bg-gray-100 aria-[current=page]:bg-sky-50 dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter dark:aria-[current=page]:bg-atom-one-dark-lighter"
         data-popover-item
       >
         {localeNames[locale]}

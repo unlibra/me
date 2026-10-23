@@ -176,7 +176,7 @@ function ToastItem({
             className={`flex items-center gap-3 rounded-lg p-4 shadow-lg ${getBgColor()}`}
           >
             {getIcon()}
-            <div className="flex-1 text-sm font-medium text-white">
+            <div className="flex-1 text-base font-medium text-white">
               {toast.message}
             </div>
             <div className="h-6 w-px bg-white" />

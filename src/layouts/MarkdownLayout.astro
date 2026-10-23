@@ -32,14 +32,22 @@ const siteTitle = `${frontmatter.title} - ${site.title}`;
 </BaseLayout>
 
 <style is:global>
+  /*
+   * Line heights (ui-revise7 5, 6): the size times the DADS ratio, rounded
+   * up to a multiple of 4px. Headings 1.5 (32px -> 48px, 24px -> 36px,
+   * 20px -> 32px); the text to read, paragraphs and list items, 1.7
+   * (16px -> 28px).
+   */
   .prose h1 {
     font-size: 2rem;
+    line-height: 3rem;
     font-weight: 700;
     margin-bottom: 1.5rem;
   }
 
   .prose h2 {
     font-size: 1.5rem;
+    line-height: 2.25rem;
     font-weight: 700;
     margin-top: 2rem;
     margin-bottom: 1rem;
@@ -47,6 +55,7 @@ const siteTitle = `${frontmatter.title} - ${site.title}`;
 
   .prose h3 {
     font-size: 1.25rem;
+    line-height: 2rem;
     font-weight: 600;
     margin-top: 1.5rem;
     margin-bottom: 0.75rem;
@@ -55,7 +64,7 @@ const siteTitle = `${frontmatter.title} - ${site.title}`;
   .prose p {
     margin-top: 0.75rem;
     margin-bottom: 0.75rem;
-    line-height: 1.75;
+    line-height: 1.75rem;
   }
 
   .prose strong {
@@ -70,6 +79,7 @@ const siteTitle = `${frontmatter.title} - ${site.title}`;
   }
 
   .prose li {
+    line-height: 1.75rem;
     margin-top: 0.25rem;
     margin-bottom: 0.25rem;
   }

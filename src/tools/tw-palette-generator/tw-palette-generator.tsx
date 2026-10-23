@@ -265,7 +265,7 @@ function TailwindPaletteGenerator() {
         <div className="space-y-8">
           {/* HEX Input */}
           <section>
-            <h6 className="mb-4 text-sm font-semibold">
+            <h6 className="mb-4 text-base font-semibold">
               {t.baseColorSelection}
             </h6>
             <div className="flex gap-3">
@@ -295,7 +295,7 @@ function TailwindPaletteGenerator() {
               {getShades().map((shade) => (
                 <div
                   key={shade}
-                  className="flex flex-1 shrink-0 items-center justify-center font-mono text-xs font-medium text-gray-600 max-sm:-rotate-90 dark:text-gray-400"
+                  className="flex flex-1 shrink-0 items-center justify-center font-mono text-sm leading-6 font-medium text-gray-600 max-sm:-rotate-90 dark:text-gray-400"
                 >
                   {shade}
                 </div>
@@ -310,7 +310,7 @@ function TailwindPaletteGenerator() {
                     key={colorName}
                     className="md:flex md:items-center md:gap-2"
                   >
-                    <div className="mb-1 text-xs font-medium text-gray-600 uppercase md:mb-0 md:w-[72px] md:shrink-0 dark:text-gray-400">
+                    <div className="mb-1 text-sm font-medium text-gray-600 uppercase md:mb-0 md:w-[72px] md:shrink-0 dark:text-gray-400">
                       {colorName}
                     </div>
                     <div className="flex w-full gap-1">
@@ -347,7 +347,7 @@ function TailwindPaletteGenerator() {
                     key={colorName}
                     className="md:flex md:items-center md:gap-2"
                   >
-                    <div className="mb-1 text-xs font-medium text-gray-600 uppercase md:mb-0 md:w-16 md:shrink-0 dark:text-gray-400">
+                    <div className="mb-1 text-sm font-medium text-gray-600 uppercase md:mb-0 md:w-16 md:shrink-0 dark:text-gray-400">
                       {colorName}
                     </div>
                     <div className="flex w-full gap-1">
@@ -382,7 +382,7 @@ function TailwindPaletteGenerator() {
           {/* Adjustments */}
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h6 className="text-sm font-semibold">{t.adjustment}</h6>
+              <h6 className="text-base font-semibold">{t.adjustment}</h6>
               <button
                 onClick={handleReset}
                 className="dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter rounded-lg p-1.5 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -419,7 +419,7 @@ function TailwindPaletteGenerator() {
           </section>
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h6 className="text-sm font-semibold">{t.generatedPalette}</h6>
+              <h6 className="text-base font-semibold">{t.generatedPalette}</h6>
               <button
                 onClick={handleAddToHistory}
                 className="dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter rounded-lg p-1.5 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -430,7 +430,10 @@ function TailwindPaletteGenerator() {
               </button>
             </div>
 
-            {/* Color Swatches - Horizontal Layout */}
+            {/* Color Swatches - Horizontal Layout. Below 640px the 14px
+                labels are vertical (read from the bottom, like the shades
+                above the picker): the 12 columns are narrower than "BASE"
+                (ui-revise7). */}
             <div className="flex items-center gap-1">
               {/* BASE Color */}
               <div className="flex flex-1 flex-col items-center gap-1 truncate">
@@ -443,7 +446,7 @@ function TailwindPaletteGenerator() {
                 >
                   <span className="sr-only">BASE</span>
                 </button>
-                <div className="font-mono text-xs font-medium text-gray-600 dark:text-gray-400">
+                <div className="font-mono text-sm leading-6 font-medium text-gray-600 max-sm:h-10 max-sm:rotate-180 max-sm:[writing-mode:vertical-rl] dark:text-gray-400">
                   BASE
                 </div>
               </div>
@@ -464,7 +467,7 @@ function TailwindPaletteGenerator() {
                     >
                       <span className="sr-only">{shade}</span>
                     </button>
-                    <div className="font-mono text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <div className="font-mono text-sm leading-6 font-medium text-gray-600 max-sm:h-10 max-sm:rotate-180 max-sm:[writing-mode:vertical-rl] dark:text-gray-400">
                       {shade}
                     </div>
                   </div>
@@ -476,7 +479,7 @@ function TailwindPaletteGenerator() {
           {/* Palette History */}
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h6 className="text-sm font-semibold">{t.paletteHistory}</h6>
+              <h6 className="text-base font-semibold">{t.paletteHistory}</h6>
               <button
                 onClick={handleClearHistory}
                 className="dark:hover:bg-atom-one-dark-lighter dark:focus-visible:bg-atom-one-dark-lighter rounded-lg p-1.5 outline-hidden transition-colors hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -529,7 +532,7 @@ function TailwindPaletteGenerator() {
                 ))}
               </div>
             ) : (
-              <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-center text-sm leading-6 text-gray-600 dark:text-gray-400">
                 {t.historyEmptyMessage}
               </p>
             )}
@@ -537,9 +540,9 @@ function TailwindPaletteGenerator() {
 
           {/* Tailwind Config Snippet */}
           <section>
-            <h6 className="mb-4 text-sm font-semibold">{t.tailwindConfig}</h6>
+            <h6 className="mb-4 text-base font-semibold">{t.tailwindConfig}</h6>
             <div className="relative">
-              <pre className="bg-atom-one-dark dark:bg-atom-one-dark-light overflow-x-auto rounded-lg p-3 font-mono text-xs text-gray-300 dark:text-gray-300">
+              <pre className="bg-atom-one-dark dark:bg-atom-one-dark-light overflow-x-auto rounded-lg p-3 font-mono text-sm leading-6 text-gray-300 dark:text-gray-300">
                 {`colors: {
   custom: {
 ${getShadeLabels()

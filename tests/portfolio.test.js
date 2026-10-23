@@ -130,13 +130,14 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
   const h1 = hero.match(/<h1([^>]*)>([^<]*)<\/h1>/);
   assert.equal(h1[2].trim(), "昼はカフェ。夜はバー。");
   assert.doesNotMatch(h1[1], /font-brand|data-logotype/);
-  // 28px (1.75rem) at every width (ui-revise5; text-2xl since ui-revise4 1).
+  // 28px (1.75rem) at every width (ui-revise5; text-2xl since ui-revise4 1),
+  // with a 44px line (ui-revise7 7).
   const sizes = attr(`<h1${h1[1]}>`, "class")
     .split(/\s+/)
     .filter((name) =>
       /(^|:)text-(xs|sm|base|lg|\dxl|\[[^\]]+\])(\/\S+)?$/.test(name),
     );
-  assert.deepEqual(sizes, ["text-[1.75rem]/9"]);
+  assert.deepEqual(sizes, ["text-[1.75rem]/11"]);
   assert.equal(top.match(/<h1[\s>]/g).length, 1);
   // The former logotype and subtitle are gone.
   assert.doesNotMatch(hero, />\s*unlibra\s*</);
@@ -416,7 +417,10 @@ test("ui-revise7 2: every photo is cropped around its center; nothing is cropped
   // No edge or corner as the crop position anywhere: the sources and the
   // built pages. (Not the built CSS: Tailwind also generates the classes
   // named in the docs, which is harmless while no element uses them.)
-  const edge = /\bobject-(?:top|bottom|left|right)\b/;
+  // Nor any other crop position: an arbitrary value (object-[50%_0%]) or
+  // object-position in a style (review of ui-revise7).
+  const edge =
+    /\bobject-(?:top|bottom|left|right)\b|\bobject-\[|object-position|objectPosition/;
   const files = [
     ...globSync("src/**/*.{astro,ts,tsx,css}", { cwd: root }),
     ...globSync("dist/**/*.html", { cwd: root }),
@@ -769,9 +773,9 @@ test("ui-revise4 2, ui-revise5 2, 6: the actions have Lucide's up-right arrow, n
     for (const { tag } of actionsOf(card)) {
       // `tag` is the whole <a> element.
       assert.equal(tag.split(ARROW).length - 1, 1, `${work}: arrow`);
-      // The size of the text: 14px (ui-revise5 8).
+      // The size of the text: 16px (ui-revise7 7; 14px in ui-revise5 8).
       const svg = tag.match(/<svg[^>]*>/)[0];
-      assert.ok(attr(svg, "class").split(/\s+/).includes("size-3.5"), work);
+      assert.ok(attr(svg, "class").split(/\s+/).includes("size-4"), work);
       links++;
     }
     const more = card.match(/<p[^>]*data-work-more[\s\S]*?<\/p>/);
