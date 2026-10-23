@@ -54,6 +54,7 @@ npm run generate:icons
 - `src/tools/` - Web tool implementations (MIT)
 - `public/_headers` - Security and cache headers for Cloudflare
 - `wrangler.jsonc` - Cloudflare Workers configuration
+- `DESIGN.md` - Design guidelines: type, color, spacing and components, and the reasons (read this before adding pages or content)
 - `docs/` - Design document and decision logs
 
 ## License
