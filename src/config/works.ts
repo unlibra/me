@@ -101,6 +101,13 @@ export const works: Work[] = [
     image: miraImg,
   },
   {
+    id: "tkinter-unblur",
+    category: "libraries",
+    image: pypiImg,
+    link: "https://pypi.org/project/tkinter-unblur",
+    docs: "https://docs.unlibra.com/tkinter-unblur/",
+  },
+  {
     id: "i18n-tiny-astro",
     category: "libraries",
     image: npmImg,
@@ -122,23 +129,16 @@ export const works: Work[] = [
     docs: "https://docs.unlibra.com/i18n-tiny/react/introduction",
   },
   {
-    id: "tkinter-unblur",
-    category: "libraries",
-    image: pypiImg,
-    link: "https://pypi.org/project/tkinter-unblur",
-    docs: "https://docs.unlibra.com/tkinter-unblur/",
+    id: "svg-optimizer",
+    category: "apps",
+    image: toolIcons["svg-optimizer"],
+    link: toolPath("svg-optimizer", "ja"),
   },
   {
     id: "favicon-generator",
     category: "apps",
     image: toolIcons["favicon-generator"],
     link: toolPath("favicon-generator", "ja"),
-  },
-  {
-    id: "svg-optimizer",
-    category: "apps",
-    image: toolIcons["svg-optimizer"],
-    link: toolPath("svg-optimizer", "ja"),
   },
   {
     id: "password-generator",

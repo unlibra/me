@@ -33,7 +33,8 @@ const CATEGORIES = [
 ];
 /** The DIY keyboard whose card opens nothing (ui-revise9 3). */
 const PLAIN = "prototypes";
-const TOOLS = ["favicon-generator", "svg-optimizer", "password-generator"];
+// Display order (ui-revise14: SVG Optimizer first).
+const TOOLS = ["svg-optimizer", "favicon-generator", "password-generator"];
 
 /**
  * The former arrows (Heroicons "arrow-up-right" until ui-revise5 6, Lucide
@@ -470,9 +471,10 @@ test("ui-revise8 4: Libraries has @i18n-tiny/react after @i18n-tiny/next, with t
   const cards = cardsOf(sectionOf("libraries"));
   assert.deepEqual(
     cards.map((card) => attr(card, "data-work")),
-    ["i18n-tiny-astro", "i18n-tiny-next", "i18n-tiny-react", "tkinter-unblur"],
+    // tkinter-unblur first since ui-revise14
+    ["tkinter-unblur", "i18n-tiny-astro", "i18n-tiny-next", "i18n-tiny-react"],
   );
-  const card = cards[2];
+  const card = cards[3];
   assert.match(
     card,
     /<span id="work-i18n-tiny-react-name">@i18n-tiny\/react<\/span>/,
@@ -483,9 +485,10 @@ test("ui-revise8 4: Libraries has @i18n-tiny/react after @i18n-tiny/next, with t
   );
   // The same image as the other npm libraries.
   const image = (c) => attr(c.match(/<img\s[^>]*>/)[0], "src");
-  assert.match(image(cards[0]), /\/npm\.[\w-]+\.svg$/);
-  assert.equal(image(cards[1]), image(cards[0]));
-  assert.equal(image(card), image(cards[0]));
+  // cards[0] is tkinter-unblur (PyPI) since ui-revise14.
+  assert.match(image(cards[1]), /\/npm\.[\w-]+\.svg$/);
+  assert.equal(image(cards[2]), image(cards[1]));
+  assert.equal(image(card), image(cards[1]));
 });
 
 test("ui-revise9 1, 2, 4: the i18n-tiny and DIY Keyboards summaries and the keyboards' descriptions are the user's texts", () => {

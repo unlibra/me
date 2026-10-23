@@ -7,8 +7,8 @@ import { paths, type SitePath } from "@/config/site";
 
 /** Web tools served under /lab (design doc 3.2), in display order. */
 export const toolIds = [
-  "favicon-generator",
   "svg-optimizer",
+  "favicon-generator",
   "password-generator",
 ] as const;
 
