@@ -1,6 +1,6 @@
 import type { ImageMetadata } from "astro";
 import miraImg from "@/assets/works/mira.webp";
-import botsuImg from "@/assets/works/botsu.webp";
+import prototypesImg from "@/assets/works/prototypes.webp";
 import fostyNaturalImg from "@/assets/works/fosty-natural.webp";
 import fostyDarkImg from "@/assets/works/fosty-dark.webp";
 // Images that show material by other creators (LICENSE, section 3).
@@ -21,20 +21,42 @@ export type DocsUrl = `https://docs.unlibra.com/${string}`;
 /** Every work has a title and summary in the messages. */
 export type WorkId = keyof (typeof messages)["works"];
 
-interface WorkBase {
-  id: WorkId;
+type WorkMessages = (typeof messages)["works"];
+/** The works with a description in the messages, for their details. */
+export type DescribedWorkId = {
+  [K in WorkId]: WorkMessages[K] extends { description: string } ? K : never;
+}[WorkId];
+
+interface WorkBase<Id extends WorkId = WorkId> {
+  id: Id;
   image: ImageMetadata;
   /** Shown as a large, full-width card in its category. */
   featured?: true;
 }
 
 /**
- * DIY Keyboards have no links: their cards open the details (ui-revise4 2).
+ * DIY Keyboards have no links: their cards open the details (ui-revise4 2),
+ * which need the work's description. A keyboard without a description is
+ * `plain: true`: its card has no link and no details, and opens nothing
+ * (ui-revise9 3); it is never a large card.
  * The works of the other categories have a link, and their cards go there
  * directly; Libraries and VR & 3D have their documentation too (ui-revise5 5).
  */
 export type Work =
-  | (WorkBase & { category: "keyboards"; link?: never; docs?: never })
+  | (WorkBase<DescribedWorkId> & {
+      category: "keyboards";
+      link?: never;
+      docs?: never;
+      plain?: never;
+    })
+  | (WorkBase<Exclude<WorkId, DescribedWorkId>> & {
+      category: "keyboards";
+      link?: never;
+      docs?: never;
+      /** The card opens nothing: no link and no details. */
+      plain: true;
+      featured?: never;
+    })
   | (WorkBase & {
       category: "libraries";
       /** The package on npm or PyPI. */
@@ -68,9 +90,10 @@ export const works: Work[] = [
     image: fostyDarkImg,
   },
   {
-    id: "botsu",
+    id: "prototypes",
     category: "keyboards",
-    image: botsuImg,
+    image: prototypesImg,
+    plain: true,
   },
   {
     id: "mira-zero",

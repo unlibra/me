@@ -8,7 +8,9 @@ import type { Work } from "@/config/works";
 declare const image: ImageMetadata;
 
 export const valid: Work[] = [
-  { id: "botsu", category: "keyboards", image },
+  { id: "mira-zero", category: "keyboards", image },
+  // ui-revise9 3: a keyboard without a description opens nothing.
+  { id: "prototypes", category: "keyboards", image, plain: true },
   {
     id: "tkinter-unblur",
     category: "libraries",
@@ -43,9 +45,55 @@ export const linkCardWithoutLink: Work[] = [
   { id: "mururu-blink-lipsync", category: "vr-3d", image },
 ];
 
+// ui-revise9 3: a DIY keyboard's card opens its details, which need its
+// description; a keyboard without one is plain (its card opens nothing),
+// and only those are.
+export const keyboardWithoutDetails: Work[] = [
+  // @ts-expect-error No description: the card must be plain.
+  { id: "prototypes", category: "keyboards", image },
+];
+
+export const plainWithDetails: Work[] = [
+  // @ts-expect-error A keyboard with a description opens its details.
+  { id: "mira-zero", category: "keyboards", image, plain: true },
+];
+
+export const plainFeatured: Work[] = [
+  {
+    id: "prototypes",
+    category: "keyboards",
+    image,
+    plain: true,
+    // @ts-expect-error A card that opens nothing is not a large card.
+    featured: true,
+  },
+];
+
+export const plainWithLink: Work[] = [
+  {
+    id: "prototypes",
+    category: "keyboards",
+    image,
+    plain: true,
+    // @ts-expect-error A plain card has no link either.
+    link: "https://example.com/",
+  },
+];
+
+export const plainLinkCard: Work[] = [
+  {
+    id: "svg-optimizer",
+    category: "apps",
+    image,
+    link: "/lab/svg-optimizer",
+    // @ts-expect-error Only DIY Keyboards can be plain.
+    plain: true,
+  },
+];
+
 export const keyboardWithLink: Work[] = [
   {
-    id: "botsu",
+    id: "mira-zero",
     category: "keyboards",
     image,
     // @ts-expect-error DIY Keyboards have no link: their cards open the details.
@@ -56,7 +104,7 @@ export const keyboardWithLink: Work[] = [
 // ui-revise4 2: no year and no VR & 3D subcategory.
 export const withYear: Work[] = [
   {
-    id: "botsu",
+    id: "mira-zero",
     category: "keyboards",
     image,
     // @ts-expect-error Works have no year.

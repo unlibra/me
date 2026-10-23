@@ -1,6 +1,7 @@
 ---
 // One frame for the photo categories (DIY Keyboards, VR & 3D): a 4:3 photo,
 // the title, the summary and the links, without a border (ui-revise5 12).
+// A card that opens nothing has no hover (ui-revise9 3).
 import { Image } from "astro:assets";
 
 import CardLinks from "@/components/works/CardLinks.astro";
@@ -11,6 +12,7 @@ import {
   cardSummary,
   cardTitle,
 } from "@/components/works/card-classes";
+import { cardTarget } from "@/components/works/work-links";
 import type { Work } from "@/config/works";
 import messages from "@/messages/ja";
 
@@ -27,7 +29,7 @@ const { summary } = messages.works[work.id];
   class:list={[
     "group relative flex flex-col overflow-hidden",
     cardRadius,
-    cardHover,
+    cardTarget(work).kind !== "none" && cardHover,
   ]}
   data-work={work.id}
   data-card="frame"

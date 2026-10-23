@@ -31,6 +31,8 @@ const CATEGORIES = [
   ["apps", "Apps"],
   ["vr-3d", "VR &amp; 3D"],
 ];
+/** The DIY keyboard whose card opens nothing (ui-revise9 3). */
+const PLAIN = "prototypes";
 const TOOLS = [
   "tw-palette-generator",
   "favicon-generator",
@@ -453,13 +455,102 @@ test("ui-revise8 4: Libraries has @i18n-tiny/react after @i18n-tiny/next, with t
   );
   assert.match(
     card,
-    /<p[^>]*data-work-summary[^>]*>依存ゼロ・型安全・最小構成で、React のアプリを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。<\/p>/,
+    /<p[^>]*data-work-summary[^>]*>依存ゼロ・型安全・最小構成で、React のアプリを多言語化できる1KB未満のi18nライブラリです。<\/p>/,
   );
   // The same image as the other npm libraries.
   const image = (c) => attr(c.match(/<img\s[^>]*>/)[0], "src");
   assert.match(image(cards[0]), /\/npm\.[\w-]+\.svg$/);
   assert.equal(image(cards[1]), image(cards[0]));
   assert.equal(image(card), image(cards[0]));
+});
+
+test("ui-revise9 1, 2, 4: the i18n-tiny and DIY Keyboards summaries and the keyboards' descriptions are the user's texts", () => {
+  const summaryOf = (work) =>
+    cardsOf(top)
+      .find((card) => attr(card, "data-work") === work)
+      .match(/<p[^>]*data-work-summary[^>]*>([^<]*)<\/p>/)[1];
+  const i18n = (framework, kind) =>
+    `依存ゼロ・型安全・最小構成で、${framework} の${kind}を多言語化できる1KB未満のi18nライブラリです。`;
+  const summaries = {
+    "i18n-tiny-astro": i18n("Astro", "サイト"),
+    "i18n-tiny-next": i18n("Next.js", "アプリ"),
+    "i18n-tiny-react": i18n("React", "アプリ"),
+    "fosty-natural":
+      "HHKBを40%に落とし込んだような美しい配列とデザインを持つエンドゲームキーボード。",
+    "fosty-dark": "fosty naturalのアナザーカラー。もうひとつのエンドゲーム。",
+    "mira-zero": "はじめて基板・ケースともに自作した思い出の分割キーボード。",
+    prototypes:
+      "エンドゲームに行き着くまでに生まれた、数々のプロトタイプキーボードたち...。",
+  };
+  for (const [work, summary] of Object.entries(summaries)) {
+    assert.equal(summaryOf(work), summary, work);
+  }
+  assert.ok(!top.includes("必要な機能だけを小さくまとめています"));
+
+  const descriptionOf = (work) =>
+    dialogOf(work).match(/<p[^>]*data-work-description[^>]*>([^<]*)<\/p>/)[1];
+  const descriptions = {
+    "fosty-dark": [
+      "fosty naturalのアナザーカラー。40%ロープロキーボード。",
+      "fosty naturalの持っている打鍵感・携帯性・配列・デザインはそのままに、黒いデスクに映えるブラック×オレンジという配色に合わせた特別な構成のキースイッチでカスタム。",
+      "「黒も欲しくなった」ことをきっかけに制作した、もうひとつのエンドゲーム。",
+    ],
+    "fosty-natural": [
+      "HHKBの特徴的な配列を40%キーボードに落とし込んだ、ロープロファイル（Choc V2）キーボード。",
+      "HHKBのJust60キーに対してJust40キーとなるようにしたのもこだわりポイント。",
+      "アルミ削り出しの筐体と無駄のない薄型設計による美しいデザイン、ガスケットマウントによる心地よい打鍵感、そして一体型レイアウトによる携帯性と安定性を追求。",
+      "白いデスクに映える白×シルバーの配色で、キースイッチまで統一したキメラスイッチを採用。",
+      "打鍵感・携帯性・配列・デザインのバランスが理想形となり、自分の“エンドゲーム”と呼べる一台に仕上がっています。",
+    ],
+    "mira-zero": [
+      "40%サイズの左右分割ロープロファイル（Choc V1）キーボード。",
+      "はじめて基板から自作した初号機で、さまざまな技術を試す“プロトタイプ”として制作。",
+    ],
+  };
+  for (const [work, lines] of Object.entries(descriptions)) {
+    // The line breaks as the user wrote them (whitespace-pre-line).
+    assert.equal(descriptionOf(work), lines.join("\n"), work);
+  }
+});
+
+test("ui-revise9 3: prototypes (formerly 没キーボード) is a card without a link, a button, 詳しく見る, details or hover", async () => {
+  const { cardHover } = await import("../src/components/works/card-classes.ts");
+  const cards = cardsOf(sectionOf("keyboards"));
+  assert.deepEqual(
+    cards.map((card) => attr(card, "data-work")),
+    ["fosty-natural", "fosty-dark", PLAIN, "mira-zero"],
+  );
+  const card = cards[2];
+  // The title is plain text in the heading.
+  assert.match(
+    card,
+    /<h3[^>]*data-work-title[^>]*><span id="work-prototypes-name">prototypes<\/span><\/h3>/,
+  );
+  assert.doesNotMatch(
+    card,
+    /<a[\s>]|<button[\s>]|tabindex|data-work-more|data-work-links|data-work-open|data-work-link|詳しく見る|cursor-pointer|after:absolute/,
+  );
+  // No hover (nor the hover on keyboard focus) on the card.
+  const cls = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
+  for (const name of cardHover.split(/\s+/)) {
+    assert.ok(!cls.includes(name), name);
+  }
+  assert.match(card, /<img[^>]*src="\/_astro\/prototypes\./);
+  // No details.
+  assert.doesNotMatch(
+    top,
+    /data-work-dialog="prototypes"|id="work-prototypes"/,
+  );
+  // The former name and id are gone from the page and the sources.
+  assert.ok(!top.includes("没キーボード"));
+  assert.doesNotMatch(top, /botsu/);
+  for (const file of globSync("src/**/*", { cwd: root })) {
+    assert.doesNotMatch(file, /botsu/, file);
+    if (/\.(?:astro|ts|tsx|js|mjs|css|md|json)$/.test(file)) {
+      const source = readFileSync(join(root, file), "utf8");
+      assert.ok(!/botsu|没キーボード/.test(source), file);
+    }
+  }
 });
 
 test("ui-revise7 2: every photo is cropped around its center; nothing is cropped at an edge", () => {
@@ -516,6 +607,13 @@ test("ui-revise4 2: every card has the same hover; no photo zooms and no card li
     const work = attr(card, "data-work");
     kinds.add(attr(card, "data-card"));
     const cls = attr(card.match(/<article[^>]*>/)[0], "class").split(/\s+/);
+    // The card that opens nothing has no hover (ui-revise9 3).
+    if (work === PLAIN) {
+      for (const name of cardHover.split(/\s+/)) {
+        assert.ok(!cls.includes(name), `${work}: ${name}`);
+      }
+      continue;
+    }
     // The large card has its own light gray surface, one step darker (or
     // lighter in dark mode) on hover, with the same transition (ui-revise5).
     const hover =
@@ -608,7 +706,7 @@ test("ui-revise4 3: no card and no details show a year", () => {
   assert.doesNotMatch(works, /\byear\b/);
 });
 
-test("ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; the other cards have none", () => {
+test("ui-revise2 3, ui-revise4 2, ui-revise9 3: the DIY Keyboards cards open their details, except prototypes; the other cards have none", () => {
   const cards = cardsOf(top);
   // 13 since ui-revise8 4 (@i18n-tiny/react).
   assert.equal(cards.length, 13, "self-check of the work count");
@@ -616,6 +714,8 @@ test("ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; th
     cardsOf(sectionOf("keyboards")).map((card) => attr(card, "data-work")),
   );
   assert.equal(keyboards.size, 4, "self-check");
+  // prototypes opens nothing (ui-revise9 3).
+  assert.ok(keyboards.delete(PLAIN), "self-check: prototypes");
   const dialogs = [...top.matchAll(/<dialog[^>]*data-work-dialog="([^"]+)"/g)];
   assert.deepEqual(dialogs.map((m) => m[1]).sort(), [...keyboards].sort());
   for (const card of cards) {
@@ -631,7 +731,8 @@ test("ui-revise2 3, ui-revise4 2: the DIY Keyboards cards open their details; th
     assert.ok(summary[1].trim() !== "" && !summary[1].includes("\n"), work);
 
     if (!keyboards.has(work)) {
-      // A link card: no button, no "詳しく見る", no dialog.
+      // A link card, or the card that opens nothing: no button, no
+      // "詳しく見る", no dialog.
       assert.doesNotMatch(card, /<button[\s>]|data-work-more|詳しく見る/, work);
       continue;
     }
@@ -802,9 +903,11 @@ test("ui-revise5 5, 11: the links' text has the growing underline; the first lin
         `${work} ${kind}`,
       );
     }
-    // The first link: the action the card goes to, or "詳しく見る".
+    // The first link: the action the card goes to, or "詳しく見る". The
+    // card that opens nothing has none (ui-revise9 3).
     const more = card.match(/<p[^>]*data-work-more[\s\S]*?<\/p>/);
-    if (more) has(textOf(more[0]), `${linkText} ${primaryText}`, work);
+    if (work === PLAIN) assert.equal(more ?? actions[0], undefined, work);
+    else if (more) has(textOf(more[0]), `${linkText} ${primaryText}`, work);
     else has(textOf(actions[0][0]), primaryText, work);
   }
 });

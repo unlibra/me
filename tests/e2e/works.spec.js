@@ -25,7 +25,7 @@ test.describe("detail dialog", () => {
     const summary = await summaryText.boundingBox();
     await page.mouse.click(summary.x + 5, summary.y + summary.height / 2);
     await expect(details).toBeVisible();
-    await expect(details).toContainText("fosty natural の兄弟モデル");
+    await expect(details).toContainText("fosty naturalのアナザーカラー。");
     // The page behind does not scroll while the dialog is open.
     await expect
       .poll(() =>
@@ -47,18 +47,18 @@ test.describe("detail dialog", () => {
     page,
   }) => {
     await open(page, "/");
-    const button = card(page, "botsu").getByRole("button", {
-      name: "没キーボード",
+    const button = card(page, "mira-zero").getByRole("button", {
+      name: "mira zero",
     });
     await expect(button).toHaveAttribute("aria-haspopup", "dialog");
-    const details = dialog(page, "没キーボード");
+    const details = dialog(page, "mira zero");
 
     await button.focus();
     await page.keyboard.press("Enter");
     await expect(details).toBeVisible();
     // A click inside the details keeps them open.
     await details
-      .getByText("数々のプロトタイプキーボード", { exact: false })
+      .getByText("はじめて基板から自作した初号機", { exact: false })
       .click();
     await expect(details).toBeVisible();
     // A click on the backdrop (the corner of the window) closes them.
@@ -71,7 +71,7 @@ test.describe("detail dialog", () => {
     await expect(details).toBeHidden();
   });
 
-  test("ui-revise4 2: every card is clickable as a whole; only DIY Keyboards say 詳しく見る", async ({
+  test("ui-revise4 2: every card but prototypes is clickable as a whole; only DIY Keyboards say 詳しく見る", async ({
     page,
   }) => {
     await open(page, "/");
@@ -80,6 +80,8 @@ test.describe("detail dialog", () => {
     await expect(cards).toHaveCount(13);
     for (const article of await cards.all()) {
       const id = await article.getAttribute("data-work");
+      // prototypes opens nothing (ui-revise9 3, its own test below).
+      if (id === "prototypes") continue;
       const keyboard = (await article.locator("button").count()) > 0;
       const more = article.locator("[data-work-more]");
       if (keyboard) {
@@ -105,10 +107,67 @@ test.describe("detail dialog", () => {
       });
       expect(hit, id).toEqual([true, true, "pointer"]);
     }
-    await expect(page.locator("dialog[data-work-dialog]")).toHaveCount(4);
+    // 3 since ui-revise9 3 (prototypes has no details).
+    await expect(page.locator("dialog[data-work-dialog]")).toHaveCount(3);
     await expect(page.locator("#keyboards button[data-work-open]")).toHaveCount(
-      4,
+      3,
     );
+  });
+
+  test("ui-revise9 3: the prototypes card has no link, button or details; a click on it does nothing; it has no pointer, hover or focus", async ({
+    page,
+  }) => {
+    await open(page, "/");
+    const item = card(page, "prototypes");
+    await expect(item.locator("[data-work-title]")).toHaveText("prototypes");
+    await expect(item.locator("[data-work-summary]")).toHaveText(
+      "エンドゲームに行き着くまでに生まれた、数々のプロトタイプキーボードたち...。",
+    );
+    await expect(item.getByRole("link")).toHaveCount(0);
+    await expect(item.getByRole("button")).toHaveCount(0);
+    await expect(item.locator("[data-work-more]")).toHaveCount(0);
+    await expect(item).not.toContainText("詳しく見る");
+    await expect(
+      page.locator('dialog[data-work-dialog="prototypes"]'),
+    ).toHaveCount(0);
+    // Nothing in the card takes the keyboard focus.
+    const focusable = await item.evaluate(
+      (element) =>
+        element.querySelectorAll("a, button, [tabindex], input, select").length,
+    );
+    expect(focusable).toBe(0);
+
+    // No pointer and no hover anywhere on the card.
+    await page.mouse.move(0, 0);
+    await item.scrollIntoViewIfNeeded();
+    const rest = await srgb(item, "backgroundColor");
+    const points = await item.evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      return [
+        [box.x + box.width / 2, box.y + box.height / 4],
+        [box.x + box.width / 2, box.y + box.height - 4],
+        [box.x + 8, box.y + box.height / 2],
+      ];
+    });
+    for (const [x, y] of points) {
+      await page.mouse.move(x, y);
+      const cursor = await page.evaluate(
+        ([x, y]) => getComputedStyle(document.elementFromPoint(x, y)).cursor,
+        [x, y],
+      );
+      expect(cursor).not.toBe("pointer");
+      await page.waitForTimeout(250);
+      expect(await srgb(item, "backgroundColor")).toEqual(rest);
+    }
+    expect(rest).toEqual([0, 0, 0, 0]);
+
+    // A click on the card opens nothing and goes nowhere.
+    const pages = page.context().pages().length;
+    for (const [x, y] of points) await page.mouse.click(x, y);
+    await page.waitForTimeout(250);
+    await expect(page).toHaveURL("/");
+    await expect(page.locator("dialog[open]")).toHaveCount(0);
+    expect(page.context().pages().length).toBe(pages);
   });
 
   test("the featured card spans the width; the others are in columns", async ({
@@ -129,7 +188,7 @@ test.describe("detail dialog", () => {
     expect(summary.x).toBeGreaterThan(image.x + image.width - 1);
     // Three frame cards in a row at 1280px.
     const rest = await Promise.all(
-      ["fosty-dark", "botsu", "mira-zero"].map((id) =>
+      ["fosty-dark", "prototypes", "mira-zero"].map((id) =>
         card(page, id).boundingBox(),
       ),
     );
@@ -379,7 +438,8 @@ const hoverOver = async (page, locator) => {
 /** One card of each kind: featured, frame (both photo categories), list. */
 const SAMPLES = {
   featured: "fosty-natural",
-  frame: "botsu",
+  // botsu until ui-revise9 3 (now prototypes, which opens nothing).
+  frame: "mira-zero",
   "frame (VR & 3D)": "mururu-blink-lipsync",
   "list (Libraries)": "i18n-tiny-astro",
   "list (Apps)": "svg-optimizer",
@@ -1047,8 +1107,12 @@ test.describe("ui-revise5 (parent): text contrast on the cards", () => {
         // background fades in 150ms.
         await page.waitForTimeout(300);
         states.hover = await ratios(item);
+        // The title, the summary and the links; prototypes has no links
+        // (ui-revise9 3).
+        const texts =
+          (await item.getAttribute("data-work")) === "prototypes" ? 2 : 3;
         for (const [state, list] of Object.entries(states)) {
-          expect(list.length).toBeGreaterThanOrEqual(3);
+          expect(list.length).toBeGreaterThanOrEqual(texts);
           for (const { what, opaque, ratio } of list) {
             expect(opaque, `${state}: ${what}`).toBe(true);
             expect(ratio, `${state}: ${what}`).toBeGreaterThanOrEqual(4.5);

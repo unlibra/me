@@ -33,7 +33,9 @@ export default {
    * Each work's title and the summary for its card (provisional). The
    * summaries of Libraries and Apps are about two lines on a 1280px wide
    * page (ui-revise6 2). The works whose cards open their details (DIY
-   * Keyboards) have the description shown there.
+   * Keyboards) have the description shown there; a DIY keyboard without a
+   * description has a card that opens nothing (`plain` in works.ts,
+   * ui-revise9 3).
    */
   works: {
     "tkinter-unblur": {
@@ -43,44 +45,46 @@ export default {
     },
     "mira-zero": {
       title: "mira zero",
-      summary: "基板もケースも自作した、40% 左右分割ロープロの初号機",
+      summary: "はじめて基板・ケースともに自作した思い出の分割キーボード。",
       description: `40%サイズの左右分割ロープロファイル（Choc V1）キーボード。
-基板・ケースともに自作した初号機で、さまざまな技術を試す“プロトタイプ”として制作。終売。`,
+はじめて基板から自作した初号機で、さまざまな技術を試す“プロトタイプ”として制作。`,
     },
-    botsu: {
-      title: "没キーボード",
-      summary: "エンドゲームに行き着くまでに生まれたプロトタイプたち",
-      description: `エンドゲームに行き着くまでに量産された、数々のプロトタイプキーボードたち...。`,
+    prototypes: {
+      title: "prototypes",
+      summary:
+        "エンドゲームに行き着くまでに生まれた、数々のプロトタイプキーボードたち...。",
     },
     "fosty-natural": {
       title: "fosty natural",
-      summary: "HHKB 風の配列を 40% に収めた、白×シルバーのロープロ一体型",
-      description: `HHKBを40%に落とし込んだような美しい配列とデザインを持つ、ロープロファイル（Choc V2）キーボード。
-アルミ削り出し筐体、無駄のない薄型設計、ガスケットマウントによる心地よい打鍵感、USB Type-C、そして一体型レイアウトによる携帯性と安定性を追求。
+      summary:
+        "HHKBを40%に落とし込んだような美しい配列とデザインを持つエンドゲームキーボード。",
+      description: `HHKBの特徴的な配列を40%キーボードに落とし込んだ、ロープロファイル（Choc V2）キーボード。
+HHKBのJust60キーに対してJust40キーとなるようにしたのもこだわりポイント。
+アルミ削り出しの筐体と無駄のない薄型設計による美しいデザイン、ガスケットマウントによる心地よい打鍵感、そして一体型レイアウトによる携帯性と安定性を追求。
 白いデスクに映える白×シルバーの配色で、キースイッチまで統一したキメラスイッチを採用。
-打鍵感・携帯性・配列・デザインのバランスが理想形となり、自分の“エンドゲーム”と呼べる一台に仕上がっています。（非売品）`,
+打鍵感・携帯性・配列・デザインのバランスが理想形となり、自分の“エンドゲーム”と呼べる一台に仕上がっています。`,
     },
     "fosty-dark": {
       title: "fosty dark",
-      summary: "fosty natural の兄弟機。黒×オレンジのもうひとつのエンドゲーム",
-      description: `fosty natural の兄弟モデルとなる40%ロープロ（Choc V2）キーボード。
-黒いデスクに映えるブラック×オレンジという配色に合わせ、こちらもキースイッチを特別な構成でカスタム。
-「黒も欲しくなった」ことをきっかけに制作した、もうひとつのエンドゲーム（非売品）`,
+      summary: "fosty naturalのアナザーカラー。もうひとつのエンドゲーム。",
+      description: `fosty naturalのアナザーカラー。40%ロープロキーボード。
+fosty naturalの持っている打鍵感・携帯性・配列・デザインはそのままに、黒いデスクに映えるブラック×オレンジという配色に合わせた特別な構成のキースイッチでカスタム。
+「黒も欲しくなった」ことをきっかけに制作した、もうひとつのエンドゲーム。`,
     },
     "i18n-tiny-next": {
       title: "@i18n-tiny/next",
       summary:
-        "依存ゼロ・型安全・最小構成で、Next.js のアプリを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。",
+        "依存ゼロ・型安全・最小構成で、Next.js のアプリを多言語化できる1KB未満のi18nライブラリです。",
     },
     "i18n-tiny-react": {
       title: "@i18n-tiny/react",
       summary:
-        "依存ゼロ・型安全・最小構成で、React のアプリを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。",
+        "依存ゼロ・型安全・最小構成で、React のアプリを多言語化できる1KB未満のi18nライブラリです。",
     },
     "i18n-tiny-astro": {
       title: "@i18n-tiny/astro",
       summary:
-        "依存ゼロ・型安全・最小構成で、Astro のサイトを多言語化できる i18n ライブラリです。必要な機能だけを小さくまとめています。",
+        "依存ゼロ・型安全・最小構成で、Astro のサイトを多言語化できる1KB未満のi18nライブラリです。",
     },
     // The Apps: the former tool site's names; the summaries are shortened
     // from its cards' texts (ui-revise6 2).
