@@ -45,3 +45,7 @@
 | `works.spec.js`「every card's text is at least 4.5:1」                                       | どのカードも文字が3つ以上（見出し・説明文・リンク）  | prototypes は2つ以上（リンクがない）                                                        |
 
 追加したテスト：`portfolio.test.js` の「ui-revise9 1, 2, 4」（i18n-tiny と DIY Keyboards の説明文、詳細の文と改行）と「ui-revise9 3」（prototypes のカードにリンク・ボタン・「詳しく見る」・ダイアログ・ホバーがないこと、旧名が残っていないこと）、`works.spec.js` の「ui-revise9 3」（リンクもボタンもフォーカスできる要素もないこと、カーソルが pointer でなくホバーで背景が変わらないこと、クリックしても URL もダイアログもタブも変わらないこと）、`tests/types/works.ts` の `plain` の型テスト。
+
+## UR9-6 ユーザーの確認（2026-10-23）
+
+- UR9-4 の「（非売品）」「終売。」「USB Type-C」が詳細の文からなくなったことは、ユーザーの意図どおり（確認済み）
