@@ -18,6 +18,7 @@ import {
   svgFile,
   toast,
   toolUrl,
+  waitForDropZone,
 } from "./helpers.js";
 
 const VIEWBOX_SVG = svgFile(
@@ -298,6 +299,7 @@ for (const locale of LOCALES) {
       const overlay = page.getByText(t.common.dropToUpload, { exact: true });
       const text = await transfer("text");
       const file = await transfer("file");
+      await waitForDropZone(page);
 
       // A text drag that enters and leaves: not counted either way.
       await page.dispatchEvent("body", "dragenter", { dataTransfer: text });

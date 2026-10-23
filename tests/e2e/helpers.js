@@ -49,10 +49,19 @@ export const chooseFile = (page, file) =>
   page.locator('input[type="file"]').setInputFiles(file);
 
 /**
+ * Waits until the page's drop zone listens for drags on the window. It adds
+ * its listeners in a React effect, which can run a moment after `open` sees
+ * the island hydrated; a drag event before that is lost.
+ */
+export const waitForDropZone = (page) =>
+  expect(page.locator('[data-drop-zone="ready"]')).toBeAttached();
+
+/**
  * Drags a file over the page and drops it on the overlay, as a browser does:
  * `dragenter` on the window shows the overlay, `drop` lands on it.
  */
 export const dropFile = async (page, file, overlayText) => {
+  await waitForDropZone(page);
   const dataTransfer = await page.evaluateHandle(
     ({ name, mimeType, data }) => {
       const transfer = new DataTransfer();

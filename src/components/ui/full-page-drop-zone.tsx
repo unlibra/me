@@ -27,6 +27,9 @@ export function FullPageDropZone({
 }: FullPageDropZoneProps) {
   const { common } = useMessages();
   const [isDragging, setIsDragging] = useState(false);
+  // Whether the window listeners below are attached: they are added in an
+  // effect, a moment after the island hydrates (data-drop-zone="ready").
+  const [isListening, setIsListening] = useState(false);
   const dragCounterRef = useRef(0);
   const toast = useToast();
 
@@ -71,6 +74,7 @@ export function FullPageDropZone({
     window.addEventListener("drop", handleDrop);
     window.addEventListener("dragover", handleDragOver);
     window.addEventListener("dragend", handleDragEnd);
+    setIsListening(true);
 
     return () => {
       window.removeEventListener("dragenter", handleDragEnter);
@@ -127,7 +131,11 @@ export function FullPageDropZone({
   );
 
   return (
-    <div onDrop={handleDropOnDiv} className="relative">
+    <div
+      onDrop={handleDropOnDiv}
+      className="relative"
+      data-drop-zone={isListening ? "ready" : "pending"}
+    >
       {children}
 
       {/* Drag Overlay */}
