@@ -797,12 +797,12 @@ test("C5: icon files are in dist/ with the expected sizes", () => {
   assert.ok(sizes.includes(32), `favicon.ico sizes: ${sizes}`);
 });
 
-test("C5: icon.svg is the brand symbol", () => {
+test("C5: favicon.svg is the brand symbol", () => {
   const symbol = readFileSync(
     join(root, "src/assets/brand/symbol.svg"),
     "utf8",
   );
-  const icon = readDist("icon.svg");
+  const icon = readDist("favicon.svg");
   assert.match(icon, /^<svg width="512" height="512" /);
   assert.equal(
     icon.replace(' width="512" height="512"', "").trim(),
@@ -819,7 +819,7 @@ test("C5: every page references the icons and the OGP image", () => {
     }));
     for (const [rel, href] of [
       ["icon", "/favicon.ico"],
-      ["icon", "/icon.svg"],
+      ["icon", "/favicon.svg"],
       ["apple-touch-icon", "/apple-touch-icon.png"],
     ]) {
       assert.ok(

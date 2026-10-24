@@ -88,7 +88,7 @@ test("check:prod adds hints for what the Cloudflare zone may change", async () =
   assert.deepEqual(hints("robots.txt"), [HINTS.robots]);
   // Every header of "/*" is missing, HSTS and nosniff among them.
   assert.deepEqual(hints("headers /* "), [HINTS.hsts]);
-  assert.deepEqual(hints("headers /icon.svg "), [HINTS.cache]);
+  assert.deepEqual(hints("headers /favicon.svg "), [HINTS.cache]);
   assert.deepEqual(hints("page /blocked"), [HINTS.blocked]);
   assert.deepEqual(hints("page /missing"), []);
   // Passing checks have none.
