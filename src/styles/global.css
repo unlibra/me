@@ -1,28 +1,12 @@
 @import "tailwindcss";
 @import "../tools/styles.css";
 
-/*
- * LINE Seed JP Bold with only the letters of the logotype "unlibra", made by
- * scripts/subset-brand-font.mjs from @fontsource/line-seed-jp (SIL Open Font
- * License 1.1) when the build starts. Other text in font-brand falls back to Noto Sans JP.
- */
-@font-face {
-  font-family: "LINE Seed JP";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../assets/fonts/line-seed-jp-unlibra-700.woff2") format("woff2");
-  unicode-range: U+61-62, U+69, U+6C, U+6E, U+72, U+75;
-}
-
 /* Dark mode follows the `dark` class on <html>, set by BaseLayout's script. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   --font-sans: "Noto Sans JP Variable", sans-serif;
   --font-mono: "Geist Mono", monospace;
-  /* The logotype "unlibra" (bold only; see the @font-face above). */
-  --font-brand: "LINE Seed JP", "Noto Sans JP Variable", sans-serif;
 
   /* Colors carried over from the former tool site's Tailwind config. */
   --color-atom-one-dark-lighter: #3d4148;

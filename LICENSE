@@ -69,8 +69,8 @@ The website built from this repository lists these packages, with their
 license texts and copyright notices, in /third-party-licenses.txt. The list
 is generated at build time by scripts/third-party-licenses.mjs.
 
-The logotype's font is LINE Seed JP Bold (© LY Corporation) from the npm
-package @fontsource/line-seed-jp, cut down to a few letters at build time by
-scripts/subset-brand-font.mjs. It stays under the SIL Open
-Font License 1.1. The full text, with the copyright notice, is in
-LICENSES/OFL-1.1.txt; the website also lists it in /third-party-licenses.txt.
+src/assets/brand/logotype.svg, the logotype "unlibra", is drawn with the
+outlines of LINE Seed JP Bold (© LY Corporation) from the npm package
+@fontsource/line-seed-jp, by scripts/generate-logotype.mjs. The font is
+under the SIL Open Font License 1.1. The full text, with the copyright
+notice, is in LICENSES/OFL-1.1.txt.

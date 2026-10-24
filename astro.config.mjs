@@ -4,7 +4,6 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
-import brandFont from "./scripts/subset-brand-font.mjs";
 import notoSansJpSubset, {
   METRIC_OVERRIDES,
 } from "./scripts/noto-sans-jp-subset.mjs";
@@ -40,13 +39,7 @@ const notoSansJpMetrics = () => ({
 export default defineConfig({
   site: "https://unlibra.com",
   trailingSlash: "never",
-  integrations: [
-    brandFont(),
-    react(),
-    sitemap(),
-    thirdPartyLicenses(),
-    notoSansJpSubset(),
-  ],
+  integrations: [react(), sitemap(), thirdPartyLicenses(), notoSansJpSubset()],
   vite: {
     plugins: [notoSansJpMetrics(), tailwindcss()],
     build: {

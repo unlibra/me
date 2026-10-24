@@ -1,6 +1,7 @@
 ---
 // Footer: the layout of the former tool site's footer.
 import BrandSymbol from "@/components/BrandSymbol.astro";
+import Logotype from "@/components/layout/Logotype.astro";
 import type { Locale } from "@/config/locales";
 import { copyrightNotice, paths, site } from "@/config/site";
 import { layoutMessages } from "@/messages/layout";
@@ -40,11 +41,8 @@ const externalLinks = [
         >
           <BrandSymbol class="size-6" />
           <!-- Up 1px to center on the symbol, as in the header. -->
-          <span
-            class="font-brand -translate-y-px text-xl/7 font-bold"
-            data-logotype
-          >
-            {site.title}
+          <span class="-translate-y-px text-xl/7" data-logotype>
+            <Logotype />
           </span>
         </a>
         <p class="mt-3 text-sm leading-6 whitespace-pre-line text-gray-600 dark:text-gray-400">

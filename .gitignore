@@ -5,8 +5,6 @@ dist/
 .wrangler/
 # generated types
 .astro/
-# made at build time (scripts/subset-brand-font.mjs)
-src/assets/fonts/line-seed-jp-unlibra-700.woff2
 
 # dependencies
 node_modules/

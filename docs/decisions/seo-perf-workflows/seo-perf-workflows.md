@@ -123,3 +123,14 @@ SP-14 の後、Lighthouse のシミュレーションで LCP が毎回伸びて�
 予備のスタイルシートは、`load` イベントの後に、スクリプトがその場所（削ったファイルの規則の前）にリンクを足して読む。JavaScript がないときは `<noscript>` の通常のリンク。予備は想定外の文字のためだけなので、ページの文字の見た目は変わらない。
 
 Lighthouse（ローカル、HTTP/2、モバイル、5回の中央値。SP-14 の形との比較）：シミュレーションで LCP 2.49 秒 → 2.11 秒（FCP 1.82 秒 → 1.89 秒）、Performance 96 → 98。DevTools のスロットリングで LCP 1.69 秒 → 1.60 秒。テスト：`tests/e2e/fonts.spec.js`（読み込みの後に取りに行くこと、削ったファイルの規則より前にあること、ない文字で Fontsource のファイルを読むこと）。
+
+## SP-16 ロゴタイプを SVG にした（ユーザーの決定）
+
+ロゴタイプ「unlibra」は LINE Seed JP Bold の7文字のサブセット（`font-display: swap`、先読みなし）で表示していて、フォントが届く前に一瞬 Noto Sans JP で出ることがあった。ロゴは別の書体で見せたくないので、フォントをやめて文字の輪郭の SVG にした。
+
+- `scripts/generate-logotype.mjs`（`npm run generate:logotype`）が、`@fontsource/line-seed-jp` から HarfBuzz（`harfbuzzjs`）で「unlibra」を組み（送りとカーニング）、輪郭を1つの `<path>` にして `src/assets/brand/logotype.svg` に書く。リポジトリに置き、パッケージの更新には追従しない（ロゴは変えない）。テストは、フォントから描き直したものがこのファイルと同じであることを確かめる。
+- 大きさは em で、フォントの ascender と descender の高さ（1.1em）、`vertical-align` で descender の分だけ下げてベースラインにのせる。同じ大きさの文字と同じ場所を占める。色は `currentColor`。Tailwind の preflight は svg を block にするので `inline` を付ける。
+- `src/components/layout/Logotype.astro` が `role="img"` と `aria-label="unlibra"` を足して埋め込む（ヘッダー、モバイルのメニュー、フッター）。ホームへのリンクの名前は「unlibra」のまま。
+- 消したもの：`scripts/subset-brand-font.mjs`（ビルドのたびに作るサブセット、SP-11）、`global.css` の `@font-face` と `--font-brand`、`DERIVED_ASSETS` と `LICENSE_NOTES` の LINE Seed JP の項目（配信しなくなったので、サードパーティライセンス一覧からも外れる）。LICENSE の4章は、ロゴタイプの SVG が LINE Seed JP（SIL OFL 1.1）の輪郭であることを書く。
+- 見た目：変更前後の画面（1280px と 375px、ライトとダーク、ヘッダー・フッター・モバイルのメニュー）で、リンクの位置と大きさは同じ（幅は 0.02px 以下の差）。画素の差はアンチエイリアスの範囲。フッターのリンクの hover の下線は、SVG には引かれない（変更前は文字に引かれた）。
+- OGP：`scripts/generate-icons.mjs` は OGP 画像（`public/ogp.png`）も作っていたが、今の画像は手で差し替えたもので、スクリプトを走らせると上書きされる（477e92c で一度起き、46ca508 で戻した）。OGP の生成をスクリプトから外し、アイコン（`icon.svg`、`favicon.ico`、`apple-touch-icon.png`）だけを作るようにした。

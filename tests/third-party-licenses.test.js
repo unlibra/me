@@ -19,7 +19,6 @@ import { fileURLToPath } from "node:url";
 import {
   DERIVED_ASSETS,
   LICENSE_FALLBACKS,
-  LICENSE_NOTES,
   LICENSES_FILE,
   OUTSIDE_MODULE_GRAPH,
   PREBUNDLED,
@@ -28,7 +27,6 @@ import {
   packageOfPath,
   readLicense,
 } from "../scripts/third-party-licenses.mjs";
-import { nameOf, woff2Tables } from "./helpers/woff2.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -89,7 +87,6 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
       "@astrojs/react",
       "@fontsource-variable/noto-sans-jp",
       "@fontsource/geist-mono",
-      "@fontsource/line-seed-jp",
       "@headlessui/react",
       "@tabler/icons",
       "@tabler/icons-react",
@@ -428,45 +425,6 @@ test("H4: rolldown's entry also has its THIRD-PARTY-LICENSE (Rollup's MIT)", () 
     assert.ok(section.includes(text), file);
   }
   assert.match(section, /github\.com\/rollup\/rollup\/graphs\/contributors/);
-});
-
-test("ui-revise2 L5: LINE Seed JP's section notes the font's own copyright holder", () => {
-  const dir = join(root, "node_modules/@fontsource/line-seed-jp");
-  assert.ok(LICENSE_NOTES["@fontsource/line-seed-jp"]);
-  // The note holds for the installed package's font file too.
-  const source = readFileSync(
-    join(dir, "files/line-seed-jp-latin-700-normal.woff2"),
-  );
-  assert.equal(nameOf(woff2Tables(source).name, 0), "© LY Corporation");
-  // The copyright in the shipped font file (the subset of "unlibra").
-  const fonts = globSync("_astro/line-seed-jp-*.woff2", { cwd: dist });
-  assert.equal(fonts.length, 1, "LINE Seed JP files in dist/");
-  const { name } = woff2Tables(readFileSync(join(dist, fonts[0])));
-  assert.equal(nameOf(name, 0), "© LY Corporation");
-
-  const section = sectionOf("@fontsource/line-seed-jp");
-  assert.match(
-    section,
-    /^Note: The copyright notice in the font files is "© LY Corporation"\./m,
-  );
-  // The package's own license file (the full OFL) is kept as it is.
-  const license = readFileSync(join(dir, "LICENSE"), "utf8");
-  assert.match(license, /SIL OPEN FONT LICENSE Version 1\.1/);
-  assert.ok(normalize(section).includes(normalize(license)));
-});
-
-test("ui-revise2 4: the brand font made from LINE Seed JP is listed through DERIVED_ASSETS", () => {
-  assert.deepEqual(Object.keys(DERIVED_ASSETS), [
-    "src/assets/fonts/line-seed-jp-unlibra-700.woff2",
-  ]);
-  // The package is only the source of the subset: a devDependency.
-  assert.ok(pkg.devDependencies["@fontsource/line-seed-jp"]);
-  assert.equal(pkg.dependencies["@fontsource/line-seed-jp"], undefined);
-  // Its section says how it is included.
-  assert.match(
-    sectionOf("@fontsource/line-seed-jp"),
-    /^Included as: files\/line-seed-jp-latin-700-normal\.woff2, cut down to the letters of "unlibra" \(scripts\/subset-brand-font\.mjs\)$/m,
-  );
 });
 
 test("readLicense adds a LICENSE_NOTES note to the license's own note", () => {

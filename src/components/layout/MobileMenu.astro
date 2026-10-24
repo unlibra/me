@@ -2,10 +2,10 @@
 // Mobile menu: the slide-in panel of the former tool site, as a
 // native <dialog> (focus stays inside, Escape closes it).
 import BrandSymbol from "@/components/BrandSymbol.astro";
+import Logotype from "@/components/layout/Logotype.astro";
 import MenuIcon from "@/components/icons/MenuIcon.astro";
 import XIcon from "@/components/icons/XIcon.astro";
 import type { Locale } from "@/config/locales";
-import { site } from "@/config/site";
 import { categories, categoryHref } from "@/config/works";
 import { layoutMessages } from "@/messages/layout";
 
@@ -44,8 +44,8 @@ const item =
         <a href="/" class="flex items-center gap-2 text-xl/7">
           <BrandSymbol class="size-6" />
           <!-- Up 1px to center on the symbol, as in the header. -->
-          <span class="font-brand -translate-y-px font-bold" data-logotype>
-            {site.title}
+          <span class="-translate-y-px" data-logotype>
+            <Logotype />
           </span>
         </a>
         <button

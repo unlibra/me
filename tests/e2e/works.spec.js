@@ -275,13 +275,12 @@ test.describe("ui-revise4 3: the footer's grid", () => {
 test.describe("the logotype in LINE Seed JP", () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
-  test("ui-revise2 4, ui-revise3 1: the header, the mobile menu and the footer show unlibra in LINE Seed JP; the hero's h1 is in the body font", async ({
+  test("ui-revise2 4, ui-revise3 1, SP-16: the header, the mobile menu and the footer show the drawing of unlibra; the hero's h1 is in the body font", async ({
     page,
   }) => {
     await open(page, "/");
     // The mobile menu is open, so that every logotype is rendered.
     await page.getByRole("button", { name: "メニューを開く" }).click();
-    await page.evaluate(() => document.fonts.ready);
     const places = {
       header: page.locator("header nav > a [data-logotype]"),
       "mobile menu": page.locator("#mobile-menu [data-logotype]"),
@@ -289,36 +288,17 @@ test.describe("the logotype in LINE Seed JP", () => {
     };
     await expect(page.locator("[data-logotype]")).toHaveCount(3);
     for (const [place, locator] of Object.entries(places)) {
-      await expect(locator, place).toHaveText("unlibra");
-      const { family, weight, loaded } = await locator.evaluate(
-        async (element) => {
-          const style = getComputedStyle(element);
-          const font = `${style.fontWeight} 16px "LINE Seed JP"`;
-          await document.fonts.load(font, element.textContent);
-          return {
-            family: style.fontFamily,
-            weight: style.fontWeight,
-            loaded: document.fonts.check(font, element.textContent),
-          };
-        },
-      );
-      expect(family, place).toMatch(/^"LINE Seed JP"/);
-      expect(weight, place).toBe("700");
-      expect(loaded, place).toBe(true);
+      // A drawing named unlibra, 1.1em high in 20px text, and no font.
+      const drawing = locator.locator('svg[role="img"]');
+      await expect(drawing, place).toHaveAccessibleName("unlibra");
+      await expect(drawing, place).toHaveCSS("height", "22px");
     }
-    // The one font file of LINE Seed JP is the one loaded.
-    const loadedFaces = await page.evaluate(() =>
-      [...document.fonts]
-        .filter((face) => face.family.replace(/"/g, "") === "LINE Seed JP")
-        .map((face) => [face.weight, face.status]),
-    );
-    expect(loadedFaces).toEqual([["700", "loaded"]]);
-    // Text that is not the logotype keeps the body font, the hero's h1
-    // too (ui-revise3 1).
-    await expect(page.locator("footer p").first()).not.toHaveCSS(
-      "font-family",
-      /LINE Seed JP/,
-    );
+    expect(
+      await page.evaluate(() =>
+        [...document.fonts].filter((face) => face.family.includes("LINE Seed")),
+      ),
+    ).toEqual([]);
+    // The hero's h1 keeps the body font (ui-revise3 1).
     await expect(page.locator("[data-hero] h1")).toHaveText(
       "昼はカフェ。夜はバー。",
     );

@@ -280,20 +280,6 @@ test("F5: README links to LICENSE", () => {
   assert.match(read("README.md"), /\[LICENSE\]\(LICENSE\)/);
 });
 
-test("ui-revise2 4: LICENSE names each file made from a package, with the package and the script that makes it at build time", async () => {
-  const { DERIVED_ASSETS } =
-    await import("../scripts/third-party-licenses.mjs");
-  const text = section(4).replace(/\s+/g, " ");
-  for (const [path, { name, note }] of Object.entries(DERIVED_ASSETS)) {
-    // Made by the build (npm run build runs before npm test), not kept.
-    assert.ok(existsSync(join(root, path)), path);
-    assert.match(read(".gitignore"), new RegExp(`^${path}$`, "m"), path);
-    const script = note.match(/\((scripts\/[\w-]+\.mjs)\)/)[1];
-    assert.ok(text.includes(name), `${name} in section 4`);
-    assert.ok(text.includes(`at build time by ${script}`), script);
-  }
-});
-
 test("ui-revise2 4: LICENSES/OFL-1.1.txt is the OFL with LINE Seed JP's copyright notice", () => {
   const text = read("LICENSES/OFL-1.1.txt");
   // The copyright notice of the font files and of Google Fonts' OFL.txt.
@@ -312,10 +298,11 @@ test("ui-revise2 4: LICENSES/OFL-1.1.txt is the OFL with LINE Seed JP's copyrigh
   );
   assert.match(text, /^PERMISSION & CONDITIONS$/m);
   assert.match(text, /^DISCLAIMER$/m);
-  // LICENSE points to it for the font made from LINE Seed JP.
+  // LICENSE points to it for the logotype drawn with LINE Seed JP.
   const text4 = section(4).replace(/\s+/g, " ");
   assert.ok(text4.includes("LICENSES/OFL-1.1.txt"));
-  assert.ok(text4.includes("scripts/subset-brand-font.mjs"));
+  assert.ok(text4.includes("src/assets/brand/logotype.svg"));
+  assert.ok(text4.includes("scripts/generate-logotype.mjs"));
 });
 
 test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as material under a license", () => {
