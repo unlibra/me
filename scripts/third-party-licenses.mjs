@@ -128,14 +128,7 @@ export const LICENSE_CUTS = {
  * ships one, the package is listed with the note (the package itself is a
  * devDependency).
  */
-export const DERIVED_ASSETS = {
-  "src/assets/fonts/line-seed-jp-unlibra-700.woff2": {
-    name: "@fontsource/line-seed-jp",
-    note:
-      "files/line-seed-jp-latin-700-normal.woff2, cut down to the letters " +
-      'of "unlibra" (scripts/subset-brand-font.mjs)',
-  },
-};
+export const DERIVED_ASSETS = {};
 
 /** Whether a file (absolute path) is one of DERIVED_ASSETS. */
 const isDerivedAsset = (file, projectRoot) =>
@@ -148,15 +141,7 @@ const isDerivedAsset = (file, projectRoot) =>
  * Notes added to a package's section, for what its license files do not say.
  * Keyed by name; the tests check that each note is true of the shipped files.
  */
-export const LICENSE_NOTES = {
-  // The package's LICENSE file is Fontsource's template ("Google Inc."); the
-  // font files themselves name the copyright holder (name table, ID 0).
-  "@fontsource/line-seed-jp": {
-    note:
-      'The copyright notice in the font files is "© LY Corporation". The ' +
-      "license file below is the one in the npm package.",
-  },
-};
+export const LICENSE_NOTES = {};
 
 // Also THIRD-PARTY-LICENSE(S): rolldown's LICENSE points to it for the code
 // derived from Rollup.

@@ -41,8 +41,11 @@ npm run lint
 npm run format:check
 npm run format
 
-# Regenerate the icons and the OGP image from src/assets/brand/symbol.svg
+# Regenerate the icons from src/assets/brand/symbol.svg (public/ogp.png is made by hand)
 npm run generate:icons
+
+# Redraw the logotype from LINE Seed JP (src/assets/brand/logotype.svg)
+npm run generate:logotype
 ```
 
 ## Project Structure

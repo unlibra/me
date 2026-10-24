@@ -1,18 +1,15 @@
-// Generates the site icons and the OGP image from the brand symbol.
+// Generates the site icons from the brand symbol. The OGP image
+// (public/ogp.png) is made by hand and kept as it is.
 //
 //   npm run generate:icons
 //
-// Inputs:  src/assets/brand/symbol.svg, the logotype font
-//   src/assets/fonts/line-seed-jp-unlibra-700.woff2 (made here from the
-//   installed @fontsource/line-seed-jp, as the build does)
+// Input:   src/assets/brand/symbol.svg
 // Outputs (committed): public/icon.svg, public/favicon.ico,
-//   public/apple-touch-icon.png, public/ogp.png
+//   public/apple-touch-icon.png
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-
-import { writeBrandFont } from "./subset-brand-font.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = join(root, "public");
@@ -20,9 +17,6 @@ const symbolSvg = readFileSync(join(root, "src/assets/brand/symbol.svg"));
 
 /** Background color of the symbol's circle. */
 const symbolColor = "#27272a";
-
-/** The logotype's font: LINE Seed JP Bold with the letters of "unlibra". */
-const { file: fontFile } = await writeBrandFont();
 
 /** Rasterizes the symbol to a square PNG of the given size. */
 const symbolPng = (size) =>
@@ -80,41 +74,4 @@ await sharp(await symbolPng(180))
   .png()
   .toFile(join(publicDir, "apple-touch-icon.png"));
 
-// ogp.png: 1200x630, the symbol and the site name side by side.
-const width = 1200;
-const height = 630;
-const symbolSize = 160;
-const gap = 40;
-const text = await sharp({
-  text: {
-    text: `<span foreground="${symbolColor}">unlibra</span>`,
-    font: "LINE Seed JP Bold 96",
-    fontfile: fontFile,
-    rgba: true,
-    dpi: 72,
-  },
-})
-  .png()
-  .toBuffer({ resolveWithObject: true });
-const groupWidth = symbolSize + gap + text.info.width;
-const left = Math.round((width - groupWidth) / 2);
-await sharp({
-  create: { width, height, channels: 3, background: "#ffffff" },
-})
-  .composite([
-    {
-      input: await symbolPng(symbolSize),
-      left,
-      top: Math.round((height - symbolSize) / 2),
-    },
-    {
-      input: text.data,
-      left: left + symbolSize + gap,
-      top: Math.round((height - text.info.height) / 2),
-    },
-  ])
-  .removeAlpha()
-  .png()
-  .toFile(join(publicDir, "ogp.png"));
-
-console.log("Generated icon.svg, favicon.ico, apple-touch-icon.png, ogp.png");
+console.log("Generated icon.svg, favicon.ico, apple-touch-icon.png");

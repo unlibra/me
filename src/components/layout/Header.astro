@@ -3,11 +3,12 @@
 // categories take the place of its category menus, as links to their
 // sections of the top page.
 import BrandSymbol from "@/components/BrandSymbol.astro";
+import Logotype from "@/components/layout/Logotype.astro";
 import LanguageSwitcher from "@/components/layout/LanguageSwitcher.astro";
 import MobileMenu from "@/components/layout/MobileMenu.astro";
 import ThemeToggle from "@/components/layout/ThemeToggle.astro";
 import type { Locale } from "@/config/locales";
-import { site, type SitePath } from "@/config/site";
+import type { SitePath } from "@/config/site";
 import { categories, categoryHref } from "@/config/works";
 import { layoutMessages } from "@/messages/layout";
 
@@ -34,15 +35,11 @@ const menuItem =
       class="absolute left-1/2 flex -translate-x-1/2 items-center gap-2 outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary lg:static lg:translate-x-0"
     >
       <BrandSymbol class="size-6" />
-      <!-- LINE Seed JP's ink ("unlibra", ascent 16px, descent 1px at 20px)
+      <!-- The logotype's ink ("unlibra", ascent 16px, descent 1px at 20px)
            sits 1px below the middle of its 28px line: up 1px, its middle is
            the symbol's. -->
-      <span
-        class="font-brand -translate-y-px text-xl/7 font-bold"
-        data-site-name
-        data-logotype
-      >
-        {site.title}
+      <span class="-translate-y-px text-xl/7" data-site-name data-logotype>
+        <Logotype />
       </span>
     </a>
 

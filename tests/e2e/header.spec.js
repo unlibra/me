@@ -67,11 +67,14 @@ test.describe("mobile", () => {
     await expect(menu).toBeVisible();
     await expect(openButton).toHaveAttribute("aria-expanded", "true");
     expect(await hasHorizontalScroll(page)).toBe(false);
-    // The home link, then the four categories; no tools.
-    await expect(menu.getByRole("link")).toHaveText([
-      "unlibra",
-      ...SECTIONS.map(([, name]) => name),
-    ]);
+    // The home link (named by the logotype's drawing), then the four
+    // categories; no tools.
+    const links = menu.getByRole("link");
+    await expect(links).toHaveCount(1 + SECTIONS.length);
+    await expect(links.first()).toHaveAccessibleName("unlibra");
+    for (const [i, [, name]] of SECTIONS.entries()) {
+      await expect(links.nth(i + 1)).toHaveText(name);
+    }
 
     // Escape and the close button close it.
     await page.keyboard.press("Escape");

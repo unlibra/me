@@ -1,0 +1,18 @@
+---
+// The logotype "unlibra", drawn with LINE Seed JP Bold's outlines
+// (scripts/generate-logotype.mjs), so it never shows in another font first.
+// It takes the size and color of its text: 1em is the font size, the color
+// is currentColor. Inline, not the block that Tailwind's preflight makes of
+// every svg, so it sits on the baseline of its line.
+import { site } from "@/config/site";
+import logotype from "@/assets/brand/logotype.svg?raw";
+
+const svg = logotype
+  .trim()
+  .replace(
+    "<svg ",
+    `<svg class="inline" role="img" aria-label="${site.title}" `,
+  );
+---
+
+<Fragment set:html={svg} />
