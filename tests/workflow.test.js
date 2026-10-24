@@ -40,21 +40,57 @@ test("I5: the test workflow runs every check, on push and pull request", () => {
   );
 });
 
-test("I5: workflows only read, use no secrets, and pin official actions", () => {
+/** Workflows that may write: by name, so a new one starts read-only. */
+const WRITERS = ["dependabot-auto-merge.yml"];
+
+const withoutComments = (text) => text.replace(/(^|\s)#.*$/gm, "");
+
+test("I5: every workflow sets its permissions once and pins the actions of GitHub", () => {
   assert.ok(workflows.length > 0);
   for (const [name, text] of workflows) {
-    assert.match(text, /^permissions:\n {2}contents: read\n(?! )/m, name);
     assert.equal(text.match(/^\s*permissions:/gm).length, 1, name);
-    const code = text.replace(/(^|\s)#.*$/gm, "");
-    assert.doesNotMatch(code, /secrets\.|GITHUB_TOKEN|github\.token/, name);
+    assert.match(text, /^permissions:\n/m, name);
     const uses = [...text.matchAll(/uses: (\S+)/g)].map((m) => m[1]);
     assert.ok(uses.length > 0, name);
     for (const action of uses) {
       assert.match(
         action,
-        /^actions\/[\w-]+@[0-9a-f]{40}$/,
+        /^(actions|dependabot)\/[\w-]+@[0-9a-f]{40}$/,
         `${name}: ${action}`,
       );
     }
   }
+});
+
+test("I5: the workflows other than the writers only read and use no secrets", () => {
+  for (const [name, text] of workflows) {
+    if (WRITERS.includes(name)) continue;
+    assert.match(text, /^permissions:\n {2}contents: read\n(?! )/m, name);
+    assert.doesNotMatch(
+      withoutComments(text),
+      /secrets\.|GITHUB_TOKEN|github\.token/,
+      name,
+    );
+  }
+});
+
+test("I5: the auto-merge workflow writes only for Dependabot's pull requests, without their code", () => {
+  const text = readFileSync(new URL("dependabot-auto-merge.yml", dir), "utf8");
+  const code = withoutComments(text);
+  assert.match(code, /^on: pull_request\n/m);
+  assert.doesNotMatch(code, /pull_request_target|workflow_run/);
+  assert.match(
+    code,
+    /^permissions:\n {2}contents: write\n {2}pull-requests: write\n(?! )/m,
+  );
+  assert.match(
+    code,
+    /^ {4}if: github\.event\.pull_request\.user\.login == 'dependabot\[bot\]'$/m,
+  );
+  assert.deepEqual(
+    [...code.matchAll(/secrets\.(\w+)/g)].map((m) => m[1]),
+    ["GITHUB_TOKEN"],
+  );
+  assert.doesNotMatch(code, /actions\/checkout/);
+  assert.match(code, /gh pr merge --auto/);
 });

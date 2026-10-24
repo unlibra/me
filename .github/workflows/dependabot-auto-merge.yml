@@ -1,0 +1,51 @@
+name: Dependabot auto-merge
+
+# Turns on auto-merge for Dependabot's low-risk updates, so they merge by
+# themselves once the required check `test` passes (the branch protection of
+# main), and Workers Builds deploys them like any other push to main.
+# An update is low risk when every dependency in the pull request:
+#   - moves to a newer patch or minor version (majors wait for a person),
+#   - is not on 0.x, where a minor version may break (semver), unless it is a
+#     patch update,
+#   - is a release, not a prerelease such as 2.0.0-alpha.21,
+#   - keeps its maintainers (a new maintainer may mean a hijacked package).
+# Anything it cannot read counts as not low risk. Dependabot opens version
+# updates only after the cooldown in .github/dependabot.yml.
+#
+# The only workflow that writes (I5, tests/workflow.test.js): it runs for
+# Dependabot's pull requests only, uses no secret but its own token, and
+# checks out no code. Actions: actions/* and dependabot/*, pinned to the
+# commit of a release tag (the tag is in the comment).
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - id: meta
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Check that every update is low risk
+        id: risk
+        env:
+          UPDATES: ${{ steps.meta.outputs.updated-dependencies-json }}
+        run: |
+          low=$(jq -r '
+            length > 0 and all(.[];
+              (.updateType == "version-update:semver-patch" or .updateType == "version-update:semver-minor")
+              and ((.newVersion // "") | test("^v?[0-9]+\\.[0-9]+\\.[0-9]+$"))
+              and (.updateType == "version-update:semver-patch" or ((.prevVersion // "0.") | test("^v?0\\.") | not))
+              and (.maintainerChanges != true))
+          ' <<< "$UPDATES")
+          echo "low=$low" >> "$GITHUB_OUTPUT"
+
+      - if: steps.risk.outputs.low == 'true'
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

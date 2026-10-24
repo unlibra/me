@@ -1,0 +1,30 @@
+# Version updates (docs/decisions/seo-perf-workflows/seo-perf-workflows.md).
+#
+# - Weekly, with minor and patch updates in one pull request; each major
+#   update gets its own pull request.
+# - cooldown: a release is proposed only once it is 7 days old, so a broken or
+#   hijacked release is usually pulled before it reaches here.
+# - Low-risk updates merge by themselves (.github/workflows/dependabot-auto-merge.yml).
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # The actions are pinned to commits, with the release tag in a comment;
+  # Dependabot updates both.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
