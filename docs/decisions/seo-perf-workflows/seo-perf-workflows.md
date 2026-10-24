@@ -138,3 +138,12 @@ Lighthouse（ローカル、HTTP/2、モバイル、5回の中央値。SP-14 の
 ## SP-17 SVG のファビコンを favicon.svg にした（ユーザーの決定）
 
 `public/icon.svg` は `src/assets/brand/symbol.svg`（ページに埋め込むマーク）に `width`・`height` を足しただけのファビコンで、名前からは分けている理由がわからなかった。ファビコン専用だとわかるように `public/favicon.svg` にした（`BaseLayout.astro` のリンク、`_headers` のキャッシュ、`scripts/generate-icons.mjs`、テスト）。docs.unlibra.com にも同じ `favicon.svg` を置き、docs のサイトのファビコンはそれを指す（`brand/symbol.svg` はナビのロゴとして残す）。
+
+## SP-18 更新したページを IndexNow に知らせる（ユーザーの決定）
+
+IndexNow はキーのファイルを置いているだけで、URL を送ったのは切り替えのときの1回だけだった。Google は IndexNow を使わない（サイトマップで知る）。IndexNow は「内容が変わったときだけ送る。変わっていない URL は送り直さない」とする。
+
+- unlibra.com：`.github/workflows/indexnow.yml`（main への push のたび）。push の前と後のコミットをそれぞれビルドし、`scripts/indexnow.mjs` がサイトマップのページごとに、タイトル、説明文、`<main>` の文章・リンク先・画像（名前と alt）を比べ、変わったページ（サイトマップに増えた・消えたページを含む）だけを選ぶ。HTML 全体で比べないのは、CSS やスクリプトを作り直すとファイル名のハッシュが全ページで変わるため。本番へのデプロイは Workers Builds なので、ビルドに入れた `/commit.txt`（Workers Builds のコミット、なければ git のコミット）が push したコミットかその後のコミットになるまで待ってから送る。変わったページがなければ何もしない。読み取りだけで、シークレットは使わない（キーは公開のもの）。
+- Cloudflare の Crawler Hints（キャッシュのミスで送る）は、変わったページだけを送るものではない。ダッシュボードの設定なので、使うかはユーザーが決める。
+- 確かめたこと：`submit()` で、今日変わったクレジットのページを1件送り、IndexNow は 200 を返した。ワークフローそのものは main に入ってから初めて動く。
+- docs.unlibra.com：i18n-tiny と tkinter-unblur はそれぞれのデプロイのワークフローで、変わった `.md` から URL を決めて送る。docs.unlibra.com のトップと mururu のマニュアルは、unlibra.github.io のワークフローが Pages の公開のあとに、変わった HTML の本文を比べて送る。
