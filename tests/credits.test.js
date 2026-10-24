@@ -25,9 +25,9 @@ const { characters, materials, thirdPartyLicensesPath } =
 
 /**
  * The sources of section 2 of a LICENSE text, as the credits page shows
- * them: the name (the heading up to its first "("), the URL (the first one
- * in the heading), the license and its copyright holder (from the line
- * before "The full text is in"), and the listed files.
+ * them: the name (the heading up to its first "("), the license and its
+ * copyright holder (from the line before "The full text is in"), the
+ * license file (from that line), and the listed files.
  */
 const licenseSources = (text) => {
   const start = text.search(/^2\. /m);
@@ -57,16 +57,20 @@ const licenseSources = (text) => {
     );
     return {
       name: lines[0].split(" (")[0],
-      url: lines[0].match(/\((?:[^()]*, )?(https:\/\/[^,)\s]+)\)/)[1],
       license: holder ? license : license.replace(/\.$/, ""),
       holder,
+      licenseFile: lines[fullText].match(/(LICENSES\/\S+)\.$/)[1],
       files: [...block.matchAll(/^ {2}- (\S+)$/gm)].map((m) => m[1]),
     };
   });
 };
 
 /** The page's data for a source of LICENSE, without its author. */
-const shown = ({ name, url, license }) => ({ name, url, license });
+const shown = ({ name, license, licenseFile }) => ({
+  name,
+  license,
+  licenseFile,
+});
 
 test("ui-revise6 4: the credited materials are the sources of section 2 of LICENSE, in its order", () => {
   const sources = licenseSources(read("LICENSE"));
@@ -113,9 +117,9 @@ The full text is in LICENSES/Example-MIT.txt.
   const sources = licenseSources(added);
   assert.deepEqual(sources.at(-1), {
     name: "Example Icons 1.0",
-    url: "https://example.com/icons",
     license: "MIT License",
     holder: "Example.",
+    licenseFile: "LICENSES/Example-MIT.txt",
     files: ["src/components/icons/ExampleIcon.astro"],
   });
   assert.notDeepEqual(materials.map(shown), sources.map(shown));
@@ -177,7 +181,7 @@ test("ui-revise6 4, ui-revise7 9, ui-revise10: the credits page has its heading,
   assert.match(main, /<h2>グラフィック素材<\/h2>\s*<section[^>]*data-credit/);
 });
 
-test("ui-revise6 4: the credits page lists each graphic material with its author, license and page", () => {
+test("ui-revise6 4: the credits page lists each graphic material with its author, and its license linked to the full text", () => {
   const entries = [
     ...main.matchAll(/<section[^>]*data-credit[^>]*>([\s\S]*?)<\/section>/g),
   ].map(([, html]) => ({
@@ -194,7 +198,15 @@ test("ui-revise6 4: the credits page lists each graphic material with its author
     assert.equal(entry.author, credit.author, credit.name);
     assert.equal(entry.license, credit.license, credit.name);
     assert.equal(entry.links.length, 1, credit.name);
-    assert.match(entry.links[0], new RegExp(`href="${credit.url}"`));
+    // The license file of this repository, shown on GitHub.
+    assert.ok(existsSync(join(root, credit.licenseFile)), credit.licenseFile);
+    assert.ok(
+      entry.links[0].includes(
+        `href="https://github.com/unlibra/unlibra.com/blob/main/${credit.licenseFile}"`,
+      ),
+      credit.name,
+    );
+    assert.match(entry.links[0], /data-credit-license/);
     assert.match(entry.links[0], /target="_blank"/);
     assert.match(entry.links[0], /rel="noopener noreferrer"/);
   }

@@ -5,6 +5,7 @@
 import MarkdownLayout from "@/layouts/MarkdownLayout.astro";
 import {
   characters,
+  licenseUrl,
   materials,
   thirdPartyLicensesPath,
 } from "@/config/credits";
@@ -30,7 +31,7 @@ const frontmatter = {
   </ul>
 
   <h2>グラフィック素材</h2>
-  {materials.map(({ name, author, license, url }) => (
+  {materials.map(({ name, author, license, licenseFile }) => (
     <section data-credit>
       <h3 data-credit-name>{name}</h3>
       <ul>
@@ -38,17 +39,14 @@ const frontmatter = {
           著作者：<span data-credit-author>{author}</span>
         </li>
         <li>
-          ライセンス：<span data-credit-license>{license}</span>
-        </li>
-        <li>
-          参照先：
+          ライセンス：
           <a
-            href={url}
+            href={licenseUrl(licenseFile)}
             target="_blank"
             rel="noopener noreferrer"
-            class="break-all"
+            data-credit-license
           >
-            {url}
+            {license}
           </a>
         </li>
       </ul>
