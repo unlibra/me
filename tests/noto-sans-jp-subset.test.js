@@ -8,6 +8,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  FALLBACK_ATTRIBUTE,
   FAMILY,
   METRIC_OVERRIDES,
   STYLE_ATTRIBUTE,
@@ -26,6 +27,7 @@ if (!existsSync(join(dist, "index.html"))) {
 }
 
 const pages = globSync("**/*.html", { cwd: dist });
+const readDist = (path) => readFileSync(join(dist, path), "utf8");
 const sourceFaces = parseFontsourceCss(
   readFileSync(join(fontsource, "index.css"), "utf8"),
 );
@@ -68,6 +70,58 @@ test("SP-7: every page adds the cut files after its stylesheets, at the end of <
     assert.ok(style >= 0, page);
     assert.ok(head.lastIndexOf('rel="stylesheet"') < style, page);
     assert.match(head.slice(style), /^<style [^>]*>[^<]*<\/style>$/, page);
+  }
+});
+
+/** The stylesheets a page waits for: <link rel="stylesheet"> without media. */
+const blockingStylesheets = (html) =>
+  [...html.matchAll(/<link rel="stylesheet" href="([^"]+)"(?![^>]*media=)/g)]
+    .filter(
+      ({ index }) =>
+        html.lastIndexOf("<noscript>", index) <=
+        html.lastIndexOf("</noscript>", index),
+    )
+    .map(([, href]) => href);
+
+test("SP-14: the stylesheets that pages wait for have no Fontsource rules of Noto Sans JP and no inlined fonts", () => {
+  for (const page of pages) {
+    const html = readFileSync(join(dist, page), "utf8");
+    const hrefs = blockingStylesheets(html);
+    assert.ok(hrefs.length > 0, page);
+    for (const href of hrefs) {
+      const css = readFileSync(join(dist, href), "utf8");
+      assert.doesNotMatch(css, new RegExp(`font-family:\\s*["']?${FAMILY}`));
+    }
+  }
+  for (const file of globSync("_astro/*.css", { cwd: dist })) {
+    assert.doesNotMatch(readDist(file), /url\(["']?data:font/, file);
+  }
+});
+
+test("SP-14: every page links the Fontsource rules without waiting for them, before the cut files", () => {
+  for (const page of pages) {
+    const html = readFileSync(join(dist, page), "utf8");
+    const head = html.slice(0, html.indexOf("</head>"));
+    const link = head.match(
+      new RegExp(
+        `<link rel="stylesheet" href="(/_astro/noto-sans-jp-fallback\\.[0-9a-f]{8}\\.css)" media="print" onload="this\\.media='all'" ${FALLBACK_ATTRIBUTE}><noscript><link rel="stylesheet" href="\\1"></noscript>`,
+      ),
+    );
+    assert.ok(link, page);
+    // Earlier in the document, so the cut files win where both have a
+    // character (the order of the style sheets, CSS Fonts 4, 4.5).
+    assert.ok(link.index < head.indexOf(`<style ${STYLE_ATTRIBUTE}>`), page);
+    // The file has every Fontsource rule, with the metric overrides.
+    const rules = readDist(link[1].slice(1)).match(/@font-face\{[^}]*\}/g);
+    assert.equal(rules.length, sourceFaces.length, page);
+    for (const rule of rules) {
+      assert.ok(rule.includes(FAMILY), rule);
+      for (const [name, value] of Object.entries(METRIC_OVERRIDES)) {
+        assert.ok(rule.includes(`${name}:${value}`), rule);
+      }
+      const url = rule.match(/url\(([^)]+)\)/)[1];
+      assert.ok(existsSync(join(dist, url.slice(1))), url);
+    }
   }
 });
 
