@@ -261,6 +261,7 @@
   - E2E の配信は、ローカルと同じ `playwright.config.js` の `webServer`（`wrangler dev`）。`WRANGLER_SEND_METRICS=false` を渡す
   - どこかの手順が失敗したら、`playwright-report/` と `test-results/`（トレース・スクリーンショット）を成果物 `playwright-results` として14日残す（ファイルがなければ何もしない）
   - 上の条件（起動、手順と順序、Chromium だけ、読み取りだけの権限、シークレットなし、`actions/*` を SHA で固定）は `tests/workflow.test.js` がファイルの文面で確かめる。ワークフローを書き換えて条件を外れたら `npm test` が落ちる（条件を1つずつ壊して落ちることを確かめた）
+  - 2026-10-24 追記：ほかのワークフローへの当て方を変えた（自動マージのワークフローだけが書き込める。`docs/decisions/seo-perf-workflows/seo-perf-workflows.md` の SP-8）
 - 根拠：計画のブロック4と親の補足
 - 未検証：GitHub 上での実行（親が push して確かめる）。とくに、Linux のランナーで `wrangler dev`（`workerd`）が起動すること、`npm ci` の時点で `workerd`・`esbuild` の install スクリプトが動くこと（ローカルの npm は「allowScripts で許可されていない install スクリプトがある」と警告を出すが、ローカルでは `wrangler dev` は動いている）
 - 他の選択肢：ジョブを単体テストと E2E に分ける（ビルドが2回になるか、成果物で `dist/` を受け渡すことになる）。Playwright の公式の Docker イメージを使う（`actions/*` だけという条件の外になる）
