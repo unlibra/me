@@ -4,6 +4,9 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import tailwindcss from "@tailwindcss/vite";
 
+import notoSansJpSubset, {
+  METRIC_OVERRIDES,
+} from "./scripts/noto-sans-jp-subset.mjs";
 import thirdPartyLicenses from "./scripts/third-party-licenses.mjs";
 
 /**
@@ -24,7 +27,10 @@ const notoSansJpMetrics = () => ({
     }
     return code.replaceAll(
       "@font-face {",
-      "@font-face {\n  ascent-override: 109.4%;\n  descent-override: 35.4%;",
+      "@font-face {\n" +
+        Object.entries(METRIC_OVERRIDES)
+          .map(([name, value]) => `  ${name}: ${value};`)
+          .join("\n"),
     );
   },
 });
@@ -33,7 +39,7 @@ const notoSansJpMetrics = () => ({
 export default defineConfig({
   site: "https://unlibra.com",
   trailingSlash: "never",
-  integrations: [react(), sitemap(), thirdPartyLicenses()],
+  integrations: [react(), sitemap(), thirdPartyLicenses(), notoSansJpSubset()],
   vite: {
     plugins: [notoSansJpMetrics(), tailwindcss()],
     build: {

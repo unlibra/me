@@ -21,7 +21,9 @@ interface Props {
 }
 
 const { work } = Astro.props;
-// The photo is decorative: the title is the heading next to it.
+// The photo is decorative: the title is the heading next to it. It comes in
+// the size it is shown at (one of 3 columns of the 7xl layout from lg, 2 from
+// sm, else the full width).
 const { summary } = messages.works[work.id];
 ---
 
@@ -39,6 +41,8 @@ const { summary } = messages.works[work.id];
       src={work.image}
       alt=""
       class="size-full object-cover object-center"
+      widths={[400, 600, 800, 1200]}
+      sizes="(min-width: 1024px) 400px, (min-width: 640px) 50vw, 100vw"
     />
   </div>
   <div class="flex flex-1 flex-col gap-2 p-4">
