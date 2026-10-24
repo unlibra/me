@@ -4,12 +4,11 @@
 // fails here. Run after `npm run build`.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, globSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { LICENSES_FILE } from "../scripts/third-party-licenses.mjs";
-import { nameOf, woff2Tables } from "./helpers/woff2.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -21,7 +20,7 @@ if (!existsSync(join(dist, "index.html"))) {
 const read = (path) =>
   readFileSync(join(root, path), "utf8").replace(/\r\n/g, "\n");
 
-const { characters, fonts, materials, thirdPartyLicensesPath } =
+const { characters, materials, thirdPartyLicensesPath } =
   await import("../src/config/credits.ts");
 
 /**
@@ -139,31 +138,6 @@ Public domain.
   assert.throws(() => licenseSources(added), /no license file for "Example/);
 });
 
-test("ui-revise6 4: the credited fonts are the font packages, with their license, page and copyright holder", () => {
-  const pkg = JSON.parse(read("package.json"));
-  const fontPackages = Object.keys({
-    ...pkg.dependencies,
-    ...pkg.devDependencies,
-  }).filter((name) => /^@fontsource(-variable)?\//.test(name));
-  assert.deepEqual(fonts.map((f) => f.package).sort(), fontPackages.sort());
-  for (const font of fonts) {
-    const dir = join(root, "node_modules", font.package);
-    const meta = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
-    assert.equal(meta.license, "OFL-1.1", font.name);
-    assert.equal(font.license, "SIL Open Font License 1.1", font.name);
-    assert.equal(font.url, meta.homepage, font.name);
-    // The copyright notice in the font files (name ID 0) names the author.
-    const file = globSync("files/*.woff2", { cwd: dir }).sort()[0];
-    const notice = nameOf(woff2Tables(readFileSync(join(dir, file))).name, 0);
-    assert.ok(notice.includes(font.author), `${font.name}: ${notice}`);
-    // The family name of the font starts with the credited name (the
-    // variable Noto Sans JP is named after its default instance, "Thin").
-    const names = woff2Tables(readFileSync(join(dir, file))).name;
-    const family = nameOf(names, 16) ?? nameOf(names, 1);
-    assert.match(family, new RegExp(`^${font.name}( |$)`), font.name);
-  }
-});
-
 /** Text of an HTML fragment, without tags and with spaces collapsed. */
 const textOf = (html) =>
   html
@@ -187,7 +161,7 @@ test("ui-revise6 4, ui-revise7 9, ui-revise10: the credits page has its heading,
   const headings = [...main.matchAll(/<h2>([^<]*)<\/h2>/g)].map((m) => m[1]);
   assert.deepEqual(headings, [
     "キャラクター",
-    "その他の素材・ライセンス",
+    "グラフィック素材",
     "オープンソースライセンス",
   ]);
   const list = main.match(/<ul[^>]*data-credits-characters[\s\S]*?<\/ul>/)[0];
@@ -200,13 +174,10 @@ test("ui-revise6 4, ui-revise7 9, ui-revise10: the credits page has its heading,
   assert.doesNotMatch(list, /© /);
   // ui-revise8 2: no paragraph under the materials' heading.
   assert.ok(!main.includes("必要に応じて"));
-  assert.match(
-    main,
-    /<h2>その他の素材・ライセンス<\/h2>\s*<section[^>]*data-credit/,
-  );
+  assert.match(main, /<h2>グラフィック素材<\/h2>\s*<section[^>]*data-credit/);
 });
 
-test("ui-revise6 4: the credits page lists each material and font with its author, license and page", () => {
+test("ui-revise6 4: the credits page lists each graphic material with its author, license and page", () => {
   const entries = [
     ...main.matchAll(/<section[^>]*data-credit[^>]*>([\s\S]*?)<\/section>/g),
   ].map(([, html]) => ({
@@ -215,7 +186,7 @@ test("ui-revise6 4: the credits page lists each material and font with its autho
     license: textOf(html.match(/data-credit-license[^>]*>([^<]*)</)[1]),
     links: [...html.matchAll(/<a\s[^>]*>/g)].map((m) => m[0]),
   }));
-  const expected = [...materials, ...fonts];
+  const expected = materials;
   assert.equal(entries.length, expected.length);
   for (const [i, credit] of expected.entries()) {
     const entry = entries[i];

@@ -318,4 +318,4 @@
 - 理由：移行は済み、戻る見込みが低い。一度通れば価値が小さい（docs/decisions/seo-perf-workflows/seo-perf-workflows.md、SP-9）
 - 残したもの：旧 URL のリダイレクトと 404 のテスト（今も配信している動作）
 - 本番確認の `x-vercel-id` の検査（`scripts/check-prod.mjs`、TS-8）も消した（ユーザーの決定。Vercel は使わず、コードにもない）
-- ui-revise7 8' は、Tabler Icons の版を 3.49.0 に固定して確かめるのをやめ、入っている版と、LICENSE・クレジット・アイコンのコメントに書いた版、`LICENSES/Tabler-MIT.txt` と著作権の行がパッケージのものと一致することを確かめる形にした（ユーザーの決定）。版を上げたら、書いた版を直さないと落ちる
+- ui-revise7 8' は、Tabler Icons の版を 3.49.0 に固定して確かめるのをやめた。版は書かず、Tabler は更新しない（SP-10）

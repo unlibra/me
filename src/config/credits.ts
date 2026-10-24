@@ -17,7 +17,7 @@ export const characters = [{ name: "ムルル", rights: "©Lethal Cats" }] as co
 /** The material by other authors listed in section 2 of LICENSE, in its order. */
 export const materials: readonly Credit[] = [
   {
-    name: "Tabler Icons 3.49.0",
+    name: "Tabler Icons",
     author: "Paweł Kuna",
     license: "MIT License",
     url: "https://tabler.io/icons",
@@ -27,34 +27,6 @@ export const materials: readonly Credit[] = [
     author: "DiceBear",
     license: "CC0 1.0 Universal",
     url: "https://www.dicebear.com",
-  },
-];
-
-/**
- * The fonts the site ships (LICENSE, section 4). The author is the copyright
- * holder in the font files; the URL is the npm package's page.
- */
-export const fonts: readonly (Credit & { package: string })[] = [
-  {
-    name: "Noto Sans JP",
-    package: "@fontsource-variable/noto-sans-jp",
-    author: "Adobe",
-    license: "SIL Open Font License 1.1",
-    url: "https://fontsource.org/fonts/noto-sans-jp",
-  },
-  {
-    name: "LINE Seed JP",
-    package: "@fontsource/line-seed-jp",
-    author: "LY Corporation",
-    license: "SIL Open Font License 1.1",
-    url: "https://fontsource.org/fonts/line-seed-jp",
-  },
-  {
-    name: "Geist Mono",
-    package: "@fontsource/geist-mono",
-    author: "The Geist Project Authors",
-    license: "SIL Open Font License 1.1",
-    url: "https://fontsource.org/fonts/geist-mono",
   },
 ];
 

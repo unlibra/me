@@ -16,6 +16,11 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    # Tabler Icons stay as they are: the icons are copied from this version,
+    # and an update could change how they look (SP-10).
+    ignore:
+      - dependency-name: "@tabler/icons"
+      - dependency-name: "@tabler/icons-react"
 
   # The actions are pinned to commits, with the release tag in a comment;
   # Dependabot updates both.

@@ -153,7 +153,7 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
   const links = hero.slice(hero.indexOf("</h1>"));
   // The GitHub mark as in the former footer (GitHubIcon.astro), and
   // a box (chosen in ui-revise5; Tabler Icons "box" from @tabler/icons
-  // 3.49.0 since ui-revise7 8') as it is in the package.
+  // since ui-revise7 8') as it is in the package.
   assert.match(links, /viewBox="0 0 98 96"[^>]*data-icon="github"/);
   const tablerBox = readFileSync(
     join(root, "node_modules/@tabler/icons/icons/outline/box.svg"),
@@ -946,7 +946,7 @@ test("ui-revise4 2, ui-revise5 2, 6, ui-revise7 8': the actions have the up-righ
   for (const chevron of CHEVRONS) {
     assert.ok(!main.includes(chevron), `no chevron in main: ${chevron}`);
   }
-  // Tabler Icons "arrow-up-right" from @tabler/icons 3.49.0, in place of
+  // Tabler Icons "arrow-up-right" from @tabler/icons, in place of
   // Lucide "move-up-right" (ui-revise7 8') and Heroicons "arrow-up-right"
   // (ui-revise5 6).
   for (const former of FORMER_ARROWS) {

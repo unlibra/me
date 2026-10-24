@@ -23,7 +23,7 @@ import {
   LICENSES_FILE,
   OUTSIDE_MODULE_GRAPH,
   PREBUNDLED,
-  findDependencyDirs,
+  bundledDependencies,
   packageOfModule,
   packageOfPath,
   readLicense,
@@ -128,21 +128,26 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
   );
 });
 
-test("H4: packages that svgo bundles at two versions are listed at both", () => {
-  // css-tree 3 for svgo itself, css-tree 2 under csso (with their mdn-data).
-  const listed = listedPackages().map((p) => `${p.name} ${p.version}`);
-  for (const entry of [
-    "css-tree 2.2.1",
-    "css-tree 3.2.1",
-    "mdn-data 2.0.28",
-    "mdn-data 2.27.1",
-  ]) {
-    assert.ok(listed.includes(entry), entry);
+test("H4: every package that a prebuilt bundle contains is listed, at each of its versions", () => {
+  const listed = listedPackages().map((p) => `${p.name}@${p.version}`);
+  for (const [name, { file, exclude }] of Object.entries(PREBUNDLED)) {
+    const dir = join(root, "node_modules", name);
+    const { version } = JSON.parse(
+      readFileSync(join(dir, "package.json"), "utf8"),
+    );
+    for (const spec of bundledDependencies(dir, exclude).keys()) {
+      assert.ok(listed.includes(spec), spec);
+      const at = spec.lastIndexOf("@");
+      assert.ok(
+        sectionOf(spec.slice(0, at), spec.slice(at + 1)).includes(
+          `part of ${name} ${version} (${file})`,
+        ),
+        spec,
+      );
+    }
   }
-  assert.match(
-    sectionOf("css-tree", "2.2.1"),
-    /^Included as: part of svgo 4\.1\.0 /m,
-  );
+  // svgo bundles css-tree at two versions (its own and csso's).
+  assert.equal(listedPackages().filter((p) => p.name === "css-tree").length, 2);
 });
 
 test("H4: the bundler's runtime helpers are listed", () => {
@@ -152,8 +157,8 @@ test("H4: the bundler's runtime helpers are listed", () => {
 
 test("H4: license expressions are not wrapped in a second pair of parentheses", () => {
   assert.doesNotMatch(list, /\(\(/);
-  assert.match(list, /^ {2}- jszip 3\.10\.2 \(MIT OR GPL-3\.0-or-later\)$/m);
-  assert.match(list, /^ {2}- react 19\.3\.1 \(MIT\)$/m);
+  assert.match(list, /^ {2}- jszip \S+ \(MIT OR GPL-3\.0-or-later\)$/m);
+  assert.match(list, /^ {2}- react \S+ \(MIT\)$/m);
 });
 
 test("H5: no build-only package is in the list", () => {
@@ -277,12 +282,8 @@ test("the reasons for the hand-listed packages still hold", () => {
   // Tailwind's preflight
   assert.match(css, /box-sizing:border-box;border:0 solid;margin:0;padding:0/);
 
-  // PREBUNDLED: the bundles are shipped, at the versions that were checked.
-  for (const [name, { version, file }] of Object.entries(PREBUNDLED)) {
-    const installed = JSON.parse(
-      readFileSync(join(root, "node_modules", name, "package.json"), "utf8"),
-    ).version;
-    assert.equal(installed, version, name);
+  // PREBUNDLED: the bundles are shipped.
+  for (const [name, { file }] of Object.entries(PREBUNDLED)) {
     const base = file.split("/").pop().replace(/\.js$/, "");
     assert.equal(
       globSync(`_astro/${base}.*.js`, { cwd: dist }).length,
@@ -324,18 +325,23 @@ test("H7: LICENSE section 4 points to the list on the website", () => {
   assert.match(section4, /scripts\/third-party-licenses\.mjs/);
 });
 
-test("findDependencyDirs finds each name@version, also when nested", () => {
+test("bundledDependencies finds each name@version, also when nested, without the excluded ones and theirs", () => {
   const svgo = join(root, "node_modules", "svgo");
-  const found = findDependencyDirs(svgo, ["css-tree@3.2.1", "css-tree@2.2.1"]);
-  assert.equal(found.size, 2);
-  assert.match(
-    found.get("css-tree@2.2.1").replaceAll("\\", "/"),
-    /node_modules\/csso\/node_modules\/css-tree$/,
-  );
-  assert.throws(
-    () => findDependencyDirs(svgo, ["css-tree@9.9.9"]),
-    /css-tree@9\.9\.9/,
-  );
+  const found = bundledDependencies(svgo, PREBUNDLED.svgo.exclude);
+  const dirs = [...found.values()].map((dir) => dir.replaceAll("\\", "/"));
+  assert.ok(dirs.some((d) => /\/node_modules\/css-tree$/.test(d)));
+  assert.ok(dirs.some((d) => /\/csso\/node_modules\/css-tree$/.test(d)));
+  const names = (map) =>
+    [...map.keys()].map((spec) => spec.slice(0, spec.lastIndexOf("@")));
+  assert.ok(names(found).includes("css-select"));
+  assert.ok(!names(found).includes("commander"));
+  // An excluded package's own dependencies go with it.
+  const jszip = join(root, "node_modules", "jszip");
+  assert.ok(names(bundledDependencies(jszip)).includes("util-deprecate"));
+  const without = names(bundledDependencies(jszip, ["readable-stream"]));
+  assert.ok(!without.includes("readable-stream"));
+  assert.ok(!without.includes("util-deprecate"));
+  assert.ok(without.includes("pako"));
 });
 
 test("packageOfModule maps known virtual modules and stops on unknown ones", () => {

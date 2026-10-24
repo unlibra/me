@@ -79,4 +79,12 @@ I5 は `docs/decisions/tests/plan.md` のブロック4の条件で、push と pu
 
 本番確認の `x-vercel-id` の検査も消した（ユーザーの決定）。
 
-Tabler Icons のテストは、版の固定から、入っている版と書いた版・著作権表示の一致に変えた（TS-12）。`PREBUNDLED`（svgo と JSZip の版）は、手で確かめたバンドルの中身がその版のものだという印なので、まだ変えていない。扱いはユーザーに確認する。
+版を固定して確かめていたもの（Tabler Icons、`PREBUNDLED`）は SP-10 のとおり変えた。
+
+## SP-10 クレジットとライセンスの表記を版から切り離した（ユーザーの決定）
+
+- クレジットのページ：見出し「その他の素材・ライセンス」を「グラフィック素材」に変え、載せるのは LICENSE の2章の素材（Tabler Icons と DiceBear）だけにした。フォントは載せない（`/third-party-licenses.txt` に、ビルドから自動で載る）。`src/config/credits.ts` の `fonts` と、そのテストを消した。
+- Tabler Icons：版を書かない（LICENSE、クレジット、アイコンのコメント）。MIT は版の表記を求めず、コピーした分のライセンスは変わらない。`@tabler/icons` と `@tabler/icons-react` は更新しない（`.github/dependabot.yml` の `ignore`）。いつの間にか絵柄が変わるのを避けるため。テストは、`LICENSES/Tabler-MIT.txt` と著作権の行がパッケージのものと一致すること、コピーしたアイコンがパッケージと同じであることを確かめる。
+- `PREBUNDLED`（svgo と JSZip）：同梱するパッケージを手で書くのをやめ、依存関係（間接のもの、すべての版）から集める（`bundledDependencies`）。手で書くのは、バンドルに入らない依存（svgo の `commander`・`picocolors`、JSZip の `readable-stream`）だけで、その依存の依存も除く。版が上がっても、増えた依存は自動で載る。バンドルにない依存が載ることはありうるが、害はない（FX-8 と同じ考え）。除いた依存が、のちにバンドルに入るようになっても気づけない（限界）。変更の時点で、集めた一覧は手で書いた一覧と同じだった。
+- テストの版の固定（jszip と react の版、css-tree と mdn-data の版、svgo の版）は、入っている版から読むようにした。
+- 残り：`LICENSE_NOTES` の `@fontsource/line-seed-jp@5.3.2` と `LICENSE_FALLBACKS` の `boolbase@1.0.0` は、キーに版を含む。前者はロゴ用に削ったフォント（`src/assets/fonts/`、コミット済み）の元の版なので、上げるとテストが落ちる。扱いはユーザーに確認する。

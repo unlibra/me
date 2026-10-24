@@ -326,38 +326,19 @@ test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as mate
   }
 });
 
-test("ui-revise7 8': the version and copyright of Tabler Icons are the installed ones; the copied icons are as in @tabler/icons", () => {
+test("ui-revise7 8': the copyright of Tabler Icons is the package's; the copied icons are as in @tabler/icons", () => {
   // The tools use @tabler/icons-react, the Astro parts copies from
-  // @tabler/icons: both at one version, which LICENSE, the credits and the
-  // icons' comments name.
-  const version = JSON.parse(
-    read("node_modules/@tabler/icons/package.json"),
-  ).version;
-  assert.equal(
-    JSON.parse(read("node_modules/@tabler/icons-react/package.json")).version,
-    version,
-  );
-  const v = version.replaceAll(".", "\\.");
+  // @tabler/icons. Neither is updated (.github/dependabot.yml), and no
+  // version is written (SP-10 in docs/decisions/seo-perf-workflows).
   // The license text and its copyright line, as in the package.
   const packageLicense = read("node_modules/@tabler/icons/LICENSE");
   assert.equal(read("LICENSES/Tabler-MIT.txt"), packageLicense);
   const holder = packageLicense.match(/^Copyright \(c\) (.+)$/m)[1];
   assert.ok(license.includes(`Copyright (c) ${holder}.`), "LICENSE");
-  assert.match(
-    read("src/config/credits.ts"),
-    new RegExp(`"Tabler Icons ${v}"`),
-  );
-  assert.match(
-    read("src/components/ui/icons.tsx"),
-    new RegExp(`^// The icons of the tools: Tabler Icons ${v} `),
-  );
   const tabler = thirdPartySources().find((s) =>
     s.heading.startsWith("Tabler Icons "),
   );
-  assert.match(
-    tabler.heading,
-    new RegExp(`^Tabler Icons ${v} .*@tabler/icons$`),
-  );
+  assert.match(tabler.heading, /^Tabler Icons \(https:.*@tabler\/icons$/);
   const icons = {
     "src/components/icons/ArrowUpRightIcon.astro": "arrow-up-right",
     "src/components/icons/BoxIcon.astro": "box",
@@ -377,7 +358,7 @@ test("ui-revise7 8': the version and copyright of Tabler Icons are the installed
   for (const [file, name] of Object.entries(icons)) {
     const head = headOf(file);
     const comment = head.replace(/\s*\/\/\s*/g, " ");
-    assert.ok(comment.includes(`@tabler/icons ${version} `), file);
+    assert.ok(comment.includes("@tabler/icons (icons/outline/"), file);
     assert.ok(comment.includes(`Copyright (c) ${holder}.`), file);
     assert.ok(head.includes(`icons/outline/${name}.svg`), file);
     // The paths as they are in the package (outline, stroke width 2).
