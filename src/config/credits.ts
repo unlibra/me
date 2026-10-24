@@ -1,14 +1,17 @@
 // The credits page (/credits, ui-revise6 4). The materials by other authors
 // are those of section 2 of LICENSE, which is the source of truth: each entry
-// has the name, the copyright holder, the license and the URL written there
-// (tests/credits.test.js finds a source in LICENSE that is missing here).
+// has the name, the copyright holder, the license and the license file
+// written there (tests/credits.test.js finds a source in LICENSE that is
+// missing here).
+import { site } from "./site.ts";
 
-/** One credit: the material's name, its author, its license and its page. */
+/** One credit: the material's name, its author and its license. */
 export interface Credit {
   name: string;
   author: string;
   license: string;
-  url: `https://${string}`;
+  /** The license's full text in this repository (LICENSES/). */
+  licenseFile: `LICENSES/${string}`;
 }
 
 /** The characters in the site's images. */
@@ -20,15 +23,19 @@ export const materials: readonly Credit[] = [
     name: "Tabler Icons",
     author: "Paweł Kuna",
     license: "MIT License",
-    url: "https://tabler.io/icons",
+    licenseFile: "LICENSES/Tabler-MIT.txt",
   },
   {
     name: 'DiceBear "Shapes" and "Planets"',
     author: "DiceBear",
     license: "CC0 1.0 Universal",
-    url: "https://www.dicebear.com",
+    licenseFile: "LICENSES/CC0-1.0.txt",
   },
 ];
+
+/** Where a license file of this repository is shown on GitHub. */
+export const licenseUrl = (file: Credit["licenseFile"]) =>
+  `${site.links.github}/unlibra.com/blob/main/${file}`;
 
 /** The list of the npm packages in the build output, with their licenses. */
 export const thirdPartyLicensesPath = "/third-party-licenses.txt";
