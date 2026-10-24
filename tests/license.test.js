@@ -326,23 +326,38 @@ test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as mate
   }
 });
 
-test("ui-revise7 8': the icons are Tabler Icons 3.49.0, pinned; the copied ones are as in @tabler/icons", () => {
-  const pkg = JSON.parse(read("package.json"));
-  // Pinned: the version in LICENSE and in the icons' comments is the one
-  // installed. The tools use @tabler/icons-react, the Astro parts copies
-  // from @tabler/icons.
-  assert.equal(pkg.dependencies["@tabler/icons-react"], "3.49.0");
-  assert.equal(pkg.devDependencies["@tabler/icons"], "3.49.0");
-  for (const name of ["@tabler/icons", "@tabler/icons-react"]) {
-    const installed = JSON.parse(
-      read(`node_modules/${name}/package.json`),
-    ).version;
-    assert.equal(installed, "3.49.0", name);
-  }
+test("ui-revise7 8': the version and copyright of Tabler Icons are the installed ones; the copied icons are as in @tabler/icons", () => {
+  // The tools use @tabler/icons-react, the Astro parts copies from
+  // @tabler/icons: both at one version, which LICENSE, the credits and the
+  // icons' comments name.
+  const version = JSON.parse(
+    read("node_modules/@tabler/icons/package.json"),
+  ).version;
+  assert.equal(
+    JSON.parse(read("node_modules/@tabler/icons-react/package.json")).version,
+    version,
+  );
+  const v = version.replaceAll(".", "\\.");
+  // The license text and its copyright line, as in the package.
+  const packageLicense = read("node_modules/@tabler/icons/LICENSE");
+  assert.equal(read("LICENSES/Tabler-MIT.txt"), packageLicense);
+  const holder = packageLicense.match(/^Copyright \(c\) (.+)$/m)[1];
+  assert.ok(license.includes(`Copyright (c) ${holder}.`), "LICENSE");
+  assert.match(
+    read("src/config/credits.ts"),
+    new RegExp(`"Tabler Icons ${v}"`),
+  );
+  assert.match(
+    read("src/components/ui/icons.tsx"),
+    new RegExp(`^// The icons of the tools: Tabler Icons ${v} `),
+  );
   const tabler = thirdPartySources().find((s) =>
     s.heading.startsWith("Tabler Icons "),
   );
-  assert.match(tabler.heading, /^Tabler Icons 3\.49\.0 .*@tabler\/icons$/);
+  assert.match(
+    tabler.heading,
+    new RegExp(`^Tabler Icons ${v} .*@tabler/icons$`),
+  );
   const icons = {
     "src/components/icons/ArrowUpRightIcon.astro": "arrow-up-right",
     "src/components/icons/BoxIcon.astro": "box",
@@ -361,7 +376,9 @@ test("ui-revise7 8': the icons are Tabler Icons 3.49.0, pinned; the copied ones 
     );
   for (const [file, name] of Object.entries(icons)) {
     const head = headOf(file);
-    assert.match(head, /@tabler\/icons 3\.49\.0/, file);
+    const comment = head.replace(/\s*\/\/\s*/g, " ");
+    assert.ok(comment.includes(`@tabler/icons ${version} `), file);
+    assert.ok(comment.includes(`Copyright (c) ${holder}.`), file);
     assert.ok(head.includes(`icons/outline/${name}.svg`), file);
     // The paths as they are in the package (outline, stroke width 2).
     const source = read(`node_modules/@tabler/icons/icons/outline/${name}.svg`);

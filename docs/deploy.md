@@ -189,7 +189,7 @@ Cloudflare が DNS レコードと証明書を作る。証明書が発行され�
 
 ### 6.1 自動の確認（親）
 
-`npm run check:prod -- https://unlibra.com` を行う。全ページの 200、旧 URL の 301、`_headers` のヘッダー、`x-vercel-id` がないことなどを確かめる。失敗したら、表示されるヒントと4章を見る。
+`npm run check:prod -- https://unlibra.com` を行う。全ページの 200、旧 URL の 301、`_headers` のヘッダーなどを確かめる。失敗したら、表示されるヒントと4章を見る。
 
 `check:prod` が確かめること：
 
@@ -197,7 +197,6 @@ Cloudflare が DNS レコードと証明書を作る。証明書が発行され�
 - サイトマップに載っている全ページ（トップ、クレジット、プライバシーポリシー、3つのツールの日英）が 200
 - `public/_redirects` の旧 URL が 301 で決まった行き先に転送される
 - `public/_headers` のヘッダーが付く
-- どのレスポンスにも `x-vercel-id` が付いていない
 
 `check:prod` が見ないので、手で確かめるもの（`curl -sI` で 200 を見る）：
 

@@ -316,4 +316,6 @@
 
 - 消したテスト：A4（Vercel の文字列）、A5（ミラー用の環境変数名）、C6 の「IBM Plex が残っていない」、C5 の「旧 OGP の枠の画像がない」、D5 の「unlibra.github.io の URL がない」、D6 の2件（消した作品と X 風の文言・部品）、ui-revise13 1（旧い色の名前）、remove-tw-palette の「ビルドに痕跡がない」、ui-revise7 8' のうち「Heroicons と Lucide がない」の部分、F5 のうち README の旧い語の検査（LICENSE へのリンクの確認は残した）
 - 理由：移行は済み、戻る見込みが低い。一度通れば価値が小さい（docs/decisions/seo-perf-workflows/seo-perf-workflows.md、SP-9）
-- 残したもの：旧 URL のリダイレクトと 404 のテスト（今も配信している動作）。本番確認の `x-vercel-id` の検査（`scripts/check-prod.mjs`、TS-8）はテストでなく本番の検査なので、今回は触っていない
+- 残したもの：旧 URL のリダイレクトと 404 のテスト（今も配信している動作）
+- 本番確認の `x-vercel-id` の検査（`scripts/check-prod.mjs`、TS-8）も消した（ユーザーの決定。Vercel は使わず、コードにもない）
+- ui-revise7 8' は、Tabler Icons の版を 3.49.0 に固定して確かめるのをやめ、入っている版と、LICENSE・クレジット・アイコンのコメントに書いた版、`LICENSES/Tabler-MIT.txt` と著作権の行がパッケージのものと一致することを確かめる形にした（ユーザーの決定）。版を上げたら、書いた版を直さないと落ちる
