@@ -4,7 +4,7 @@
 /*
  * LINE Seed JP Bold with only the letters of the logotype "unlibra", made by
  * scripts/subset-brand-font.mjs from @fontsource/line-seed-jp (SIL Open Font
- * License 1.1). Other text in font-brand falls back to Noto Sans JP.
+ * License 1.1) when the build starts. Other text in font-brand falls back to Noto Sans JP.
  */
 @font-face {
   font-family: "LINE Seed JP";

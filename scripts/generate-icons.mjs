@@ -3,7 +3,8 @@
 //   npm run generate:icons
 //
 // Inputs:  src/assets/brand/symbol.svg, the logotype font
-//   src/assets/fonts/line-seed-jp-unlibra-700.woff2 (npm run generate:brand-font)
+//   src/assets/fonts/line-seed-jp-unlibra-700.woff2 (made here from the
+//   installed @fontsource/line-seed-jp, as the build does)
 // Outputs (committed): public/icon.svg, public/favicon.ico,
 //   public/apple-touch-icon.png, public/ogp.png
 import { readFileSync, writeFileSync } from "node:fs";
@@ -11,7 +12,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
-import { BRAND_FONT_FILE } from "./subset-brand-font.mjs";
+import { writeBrandFont } from "./subset-brand-font.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = join(root, "public");
@@ -21,7 +22,7 @@ const symbolSvg = readFileSync(join(root, "src/assets/brand/symbol.svg"));
 const symbolColor = "#27272a";
 
 /** The logotype's font: LINE Seed JP Bold with the letters of "unlibra". */
-const fontFile = join(root, BRAND_FONT_FILE);
+const { file: fontFile } = await writeBrandFont();
 
 /** Rasterizes the symbol to a square PNG of the given size. */
 const symbolPng = (size) =>

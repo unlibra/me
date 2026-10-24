@@ -88,3 +88,10 @@ I5 は `docs/decisions/tests/plan.md` のブロック4の条件で、push と pu
 - `PREBUNDLED`（svgo と JSZip）：同梱するパッケージを手で書くのをやめ、依存関係（間接のもの、すべての版）から集める（`bundledDependencies`）。手で書くのは、バンドルに入らない依存（svgo の `commander`・`picocolors`、JSZip の `readable-stream`）だけで、その依存の依存も除く。版が上がっても、増えた依存は自動で載る。バンドルにない依存が載ることはありうるが、害はない（FX-8 と同じ考え）。除いた依存が、のちにバンドルに入るようになっても気づけない（限界）。変更の時点で、集めた一覧は手で書いた一覧と同じだった。
 - テストの版の固定（jszip と react の版、css-tree と mdn-data の版、svgo の版）は、入っている版から読むようにした。
 - `LICENSE_NOTES` と `LICENSE_FALLBACKS` のキーから版を外した（ユーザーの決定）。`LICENSE_FALLBACKS` の項目は、文の元にした `license` と `author` を持ち、入っている package.json と違えばビルドを止める（版が上がっても、この2つが同じなら文はそのまま正しい）。`LICENSE_NOTES` の LINE Seed JP の注記（フォントの著作権表示は「© LY Corporation」）は、テストが、配信するフォントと、入っているパッケージのフォントの両方で確かめる
+
+## SP-11 ロゴのフォントをビルドのたびに作る（ユーザーの決定）
+
+- `src/assets/fonts/line-seed-jp-unlibra-700.woff2`（LINE Seed JP Bold の「unlibra」の7文字）をリポジトリから消し、`.gitignore` に入れた。`scripts/subset-brand-font.mjs` が Astro のインテグレーションとして、ビルド（と開発サーバー）の始まり（`astro:config:setup`）に、入っているパッケージから作る。`scripts/generate-icons.mjs` も同じ関数で作ってから使う。`npm run generate:brand-font` は消した。
+- 残す文字はページから集めず、固定の `BRAND_FONT_TEXT`（"unlibra"）のまま。このフォントで表示する文字をページから見分けるのは手間に見合わない。
+- ライセンスの一覧には、従来どおり `DERIVED_ASSETS`（作るファイルのパスとパッケージの対応）で載る。パッケージの版が上がると、作るファイルも一覧の版も追従する。
+- 変更の時点で、作ったファイルはコミットしてあったものとバイト単位で同じだった。

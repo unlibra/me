@@ -15,7 +15,6 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "generate:icons": "node scripts/generate-icons.mjs",
-    "generate:brand-font": "node scripts/subset-brand-font.mjs",
     "test:e2e": "astro build && playwright test",
     "check:prod": "node scripts/check-prod.mjs"
   },
