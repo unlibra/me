@@ -18,8 +18,9 @@
 //
 // 4. moves the Fontsource rules out of the stylesheets into their own file
 //    (dist/_astro/noto-sans-jp-fallback.<hash>.css), linked before the
-//    added rules without blocking the first render (media="print", switched
-//    to "all" once loaded; SP-14).
+//    added rules once the page has loaded (SP-14, SP-15): it neither blocks
+//    the first render nor shares the network with the page's own requests,
+//    such as the LCP image.
 //
 // The Fontsource rules stay as a fallback. For a character, the browser
 // checks the faces of a family from the last defined (CSS Fonts 4, 4.5; the
@@ -80,9 +81,15 @@ export const splitFallbackRules = (stylesheets) => {
   return { rest, rules };
 };
 
-/** The link to the Fontsource rules: loaded without blocking the render. */
+/**
+ * The link to the Fontsource rules, added by a script once the page has
+ * loaded, in the script's place (so before the added rules, in document
+ * order). Without JavaScript, a plain link.
+ */
 export const fallbackLink = (href) =>
-  `<link rel="stylesheet" href="${href}" media="print" onload="this.media='all'" ${FALLBACK_ATTRIBUTE}>` +
+  `<script ${FALLBACK_ATTRIBUTE}>{const s=document.currentScript;` +
+  `addEventListener("load",()=>{const l=document.createElement("link");` +
+  `l.rel="stylesheet";l.href="${href}";s.before(l)},{once:true})}</script>` +
   `<noscript><link rel="stylesheet" href="${href}"></noscript>`;
 
 /** Printable ASCII: always kept, for what a visitor types. */
