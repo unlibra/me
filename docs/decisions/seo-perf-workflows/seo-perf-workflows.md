@@ -105,3 +105,13 @@ I5 は `docs/decisions/tests/plan.md` のブロック4の条件で、push と pu
 SP-6 で見送った CSP のうち、スクリプトとスタイルに関わらない3つだけを `public/_headers` の `/*` に足した：`frame-ancestors 'none'`（`X-Frame-Options: DENY` と同じ。古いブラウザのため X-Frame-Options も残す）、`object-src 'none'`（サイトに `<object>`・`<embed>` はない）、`base-uri 'self'`（`<base>` はない）。インラインのスクリプトや Cloudflare が差し込むスクリプトには影響しない。本番の定期チェック（`check-prod.mjs`）が `_headers` のとおりに送られているかを毎日確かめる。
 
 docs.unlibra.com（GitHub Pages）は Cloudflare を通らず GitHub から直接配信されていて、ヘッダーを足せない。`<meta>` の CSP では `frame-ancestors` が効かないため、入れていない。
+
+## SP-14 ページが待つスタイルシートからフォントの定義を外した（ユーザーの決定）
+
+PageSpeed Insights（本番、モバイル 90）で、全ページが待つスタイルシート（`BaseLayout.*.css`、gzip で 70 KB）が「レンダリングをブロックしているリクエスト」に挙がり、LCP の 2.7 秒のうち 1.66 秒が描画の遅れだった。中身の 9 割近くがフォントの定義だった。
+
+- Geist Mono：4 KB 未満のファイルが base64 でスタイルシートに埋め込まれていた（gzip で約 28 KB。使うのは寄付とパスワード生成のページだけ）。`astro.config.mjs` の `vite.build.assetsInlineLimit` で、フォントのファイルは埋め込まない。`scripts/third-party-licenses.mjs` が同じ設定を上書きしていた（派生ファイルを埋め込まないため）ので、プロジェクトの設定に判断を渡すようにした。
+- Noto Sans JP の Fontsource の定義（124 件、gzip で約 32 KB）：SP-7 の削ったファイルがページの文字をすべて持つので、予備でしかない。`scripts/noto-sans-jp-subset.mjs` がビルドの後にスタイルシートから外して `_astro/noto-sans-jp-fallback.<hash>.css` に書き、各ページの `<head>` で、削ったファイルの定義の前に `media="print"`（読み込んだら `all`）でリンクする（描画を待たない。JavaScript がないときは `<noscript>` の通常のリンク）。文書の中で前にあるので、両方にある文字は削ったファイルが使われる。
+- 結果：ページが待つスタイルシートは gzip で 70 KB から 10 KB。ブラウザで数えたフォントの読み込みは変わらない（トップページで元のファイル 0、クレジットだけ latin-ext、Geist Mono は使う2ページだけ）。Lighthouse（ローカル、HTTP/2、モバイル、3回の中央値）：DevTools のスロットリングで FCP 2.02 秒 → 1.62 秒、LCP 2.02 秒 → 1.68 秒、Performance 97 → 99。シミュレーションでは FCP 2.26 秒 → 1.82 秒、LCP 2.26 秒 → 2.49 秒（レンダリングをブロックする推定の遅れは 450 ms → 0）。
+- 見送り：「以前の JavaScript」（10 KB）と「キャッシュ期間」（4 KB）は Cloudflare Web Analytics のスクリプトで、サイトのコードは挙がっていない。
+- 注意：Astro の増分ビルドのキャッシュは、関数の設定（`assetsInlineLimit`）の変更では無効にならない。手元で設定を変えたら `dist/` と `node_modules/.astro` を消してからビルドする（CI は毎回まっさら）。

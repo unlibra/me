@@ -50,6 +50,11 @@ export default defineConfig({
   vite: {
     plugins: [notoSansJpMetrics(), tailwindcss()],
     build: {
+      // Font files stay files: inlined as base64, they made the stylesheet
+      // that every page waits for heavier with fonts that only a few pages
+      // use (SP-14). Other small assets keep Vite's default (4 KB).
+      assetsInlineLimit: (/** @type {string} */ file) =>
+        /\.(woff2?|ttf|otf)$/.test(file) ? false : undefined,
       rolldownOptions: {
         output: {
           minify: {

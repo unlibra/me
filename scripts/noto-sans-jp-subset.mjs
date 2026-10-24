@@ -16,11 +16,18 @@
 //    with the same descriptors and metric overrides as the Fontsource rules,
 //    and a unicode-range of exactly the characters each file holds.
 //
-// The Fontsource rules stay in the stylesheet. For a character, the browser
-// checks the faces of a family from the last defined (CSS Fonts 4, 4.5), so
-// the cut files win for the collected characters, and any other character
-// (a file name a visitor drops, for example) still loads its Fontsource
-// file. A file is downloaded only when the page shows one of its characters.
+// 4. moves the Fontsource rules out of the stylesheets into their own file
+//    (dist/_astro/noto-sans-jp-fallback.<hash>.css), linked before the
+//    added rules without blocking the first render (media="print", switched
+//    to "all" once loaded; SP-14).
+//
+// The Fontsource rules stay as a fallback. For a character, the browser
+// checks the faces of a family from the last defined (CSS Fonts 4, 4.5; the
+// order of the style sheets in the document, not the order they load in),
+// so the cut files win for the collected characters, and any other
+// character (a file name a visitor drops, for example) still loads its
+// Fontsource file. A file is downloaded only when the page shows one of its
+// characters.
 //
 // The cut files keep the font's name table, copyright and license URL (SIL
 // Open Font License 1.1, as the Fontsource files; LICENSES and
@@ -48,6 +55,35 @@ export const METRIC_OVERRIDES = {
 
 /** Marks the added rules in each page (tests/noto-sans-jp-subset.test.js). */
 export const STYLE_ATTRIBUTE = "data-noto-sans-jp-subset";
+
+/** Marks the link to the Fontsource rules in each page. */
+export const FALLBACK_ATTRIBUTE = "data-noto-sans-jp-fallback";
+
+/** The Fontsource rules in a built stylesheet (the family is not quoted). */
+const BUILT_RULE = new RegExp(
+  `@font-face\\{[^}]*font-family:\\s*["']?${FAMILY}["']?[;}][^}]*\\}`,
+  "g",
+);
+
+/**
+ * Moves the Fontsource rules out of the built stylesheets: returns each
+ * stylesheet without them, and the rules.
+ */
+export const splitFallbackRules = (stylesheets) => {
+  const rules = [];
+  const rest = stylesheets.map((css) =>
+    css.replace(BUILT_RULE, (rule) => {
+      rules.push(rule);
+      return "";
+    }),
+  );
+  return { rest, rules };
+};
+
+/** The link to the Fontsource rules: loaded without blocking the render. */
+export const fallbackLink = (href) =>
+  `<link rel="stylesheet" href="${href}" media="print" onload="this.media='all'" ${FALLBACK_ATTRIBUTE}>` +
+  `<noscript><link rel="stylesheet" href="${href}"></noscript>`;
 
 /** Printable ASCII: always kept, for what a visitor types. */
 const ASCII = Array.from({ length: 0x7f - 0x20 }, (_, i) =>
@@ -187,7 +223,28 @@ export default function notoSansJpSubset() {
           after += cut.length;
         }
 
-        const style = `<style ${STYLE_ATTRIBUTE}>${rules.join("")}</style>`;
+        const stylesheets = files.filter((file) =>
+          /[\\/]_astro[\\/][^\\/]+\.css$/.test(file),
+        );
+        const split = splitFallbackRules(
+          stylesheets.map((file) => readFileSync(file, "utf8")),
+        );
+        if (split.rules.length !== faces.length) {
+          throw new Error(
+            `expected ${faces.length} Fontsource rules in the stylesheets, found ${split.rules.length}`,
+          );
+        }
+        stylesheets.forEach((file, i) => writeFileSync(file, split.rest[i]));
+        const fallback = split.rules.join("");
+        const fallbackName = `noto-sans-jp-fallback.${createHash("sha256")
+          .update(fallback)
+          .digest("hex")
+          .slice(0, 8)}.css`;
+        writeFileSync(join(distDir, "_astro", fallbackName), fallback);
+
+        const style =
+          fallbackLink(`/_astro/${fallbackName}`) +
+          `<style ${STYLE_ATTRIBUTE}>${rules.join("")}</style>`;
         for (const page of pages) {
           const html = readFileSync(page, "utf8");
           if (!html.includes("</head>")) {

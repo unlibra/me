@@ -456,6 +456,9 @@ export default function thirdPartyLicenses() {
         projectRoot = fileURLToPath(config.root);
         site = config.site;
         if (!site) throw new Error(`${LICENSES_FILE}: config.site is not set`);
+        // The project's own limit (astro.config.mjs), which this one
+        // replaces, decides for the other assets.
+        const own = config.vite?.build?.assetsInlineLimit;
         updateConfig({
           vite: {
             plugins: [plugin],
@@ -463,8 +466,13 @@ export default function thirdPartyLicenses() {
               // Derived assets are always files (never inlined as data
               // URLs), so that the build output shows them and they are
               // listed.
-              assetsInlineLimit: (file) =>
-                isDerivedAsset(file, projectRoot) ? false : undefined,
+              assetsInlineLimit: (file, content) => {
+                if (isDerivedAsset(file, projectRoot)) return false;
+                if (typeof own === "function") return own(file, content);
+                return own === undefined
+                  ? undefined
+                  : content.length < Number(own);
+              },
             },
           },
         });
