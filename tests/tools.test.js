@@ -244,31 +244,6 @@ test("E5: tool texts have the same keys in ja and en", () => {
   }
 });
 
-test("remove-tw-palette: the build output has no trace of the TW Palette Generator", () => {
-  // The tool's ID, its names and texts that were in its messages (ja, en).
-  const traces = [
-    /tw-palette/i,
-    /twPalette/,
-    /TWパレット/,
-    /TW Palette/i,
-    /パレット/,
-    /Palette Generator/i,
-    /Palette History/i,
-    /Generated Palette/i,
-    /Tailwind Config/i,
-    /Tailwind設定/,
-    /tailwind-v3-colors/,
-  ];
-  const files = globSync("**/*.{html,js,css,txt,xml,json,svg}", { cwd: dist });
-  assert.ok(files.length > 20, "self-check: files found in dist/");
-  for (const file of files) {
-    const text = readDist(file);
-    for (const trace of traces) {
-      assert.doesNotMatch(text, trace, file);
-    }
-  }
-});
-
 // E4: the license boundary (decision P4-1).
 const eslint = new ESLint({ cwd: root });
 

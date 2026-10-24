@@ -2,9 +2,8 @@
 // Run `npm run build` before `npm test`.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { existsSync, globSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, sep } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -16,37 +15,6 @@ const readDist = (path) => readFileSync(join(dist, path), "utf8");
 if (!existsSync(join(dist, "index.html"))) {
   throw new Error("dist/ not found. Run `npm run build` before `npm test`.");
 }
-
-/** Text files in dist/ (posix-style paths relative to dist/). */
-const distTextFiles = () =>
-  globSync("**/*.{html,xml,txt,js,css,json}", { cwd: dist })
-    .concat(["_headers"])
-    .map((p) => p.split(sep).join("/"));
-
-/**
- * Source files: tracked and untracked-but-not-ignored files in the repository.
- * Excluded:
- * - docs/: design documents describe what is being removed
- * - tests/: these tests must name the strings they look for
- * - package-lock.json: generated; lists optional peer dependencies of
- *   third-party packages that we do not control
- * - binary files
- */
-const sourceTextFiles = () =>
-  execFileSync(
-    "git",
-    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-    { cwd: root, encoding: "utf8" },
-  )
-    .split("\0")
-    .filter(Boolean)
-    .filter((p) => existsSync(join(root, p)))
-    .filter((p) => !p.startsWith("docs/") && !p.startsWith("tests/"))
-    .filter((p) => p !== "package-lock.json")
-    .filter((p) => !/\.(png|webp|jpe?g|gif|ico|woff2?)$/i.test(p));
-
-const findOccurrences = (baseDir, files, pattern) =>
-  files.filter((p) => pattern.test(readFileSync(join(baseDir, p), "utf8")));
 
 /** Parses Cloudflare `_headers` into { path: { headerName: value } }. */
 const parseHeaders = (text) => {
@@ -117,51 +85,6 @@ test("A3: build output has no locale-prefixed pages", () => {
   const sitemap = readDist("sitemap-0.xml");
   assert.doesNotMatch(sitemap, /unlibra\.com\/ja\b/);
   assert.doesNotMatch(sitemap, /unlibra\.com\/en(?!\/lab\b)/);
-});
-
-test("A4: no Vercel references in build output and source", () => {
-  const pattern = /vercel/i;
-  // Geist Mono's copyright notice, which the list of the bundled packages
-  // must carry as it is, names its repository on GitHub (ui-revise7 3,
-  // UR7-3). Only that URL, and only in that list, is allowed.
-  const notice = /\(https:\/\/github\.com\/vercel\/geist-font\.git\)/g;
-  const distAllowed = { "third-party-licenses.txt": notice };
-  assert.ok(notice.test(readDist("third-party-licenses.txt")), "self-check");
-  assert.deepEqual(
-    distTextFiles().filter((p) =>
-      pattern.test(
-        readFileSync(join(dist, p), "utf8").replace(distAllowed[p] ?? /^$/, ""),
-      ),
-    ),
-    [],
-  );
-  // The production check (scripts/check-prod.mjs) makes sure responses do
-  // not come from Vercel by the absence of its x-vercel-id header, so that
-  // file may name the header, and only the header
-  // (docs/decisions/tests/tests.md, TS-8).
-  const allowed = { "scripts/check-prod.mjs": /x-vercel-id/g };
-  const sources = sourceTextFiles();
-  assert.ok(sources.includes("scripts/check-prod.mjs"));
-  assert.deepEqual(
-    sources.filter((p) =>
-      pattern.test(
-        readFileSync(join(root, p), "utf8").replace(allowed[p] ?? /^$/, ""),
-      ),
-    ),
-    [],
-  );
-
-  const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-  for (const field of ["dependencies", "devDependencies"]) {
-    assert.equal(pkg[field]?.["@vercel/analytics"], undefined, field);
-  }
-});
-
-test("A5: no mirror-site environment variables are referenced", () => {
-  const pattern =
-    /PUBLIC_SITE_URL|PUBLIC_SITE_TITLE|PUBLIC_PROFILE_NAME|PUBLIC_PROFILE_USERNAME|DISABLE_ROBOTS/;
-  assert.deepEqual(findOccurrences(dist, distTextFiles(), pattern), []);
-  assert.deepEqual(findOccurrences(root, sourceTextFiles(), pattern), []);
 });
 
 test("A6: robots.txt allows all and points to sitemap-index.xml", () => {
@@ -337,12 +260,6 @@ test("not-found: the planet and the stars are the DiceBear Planets SVG, split in
     /<svg [^>]*viewBox="0 0 100 100"[\s\S]*href="#planet-disc-3377a579"/,
   );
   assert.match(html, /background-image: ?url\(\/_astro\/stars\.[\w-]+\.svg\)/);
-});
-
-test("ui-revise13 1: the former color names logo-* and card-link are gone from the source and the build output", () => {
-  const pattern = /\b(?:logo-(?:light|medium|dark|accent)|card-link)\b/;
-  assert.deepEqual(findOccurrences(dist, distTextFiles(), pattern), []);
-  assert.deepEqual(findOccurrences(root, sourceTextFiles(), pattern), []);
 });
 
 test("ui-revise13 1, 2: the theme colors, the link colors and the catch copy's colors are tokens with their values", () => {

@@ -72,3 +72,9 @@ I5 は `docs/decisions/tests/plan.md` のブロック4の条件で、push と pu
 - すべてのワークフロー：`permissions` を一度だけ書く。Action は `actions/*` と `dependabot/*` だけで、コミットの SHA で固定する。
 - 書き込むワークフローはファイル名で列挙する（`WRITERS`、今は `dependabot-auto-merge.yml` だけ）。ほかは従来どおり、読み取りだけでシークレットを使わない。新しいワークフローは読み取りだけから始まる。
 - `dependabot-auto-merge.yml`：`on: pull_request` だけ（`pull_request_target` と `workflow_run` は使わない）、権限は `contents: write` と `pull-requests: write`、Dependabot のプルリクエストでだけ動く、シークレットは `GITHUB_TOKEN` だけ、プルリクエストのコードをチェックアウトしない。
+
+## SP-9 移行の後片付けのテストを消した（ユーザーの決定）
+
+移行の後に残りがないことだけを確かめるテスト（9件と、2件のテストの一部）を消した。一覧は docs/decisions/tests/tests.md の TS-12。単体テストは 264 件から 255 件になった。
+
+依存の版を固定して確かめるもの（Tabler Icons の 3.49.0、`PREBUNDLED` の svgo と JSZip の版）は、まだ変えていない。どちらも、版を書いた文（LICENSE、クレジット、アイコンのコメント）や、手で確かめたバンドルの中身が、入っている版と合っていることを守るためのもので、動作の確認では置き換えられない。扱いはユーザーに確認する。

@@ -311,3 +311,9 @@
 - 直し方：ドロップ領域が、受け口を付けた effect の中で状態を変え、外側の `div` に `data-drop-zone="ready"`（それまでは `"pending"`）を出す。テストの `waitForDropZone`（`helpers.js`）がそれを待つ。`dropFile` と、`favicon-generator.spec.js` の「final-review 2」（ドラッグを直接送るテスト。受け口がないと前半の「数えない」確認が素通りで通ってしまう）で使う
 - 時間で待つ・再試行するのではなく、受け口が付いたことそのものを待つので、原因を隠さない
 - アプリの側：属性が1つ増えるだけで、見た目と動作は変わらない。ハイドレーションの前にファイルを落とすと、ブラウザが既定の動作でファイルを開く点は前から同じ（人の操作でこの間に落とすことはまずない）
+
+## TS-12 移行の後片付けを確かめるテストを消した（ユーザーの決定、2026-10-24）
+
+- 消したテスト：A4（Vercel の文字列）、A5（ミラー用の環境変数名）、C6 の「IBM Plex が残っていない」、C5 の「旧 OGP の枠の画像がない」、D5 の「unlibra.github.io の URL がない」、D6 の2件（消した作品と X 風の文言・部品）、ui-revise13 1（旧い色の名前）、remove-tw-palette の「ビルドに痕跡がない」、ui-revise7 8' のうち「Heroicons と Lucide がない」の部分、F5 のうち README の旧い語の検査（LICENSE へのリンクの確認は残した）
+- 理由：移行は済み、戻る見込みが低い。一度通れば価値が小さい（docs/decisions/seo-perf-workflows/seo-perf-workflows.md、SP-9）
+- 残したもの：旧 URL のリダイレクトと 404 のテスト（今も配信している動作）。本番確認の `x-vercel-id` の検査（`scripts/check-prod.mjs`、TS-8）はテストでなく本番の検査なので、今回は触っていない
