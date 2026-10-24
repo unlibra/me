@@ -8,7 +8,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  FALLBACK_ATTRIBUTE,
+  fallbackLink,
   FAMILY,
   METRIC_OVERRIDES,
   STYLE_ATTRIBUTE,
@@ -98,21 +98,24 @@ test("SP-14: the stylesheets that pages wait for have no Fontsource rules of Not
   }
 });
 
-test("SP-14: every page links the Fontsource rules without waiting for them, before the cut files", () => {
+test("SP-14, SP-15: every page links the Fontsource rules once it has loaded, before the cut files", () => {
   for (const page of pages) {
     const html = readFileSync(join(dist, page), "utf8");
     const head = html.slice(0, html.indexOf("</head>"));
-    const link = head.match(
-      new RegExp(
-        `<link rel="stylesheet" href="(/_astro/noto-sans-jp-fallback\\.[0-9a-f]{8}\\.css)" media="print" onload="this\\.media='all'" ${FALLBACK_ATTRIBUTE}><noscript><link rel="stylesheet" href="\\1"></noscript>`,
-      ),
-    );
-    assert.ok(link, page);
-    // Earlier in the document, so the cut files win where both have a
-    // character (the order of the style sheets, CSS Fonts 4, 4.5).
-    assert.ok(link.index < head.indexOf(`<style ${STYLE_ATTRIBUTE}>`), page);
+    const href = head.match(
+      /\/_astro\/noto-sans-jp-fallback\.[0-9a-f]{8}\.css/,
+    )?.[0];
+    assert.ok(href, page);
+    // Added by the script after the load event (a plain link only in
+    // <noscript>), in the script's place: earlier in the document, so the
+    // cut files win where both have a character (the order of the style
+    // sheets, CSS Fonts 4, 4.5).
+    const at = head.indexOf(fallbackLink(href));
+    assert.ok(at >= 0, page);
+    assert.ok(at < head.indexOf(`<style ${STYLE_ATTRIBUTE}>`), page);
+    assert.equal(head.split(href).length - 1, 2, page);
     // The file has every Fontsource rule, with the metric overrides.
-    const rules = readDist(link[1].slice(1)).match(/@font-face\{[^}]*\}/g);
+    const rules = readDist(href.slice(1)).match(/@font-face\{[^}]*\}/g);
     assert.equal(rules.length, sourceFaces.length, page);
     for (const rule of rules) {
       assert.ok(rule.includes(FAMILY), rule);
