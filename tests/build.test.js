@@ -302,31 +302,3 @@ test("IndexNow: the key file is at the site root, holding only its own key", () 
   const key = "67426e8c4c044cef96ebc2f901da0154";
   assert.equal(readDist(`${key}.txt`), key);
 });
-
-test("npm overrides: each holds only while the package's own version is older", () => {
-  // miniflare (under wrangler) pins undici 7.29.1, which has a high-severity
-  // advisory fixed in 7.30.1 (seo-perf-workflows.md, SP-19). The override
-  // must go once miniflare asks for the fixed version or later: it would
-  // then hold undici back.
-  const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-  assert.deepEqual(pkg.overrides, { miniflare: { undici: "7.30.1" } });
-  const version = (v) => v.split(".").map(Number);
-  const older = (a, b) => {
-    const [x, y] = [version(a), version(b)];
-    const i = x.findIndex((n, k) => n !== y[k]);
-    return i >= 0 && x[i] < y[i];
-  };
-  const miniflare = JSON.parse(
-    readFileSync(join(root, "node_modules/miniflare/package.json"), "utf8"),
-  );
-  const own = miniflare.dependencies.undici;
-  assert.match(own, /^\d+\.\d+\.\d+$/, "miniflare pins an exact version");
-  assert.ok(older(own, "7.30.1"), `miniflare asks for undici ${own}`);
-  // The undici miniflare loads: its own copy, or the hoisted one.
-  const nested = join(root, "node_modules/miniflare/node_modules/undici");
-  const dir = existsSync(nested) ? nested : join(root, "node_modules/undici");
-  const installed = JSON.parse(
-    readFileSync(join(dir, "package.json"), "utf8"),
-  ).version;
-  assert.equal(installed, "7.30.1");
-});

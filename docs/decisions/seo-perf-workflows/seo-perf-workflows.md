@@ -149,7 +149,3 @@ IndexNow はキーのファイルを置いているだけで、URL を送った�
 - docs.unlibra.com：i18n-tiny と tkinter-unblur はそれぞれのデプロイのワークフローで、変わった `.md` から URL を決めて送る。docs.unlibra.com のトップと mururu のマニュアルは、unlibra.github.io のワークフローが Pages の公開のあとに、変わった HTML の本文を比べて送る。
 
 追記（ユーザーの決定）：`indexnow.yml` に `paths-ignore` を足し、ページの元にならないファイル（`tests/`、`docs/`、最上位の `*.md`、`.github/`、ESLint・Playwright・Prettier の設定）だけを変えた push では動かない。どれもビルドの入力（`src/`、`public/`、`scripts/`、Astro・npm・TypeScript・Node の設定）に当たらないことを `tests/indexnow.test.js` が確かめる。push の前後を両方ビルドする方式は変えない（1回約 75 秒。ファイルの変更からページを決める対応表は、共有の部品やデータの変更で漏れやすい）。
-
-## SP-19 undici を上書きで上げた（ユーザーの決定）
-
-Dependabot のアラート（high、undici 7.29.1。修正は 7.30.1）は、wrangler の miniflare が undici を 7.29.1 に固定していて（最新の miniflare も同じ）、Dependabot では上げられなかった。開発用の依存で、サイトの配信物には入らない。`package.json` の `overrides` で miniflare の undici だけを 7.30.1 にした（astro の unifont が使う undici 8 は別）。E2E（`wrangler dev` を使う）を含むテストはすべて通った。miniflare が 7.30.1 以降を求めるようになったら、この上書きはかえって undici を古いままにするので、`tests/build.test.js` が落ちて外すことを知らせる。
