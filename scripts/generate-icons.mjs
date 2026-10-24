@@ -4,7 +4,7 @@
 //   npm run generate:icons
 //
 // Input:   src/assets/brand/symbol.svg
-// Outputs (committed): public/icon.svg, public/favicon.ico,
+// Outputs (committed): public/favicon.svg, public/favicon.ico,
 //   public/apple-touch-icon.png
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -47,9 +47,9 @@ const ico = (images) => {
   return Buffer.concat([header, ...images.map((image) => image.data)]);
 };
 
-// icon.svg: the symbol with an explicit size, as the previous icon had.
+// favicon.svg: the symbol with an explicit size, as the previous icon had.
 writeFileSync(
-  join(publicDir, "icon.svg"),
+  join(publicDir, "favicon.svg"),
   symbolSvg
     .toString("utf8")
     .trim()
@@ -74,4 +74,4 @@ await sharp(await symbolPng(180))
   .png()
   .toFile(join(publicDir, "apple-touch-icon.png"));
 
-console.log("Generated icon.svg, favicon.ico, apple-touch-icon.png");
+console.log("Generated favicon.svg, favicon.ico, apple-touch-icon.png");

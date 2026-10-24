@@ -134,3 +134,7 @@ Lighthouse（ローカル、HTTP/2、モバイル、5回の中央値。SP-14 の
 - 消したもの：`scripts/subset-brand-font.mjs`（ビルドのたびに作るサブセット、SP-11）、`global.css` の `@font-face` と `--font-brand`、`DERIVED_ASSETS` と `LICENSE_NOTES` の LINE Seed JP の項目（配信しなくなったので、サードパーティライセンス一覧からも外れる）。LICENSE の4章は、ロゴタイプの SVG が LINE Seed JP（SIL OFL 1.1）の輪郭であることを書く。
 - 見た目：変更前後の画面（1280px と 375px、ライトとダーク、ヘッダー・フッター・モバイルのメニュー）で、リンクの位置と大きさは同じ（幅は 0.02px 以下の差）。画素の差はアンチエイリアスの範囲。フッターのリンクの hover の下線は、SVG には引かれない（変更前は文字に引かれた）。
 - OGP：`scripts/generate-icons.mjs` は OGP 画像（`public/ogp.png`）も作っていたが、今の画像は手で差し替えたもので、スクリプトを走らせると上書きされる（477e92c で一度起き、46ca508 で戻した）。OGP の生成をスクリプトから外し、アイコン（`icon.svg`、`favicon.ico`、`apple-touch-icon.png`）だけを作るようにした。
+
+## SP-17 SVG のファビコンを favicon.svg にした（ユーザーの決定）
+
+`public/icon.svg` は `src/assets/brand/symbol.svg`（ページに埋め込むマーク）に `width`・`height` を足しただけのファビコンで、名前からは分けている理由がわからなかった。ファビコン専用だとわかるように `public/favicon.svg` にした（`BaseLayout.astro` のリンク、`_headers` のキャッシュ、`scripts/generate-icons.mjs`、テスト）。docs.unlibra.com にも同じ `favicon.svg` を置き、docs のサイトのファビコンはそれを指す（`brand/symbol.svg` はナビのロゴとして残す）。
