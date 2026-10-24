@@ -147,3 +147,5 @@ IndexNow はキーのファイルを置いているだけで、URL を送った�
 - Cloudflare の Crawler Hints（キャッシュのミスで送る）は、変わったページだけを送るものではない。ダッシュボードの設定なので、使うかはユーザーが決める。
 - 確かめたこと：`submit()` で、今日変わったクレジットのページを1件送り、IndexNow は 200 を返した。ワークフローそのものは main に入ってから初めて動く。
 - docs.unlibra.com：i18n-tiny と tkinter-unblur はそれぞれのデプロイのワークフローで、変わった `.md` から URL を決めて送る。docs.unlibra.com のトップと mururu のマニュアルは、unlibra.github.io のワークフローが Pages の公開のあとに、変わった HTML の本文を比べて送る。
+
+追記（ユーザーの決定）：`indexnow.yml` に `paths-ignore` を足し、ページの元にならないファイル（`tests/`、`docs/`、最上位の `*.md`、`.github/`、ESLint・Playwright・Prettier の設定）だけを変えた push では動かない。どれもビルドの入力（`src/`、`public/`、`scripts/`、Astro・npm・TypeScript・Node の設定）に当たらないことを `tests/indexnow.test.js` が確かめる。push の前後を両方ビルドする方式は変えない（1回約 75 秒。ファイルの変更からページを決める対応表は、共有の部品やデータの変更で漏れやすい）。

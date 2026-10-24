@@ -12,6 +12,17 @@ name: IndexNow
 on:
   push:
     branches: [main]
+    # Files no page is built from: a push that changes only these does not
+    # run (tests/indexnow.test.js checks that none feeds the build). "*.md"
+    # is the top folder only, not src/pages/privacy.md.
+    paths-ignore:
+      - "tests/**"
+      - "docs/**"
+      - "*.md"
+      - ".github/**"
+      - "eslint.config.js"
+      - "playwright.config.js"
+      - ".prettierrc"
 
 permissions:
   contents: read
