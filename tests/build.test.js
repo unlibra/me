@@ -142,6 +142,8 @@ test("A8: _headers has the security headers and immutable cache for /_astro/*", 
   assert.deepEqual(rules["/*"], {
     "x-content-type-options": "nosniff",
     "x-frame-options": "DENY",
+    "content-security-policy":
+      "frame-ancestors 'none'; object-src 'none'; base-uri 'self'",
     "x-xss-protection": "1; mode=block",
     "referrer-policy": "strict-origin-when-cross-origin",
     "permissions-policy": "camera=(), microphone=(), geolocation=()",

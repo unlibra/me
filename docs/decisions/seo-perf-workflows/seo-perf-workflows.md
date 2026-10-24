@@ -99,3 +99,9 @@ I5 は `docs/decisions/tests/plan.md` のブロック4の条件で、push と pu
 ## SP-12 クレジットのライセンスを全文へのリンクにした（ユーザーの決定）
 
 クレジットのグラフィック素材から「参照先」（素材のサイトの URL）を消し、ライセンスの名前（MIT License など）を、このリポジトリの `LICENSES/` にある全文（GitHub の main）へのリンクにした。リンク先のファイルは LICENSE の2章の「The full text is in」と同じで、テストが一致とファイルの存在を確かめる。
+
+## SP-13 最小限の CSP を入れた（ユーザーの決定）
+
+SP-6 で見送った CSP のうち、スクリプトとスタイルに関わらない3つだけを `public/_headers` の `/*` に足した：`frame-ancestors 'none'`（`X-Frame-Options: DENY` と同じ。古いブラウザのため X-Frame-Options も残す）、`object-src 'none'`（サイトに `<object>`・`<embed>` はない）、`base-uri 'self'`（`<base>` はない）。インラインのスクリプトや Cloudflare が差し込むスクリプトには影響しない。本番の定期チェック（`check-prod.mjs`）が `_headers` のとおりに送られているかを毎日確かめる。
+
+docs.unlibra.com（GitHub Pages）は Cloudflare を通らず GitHub から直接配信されていて、ヘッダーを足せない。`<meta>` の CSP では `frame-ancestors` が効かないため、入れていない。
