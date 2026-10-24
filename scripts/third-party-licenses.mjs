@@ -74,12 +74,15 @@ export const OUTSIDE_MODULE_GRAPH = {
 };
 
 /**
- * License texts for shipped packages that have no license file. Keyed by
- * name@version so that an upgrade is checked again. The note is shown in the
- * list.
+ * License texts for shipped packages that have no license file, keyed by
+ * name. The text is made from `license` and `author`, which must be those
+ * of the installed package.json (any version): when an upgrade changes them,
+ * the build stops. The note is shown in the list.
  */
 export const LICENSE_FALLBACKS = {
-  "boolbase@1.0.0": {
+  boolbase: {
+    license: "ISC",
+    author: "Felix Boehm <me@feedic.com>",
     note:
       "The package has no license file. The license text below is the ISC " +
       'License template, filled in from "license" and "author" in its ' +
@@ -143,13 +146,12 @@ const isDerivedAsset = (file, projectRoot) =>
 
 /**
  * Notes added to a package's section, for what its license files do not say.
- * Keyed by name@version so that an upgrade is checked again (the tests fail
- * when the installed version has no entry).
+ * Keyed by name; the tests check that each note is true of the shipped files.
  */
 export const LICENSE_NOTES = {
   // The package's LICENSE file is Fontsource's template ("Google Inc."); the
   // font files themselves name the copyright holder (name table, ID 0).
-  "@fontsource/line-seed-jp@5.3.2": {
+  "@fontsource/line-seed-jp": {
     note:
       'The copyright notice in the font files is "© LY Corporation". The ' +
       "license file below is the one in the npm package.",
@@ -276,7 +278,7 @@ export function readLicense(
   notes = LICENSE_NOTES,
 ) {
   const pkg = readPackageJson(dir);
-  const extra = notes[`${pkg.name}@${pkg.version}`]?.note ?? "";
+  const extra = notes[pkg.name]?.note ?? "";
   const withNote = ({ texts, note }) => ({
     texts,
     note: [note, extra].filter(Boolean).join(" "),
@@ -303,8 +305,15 @@ export function readLicense(
       note: cut.note,
     });
   }
-  const fallback = fallbacks[`${pkg.name}@${pkg.version}`];
+  const fallback = fallbacks[pkg.name];
   if (fallback) {
+    for (const field of ["license", "author"]) {
+      if (pkg[field] !== fallback[field]) {
+        throw new Error(
+          `${LICENSES_FILE}: ${pkg.name}@${pkg.version}: its ${field} is ${JSON.stringify(pkg[field])}, but LICENSE_FALLBACKS has ${JSON.stringify(fallback[field])}. Check its license text.`,
+        );
+      }
+    }
     return withNote({ texts: [fallback.text.trim()], note: fallback.note });
   }
   throw new Error(

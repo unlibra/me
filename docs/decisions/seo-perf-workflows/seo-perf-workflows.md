@@ -87,4 +87,4 @@ I5 は `docs/decisions/tests/plan.md` のブロック4の条件で、push と pu
 - Tabler Icons：版を書かない（LICENSE、クレジット、アイコンのコメント）。MIT は版の表記を求めず、コピーした分のライセンスは変わらない。`@tabler/icons` と `@tabler/icons-react` は更新しない（`.github/dependabot.yml` の `ignore`）。いつの間にか絵柄が変わるのを避けるため。テストは、`LICENSES/Tabler-MIT.txt` と著作権の行がパッケージのものと一致すること、コピーしたアイコンがパッケージと同じであることを確かめる。
 - `PREBUNDLED`（svgo と JSZip）：同梱するパッケージを手で書くのをやめ、依存関係（間接のもの、すべての版）から集める（`bundledDependencies`）。手で書くのは、バンドルに入らない依存（svgo の `commander`・`picocolors`、JSZip の `readable-stream`）だけで、その依存の依存も除く。版が上がっても、増えた依存は自動で載る。バンドルにない依存が載ることはありうるが、害はない（FX-8 と同じ考え）。除いた依存が、のちにバンドルに入るようになっても気づけない（限界）。変更の時点で、集めた一覧は手で書いた一覧と同じだった。
 - テストの版の固定（jszip と react の版、css-tree と mdn-data の版、svgo の版）は、入っている版から読むようにした。
-- 残り：`LICENSE_NOTES` の `@fontsource/line-seed-jp@5.3.2` と `LICENSE_FALLBACKS` の `boolbase@1.0.0` は、キーに版を含む。前者はロゴ用に削ったフォント（`src/assets/fonts/`、コミット済み）の元の版なので、上げるとテストが落ちる。扱いはユーザーに確認する。
+- `LICENSE_NOTES` と `LICENSE_FALLBACKS` のキーから版を外した（ユーザーの決定）。`LICENSE_FALLBACKS` の項目は、文の元にした `license` と `author` を持ち、入っている package.json と違えばビルドを止める（版が上がっても、この2つが同じなら文はそのまま正しい）。`LICENSE_NOTES` の LINE Seed JP の注記（フォントの著作権表示は「© LY Corporation」）は、テストが、配信するフォントと、入っているパッケージのフォントの両方で確かめる
