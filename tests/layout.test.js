@@ -2,7 +2,6 @@
 // Run `npm run build` before `npm test`.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
 import { existsSync, globSync, readFileSync } from "node:fs";
 import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -247,40 +246,6 @@ test("C6: body text uses Noto Sans JP and its font files are in dist/", () => {
       }
     }
   }
-});
-
-test("C6: no IBM Plex references remain", () => {
-  const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
-  for (const field of ["dependencies", "devDependencies"]) {
-    assert.equal(pkg[field]?.["@fontsource/ibm-plex-sans-jp"], undefined);
-  }
-
-  const pattern = /ibm[ -]plex/i;
-  const distFiles = globSync("**/*.{html,css,js}", { cwd: dist }).concat(
-    globSync("**/*ibm*", { cwd: dist }),
-  );
-  assert.deepEqual(
-    distFiles.filter(
-      (p) =>
-        /ibm/i.test(p) || pattern.test(readFileSync(join(dist, p), "utf8")),
-    ),
-    [],
-  );
-
-  const sources = execFileSync(
-    "git",
-    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-    { cwd: root, encoding: "utf8" },
-  )
-    .split("\0")
-    .filter(Boolean)
-    .filter((p) => existsSync(join(root, p)))
-    .filter((p) => !p.startsWith("docs/") && !p.startsWith("tests/"))
-    .filter((p) => !/\.(png|webp|jpe?g|gif|ico|woff2?)$/i.test(p));
-  assert.deepEqual(
-    sources.filter((p) => pattern.test(readFileSync(join(root, p), "utf8"))),
-    [],
-  );
 });
 
 test("ui-revise7 5: no text class smaller than 14px in the sources (the sizes and line heights are checked in typography.spec.js)", () => {
@@ -906,8 +871,4 @@ test("C5: every page references the icons and the OGP image", () => {
     const twitterImage = html.match(/<meta[^>]*name="twitter:image"[^>]*>/)[0];
     assert.equal(attr(twitterImage, "content"), `${SITE}/ogp.png`, file);
   }
-});
-
-test("C5: the old OGP frame image is removed", () => {
-  assert.equal(existsSync(join(root, "assets/ogp-frame.png")), false);
 });

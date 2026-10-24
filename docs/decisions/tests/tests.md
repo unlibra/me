@@ -261,6 +261,7 @@
   - E2E の配信は、ローカルと同じ `playwright.config.js` の `webServer`（`wrangler dev`）。`WRANGLER_SEND_METRICS=false` を渡す
   - どこかの手順が失敗したら、`playwright-report/` と `test-results/`（トレース・スクリーンショット）を成果物 `playwright-results` として14日残す（ファイルがなければ何もしない）
   - 上の条件（起動、手順と順序、Chromium だけ、読み取りだけの権限、シークレットなし、`actions/*` を SHA で固定）は `tests/workflow.test.js` がファイルの文面で確かめる。ワークフローを書き換えて条件を外れたら `npm test` が落ちる（条件を1つずつ壊して落ちることを確かめた）
+  - 2026-10-24 追記：ほかのワークフローへの当て方を変えた（自動マージのワークフローだけが書き込める。`docs/decisions/seo-perf-workflows/seo-perf-workflows.md` の SP-8）
 - 根拠：計画のブロック4と親の補足
 - 未検証：GitHub 上での実行（親が push して確かめる）。とくに、Linux のランナーで `wrangler dev`（`workerd`）が起動すること、`npm ci` の時点で `workerd`・`esbuild` の install スクリプトが動くこと（ローカルの npm は「allowScripts で許可されていない install スクリプトがある」と警告を出すが、ローカルでは `wrangler dev` は動いている）
 - 他の選択肢：ジョブを単体テストと E2E に分ける（ビルドが2回になるか、成果物で `dist/` を受け渡すことになる）。Playwright の公式の Docker イメージを使う（`actions/*` だけという条件の外になる）
@@ -310,3 +311,11 @@
 - 直し方：ドロップ領域が、受け口を付けた effect の中で状態を変え、外側の `div` に `data-drop-zone="ready"`（それまでは `"pending"`）を出す。テストの `waitForDropZone`（`helpers.js`）がそれを待つ。`dropFile` と、`favicon-generator.spec.js` の「final-review 2」（ドラッグを直接送るテスト。受け口がないと前半の「数えない」確認が素通りで通ってしまう）で使う
 - 時間で待つ・再試行するのではなく、受け口が付いたことそのものを待つので、原因を隠さない
 - アプリの側：属性が1つ増えるだけで、見た目と動作は変わらない。ハイドレーションの前にファイルを落とすと、ブラウザが既定の動作でファイルを開く点は前から同じ（人の操作でこの間に落とすことはまずない）
+
+## TS-12 移行の後片付けを確かめるテストを消した（ユーザーの決定、2026-10-24）
+
+- 消したテスト：A4（Vercel の文字列）、A5（ミラー用の環境変数名）、C6 の「IBM Plex が残っていない」、C5 の「旧 OGP の枠の画像がない」、D5 の「unlibra.github.io の URL がない」、D6 の2件（消した作品と X 風の文言・部品）、ui-revise13 1（旧い色の名前）、remove-tw-palette の「ビルドに痕跡がない」、ui-revise7 8' のうち「Heroicons と Lucide がない」の部分、F5 のうち README の旧い語の検査（LICENSE へのリンクの確認は残した）
+- 理由：移行は済み、戻る見込みが低い。一度通れば価値が小さい（docs/decisions/seo-perf-workflows/seo-perf-workflows.md、SP-9）
+- 残したもの：旧 URL のリダイレクトと 404 のテスト（今も配信している動作）
+- 本番確認の `x-vercel-id` の検査（`scripts/check-prod.mjs`、TS-8）も消した（ユーザーの決定。Vercel は使わず、コードにもない）
+- ui-revise7 8' は、Tabler Icons の版を 3.49.0 に固定して確かめるのをやめた。版は書かず、Tabler は更新しない（SP-10）

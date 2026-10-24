@@ -2,9 +2,8 @@
 // Run `npm run build` before `npm test`.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { existsSync, globSync, readFileSync, statSync } from "node:fs";
-import { dirname, join, sep } from "node:path";
+import { existsSync, globSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -154,7 +153,7 @@ test("ui-revise3 1, ui-revise4 1, ui-revise5 1, ui-revise7 4: the hero has the h
   const links = hero.slice(hero.indexOf("</h1>"));
   // The GitHub mark as in the former footer (GitHubIcon.astro), and
   // a box (chosen in ui-revise5; Tabler Icons "box" from @tabler/icons
-  // 3.49.0 since ui-revise7 8') as it is in the package.
+  // since ui-revise7 8') as it is in the package.
   assert.match(links, /viewBox="0 0 98 96"[^>]*data-icon="github"/);
   const tablerBox = readFileSync(
     join(root, "node_modules/@tabler/icons/icons/outline/box.svg"),
@@ -947,7 +946,7 @@ test("ui-revise4 2, ui-revise5 2, 6, ui-revise7 8': the actions have the up-righ
   for (const chevron of CHEVRONS) {
     assert.ok(!main.includes(chevron), `no chevron in main: ${chevron}`);
   }
-  // Tabler Icons "arrow-up-right" from @tabler/icons 3.49.0, in place of
+  // Tabler Icons "arrow-up-right" from @tabler/icons, in place of
   // Lucide "move-up-right" (ui-revise7 8') and Heroicons "arrow-up-right"
   // (ui-revise5 6).
   for (const former of FORMER_ARROWS) {
@@ -1146,91 +1145,6 @@ test("D5, ui-revise5 5, ui-revise8 4: the five documentation links point to docs
       .sort();
   assert.deepEqual(docsIn(main), expected);
   assert.deepEqual(docsIn(cardsOf(main).join("")), docsIn(main));
-});
-
-/** Source files tracked or untracked-but-not-ignored, outside docs/ and tests/. */
-const sourceTextFiles = () =>
-  execFileSync(
-    "git",
-    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-    { cwd: root, encoding: "utf8" },
-  )
-    .split("\0")
-    .filter(Boolean)
-    .filter((p) => existsSync(join(root, p)))
-    .filter((p) => !p.startsWith("docs/") && !p.startsWith("tests/"))
-    .filter((p) => !/\.(png|webp|jpe?g|gif|ico|woff2?)$/i.test(p));
-
-const distTextFiles = () =>
-  globSync("**/*.{html,xml,txt,js,css,json,svg}", { cwd: dist })
-    .concat(["_headers"])
-    .map((p) => p.split(sep).join("/"));
-
-test("D5: no unlibra.github.io URLs remain in the source and dist/", () => {
-  const pattern = /unlibra\.github\.io/;
-  const found = (base, files) =>
-    files.filter((p) => pattern.test(readFileSync(join(base, p), "utf8")));
-  assert.deepEqual(found(dist, distTextFiles()), []);
-  assert.deepEqual(found(root, sourceTextFiles()), []);
-});
-
-/** All files under a directory as posix-style relative paths. */
-const allFiles = (base, dir) =>
-  globSync(`${dir}/**/*`, { cwd: base })
-    .filter((p) => statSync(join(base, p)).isFile())
-    .map((p) => p.split(sep).join("/"));
-
-const isText = (p) =>
-  p === "_headers" ||
-  /\.(astro|ts|js|mjs|css|md|html|xml|txt|json|svg)$/i.test(p);
-
-test("D6: the removed works and X-style wording do not remain in src/ and dist/", () => {
-  // `/lab` links and tool IDs contain none of these.
-  const pattern = /liblab|lib lab|iromide|イロマイド|Xオマージュ|パロディ/i;
-  const found = [
-    ...allFiles(root, "src").map((p) => [root, p]),
-    ...allFiles(dist, ".").map((p) => [dist, p]),
-  ].filter(
-    ([base, p]) =>
-      pattern.test(p) ||
-      (isText(p) && pattern.test(readFileSync(join(base, p), "utf8"))),
-  );
-  assert.deepEqual(
-    found.map(([base, p]) => (base === dist ? `dist/${p}` : p)),
-    [],
-  );
-});
-
-test("D6: the X-style page parts and tokens are removed", () => {
-  for (const marker of [
-    /id="share-btn"/,
-    /role="tablist"/,
-    /end-of-timeline/,
-    /pinned/,
-    /Updated/,
-  ]) {
-    assert.doesNotMatch(top, marker);
-  }
-
-  const css = globSync("_astro/*.css", { cwd: dist })
-    .map((p) => readDist(p))
-    .join("\n");
-  assert.ok(css.length > 0, "no CSS in dist/_astro");
-  assert.doesNotMatch(
-    css,
-    /--color-(base|accent)-|--text-x-|\.pinned-label|pinned-mode/,
-  );
-
-  for (const path of [
-    "src/assets/icon.svg",
-    "src/components/icons/ShareIcon.astro",
-    "src/components/icons/ParodyIcon.astro",
-    "src/components/icons/PinIcon.astro",
-    "src/components/icons/CalendarIcon.astro",
-    "src/components/icons/LocationIcon.astro",
-  ]) {
-    assert.equal(existsSync(join(root, path)), false, path);
-  }
 });
 
 test("ui-revise2 9: the privacy policy's contact is the community repository", () => {

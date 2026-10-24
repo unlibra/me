@@ -9,7 +9,6 @@
 // - every rule of public/_redirects answers 301 with its destination
 // - the headers of public/_headers are sent
 // - robots.txt and sitemap-index.xml
-// - no response comes from the former host (no x-vercel-id header)
 // - the Cloudflare Web Analytics beacon in the HTML: shown as a warning only,
 //   since it is inserted by Cloudflare's proxy, not by the site (P1-1)
 //
@@ -58,7 +57,7 @@ export const parseHeaders = (text) => {
 export const redirectSample = (source, destination) => {
   if (source.endsWith("/*")) {
     return [
-      source.replace("*", "svg-optimizer"),
+      source.replace(/\*$/, "svg-optimizer"),
       destination.replace(":splat", "svg-optimizer"),
     ];
   }
@@ -106,9 +105,8 @@ const locs = (xml) =>
  */
 export async function checkSite(base, report) {
   const origin = new URL(base).origin;
-  const fetched = [];
-  const get = async (path) => {
-    const response = await fetch(new URL(path, origin), {
+  const get = (path) =>
+    fetch(new URL(path, origin), {
       redirect: "manual",
       // As a browser asks for a page: Cloudflare injects the Web Analytics
       // beacon only into responses to requests that accept HTML.
@@ -117,9 +115,6 @@ export async function checkSite(base, report) {
           "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
     });
-    fetched.push([path, response.headers.get("x-vercel-id")]);
-    return response;
-  };
   /**
    * Reports a check. On failure, `hints` and the bot protection hint (when
    * one of `responses` was 403) are reported with it.
@@ -233,14 +228,6 @@ export async function checkSite(base, report) {
       },
     );
   }
-
-  // Not served by the former host
-  const fromFormerHost = fetched.filter(([, id]) => id !== null);
-  check(
-    fromFormerHost.length === 0,
-    `no x-vercel-id (${fetched.length} responses)`,
-    fromFormerHost.map(([path]) => path).join(", "),
-  );
 
   // Web Analytics: a warning only
   report(

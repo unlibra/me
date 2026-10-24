@@ -23,7 +23,7 @@ import {
   LICENSES_FILE,
   OUTSIDE_MODULE_GRAPH,
   PREBUNDLED,
-  findDependencyDirs,
+  bundledDependencies,
   packageOfModule,
   packageOfPath,
   readLicense,
@@ -128,21 +128,26 @@ test("H4/H5: the list has exactly the packages the build output ships", () => {
   );
 });
 
-test("H4: packages that svgo bundles at two versions are listed at both", () => {
-  // css-tree 3 for svgo itself, css-tree 2 under csso (with their mdn-data).
-  const listed = listedPackages().map((p) => `${p.name} ${p.version}`);
-  for (const entry of [
-    "css-tree 2.2.1",
-    "css-tree 3.2.1",
-    "mdn-data 2.0.28",
-    "mdn-data 2.27.1",
-  ]) {
-    assert.ok(listed.includes(entry), entry);
+test("H4: every package that a prebuilt bundle contains is listed, at each of its versions", () => {
+  const listed = listedPackages().map((p) => `${p.name}@${p.version}`);
+  for (const [name, { file, exclude }] of Object.entries(PREBUNDLED)) {
+    const dir = join(root, "node_modules", name);
+    const { version } = JSON.parse(
+      readFileSync(join(dir, "package.json"), "utf8"),
+    );
+    for (const spec of bundledDependencies(dir, exclude).keys()) {
+      assert.ok(listed.includes(spec), spec);
+      const at = spec.lastIndexOf("@");
+      assert.ok(
+        sectionOf(spec.slice(0, at), spec.slice(at + 1)).includes(
+          `part of ${name} ${version} (${file})`,
+        ),
+        spec,
+      );
+    }
   }
-  assert.match(
-    sectionOf("css-tree", "2.2.1"),
-    /^Included as: part of svgo 4\.1\.0 /m,
-  );
+  // svgo bundles css-tree at two versions (its own and csso's).
+  assert.equal(listedPackages().filter((p) => p.name === "css-tree").length, 2);
 });
 
 test("H4: the bundler's runtime helpers are listed", () => {
@@ -152,8 +157,8 @@ test("H4: the bundler's runtime helpers are listed", () => {
 
 test("H4: license expressions are not wrapped in a second pair of parentheses", () => {
   assert.doesNotMatch(list, /\(\(/);
-  assert.match(list, /^ {2}- jszip 3\.10\.2 \(MIT OR GPL-3\.0-or-later\)$/m);
-  assert.match(list, /^ {2}- react 19\.3\.1 \(MIT\)$/m);
+  assert.match(list, /^ {2}- jszip \S+ \(MIT OR GPL-3\.0-or-later\)$/m);
+  assert.match(list, /^ {2}- react \S+ \(MIT\)$/m);
 });
 
 test("H5: no build-only package is in the list", () => {
@@ -189,20 +194,39 @@ test("H6: a package without a license file stops the build", () => {
     mkdirSync(pkgDir, { recursive: true });
     writeFileSync(
       join(pkgDir, "package.json"),
-      JSON.stringify({ name: "no-license", version: "1.0.0" }),
+      JSON.stringify({
+        name: "no-license",
+        version: "1.0.0",
+        license: "MIT",
+        author: "Someone",
+      }),
     );
     writeFileSync(join(pkgDir, "README.md"), "MIT");
     assert.throws(
       () => readLicense(pkgDir),
       /no-license@1\.0\.0.*no license file/,
     );
-    // A fallback text is used when there is one.
-    assert.deepEqual(
-      readLicense(pkgDir, {
-        "no-license@1.0.0": { note: "Made up.", text: "Text\n" },
-      }),
-      { texts: ["Text"], note: "Made up." },
-    );
+    // A fallback text is used when there is one, at any version, while the
+    // package's license and author are those the text is made from.
+    const fallback = {
+      license: "MIT",
+      author: "Someone",
+      note: "Made up.",
+      text: "Text\n",
+    };
+    assert.deepEqual(readLicense(pkgDir, { "no-license": fallback }), {
+      texts: ["Text"],
+      note: "Made up.",
+    });
+    for (const field of ["license", "author"]) {
+      assert.throws(
+        () =>
+          readLicense(pkgDir, {
+            "no-license": { ...fallback, [field]: "Other" },
+          }),
+        new RegExp(`no-license@1\\.0\\.0: its ${field} is`),
+      );
+    }
     // License and notice files are all read.
     writeFileSync(join(pkgDir, "LICENSE.md"), "License\n");
     writeFileSync(join(pkgDir, "NOTICE"), "Notice\n");
@@ -216,18 +240,22 @@ test("H6: a package without a license file stops the build", () => {
 });
 
 test("H6: each license fallback is for a shipped package that has no license file", () => {
-  const listed = new Set(listedPackages().map((p) => `${p.name}@${p.version}`));
+  const listed = new Set(listedPackages().map((p) => p.name));
   for (const key of Object.keys(LICENSE_FALLBACKS)) {
     assert.ok(listed.has(key), key);
-    const name = key.slice(0, key.lastIndexOf("@"));
     assert.deepEqual(
       globSync("{LICEN[CS]E,licen[cs]e,COPYING,NOTICE}*", {
-        cwd: join(root, "node_modules", name),
+        cwd: join(root, "node_modules", key),
       }),
       [],
       key,
     );
-    const section = sectionOf(name);
+    // The text names the author, as the package.json does.
+    assert.ok(
+      LICENSE_FALLBACKS[key].text.includes(LICENSE_FALLBACKS[key].author),
+      key,
+    );
+    const section = sectionOf(key);
     assert.ok(section.includes(LICENSE_FALLBACKS[key].text.trim()), key);
     assert.ok(section.includes(`Note: ${LICENSE_FALLBACKS[key].note}`), key);
   }
@@ -277,12 +305,8 @@ test("the reasons for the hand-listed packages still hold", () => {
   // Tailwind's preflight
   assert.match(css, /box-sizing:border-box;border:0 solid;margin:0;padding:0/);
 
-  // PREBUNDLED: the bundles are shipped, at the versions that were checked.
-  for (const [name, { version, file }] of Object.entries(PREBUNDLED)) {
-    const installed = JSON.parse(
-      readFileSync(join(root, "node_modules", name, "package.json"), "utf8"),
-    ).version;
-    assert.equal(installed, version, name);
+  // PREBUNDLED: the bundles are shipped.
+  for (const [name, { file }] of Object.entries(PREBUNDLED)) {
     const base = file.split("/").pop().replace(/\.js$/, "");
     assert.equal(
       globSync(`_astro/${base}.*.js`, { cwd: dist }).length,
@@ -324,18 +348,23 @@ test("H7: LICENSE section 4 points to the list on the website", () => {
   assert.match(section4, /scripts\/third-party-licenses\.mjs/);
 });
 
-test("findDependencyDirs finds each name@version, also when nested", () => {
+test("bundledDependencies finds each name@version, also when nested, without the excluded ones and theirs", () => {
   const svgo = join(root, "node_modules", "svgo");
-  const found = findDependencyDirs(svgo, ["css-tree@3.2.1", "css-tree@2.2.1"]);
-  assert.equal(found.size, 2);
-  assert.match(
-    found.get("css-tree@2.2.1").replaceAll("\\", "/"),
-    /node_modules\/csso\/node_modules\/css-tree$/,
-  );
-  assert.throws(
-    () => findDependencyDirs(svgo, ["css-tree@9.9.9"]),
-    /css-tree@9\.9\.9/,
-  );
+  const found = bundledDependencies(svgo, PREBUNDLED.svgo.exclude);
+  const dirs = [...found.values()].map((dir) => dir.replaceAll("\\", "/"));
+  assert.ok(dirs.some((d) => /\/node_modules\/css-tree$/.test(d)));
+  assert.ok(dirs.some((d) => /\/csso\/node_modules\/css-tree$/.test(d)));
+  const names = (map) =>
+    [...map.keys()].map((spec) => spec.slice(0, spec.lastIndexOf("@")));
+  assert.ok(names(found).includes("css-select"));
+  assert.ok(!names(found).includes("commander"));
+  // An excluded package's own dependencies go with it.
+  const jszip = join(root, "node_modules", "jszip");
+  assert.ok(names(bundledDependencies(jszip)).includes("util-deprecate"));
+  const without = names(bundledDependencies(jszip, ["readable-stream"]));
+  assert.ok(!without.includes("readable-stream"));
+  assert.ok(!without.includes("util-deprecate"));
+  assert.ok(without.includes("pako"));
 });
 
 test("packageOfModule maps known virtual modules and stops on unknown ones", () => {
@@ -403,11 +432,12 @@ test("H4: rolldown's entry also has its THIRD-PARTY-LICENSE (Rollup's MIT)", () 
 
 test("ui-revise2 L5: LINE Seed JP's section notes the font's own copyright holder", () => {
   const dir = join(root, "node_modules/@fontsource/line-seed-jp");
-  const { version } = JSON.parse(
-    readFileSync(join(dir, "package.json"), "utf8"),
+  assert.ok(LICENSE_NOTES["@fontsource/line-seed-jp"]);
+  // The note holds for the installed package's font file too.
+  const source = readFileSync(
+    join(dir, "files/line-seed-jp-latin-700-normal.woff2"),
   );
-  // The note is for the installed version (an upgrade is checked again).
-  assert.ok(LICENSE_NOTES[`@fontsource/line-seed-jp@${version}`], version);
+  assert.equal(nameOf(woff2Tables(source).name, 0), "© LY Corporation");
   // The copyright in the shipped font file (the subset of "unlibra").
   const fonts = globSync("_astro/line-seed-jp-*.woff2", { cwd: dist });
   assert.equal(fonts.length, 1, "LINE Seed JP files in dist/");
@@ -447,19 +477,16 @@ test("readLicense adds a LICENSE_NOTES note to the license's own note", () => {
       JSON.stringify({ name: "noted", version: "1.0.0", license: "MIT" }),
     );
     writeFileSync(join(dir, "LICENSE"), "The license text\n");
-    const notes = { "noted@1.0.0": { note: "Extra." } };
+    const notes = { noted: { note: "Extra." } };
     assert.deepEqual(readLicense(dir, {}, {}, notes), {
       texts: ["The license text"],
       note: "Extra.",
     });
-    // Another version gets no note.
-    assert.deepEqual(
-      readLicense(dir, {}, {}, { "noted@0.9.0": notes["noted@1.0.0"] }),
-      {
-        texts: ["The license text"],
-        note: "",
-      },
-    );
+    // Another package gets no note.
+    assert.deepEqual(readLicense(dir, {}, {}, { other: notes.noted }), {
+      texts: ["The license text"],
+      note: "",
+    });
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

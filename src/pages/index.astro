@@ -4,6 +4,8 @@ import BoxIcon from "@/components/icons/BoxIcon.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import WorkList from "@/components/works/WorkList.astro";
 import messages from "@/messages/ja";
+import { serializeJsonLd } from "@/components/ui/json-ld";
+import { profile } from "@/config/profile";
 import { site } from "@/config/site";
 import { categories, works } from "@/config/works";
 
@@ -54,6 +56,24 @@ const catchCopyParts = [
   { text: catchCopy[3], part: "night", color: "dark:text-catch-night" },
   { text: catchCopy[4] },
 ];
+
+/**
+ * Who runs the site and where else they are (search engines and AI answer
+ * engines connect the site to the GitHub and BOOTH accounts through sameAs).
+ */
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: site.title,
+  url: site.url,
+  inLanguage: "ja",
+  author: {
+    "@type": "Person",
+    name: profile.name,
+    url: site.url,
+    sameAs: [site.links.github, site.links.booth],
+  },
+};
 
 const link =
   "outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
@@ -137,4 +157,9 @@ const link =
       ))}
     </div>
   </main>
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={serializeJsonLd(structuredData)}
+  />
 </BaseLayout>

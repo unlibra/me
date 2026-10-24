@@ -5,7 +5,7 @@
 // - JavaScript: the modules of each chunk of the client build
 // - Fonts and other files: the source paths of the emitted assets
 // Code that reaches the output without passing through the module graph is
-// listed by hand (PREBUNDLED, VIRTUAL_MODULES and OUTSIDE_MODULE_GRAPH below).
+// listed in PREBUNDLED, VIRTUAL_MODULES and OUTSIDE_MODULE_GRAPH below.
 //
 // The build fails when a shipped package has no license file and no
 // LICENSE_FALLBACKS entry, so that no package is left out silently.
@@ -19,43 +19,24 @@ export const LICENSES_FILE = "third-party-licenses.txt";
 /**
  * Packages whose shipped file is their own prebuilt bundle, which contains
  * other packages that the module graph cannot see. Keyed by package name.
- * All versions are pinned (a package can be bundled at two versions): after
- * an upgrade, check the bundle again and update this (FX-5, FX-8 in
- * docs/decisions/fixes/fixes.md).
+ * The bundled packages are the package's dependencies (direct or indirect,
+ * at every version installed), except `exclude`: the dependencies that the
+ * bundle leaves out, with their own dependencies. A dependency added by an
+ * upgrade is listed by itself; one that the bundle does not contain is
+ * listed too much, which does no harm (FX-5 and FX-8 in
+ * docs/decisions/fixes/fixes.md, SP-10 in
+ * docs/decisions/seo-perf-workflows/seo-perf-workflows.md).
  */
 export const PREBUNDLED = {
   svgo: {
-    version: "4.1.0",
     file: "dist/svgo.browser.js",
-    packages: [
-      "boolbase@1.0.0",
-      "css-select@6.0.0",
-      "css-tree@3.2.1",
-      // csso's own copy (node_modules/csso/node_modules/), with its data
-      "css-tree@2.2.1",
-      "css-what@7.0.0",
-      "csso@5.0.5",
-      "dom-serializer@2.0.0",
-      "domelementtype@2.3.0",
-      "domhandler@5.0.3",
-      "domutils@3.2.2",
-      "entities@4.5.0",
-      "mdn-data@2.27.1",
-      "mdn-data@2.0.28",
-      "nth-check@2.1.1",
-      "sax@1.6.1",
-      "source-map-js@1.2.2",
-    ],
+    // svgo's command line (Node only)
+    exclude: ["commander", "picocolors"],
   },
   jszip: {
-    version: "3.10.2",
     file: "dist/jszip.min.js",
-    packages: [
-      "immediate@3.0.6",
-      "lie@3.3.0",
-      "pako@1.0.11",
-      "setimmediate@1.0.5",
-    ],
+    // Its browser build replaces `stream` with an empty module.
+    exclude: ["readable-stream"],
   },
 };
 
@@ -93,12 +74,15 @@ export const OUTSIDE_MODULE_GRAPH = {
 };
 
 /**
- * License texts for shipped packages that have no license file. Keyed by
- * name@version so that an upgrade is checked again. The note is shown in the
- * list.
+ * License texts for shipped packages that have no license file, keyed by
+ * name. The text is made from `license` and `author`, which must be those
+ * of the installed package.json (any version): when an upgrade changes them,
+ * the build stops. The note is shown in the list.
  */
 export const LICENSE_FALLBACKS = {
-  "boolbase@1.0.0": {
+  boolbase: {
+    license: "ISC",
+    author: "Felix Boehm <me@feedic.com>",
     note:
       "The package has no license file. The license text below is the ISC " +
       'License template, filled in from "license" and "author" in its ' +
@@ -162,13 +146,12 @@ const isDerivedAsset = (file, projectRoot) =>
 
 /**
  * Notes added to a package's section, for what its license files do not say.
- * Keyed by name@version so that an upgrade is checked again (the tests fail
- * when the installed version has no entry).
+ * Keyed by name; the tests check that each note is true of the shipped files.
  */
 export const LICENSE_NOTES = {
   // The package's LICENSE file is Fontsource's template ("Google Inc."); the
   // font files themselves name the copyright holder (name table, ID 0).
-  "@fontsource/line-seed-jp@5.3.2": {
+  "@fontsource/line-seed-jp": {
     note:
       'The copyright notice in the font files is "© LY Corporation". The ' +
       "license file below is the one in the npm package.",
@@ -254,11 +237,11 @@ export function packageOfModule(id, projectRoot) {
 }
 
 /**
- * The directories of the packages in `specs` (name@version) among the
- * dependencies (direct or indirect) of the package in `rootDir`. Keyed by
- * the spec.
+ * The directories of the dependencies (direct or indirect) of the package
+ * in `rootDir`, keyed by name@version, without the packages named in
+ * `exclude` and the dependencies only they bring in.
  */
-export function findDependencyDirs(rootDir, specs) {
+export function bundledDependencies(rootDir, exclude = []) {
   const found = new Map();
   const visited = new Set();
   const queue = [rootDir];
@@ -268,19 +251,17 @@ export function findDependencyDirs(rootDir, specs) {
     visited.add(dir);
     const pkg = readPackageJson(dir);
     const spec = `${pkg.name}@${pkg.version}`;
-    if (dir !== rootDir && specs.includes(spec) && !found.has(spec)) {
-      found.set(spec, dir);
-    }
+    if (dir !== rootDir && !found.has(spec)) found.set(spec, dir);
     for (const dep of Object.keys(pkg.dependencies ?? {})) {
+      if (exclude.includes(dep)) continue;
       const depDir = findPackageDir(dep, dir);
-      if (depDir) queue.push(depDir);
+      if (!depDir) {
+        throw new Error(
+          `${LICENSES_FILE}: ${dep} (a dependency of ${spec}) is not installed`,
+        );
+      }
+      queue.push(depDir);
     }
-  }
-  const missing = specs.filter((spec) => !found.has(spec));
-  if (missing.length > 0) {
-    throw new Error(
-      `${LICENSES_FILE}: not found among the dependencies of ${rootDir}: ${missing.join(", ")}`,
-    );
   }
   return found;
 }
@@ -297,7 +278,7 @@ export function readLicense(
   notes = LICENSE_NOTES,
 ) {
   const pkg = readPackageJson(dir);
-  const extra = notes[`${pkg.name}@${pkg.version}`]?.note ?? "";
+  const extra = notes[pkg.name]?.note ?? "";
   const withNote = ({ texts, note }) => ({
     texts,
     note: [note, extra].filter(Boolean).join(" "),
@@ -324,8 +305,15 @@ export function readLicense(
       note: cut.note,
     });
   }
-  const fallback = fallbacks[`${pkg.name}@${pkg.version}`];
+  const fallback = fallbacks[pkg.name];
   if (fallback) {
+    for (const field of ["license", "author"]) {
+      if (pkg[field] !== fallback[field]) {
+        throw new Error(
+          `${LICENSES_FILE}: ${pkg.name}@${pkg.version}: its ${field} is ${JSON.stringify(pkg[field])}, but LICENSE_FALLBACKS has ${JSON.stringify(fallback[field])}. Check its license text.`,
+        );
+      }
+    }
     return withNote({ texts: [fallback.text.trim()], note: fallback.note });
   }
   throw new Error(
@@ -449,15 +437,9 @@ export default function thirdPartyLicenses() {
           const prebundled = PREBUNDLED[found.name];
           if (prebundled && found.file === prebundled.file) {
             const { version } = readPackageJson(found.dir);
-            if (version !== prebundled.version) {
-              throw new Error(
-                `${LICENSES_FILE}: ${found.name} is ${version}, but PREBUNDLED lists ${prebundled.version}. ` +
-                  `Check which packages ${prebundled.file} contains and update PREBUNDLED.`,
-              );
-            }
-            for (const [, dir] of findDependencyDirs(
+            for (const [, dir] of bundledDependencies(
               found.dir,
-              prebundled.packages,
+              prebundled.exclude,
             )) {
               add(dir, `part of ${found.name} ${version} (${prebundled.file})`);
             }

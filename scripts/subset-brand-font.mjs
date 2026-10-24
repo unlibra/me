@@ -1,15 +1,15 @@
 // Makes the brand font: LINE Seed JP Bold (from @fontsource/line-seed-jp)
-// cut down to the letters of the logotype "unlibra". Run once with
-// `npm run generate:brand-font` after changing the letters or upgrading the
-// package; the output is kept in the repository (the build does not run
-// this).
+// cut down to the letters of the logotype "unlibra". Astro integration: the
+// file is made when the build (or the dev server) starts, from the
+// installed package, and is not kept in the repository (.gitignore).
+// scripts/generate-icons.mjs makes it the same way.
 //
 // LINE Seed JP is under the SIL Open Font License 1.1 with no Reserved Font
 // Name, so the subset keeps the family name. The subset keeps the font's
 // copyright notice and license URL (name table). The license text is in
 // LICENSES/OFL-1.1.txt. The license is listed in
 // /third-party-licenses.txt (DERIVED_ASSETS in scripts/third-party-licenses.mjs).
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -28,8 +28,8 @@ export const BRAND_FONT_SOURCE =
 export const BRAND_FONT_FILE =
   "src/assets/fonts/line-seed-jp-unlibra-700.woff2";
 
-const isMain = process.argv[1] === fileURLToPath(import.meta.url);
-if (isMain) {
+/** Makes the subset from the installed package and writes BRAND_FONT_FILE. */
+export async function writeBrandFont() {
   const source = readFileSync(join(root, BRAND_FONT_SOURCE));
   const subset = await subsetFont(source, BRAND_FONT_TEXT, {
     targetFormat: "woff2",
@@ -41,8 +41,22 @@ if (isMain) {
     // condition 2). LINE Seed JP has ID 14 only.
     preserveNameIds: [13, 14],
   });
-  writeFileSync(join(root, BRAND_FONT_FILE), subset);
-  console.log(
-    `Wrote ${BRAND_FONT_FILE}: ${subset.length} bytes (from ${source.length} bytes)`,
-  );
+  const file = join(root, BRAND_FONT_FILE);
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, subset);
+  return { file, bytes: subset.length, sourceBytes: source.length };
+}
+
+export default function brandFont() {
+  return {
+    name: "brand-font",
+    hooks: {
+      "astro:config:setup": async ({ logger }) => {
+        const { bytes, sourceBytes } = await writeBrandFont();
+        logger.info(
+          `${BRAND_FONT_FILE}: ${bytes} bytes (from ${sourceBytes} bytes)`,
+        );
+      },
+    },
+  };
 }

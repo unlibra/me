@@ -1,10 +1,10 @@
 ---
 // Credits (ui-revise6 4): Japanese only, like the privacy policy. The
-// materials are those of section 2 of LICENSE (src/config/credits.ts).
+// graphic materials are those of section 2 of LICENSE (src/config/credits.ts).
+// The fonts and the other packages are in the list of the bundled packages.
 import MarkdownLayout from "@/layouts/MarkdownLayout.astro";
 import {
   characters,
-  fonts,
   materials,
   thirdPartyLicensesPath,
 } from "@/config/credits";
@@ -29,8 +29,8 @@ const frontmatter = {
     ))}
   </ul>
 
-  <h2>その他の素材・ライセンス</h2>
-  {[...materials, ...fonts].map(({ name, author, license, url }) => (
+  <h2>グラフィック素材</h2>
+  {materials.map(({ name, author, license, url }) => (
     <section data-credit>
       <h3 data-credit-name>{name}</h3>
       <ul>

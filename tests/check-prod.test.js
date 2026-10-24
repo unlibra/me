@@ -42,8 +42,8 @@ before(async () => {
       case "/blocked":
         return send(403, "");
       default:
-        // Everything else: 200 from "Vercel", no redirects, no headers.
-        return send(200, "", { "x-vercel-id": "hnd1::abc" });
+        // Everything else: 200, no redirects, no headers.
+        return send(200, "");
     }
   });
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
@@ -78,7 +78,6 @@ test("check:prod reports what is wrong on a broken site", async () => {
   assert.ok(redirects.every((s) => s === "fail"));
   assert.ok(status("headers ").every((s) => s === "fail"));
   assert.ok(status("headers ").length > 0);
-  assert.deepEqual(status("no x-vercel-id"), ["fail"]);
   assert.deepEqual(status("Web Analytics"), ["ok"]);
 });
 

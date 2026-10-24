@@ -219,7 +219,7 @@ test.describe("former URLs", () => {
   const sample = (source, destination) => {
     if (source.endsWith("/*")) {
       return [
-        source.replace("*", "svg-optimizer"),
+        source.replace(/\*$/, "svg-optimizer"),
         destination.replace(":splat", "svg-optimizer"),
       ];
     }

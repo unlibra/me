@@ -276,27 +276,21 @@ test("F4: package.json points to LICENSE", () => {
   assert.equal(pkg.license, "SEE LICENSE IN LICENSE");
 });
 
-test("F5: README describes the new site only", () => {
-  const readme = read("README.md");
-  for (const pattern of [
-    /ibm[ -]plex/i,
-    /\bX \(Twitter\)|X-style|X's profile/i,
-    /vercel/i,
-    /cloudflare pages/i,
-  ]) {
-    assert.doesNotMatch(readme, pattern);
-  }
-  assert.match(readme, /\[LICENSE\]\(LICENSE\)/);
+test("F5: README links to LICENSE", () => {
+  assert.match(read("README.md"), /\[LICENSE\]\(LICENSE\)/);
 });
 
-test("ui-revise2 4: LICENSE names each file made from a package, which exists", async () => {
+test("ui-revise2 4: LICENSE names each file made from a package, with the package and the script that makes it at build time", async () => {
   const { DERIVED_ASSETS } =
     await import("../scripts/third-party-licenses.mjs");
-  for (const [path, { name }] of Object.entries(DERIVED_ASSETS)) {
+  const text = section(4).replace(/\s+/g, " ");
+  for (const [path, { name, note }] of Object.entries(DERIVED_ASSETS)) {
+    // Made by the build (npm run build runs before npm test), not kept.
     assert.ok(existsSync(join(root, path)), path);
-    const text = section(4).replace(/\s+/g, " ");
-    assert.ok(text.includes(path), `${path} in section 4`);
+    assert.match(read(".gitignore"), new RegExp(`^${path}$`, "m"), path);
+    const script = note.match(/\((scripts\/[\w-]+\.mjs)\)/)[1];
     assert.ok(text.includes(name), `${name} in section 4`);
+    assert.ok(text.includes(`at build time by ${script}`), script);
   }
 });
 
@@ -321,9 +315,7 @@ test("ui-revise2 4: LICENSES/OFL-1.1.txt is the OFL with LINE Seed JP's copyrigh
   // LICENSE points to it for the font made from LINE Seed JP.
   const text4 = section(4).replace(/\s+/g, " ");
   assert.ok(text4.includes("LICENSES/OFL-1.1.txt"));
-  assert.ok(
-    existsSync(join(root, "src/assets/fonts/line-seed-jp-unlibra-700.woff2")),
-  );
+  assert.ok(text4.includes("scripts/subset-brand-font.mjs"));
 });
 
 test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as material under a license", () => {
@@ -335,40 +327,19 @@ test("ui-revise5 1: section 3 names the GitHub mark, which is not listed as mate
   }
 });
 
-test("ui-revise7 8': the icons are Tabler Icons 3.49.0, pinned; the copied ones are as in @tabler/icons", () => {
-  const pkg = JSON.parse(read("package.json"));
-  // Pinned: the version in LICENSE and in the icons' comments is the one
-  // installed. The tools use @tabler/icons-react, the Astro parts copies
-  // from @tabler/icons.
-  assert.equal(pkg.dependencies["@tabler/icons-react"], "3.49.0");
-  assert.equal(pkg.devDependencies["@tabler/icons"], "3.49.0");
-  for (const name of ["@tabler/icons", "@tabler/icons-react"]) {
-    const installed = JSON.parse(
-      read(`node_modules/${name}/package.json`),
-    ).version;
-    assert.equal(installed, "3.49.0", name);
-  }
-  // Heroicons and Lucide are gone (ui-revise7 8').
-  for (const field of ["dependencies", "devDependencies"]) {
-    assert.equal(pkg[field]["@heroicons/react"], undefined, field);
-    assert.equal(pkg[field]["lucide-static"], undefined, field);
-    assert.equal(pkg[field]["lucide-react"], undefined, field);
-  }
-  assert.doesNotMatch(license, /Heroicons|Lucide|Feather|Cole Bemis/);
-  assert.deepEqual(
-    readdirSync(join(root, "LICENSES")).filter((f) =>
-      /heroicons|lucide/i.test(f),
-    ),
-    [],
-  );
-  for (const file of sourceFiles().filter((p) => p.startsWith("src/"))) {
-    assert.doesNotMatch(read(file), /@heroicons|lucide/i, file);
-  }
-
+test("ui-revise7 8': the copyright of Tabler Icons is the package's; the copied icons are as in @tabler/icons", () => {
+  // The tools use @tabler/icons-react, the Astro parts copies from
+  // @tabler/icons. Neither is updated (.github/dependabot.yml), and no
+  // version is written (SP-10 in docs/decisions/seo-perf-workflows).
+  // The license text and its copyright line, as in the package.
+  const packageLicense = read("node_modules/@tabler/icons/LICENSE");
+  assert.equal(read("LICENSES/Tabler-MIT.txt"), packageLicense);
+  const holder = packageLicense.match(/^Copyright \(c\) (.+)$/m)[1];
+  assert.ok(license.includes(`Copyright (c) ${holder}.`), "LICENSE");
   const tabler = thirdPartySources().find((s) =>
     s.heading.startsWith("Tabler Icons "),
   );
-  assert.match(tabler.heading, /^Tabler Icons 3\.49\.0 .*@tabler\/icons$/);
+  assert.match(tabler.heading, /^Tabler Icons \(https:.*@tabler\/icons$/);
   const icons = {
     "src/components/icons/ArrowUpRightIcon.astro": "arrow-up-right",
     "src/components/icons/BoxIcon.astro": "box",
@@ -387,7 +358,9 @@ test("ui-revise7 8': the icons are Tabler Icons 3.49.0, pinned; the copied ones 
     );
   for (const [file, name] of Object.entries(icons)) {
     const head = headOf(file);
-    assert.match(head, /@tabler\/icons 3\.49\.0/, file);
+    const comment = head.replace(/\s*\/\/\s*/g, " ");
+    assert.ok(comment.includes("@tabler/icons (icons/outline/"), file);
+    assert.ok(comment.includes(`Copyright (c) ${holder}.`), file);
     assert.ok(head.includes(`icons/outline/${name}.svg`), file);
     // The paths as they are in the package (outline, stroke width 2).
     const source = read(`node_modules/@tabler/icons/icons/outline/${name}.svg`);

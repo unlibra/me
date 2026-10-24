@@ -23,7 +23,9 @@ interface Props {
 }
 
 const { work } = Astro.props;
-// The photo is decorative: the title is the heading next to it.
+// The photo is decorative: the title is the heading next to it. It is the
+// largest image above the fold (the LCP element), so it loads first, in the
+// size it is shown at (half of the 7xl layout from md, else the full width).
 const { summary } = messages.works[work.id];
 const photo = isPhoto(work.category);
 ---
@@ -48,6 +50,10 @@ const photo = isPhoto(work.category);
         src={work.image}
         alt=""
         class="size-full object-cover object-center"
+        widths={[400, 600, 800, 1200]}
+        sizes="(min-width: 768px) 600px, 100vw"
+        loading="eager"
+        fetchpriority="high"
       />
     ) : (
       <WorkIcon work={work} size="size-28" />

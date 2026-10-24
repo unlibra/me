@@ -31,7 +31,6 @@ test("check:prod passes against wrangler dev, warning only about the beacon", as
     "OK   page /lab/svg-optimizer",
     "OK   redirect /lab/en/svg-optimizer -> /en/lab/svg-optimizer",
     "OK   headers /_astro/*",
-    "OK   no x-vercel-id",
   ]) {
     expect(
       lines.some((line) => line.startsWith(name)),

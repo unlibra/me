@@ -1,4 +1,4 @@
-// The icons of the tools: Tabler Icons 3.49.0 (outline, from the npm
+// The icons of the tools: Tabler Icons (outline, from the npm
 // package @tabler/icons-react; ui-revise7 8'). The icons are decorative, next
 // to a text or in a button with a name, so they are hidden from assistive
 // technology (as the Heroicons components used before were).
