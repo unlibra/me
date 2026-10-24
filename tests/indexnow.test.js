@@ -12,7 +12,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, posix } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -120,4 +120,50 @@ test("SP-18: the key file is the one IndexNow is told about", () => {
     readFileSync(join(dist, `${INDEXNOW_KEY}.txt`), "utf8"),
     INDEXNOW_KEY,
   );
+});
+
+test("SP-18: the workflow skips only pushes of files no page is built from", () => {
+  const workflow = readFileSync(
+    join(root, ".github/workflows/indexnow.yml"),
+    "utf8",
+  );
+  const ignored = [
+    ...workflow
+      .match(/^ {4}paths-ignore:\n((?: {6}- .+\n)+)/m)[1]
+      .matchAll(/- "([^"]+)"/g),
+  ].map((m) => m[1]);
+  assert.ok(ignored.length > 0, "self-check: patterns found");
+  // What the build reads: the sources, the static files, the build scripts
+  // and the configuration of Astro, npm, TypeScript and Node.
+  const buildInputs = [
+    "src/**",
+    "public/**",
+    "scripts/**",
+    "astro.config.mjs",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    ".node-version",
+    "wrangler.jsonc",
+  ];
+  const files = execFileSync("git", ["ls-files"], {
+    cwd: root,
+    encoding: "utf8",
+  })
+    .split("\n")
+    .filter(Boolean);
+  const matches = (file, globs) =>
+    globs.some((glob) => posix.matchesGlob(file, glob));
+  assert.ok(
+    files.some((file) => matches(file, buildInputs)),
+    "self-check",
+  );
+  assert.deepEqual(
+    files.filter(
+      (file) => matches(file, ignored) && matches(file, buildInputs),
+    ),
+    [],
+  );
+  // The page in Markdown is not skipped.
+  assert.equal(matches("src/pages/privacy.md", ignored), false);
 });
