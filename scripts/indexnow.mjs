@@ -72,22 +72,29 @@ const assetName = (src) =>
  * link targets and images (name and alt) of its <main>.
  */
 export const pageContent = (html) => {
-  const main = (html.match(/<main[\s>][\s\S]*?<\/main>/)?.[0] ?? "")
-    .replace(/<script[\s\S]*?<\/script>/g, "")
-    .replace(/<style[\s\S]*?<\/style>/g, "");
+  const main = html.match(/<main[\s>][\s\S]*?<\/main>/i)?.[0] ?? "";
+  // Read <main> as tokens: a script or style element (skipped whole), a
+  // tag, or text. Nothing is rendered: the result is only compared.
+  const text = [];
+  const tags = [];
+  for (const [token, skipped] of main.matchAll(
+    /<(script|style)\b[\s\S]*?<\/\1\s*>|<[^>]*>|[^<]+/gi,
+  )) {
+    if (skipped) continue;
+    (token.startsWith("<") ? tags : text).push(token);
+  }
   return JSON.stringify({
     title: html.match(/<title>([^<]*)<\/title>/)?.[1] ?? "",
     description:
       html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? "",
-    text: main
-      .replace(/<[^>]*>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim(),
-    links: [...main.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]),
-    images: [...main.matchAll(/<img\s[^>]*>/g)].map(([img]) => [
-      assetName(img.match(/\ssrc="([^"]*)"/)?.[1] ?? ""),
-      img.match(/\salt="([^"]*)"/)?.[1] ?? "",
-    ]),
+    text: text.join(" ").replace(/\s+/g, " ").trim(),
+    links: tags.flatMap((tag) => tag.match(/\shref="([^"]*)"/)?.[1] ?? []),
+    images: tags
+      .filter((tag) => /^<img\s/i.test(tag))
+      .map((img) => [
+        assetName(img.match(/\ssrc="([^"]*)"/)?.[1] ?? ""),
+        img.match(/\salt="([^"]*)"/)?.[1] ?? "",
+      ]),
   });
 };
 
